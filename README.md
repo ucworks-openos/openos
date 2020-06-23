@@ -22,7 +22,8 @@ email : jellyphone@ucware.net
 
 
 ### 라이선스
-본 프로그램은 MIT License로 배포됩니다.
+본 프로그램은 [MIT License]<https://github.com/ucworks-openos/openos/blob/master/LICENSE>로 배포됩니다.
+
 
 ### Dependencies
 
