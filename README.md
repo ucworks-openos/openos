@@ -15,7 +15,7 @@ Nodejs
 
 
 ### Q&A
-
+https://github.com/ucworks-openos/openos/issues
 
 ### 프로젝트 참여방법
 email : jellyphone@ucware.net
@@ -26,3 +26,4 @@ email : jellyphone@ucware.net
 
 ### Dependencies
 
+Updating...
