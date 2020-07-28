@@ -5,30 +5,39 @@ module.exports = {
 	 * 사이트 Config파일을 로드합니다.
 	 */
 	readConfig: function () {
-		const fs = require('fs');
 
-		let rawdata = fs.readFileSync(SITE_CONFIG_FILE);
-		global.SITE_CONFIG = JSON.parse(rawdata);
+		try {
+			const fs = require('fs');
 
-		console.log("siteConfig read completed!", global.SITE_CONFIG)
+			let rawdata = fs.readFileSync(SITE_CONFIG_FILE);
+			global.SITE_CONFIG = JSON.parse(rawdata);
+
+			console.log("siteConfig read completed!", global.SITE_CONFIG)
+		} catch (exception) {
+			console.log("SiteConfig Load Fail! path:" + SITE_CONFIG_FILE, exception);
+		}
 	},
 
 	/**
 	 * 사이트 Config파일을 비동기형식으로 로드합니다.
 	 */
 	readAsyncConfig:function (readCompleted) {
-		const fs = require('fs');
+		try {
+			const fs = require('fs');
 
-		fs.readFile(SITE_CONFIG_FILE, (err, data) => {
-			if (err) {
-				console.log("siteConfig Async Read Fail!", err);
-				throw err;
-			} 
-			global.SITE_CONFIG = JSON.parse(data);
-			console.log("siteConfig read completed!", global.SITE_CONFIG)
+			fs.readFile(SITE_CONFIG_FILE, (err, data) => {
+				if (err) {
+					console.log("siteConfig Async Read Fail!", err);
+					throw err;
+				} 
+				global.SITE_CONFIG = JSON.parse(data);
+				console.log("siteConfig read completed!", global.SITE_CONFIG)
 
-			readCompleted();
-		});
+				readCompleted();
+			});
+		} catch (exception) {
+			console.log("SiteConfig Load Fail! path:" + SITE_CONFIG_FILE, exception);
+		}
 	},
 	
 	/**
