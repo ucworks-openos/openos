@@ -5,7 +5,7 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require("path");
 const isDev = require("electron-is-dev");
 const glob = require('glob');
-const { readConfig } = require("../main-process/configuration/SiteConfig");
+const { readConfig } = require("../main-process/configuration/site-config");
 
 // global.SITE_CONFIG = require('./student.json');
 global.SITE_CONFIG = {
@@ -36,6 +36,8 @@ function initialize () {
         : `file://${path.join(__dirname, "../index.html")}`
     );
     mainWindow.on("closed", () => (mainWindow = null));
+
+    global.MAIN_WINDOW = mainWindow;
   }
 
   app.on("ready", createWindow);

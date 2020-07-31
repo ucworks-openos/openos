@@ -37,8 +37,8 @@ function SideNav () {
 				key: 3
 			},
 			{
-				path: '/NoMatch',
-				name: 'NoMatch',
+				path: '/net-test',
+				name: 'NetTestPage',
 				css: 'fas fa-hashtag',
 				key: 4
 			}];
@@ -49,6 +49,7 @@ function SideNav () {
 
 	
 	const onItemClick = (path) => {
+		console.log('Item Click', path)
 		setActivePath(path); /* Sets activePath which causes rerender which causes CSS to change */
 	}
 
