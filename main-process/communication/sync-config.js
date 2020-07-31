@@ -1,6 +1,6 @@
 
 const {ipcMain} = require('electron')
-const { writeConfig } = require('../configuration/SiteConfig')
+const { writeConfig } = require('../configuration/site-config')
 
 ipcMain.on('saveConfig-req', (event, arg) => {
 
