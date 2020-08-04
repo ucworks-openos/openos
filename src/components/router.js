@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { NavigationBar } from './Navigation/NavigationBar';
-import Sidebar from './Navigation/Sidebar';
+import { NavigationBar } from './_Navigation/NavigationBar';
+import Sidebar from './_Navigation/Sidebar';
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -11,8 +11,8 @@ import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 const HomePage = React.lazy(() => import('./HomePage/HomePage'));
 const AboutPage = React.lazy(() => import('./AboutPage/AboutPage'));
 const NoMatchPage = React.lazy(() => import('./NoMatchPage/NoMatchPage'));
-const SiteConfigPage = React.lazy(() => import('./Navigation/SiteConfigPage'));
-const NetTestPage = React.lazy(() => import('./Navigation/NetTestPage'));
+const SiteConfigPage = React.lazy(() => import('./SiteConfigPage/SiteConfigPage'));
+const NetTestPage = React.lazy(() => import('./NetTestPage/NetTestPage'));
 
 
 function RouterPage() {
