@@ -1,0 +1,31 @@
+.user-row {
+    display: flex;
+    padding: 12px;
+    align-items: center;
+}
+.user-list-title {
+    background-color: #ebedf1;
+    padding: 4px 8px;
+    border-bottom: 1px solid #dfe2e8;
+    cursor: pointer;
+}
+.user-list-num,
+.user-position {
+    margin-left: 8px;
+}
+.user-row .user-profile-state-wrap,
+.user-row .user-pic-wrap {
+    width: 56px;
+}
+.user-department:before {
+    content: "|";
+    color: #d5d7dc;
+    font-size: 0.7rem;
+    vertical-align: 2px;
+    margin: 0px 8px;
+}
+
+.user-list-wrap-hide {
+    display: none;
+    transition: 0.5s;
+}

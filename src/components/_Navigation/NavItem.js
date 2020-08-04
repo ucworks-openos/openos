@@ -2,17 +2,22 @@ import React from 'react';
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
-const NavIcon = styled.div`
-	`;
+// const NavIcon = styled.div``;
 
-const StyledNavItem = styled.div`
-  height: 70px;
-  width: 75px; /* width must be same size as NavBar to center */
-  text-align: center; /* Aligns <a> inside of NavIcon div */
-  margin-bottom: 0;   /* Puts space between NavItems */
-  a {
-    font-size: 2.7em;
-    color: ${(props) => props.active ? "white" : "#9FFFCB"};
+const StyledNavItem = styled.li`
+    width: 100%;
+    height: 56px;
+    cursor: pointer;
+    list-style: none;
+    padding: 12px 16px;
+    :hover {
+      background-color: #F5F6F8;
+    }  
+
+    a {
+    color: ${(props) => props.active ? "#11378D" : "black"};
+    background: ${(props) => props.active && "linear-gradient(to top, transparent 10%, #F9C1C1 10%, #F9C1C1 50%, transparent 50%)"};
+    display: ${(props) => props.active && "inline-block"};
     :hover {
       opacity: 0.7;
       text-decoration: none; /* Gets rid of underlining of icons */
@@ -21,21 +26,25 @@ const StyledNavItem = styled.div`
 `;
 
 
-function NavItem({path, name, css, onItemClick, active, key}) {
+function NavItem({ path, name, css, onItemClick, active, key }) {
 
-	const handleClick = () => {
-		onItemClick(path);
+  const handleClick = () => {
+    onItemClick(path);
   }
 
-	return (
+  return (
     <>
-		<StyledNavItem active={active}>
-		<Link to={path} className={css} onClick={handleClick}>
-			<NavIcon></NavIcon>
-		</Link>
-		</StyledNavItem>
+      <StyledNavItem active={active}>
+        <Link
+          to={path}
+          // className={css}
+          onClick={handleClick}
+        >
+          {/* <NavIcon></NavIcon> */}<h4>{name}</h4>
+        </Link>
+      </StyledNavItem>
     </>
-	);
+  );
 }
 
 export default NavItem;

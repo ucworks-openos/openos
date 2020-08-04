@@ -1,6 +1,7 @@
 import React from 'react';
 import { Nav, Navbar, Form, FormControl } from 'react-bootstrap';
 import styled from 'styled-components';
+import './NavigationBar.css';
 
 const Styles = styled.div`
   .navbar { background-color: #222; }
@@ -21,23 +22,18 @@ const Styles = styled.div`
 `;
 
 export const NavigationBar = () => (
-  <Styles>
-    <Navbar expand="lg">
-
-      <Navbar.Brand href="/">Tutorial</Navbar.Brand>
-      <Navbar.Toggle aria-controls="basic-navbar-nav"/>
-      
-      <Form className="form-center">
-          <FormControl type="text" placeholder="Search" className="" />
-      </Form>
-
-      <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="ml-auto">
-          <Nav.Item><Nav.Link href="/">Home</Nav.Link></Nav.Item> 
-          <Nav.Item><Nav.Link href="/about">About</Nav.Link></Nav.Item>
-        </Nav>
-      </Navbar.Collapse>
-	  
-    </Navbar>
-  </Styles>
+  <header className="page-title-wrap">
+    <h3 className="page-title">즐겨찾기</h3>
+    <div className="search-local-wrap">
+      <input type="text" className="search-local" />
+    </div>
+    <div className="lnb">
+      <div className="btn_lnb"></div>
+      <ul className="lnb-menu-wrap">
+        <li className="lnb-menu-item"><h6>그룹 만들기</h6></li>
+        <li className="lnb-menu-item"><h6>그룹명 수정</h6></li>
+        <li className="lnb-menu-item"><h6>그룹 삭제</h6></li>
+      </ul>
+    </div>
+  </header>
 )

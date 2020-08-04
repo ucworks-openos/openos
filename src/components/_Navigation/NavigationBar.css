@@ -1,0 +1,116 @@
+.page-title-wrap{
+    display: flex;
+    position: relative;
+    margin-left: 220px;
+    width: calc( 100% - 220px );
+    height: 56px;
+    padding: 6px 16px;
+    align-items: center;
+    border-bottom:1px solid #DFE2E8;
+    background-color: rgba(255,255,255,0.3);
+}
+.page-title {
+    display: inline-block;
+    margin-right: 16px;
+}
+.search-local-wrap {
+    width: 40%;
+    min-width: 280px;
+    margin-left:auto;
+    margin-right:16px;
+    padding: 6px 0;
+}
+.search-local{
+    width: 100%;
+    height: 30px;
+    padding: 4px 36px;
+    border-radius: 15px;
+    background-image: url('../../assets/images/icon_search.png');
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    box-sizing: border-box;
+}
+.btn_lnb{
+    width: 36px;
+    height: 36px;
+    background-image: url('../../assets/images/btn_lnb.png');
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+.btn_lnb:hover{
+    background-position: -37px center;
+}
+.lnb-menu-wrap {
+    display: none;
+    position: absolute;
+    right: 16px;
+    top: 55px;
+    background-color: #fff;
+    border: 1px solid #DFE2E8;
+    border-radius: 4px;
+}
+.lnb-menu-item {
+    padding: 8px 16px;
+    border-bottom: 1px solid #DFE2E8;
+    cursor: pointer;
+}
+.lnb-menu-item:last-child {
+    border-bottom: 0;
+}
+.lnb-menu-item:hover {
+    background-color: #F5F6F8;
+}
+.lnb-menu-item:hover * {
+    color: #11378D;
+}
+.main-wrap{
+    width: 100%;
+    height: auto;
+    padding: 16px;
+}
+.search-golbal-wrap {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    height: 72px;
+    background-color: #fff;
+    padding: 16px;
+    box-shadow: 0px -2px 4px rgba(0,0,0,0.1);
+}
+.search-global-inner {
+    display: flex;
+    width: 100%;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid #DFE2E8;
+    overflow: hidden;
+}
+.search-global-inner select {
+    width: auto;
+    height: 100%;
+    border-right: 1px solid #DFE2E8;
+    padding: 8px 16px;
+}
+.search-global-inner .search-global {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    border: 0;
+    border-right: 1px solid #DFE2E8;
+}
+.search-global-inner .submit-search-global {
+    width: 100px;
+    height: 100%;
+    border: 0;
+    padding: 8px 16px;
+    background-color: #11378D;
+    color: #fff;
+    border-radius: 0;
+    cursor: pointer;
+}
+.search-global-inner .submit-search-global:hover{
+    background-color: #0A2768;
+}

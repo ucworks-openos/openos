@@ -1,5 +1,5 @@
 import React from 'react';
-import './Sections/HomePage.css';
+import './Sections/LoginPage.css';
 import { useForm } from 'react-hook-form';
 import signitureCi from '../../assets/images/signiture-ci.svg';
 import styled from 'styled-components';
@@ -12,7 +12,7 @@ function Home() {
 
   return (
     <div className="sign-in">
-      <div className="contens-wrap">
+      <div className="contents-wrap">
         <main className="main-wrap">
           <form onSubmit={handleSubmit(onSubmit)}>
             <h1 className="h-sig welcome-title">Sign in</h1>
@@ -72,12 +72,12 @@ export default Home;
 
 const WelcomeWordWide = styled.span`
   @media (max-width: 768px) {
-    display: none;
+    display: none !important;
   }
 `;
 
 const WelcomeWord = styled.span`
   @media (min-width: 768px) {
-    display: none;
+    display: none !important;
   }
 `;
