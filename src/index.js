@@ -1,5 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import MainPage from "./sections/MainPage";
-
-ReactDOM.render(<MainPage />, document.getElementById('root'));
+import RouterPage from "./components/router";
+import './index.css';
+ReactDOM.render(<RouterPage />, document.getElementById('root'));

@@ -1,6 +1,6 @@
-import React, {useState, useEffect }from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import {Button, InputGroup, FormControl}  from 'react-bootstrap';
+import { Button, InputGroup, FormControl } from 'react-bootstrap';
 
 const GridWrapper = styled.div`
   display: grid;
@@ -14,12 +14,12 @@ const GridWrapper = styled.div`
 const electron = window.require("electron")
 
 
-function SiteConfigPage () {
+function SiteConfigPage() {
   const [serverIp, setServerIp] = useState("");
   const [serverPort, setServerPort] = useState(0);
 
   //initialize
-	useEffect(() => {
+  useEffect(() => {
     electron.ipcRenderer.once('readConfig-res', (event, data) => {
       console.log("readConfig-res", data);
 
@@ -31,34 +31,35 @@ function SiteConfigPage () {
 
     electron.ipcRenderer.send('readConfig-req', '');
 
-	}, [])
+  }, [])
 
 
-  const handleSave = (e) => {  
-   
+  const handleSave = (e) => {
+
     console.log("Save Click");
 
     var data = {
       serverIp: serverIp,
       serverPort: serverPort
     }
-    
+
     console.log("saveConfig-req", data);
     electron.ipcRenderer.send('saveConfig-req', data)
-    
+
   }
 
 
-	return (
-    <GridWrapper>
-      <p>SITE CONFIG</p>
+  return (
+    <div className="contents-wrap">
+      <GridWrapper>
+        <p>SITE CONFIG</p>
 
         <InputGroup>
           <InputGroup.Prepend >
             <InputGroup.Text> Server IP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</InputGroup.Text>
           </InputGroup.Prepend>
 
-          <FormControl onChange={(e)=> setServerIp(e.currentTarget.value)} value={serverIp} />
+          <FormControl onChange={(e) => setServerIp(e.currentTarget.value)} value={serverIp} />
         </InputGroup>
 
         <InputGroup>
@@ -66,14 +67,15 @@ function SiteConfigPage () {
             <InputGroup.Text> Server PORT </InputGroup.Text>
           </InputGroup.Prepend>
 
-          <FormControl type="number" onChange={(e)=> setServerPort(e.currentTarget.value)} value={serverPort} />
-          
+          <FormControl type="number" onChange={(e) => setServerPort(e.currentTarget.value)} value={serverPort} />
+
         </InputGroup>
 
         <Button onClick={handleSave}>
-                저 장
+          저 장
         </Button>
-    </GridWrapper>
+      </GridWrapper>
+    </div>
   );
 }
 
