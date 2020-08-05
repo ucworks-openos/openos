@@ -1,13 +1,10 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { NavigationBar } from './_Navigation/NavigationBar';
+import NavigationBar from './_Navigation/NavigationBar';
 import Sidebar from './_Navigation/Sidebar';
-
-// import NavigationBar from './_Navigationbar/Navigationbar';
-// import Sidebar from './_Sidebar/Sidebar';
+import Bottombar from './_Navigation/Bottombar';
 
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
-
 
 // import { Home } from './Home';
 // import { About } from './About';
@@ -27,6 +24,7 @@ function RouterPage() {
       <Router>
         <NavigationBar />
         <Sidebar />
+        <Bottombar />
         <Suspense fallback={<div>Loading...</div>}>
           <Switch>
             <Route exact path="/favorite" component={FavoritePage} />

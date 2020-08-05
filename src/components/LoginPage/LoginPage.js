@@ -12,7 +12,7 @@ function Home() {
 
   return (
     <div className="sign-in">
-      <div className="contents-wrap">
+      <div className="contents-wrap" style={{ display: 'flex' }}>
         <main className="main-wrap">
           <form onSubmit={handleSubmit(onSubmit)}>
             <h1 className="h-sig welcome-title">Sign in</h1>

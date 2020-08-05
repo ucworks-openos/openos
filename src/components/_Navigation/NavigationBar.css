@@ -49,6 +49,15 @@
     border: 1px solid #DFE2E8;
     border-radius: 4px;
 }
+.lnb-menu-wrap-open {
+    display: block;
+    position: absolute;
+    right: 16px;
+    top: 55px;
+    background-color: #fff;
+    border: 1px solid #DFE2E8;
+    border-radius: 4px;
+}
 .lnb-menu-item {
     padding: 8px 16px;
     border-bottom: 1px solid #DFE2E8;

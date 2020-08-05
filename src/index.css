@@ -140,7 +140,6 @@ a:hover,.point-fc{color: #2F59B7;}
     margin-left: 220px;
     width: calc( 100% - 220px );
     min-height: 93vh;
-    display: flex;
 }
 
 
