@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './NavigationBar.css';
+import userAvatarThumbnail from '../../assets/images/img_user-thumbnail.png'
 
 function NavigationBar() {
 
@@ -10,20 +11,82 @@ function NavigationBar() {
   }
 
   return (
-    <header className="page-title-wrap">
-      <h3 className="page-title">즐겨찾기</h3>
-      <div className="search-local-wrap">
-        <input type="text" className="search-local" />
+    <div className="header">
+      <div className="btn-page-wrap">
+        <div className="btn-prev" title="이전으로"></div>
+        <div className="btn-next disabled" title="앞으로"></div>
       </div>
-      <div className="lnb">
-        <div onClick={btnClickHandler} className="btn_lnb" ></div>
-        <ul className={btnIsOpen ? "lnb-menu-wrap-open" : "lnb-menu-wrap"}>
-          <li className="lnb-menu-item"><h6>그룹 만들기</h6></li>
-          <li className="lnb-menu-item"><h6>그룹명 수정</h6></li>
-          <li className="lnb-menu-item"><h6>그룹 삭제</h6></li>
-        </ul>
+      <form className="golbal-search-wrap">
+        <select className="global-search-cat">
+          <option>이름</option>
+          <option>직위</option>
+          <option>부서명</option>
+          <option>이메일</option>
+          <option>전화번호</option>
+          <option>휴대폰번호</option>
+          <option>담당업무</option>
+        </select>
+        <input type="text" className="input-global-search" placeholder="사용자 통합검색" />
+        <input type="submit" className="submit-global-search" value="" />
+      </form>
+      <ul className="sub-action-wrap">
+        <li className="sub-action-item btn-go-to-link" title="링크">
+        </li>
+        <li className="sub-action-item btn-go-to-setting" title="설정">
+        </li>
+        <li className="sub-action-item noti-toggle">
+          <input type="checkbox" id="noti-check" />
+          <label className="noti-toggle-inner" htmlFor="noti-check" title="알림"></label>
+        </li>
+      </ul>
+      <div className="user-wrap">
+        <div className="user-profile-state-wrap">
+          <div className="user-pic-wrap">
+            <img src={userAvatarThumbnail} alt="user-profile-picture" />
+          </div>
+          <div className="user-state online"></div>
+        </div>
+        <div className="user-profile-dropdown-wrap">
+          <div className="user-profile-state-wrap">
+            <div className="user-pic-wrap">
+              <img src={userAvatarThumbnail} alt="user-profile-picture" />
+            </div>
+            <div className="user-state online"></div>
+          </div>
+          <div className="user-owner sub1">MY</div>
+          <div className="user-info-wrap">
+            <div className="user-info-wrap-inner">
+              <h6 className="user-name">홍길동</h6>
+              <span className="user-position">과장</span>
+              <span className="user-department">개발팀</span>
+            </div>
+            <div className="user-alias">오늘도 화이팅!</div>
+          </div>
+          <div className="user-contact-wrap">
+            <div className="user-phone" title="전화번호">3653</div>
+            <div className="user-mobile" title="휴대폰번호">010-1234-5678</div>
+            <div className="user-email" title="이메일">cs.kim@ucware.net</div>
+          </div>
+          <div className="current-user-action-wrap">
+            <div className="btn-edit-photo">프로필 사진 변경</div>
+            <div className="btn-edit-user-state">
+              로그인 상태 변경
+              <ul>
+                <li>온라인</li>
+                <li>자리 비움</li>
+                <li>다른 용무중</li>
+                <li>통화중</li>
+                <li>식사중</li>
+                <li>회의중</li>
+                <li>오프라인</li>
+              </ul>
+            </div>
+            <div className="btn-edit-alias">상태 메시지 변경</div>
+            <div className="btn-sign-out">로그아웃</div>
+          </div>
+        </div>
       </div>
-    </header>
+    </div>
   )
 }
 

@@ -137,9 +137,11 @@ a:hover,.point-fc{color: #2F59B7;}
 ***************************************************************************/
 
 .contents-wrap {
-    margin-left: 220px;
-    width: calc( 100% - 220px );
-    min-height: 93vh;
+    width: calc( 100% - 62px );
+    height: auto;
+    margin-top: 108px;
+    margin-left: 62px;
+    padding: 16px;
 }
 
 
