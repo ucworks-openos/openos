@@ -24,7 +24,7 @@ function RouterPage() {
       <Router>
         <NavigationBar />
         <Sidebar />
-        <Bottombar />
+        {/* <Bottombar /> */}
         <Suspense fallback={<div>Loading...</div>}>
           <Switch>
             <Route exact path="/favorite" component={FavoritePage} />

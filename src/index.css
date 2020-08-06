@@ -130,7 +130,25 @@ p{margin-bottom:6px;}
 a,a:visited,a:focus,a:active{color:#555;}
 a:hover,.point-fc{color: #2F59B7;}
 
+/***************************************************************************
+                             signiture-ci
+***************************************************************************/
 
+.signiture-ci-wrap {
+    width: 28px;
+    height: auto;
+    position: absolute;
+    right: 40px;
+    bottom: 40px;
+}
+.signiture-ci-wrap.color img{
+    filter: none;
+    opacity: 1;
+}
+.signiture-ci-wrap img{
+    filter: grayscale(0.9);
+    opacity: 0.1;
+}
 
 /***************************************************************************
                              content-wrapper
@@ -143,8 +161,6 @@ a:hover,.point-fc{color: #2F59B7;}
     margin-left: 62px;
     padding: 16px;
 }
-
-
 
 /***************************************************************************
                             5. responsive

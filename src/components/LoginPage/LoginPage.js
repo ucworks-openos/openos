@@ -1,7 +1,7 @@
 import React from 'react';
 import './Sections/LoginPage.css';
 import { useForm } from 'react-hook-form';
-import signitureCi from '../../assets/images/signiture-ci.svg';
+import SignitureCi from '../_Common/SignitureCi';
 import styled from 'styled-components';
 
 function Home() {
@@ -60,9 +60,7 @@ function Home() {
             </div>
           </form>
         </main>
-        <div className="signiture-ci-wrap color">
-          <img src={signitureCi} alt="signiture-ci" />
-        </div>
+        <SignitureCi color/>
       </div>
     </div>
   );

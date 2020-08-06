@@ -44,6 +44,7 @@
     border-radius:15px;
     cursor: pointer;
 }
+
 .btn_lnb span {
     display: inline-block;
     margin-bottom: 6px;
@@ -58,12 +59,13 @@
                 opacity 0.55s ease,
                 margin-bottom 0.5s ease;
 }
+
 .btn_lnb:hover span{
     background-color: #2F59B7;
 }
 
 .lnb-menu-wrap {
-    display: none;
+    display: block;
     position: absolute;
     right: 16px;
     top: 55px;
@@ -71,6 +73,11 @@
     border: 1px solid #DFE2E8;
     border-radius: 4px;
 }
+
+.lnb-menu-wrap-hide {
+    display: none;
+}
+
 .lnb-menu-item {
     padding: 8px 16px;
     border-bottom: 1px solid #DFE2E8;
@@ -173,6 +180,22 @@
     text-overflow: initial;
     white-space: initial;
 }
+.user-list-wrap{
+  padding: .5em;
+  font-weight: bold;
+  visibility: visible;
+  opacity: 1;
+  max-height: 500px;
+  transition: visibility 0s, opacity 0.3s, max-height 0.6s linear;
+}
+
+.user-list-wrap-hide {
+  visibility: hidden;
+  opacity: 0;
+  max-height: 0px;
+  transition: max-height 0.3s, opacity 0.3s, visibility 0.3s linear;
+}   
+
 .btn-close {
     display: inline-block;
     width: 10px;
@@ -229,3 +252,21 @@
 .btn-contact-action.email:hover{background-position:-325px center;}
 .btn-contact-action.float{background-position:-350px center;}
 .btn-contact-action.float:hover{background-position:-375px center;}
+
+
+/*시그니처 ci*/
+.signiture-ci-wrap {
+    width: 28px;
+    height: auto;
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+}
+.signiture-ci-wrap.color img{
+    filter: none;
+    opacity: 1;
+}
+.signiture-ci-wrap img{
+    filter: grayscale(0.9);
+    opacity: 0.1;
+}
