@@ -1,35 +1,56 @@
-
 /***************************************************************************
                             3. general
 ***************************************************************************/
-body{background-color:#F5F6F8;}
-.clearfix{clear: both;}
-input{width: 100%;height: 44px;padding: 12px 16px;border: 1px solid #DFE2E8; border-radius: 8px; background-color:#fff;}
+
+.clearfix {
+    clear: both;
+}
+input {
+    width: 100%;
+    height: 44px;
+    padding: 12px 16px;
+    border: 1px solid #dfe2e8;
+    border-radius: 8px;
+    background-color: #fff;
+}
 input::placeholder {
-  color: #D5D7DC;
+    color: #d5d7dc;
 }
 /***************************************************************************
                             4. css
 ***************************************************************************/
-
-
-.sign-in .main-wrap{
+.sign-in .main-wrap {
     width: 70%;
     max-width: 600px;
-    margin:auto;
-    padding:80px;
+    margin: auto;
+    padding: 80px;
     border-radius: 20px;
-    background: linear-gradient(90deg, rgba(245,246,248,1) 0%, rgba(235,237,241,1) 100%);
-    box-shadow: -15px -15px 30px 0 #ffffff,15px 15px 30px 0 #DFE2E8;
+    background: linear-gradient(90deg, rgba(245, 246, 248, 1) 0%, rgba(235, 237, 241, 1) 100%);
+    box-shadow: -15px -15px 30px 0 #ffffff, 15px 15px 30px 0 #dfe2e8;
 }
-.welcome-title,.welcome-txt{display: inline-block;width:100%;text-align: center;}
-.welcome-title{margin-bottom:16px;}
-.welcome-txt{margin-bottom:36px;font-weight: 500;}
-.row{margin-bottom:24px;}
-.row:nth-child(2){margin-bottom:40px;}
-.sign-in input[name="id"], .sign-in input[name="password"] {
+.welcome-title,
+.welcome-txt {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+.welcome-title {
+    margin-bottom: 16px;
+}
+.welcome-txt {
+    margin-bottom: 36px;
+    font-weight: 500;
+}
+.row {
+    margin-bottom: 24px;
+}
+.row:nth-child(2) {
+    margin-bottom: 40px;
+}
+.sign-in input[name="id"],
+.sign-in input[name="password"] {
     border: 0;
-    box-shadow: 4px 4px 10px 0 #DFE2E8;
+    box-shadow: 4px 4px 10px 0 #dfe2e8;
 }
 .submit-wrap {
     display: inline-block;
@@ -42,54 +63,59 @@ input::placeholder {
     height: 48px;
     border: 0;
     border-radius: 24px;
-    font-family: 'Roboto', sans-serif;
+    font-family: "Roboto", sans-serif;
     font-size: 1.12rem;
     font-weight: 500;
     color: #fff;
-    background-color: #11378D;
+    background-color: #11378d;
     cursor: pointer;
 }
 .sign-in button[type="submit"]:hover {
-    background-color: #0A2768;
+    background-color: #0a2768;
     transition: all 0.5s;
 }
 
 .sign-in-action-wrap {
     display: flex;
 }
-.auto-sign-in input[type="checkbox"]{display: none;}
+.auto-sign-in input[type="checkbox"] {
+    display: none;
+}
 .auto-sign-in label {
     cursor: pointer;
     padding-left: 24px;
-    
 }
-.auto-sign-in input[type="checkbox"] + label{
-    background-image: url('../../../assets/images/icon_checkbox_default.svg');
+.auto-sign-in input[type="checkbox"] + label {
+    background-image: url("../../../assets/images/icon_checkbox_default.svg");
     background-repeat: no-repeat;
     background-position: left center;
 }
-.auto-sign-in label:hover,.go-to-reset-pw:hover{
-    border-bottom:1px solid #B4B5B8;
+.auto-sign-in label:hover,
+.go-to-reset-pw:hover {
+    border-bottom: 1px solid #b4b5b8;
 }
-.auto-sign-in input[type="checkbox"]:checked + label{
-    background-image: url('../../../assets/images/icon_checkbox_checked.svg');
+.auto-sign-in input[type="checkbox"]:checked + label {
+    background-image: url("../../../assets/images/icon_checkbox_checked.svg");
     background-repeat: no-repeat;
     background-position: left center;
-    color:#11378D;
+    color: #11378d;
 }
 .go-to-reset-pw {
     margin-left: auto;
 }
-.go-to-reset-pw a:hover{
-    color: #B4B5B8 !important;
+.go-to-reset-pw a:hover {
+    color: #b4b5b8 !important;
 }
-.go-to-reset-pw a:active,.go-to-reset-pw a:visited{color: #b4b5b8;}
+.go-to-reset-pw a:active,
+.go-to-reset-pw a:visited {
+    color: #b4b5b8;
+}
 .err-msg {
     position: absolute;
     margin: 8px;
     padding: 8px 16px;
     border-radius: 4px;
-    background-color: rgba(0,0,0,0.75);
+    background-color: rgba(0, 0, 0, 0.75);
     color: #fff;
     z-index: 1001;
     cursor: pointer;
@@ -103,6 +129,6 @@ input::placeholder {
     height: 0;
     font-size: 0;
     border-right: 6px solid transparent;
-    border-bottom: 8px solid rgba(0,0,0,0.75);
-    border-left: 6px solid transparent; 
+    border-bottom: 8px solid rgba(0, 0, 0, 0.75);
+    border-left: 6px solid transparent;
 }

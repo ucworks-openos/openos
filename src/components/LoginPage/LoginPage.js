@@ -4,10 +4,13 @@ import { useForm } from 'react-hook-form';
 import SignitureCi from '../_Common/SignitureCi';
 import styled from 'styled-components';
 
-function Home() {
+function Home(props) {
   const { register, errors, handleSubmit } = useForm({ mode: 'onChange' });
   const onSubmit = event => {
-    alert(JSON.stringify(event));
+    // alert(JSON.stringify(event));
+    localStorage.setItem('isLoginElectronApp', true)
+    // props.history.push('/favorite')
+    window.location.href = '/favorite';
   };
 
   return (
