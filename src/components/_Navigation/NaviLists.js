@@ -68,11 +68,5 @@ export const items =
         css: 'fas fa-hashtag',
         key: 10,
         className: 'menu-item favorite current-menu'
-    },
-    {
-        path: '/login', /* path is used as id to check which NavItem is active basically */
-        name: '로그인',
-        css: 'fa fa-fw fa-home',
-        key: 11, /* Key is required, else console throws error. Does this please you Mr. Browser?! */
-        className: 'menu-item favorite current-menu'
-    }];
+    }
+   ];

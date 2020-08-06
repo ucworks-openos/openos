@@ -165,35 +165,3 @@ a:hover,.point-fc{color: #2F59B7;}
 /***************************************************************************
                             5. responsive
 ***************************************************************************/
-@media (max-width:1024px){
-
-    
-}
-@media (max-width:768px){
-    .sign-in .main-wrap{width:80%;padding: 10%;}
-    .signiture-ci-wrap{display: none;}
-}
-@media (max-width:414px){
-    .sign-in .main-wrap{width:85%;padding: 16% 8% 14%;}
-    .welcome-title {
-        margin-bottom: 32px;
-    }
-    .welcome-txt{display: none;}
-    .row {
-        margin-bottom: 20px;
-    }
-    .sign-in input[type="submit"] {
-        height: 44px;
-        font-size: 1.05rem;
-    }
-    .submit-wrap {
-        margin-bottom: 40px;
-    }
-    .sign-in-action-wrap {
-        display: block;
-        text-align: center;
-    }
-    .auto-sign-in {
-        margin-bottom: 12px;
-    }
-}

@@ -21,18 +21,10 @@ function RouterPage() {
   return (
     <React.Fragment>
       <Router>
-        {
-          localStorage.getItem('isLoginElectronApp') ? 
-          <>
-          <NavigationBar />
-          <Sidebar />
-          </>
-          : ""
-        }
-        {/* <Bottombar /> */}
+        { localStorage.getItem('isLoginElectronApp') && <> <NavigationBar /> <Sidebar /> </> }
         <Suspense fallback={<div>Loading...</div>}>
           <Switch>
-            <Route exact path="/login" component={LoginPage} />
+            <Route exact path="/" component={LoginPage} />
             <Route exact path="/favorite" component={FavoritePage} />
             <Route exact path="/about" component={AboutPage} />
             <Route exact path="/site-config" component={SiteConfigPage} />

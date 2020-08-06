@@ -11,6 +11,12 @@ function Sidebar() {
 		setActivePath(path); /* Sets activePath which causes rerender which causes CSS to change */
 	}
 
+	const onLogOutClick = () => {
+		localStorage.removeItem('isLoginElectronApp')
+		// props.history.push('/favorite')
+		window.location.href = '/';
+	}
+
 	return (
 		<nav className="gnb">
 			<div className="menu-wrap">
@@ -18,12 +24,24 @@ function Sidebar() {
 					items.map((item) =>
 						/* Return however many NavItems in array to be rendered */
 						<NavItem path={item.path} name={item.name} css={item.css} onItemClick={onItemClick} /* Simply passed an entire function to onClick prop */
-							active={item.path === activePath} key={item.key} 
-							className={item.path === activePath ? `${item.className} current-menu`  : item.className} />
+							active={item.path === activePath} key={item.key}
+							className={item.path === activePath ? `${item.className} current-menu` : item.className} />
 					)
 				}
 			</div>
-		</nav>
+
+			<li style={{
+				padding: "1rem",
+				fontSize: "1rem",
+				fontWeight: "bold",
+				textAlign: 'center'
+			}}
+				onClick={onLogOutClick}>
+				로그<br />
+				아웃
+			</li>
+
+		</nav >
 	);
 }
 

@@ -45,7 +45,7 @@ function FavoritePage() {
             background-color: #555;
             font-size: 0;
             line-height: 0;
-            transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+            transition: all 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
                         background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
                         opacity 0.55s ease,
                         margin-bottom 0.5s ease;

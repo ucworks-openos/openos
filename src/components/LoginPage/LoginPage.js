@@ -15,7 +15,7 @@ function Home(props) {
 
   return (
     <div className="sign-in">
-      <div className="contents-wrap" style={{ display: 'flex' }}>
+      <div className="contents-wrap-login">
         <main className="main-wrap">
           <form onSubmit={handleSubmit(onSubmit)}>
             <h1 className="h-sig welcome-title">Sign in</h1>
