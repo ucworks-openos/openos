@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Button, Container, Row, Col } from 'react-bootstrap';
+import moment from 'moment';
 
 const GridWrapper = styled.div`
   display: grid;
@@ -41,10 +42,14 @@ function NetTestPage() {
   }, []);
 
   const appendNetLog = (msg) => {
+    msg = moment().format("hh:mm:ss.SSS >") + msg
+
+
     netLogMsg = netLogMsg + (netLogMsg ? "\r\n" : "") + msg;
     setNetLog(netLogMsg);
   }
   const appendLocalLog = (msg) => {
+    msg = moment().format("hh:mm:ss.SSS >") + msg
     setLocalLog(localLog + (localLog ? "\r\n" : "") + msg);
   }
   const clearLog = () => {

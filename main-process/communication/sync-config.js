@@ -10,6 +10,7 @@ ipcMain.on('saveConfig-req', (event, arg) => {
 	global.SITE_CONFIG = {
 	  server_ip: arg.serverIp,
 	  server_port:arg.serverPort,
+	  client_version:arg.clientVersion
 	}
   
   	writeConfig();

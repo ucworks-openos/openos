@@ -1,6 +1,5 @@
 
 const {ipcMain} = require('electron');
-const { connectToServer } = require('./network-core');
 const { DS_CONNECT, req_DS_HANDSHAKE, req_DS_UPGRADE_CHECK } = require('../net-command/command-api');
 
 ipcMain.on('net-connect-req', (event, arg) => {
