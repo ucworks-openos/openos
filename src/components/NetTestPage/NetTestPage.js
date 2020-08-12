@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Button, InputGroup, FormControl } from 'react-bootstrap';
+import { Button, Container, Row, Col } from 'react-bootstrap';
 
 const GridWrapper = styled.div`
   display: grid;
@@ -40,12 +40,6 @@ function NetTestPage() {
 
   }, []);
 
-  // button click
-  const handleConnect = (e) => {
-    appendLocalLog("req click!")
-    electron.ipcRenderer.send('net-connect-req', '');
-  }
-
   const appendNetLog = (msg) => {
     netLogMsg = netLogMsg + (netLogMsg ? "\r\n" : "") + msg;
     setNetLog(netLogMsg);
@@ -53,42 +47,75 @@ function NetTestPage() {
   const appendLocalLog = (msg) => {
     setLocalLog(localLog + (localLog ? "\r\n" : "") + msg);
   }
+  const clearLog = () => {
+    netLogMsg = '';
+    setNetLog(netLogMsg);
+    setLocalLog('');
+  }
+
+  
+  // button click
+  const handleConnect = (e) => {
+    appendLocalLog("net-connect-req");
+    electron.ipcRenderer.send('net-connect-req', '');
+  }
+  
+  // button click
+  const handleHandShake = (e) => {
+    appendLocalLog("net-connect-req");
+    electron.ipcRenderer.send('net-handshake-req', '');
+  }
+ 
+  
+  // button click
+  const handleUpgradeCheck = (e) => {
+    appendLocalLog("net-upgradeCheck-req");
+    electron.ipcRenderer.send('net-upgradeCheck-req', '');
+  }
+
+   
+  // button click
+  const handleLogClear = (e) => {
+    clearLog();
+  }
 
   return (
-    <div className="contents-wrap">
-      <GridWrapper>
-        <p>Net Connect</p>
-
-        <InputGroup>
-          <InputGroup.Prepend >
-            <InputGroup.Text> Server IP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</InputGroup.Text>
-          </InputGroup.Prepend>
-
-          <FormControl onChange={(e) => setServerIp(e.currentTarget.value)} value={serverIp} />
-        </InputGroup>
-
-        <InputGroup>
-          <InputGroup.Prepend>
-            <InputGroup.Text> Server PORT </InputGroup.Text>
-          </InputGroup.Prepend>
-
-          <FormControl type="number" onChange={(e) => setServerPort(e.currentTarget.value)} value={serverPort} />
-
-        </InputGroup>
-
-        <Button onClick={handleConnect}>
-          연결시도
-        </Button>
-
-        <textarea rows={10}
-          value={localLog}
-        />
-        <textarea rows={10}
-          value={netLog}
-        />
-
-      </GridWrapper>
-    </div>
+    <GridWrapper className="contents-wrap">
+      <Container fluid="md">
+        <Row  xs={2} md={3} lg={5}>
+          <Col>Server IP : {serverIp}</Col>
+          <Col>Server PORT : {serverPort}</Col>
+        </Row>
+        <Row>
+          <Col>
+            <Button onClick={handleConnect}>
+                연결시도
+            </Button>
+          </Col>
+          <Col>
+            <Button onClick={handleHandShake}>
+              핸드쉑
+            </Button>
+          </Col>
+          <Col>
+            <Button onClick={handleUpgradeCheck}>
+              서버 정보요청
+            </Button>
+          </Col>
+          <Col>
+            <Button onClick={handleLogClear}>
+                clear
+            </Button>
+          </Col>
+        </Row>
+        <Row xs={1} >
+          <textarea rows={10} value={localLog} className='mt-1'  />
+        </Row>
+        <Row xs={1} >
+          <textarea rows={10} value={netLog} className='mt-1'/>
+        </Row>
+      </Container>
+    </GridWrapper>
   );
 }
 
