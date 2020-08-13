@@ -1,7 +1,7 @@
 import React from 'react'
-import './Bottombar.css'
+import './BottomNavi.css'
 
-function Bottombar() {
+function BottomNavi() {
     return (
         <div className="search-golbal-wrap">
             <form className="search-global-inner">
@@ -21,4 +21,4 @@ function Bottombar() {
     )
 }
 
-export default Bottombar
+export default BottomNavi

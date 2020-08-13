@@ -92,29 +92,98 @@ function FavoritePage() {
                         <span></span>
                     </HamburgerButton>
                     <ul class={isHamburgerButtonClicked ? "lnb-menu-wrap" : "lnb-menu-wrap-hide"} >
-                        <li class="lnb-menu-item"><h6>그룹 만들기</h6></li>
-                        <li class="lnb-menu-item"><h6>그룹명 수정</h6></li>
-                        <li class="lnb-menu-item"><h6>그룹 삭제</h6></li>
-                        <li class="lnb-menu-item"><h6>즐겨찾기 대상 수정</h6></li>
-                        <li class="lnb-menu-item">
+                        <li class="lnb-menu-item go-to-add-group"><h6>그룹 추가</h6></li>
+                        <li class="lnb-menu-item go-to-edit-group"><h6>그룹 수정/삭제</h6></li>
+                        <li class="lnb-menu-item go-to-edit-favorit"><h6>즐겨찾기 대상 수정/삭제</h6></li>
+                        <li class="lnb-menu-item favorite-view-option">
                             <h6>멤버 보기 옵션</h6>
                             <ul>
                                 <li>표시 대상 선택
-                                    <input type="radio" name="placeList" id="place-online" value="place-online" />
-                                    <label for="place-online">온라인 사용자</label>
-                                    <input type="radio" name="placeList" id="place-all" value="place-online" />
-                                    <label for="place-all">전체 사용자</label>
+                                        <div class="view-option-place-list-wrap">
+                                        <input type="radio" name="placeList" id="place-online" value="place-online" />
+                                        <label for="place-online" class="place-online-label">
+                                            <i></i>온라인 사용자</label>
+                                        <input type="radio" name="placeList" id="place-all" value="place-online" />
+                                        <label for="place-all" class="place-all-label"><i></i>전체 사용자</label>
+                                    </div>
                                 </li>
                                 <li>
                                     이름 보이기
-                                    <input type="checkbox" id="place-name" />
+                                        <div class="toggleWrap">
+                                        <input type="checkbox" name="place-name" id="place-name" value="" />
+                                        <div>
+                                            <label for="place-name" class="view-chk-slide">
+                                                <span />
+                                            </label>
+                                        </div>
+                                    </div>
                                 </li>
-                                <li>직위 보이기<input type="checkbox" id="place-position" /></li>
-                                <li>대화명 보이기<input type="checkbox" id="place-alias" /></li>
-                                <li>부서명 보이기<input type="checkbox" id="place-department" /></li>
-                                <li>전화번호 보이기<input type="checkbox" id="place-phone-num" /></li>
-                                <li>휴대번호 보이기<input type="checkbox" id="place-mobile-num" /></li>
-                                <li>목록에 퀵버튼(쪽지,채팅,전화) 보이기<input type="checkbox" id="place-quick-btn" /></li>
+                                <li>
+                                    직위 보이기
+                                        <div class="toggleWrap">
+                                        <input type="checkbox" name="place-position" id="place-position" value="" />
+                                        <div>
+                                            <label for="place-position" class="view-chk-slide">
+                                                <span />
+                                            </label>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    대화명 보이기
+                                        <div class="toggleWrap">
+                                        <input type="checkbox" name="place-alias" id="place-alias" value="" />
+                                        <div>
+                                            <label for="place-alias" class="view-chk-slide">
+                                                <span />
+                                            </label>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    부서명 보이기
+                                        <div class="toggleWrap">
+                                        <input type="checkbox" name="place-department" id="place-department" value="" />
+                                        <div>
+                                            <label for="place-department" class="view-chk-slide">
+                                                <span />
+                                            </label>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    전화번호 보이기
+                                        <div class="toggleWrap">
+                                        <input type="checkbox" name="place-phone-num" id="place-phone-num" value="" />
+                                        <div>
+                                            <label for="place-phone-num" class="view-chk-slide">
+                                                <span />
+                                            </label>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    휴대번호 보이기
+                                        <div class="toggleWrap">
+                                        <input type="checkbox" name="place-mobile-num" id="place-mobile-num" value="" />
+                                        <div>
+                                            <label for="place-mobile-num" class="view-chk-slide">
+                                                <span />
+                                            </label>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    목록에 퀵버튼(쪽지,채팅,전화) 보이기
+                                        <div class="toggleWrap">
+                                        <input type="checkbox" name="place-quick-btn" id="place-quick-btn" value="" />
+                                        <div>
+                                            <label for="place-quick-btn" class="view-chk-slide">
+                                                <span />
+                                            </label>
+                                        </div>
+                                    </div>
+                                </li>
                             </ul>
                         </li>
                     </ul>

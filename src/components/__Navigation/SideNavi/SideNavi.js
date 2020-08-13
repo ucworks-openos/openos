@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
-import NavItem from './NavItem';
-import { items } from './NaviLists';
-import './Sidebar.css';
+import NavItem from './SideNaviItem';
+import { items } from './SideNaviLists';
+import './SideNavi.css';
 
 function Sidebar() {
 	const [activePath, setActivePath] = useState("/");
