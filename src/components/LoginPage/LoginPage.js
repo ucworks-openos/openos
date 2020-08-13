@@ -1,18 +1,21 @@
 import React from 'react';
 import './Sections/LoginPage.css';
 import { useForm } from 'react-hook-form';
-import signitureCi from '../../assets/images/signiture-ci.svg';
+import SignitureCi from '../_Common/SignitureCi';
 import styled from 'styled-components';
 
-function Home() {
+function Home(props) {
   const { register, errors, handleSubmit } = useForm({ mode: 'onChange' });
   const onSubmit = event => {
-    alert(JSON.stringify(event));
+    // alert(JSON.stringify(event));
+    localStorage.setItem('isLoginElectronApp', true)
+    // props.history.push('/favorite')
+    window.location.href = '/favorite';
   };
 
   return (
     <div className="sign-in">
-      <div className="contents-wrap" style={{ display: 'flex' }}>
+      <div className="contents-wrap-login">
         <main className="main-wrap">
           <form onSubmit={handleSubmit(onSubmit)}>
             <h1 className="h-sig welcome-title">Sign in</h1>
@@ -60,9 +63,7 @@ function Home() {
             </div>
           </form>
         </main>
-        <div className="signiture-ci-wrap color">
-          <img src={signitureCi} alt="signiture-ci" />
-        </div>
+        <SignitureCi color/>
       </div>
     </div>
   );

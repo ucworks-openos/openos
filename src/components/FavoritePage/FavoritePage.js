@@ -1,36 +1,129 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import userThumbnail from '../../assets/images/img_user-thumbnail.png'
 import imgHolder from '../../assets/images/img_imgHolder.png'
-
+import styled from 'styled-components'
 import './FavoritePage.css';
+import SignitureCi from '../_Common/SignitureCi';
 
 function FavoritePage() {
 
-    const [classFirst, setClassFirst] = useState("")
-    const [classSecond, setClassSecond] = useState("")
+    const [isMyProfileTabOpen, setIsMyProfileTabOpen] = useState(true)
+    const [isFavoriteTabOpen, setIsFavoriteTabOpen] = useState(true)
+    const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(false)
 
-    const selectClickedFirst = () => {
-        if (classFirst === "") {
-            setClassFirst("hide")
-        } else {
-            setClassFirst("")
-        }
+    useEffect(() => {
+
+    }, [])
+
+    const clickMyProfileTab = () => {
+        setIsMyProfileTabOpen(!isMyProfileTabOpen)
     }
 
-    const selectClickedSecond = () => {
-        if (classSecond === "") {
-            setClassSecond("hide")
-        } else {
-            setClassSecond("")
-        }
+    const clickFavoriteTab = () => {
+        setIsFavoriteTabOpen(!isFavoriteTabOpen)
     }
+
+    const clickHamburgerButton = () => {
+        setIsHamburgerButtonClicked(!isHamburgerButtonClicked)
+    }
+
+    const HamburgerButton = styled.div`
+        width: 30px;
+        height: 30px;
+        padding: 6px 4px;
+        font-size: 0;
+        line-height: 0;
+        border-radius:15px;
+        cursor: pointer;
+
+        span {
+            display: inline-block;
+            margin-bottom: 6px;
+            width: 100%;
+            height: 2px;
+            border-radius: 1px;
+            background-color: #555;
+            font-size: 0;
+            line-height: 0;
+            transition: all 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+                        background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+                        opacity 0.55s ease,
+                        margin-bottom 0.5s ease;
+        }
+
+        :hover span{
+            background-color: #2F59B7;
+        }
+
+        background-color: ${(props) => props.active ? "#EBEDF1" : "transparent"};
+        
+        span { 
+            width: ${(props) => props.active ? "80%" : "100%"};
+            margin-bottom: ${(props) => props.active ? "0" : "6px"};
+            background-color: ${(props) => props.active ? "#0A2768" : "#555"};
+        }
+
+        span:first-child {
+            transform: ${(props) => props.active ? "rotate(45deg) translate(5px, -2px)" : "rotate(0deg) translate(0px, 0px)"}; 
+            transform-origin: ${(props) => props.active ? "0% 0%" : "0% 0%"}
+        }
+
+        span:last-child {
+            transform: ${(props) => props.active ? "rotate(-45deg) translate(-5px, 10px)" : "rotate(0deg) translate(0px, 0px)"}; 
+            transform-origin: ${(props) => props.active ? "0% 0%" : "0% 0%"}
+        }
+
+        span:nth-last-child(2) {
+            opacity: ${(props) => props.active ? "0" : "1"}; 
+        }
+    `;
 
     return (
         <div className="contents-wrap">
+            <div class="page-title-wrap">
+                <h4 class="page-title">즐겨찾기</h4>
+                <div class="local-search-wrap">
+                    <input type="text" class="local-search" placeholder="멤버 검색" title="이하와 같은 정보로 멤버를 검색해주세요. 사용자ID, 사용자명, 부서명, 직위명, 직책명, 직급명, 전화번호" />
+                </div>
+                <div class="lnb" title="더보기">
+                    <HamburgerButton active={isHamburgerButtonClicked} class={isHamburgerButtonClicked ? "btn_lnb_clicked" : "btn_lnb"} onClick={clickHamburgerButton}>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </HamburgerButton>
+                    <ul class={isHamburgerButtonClicked ? "lnb-menu-wrap" : "lnb-menu-wrap-hide"} >
+                        <li class="lnb-menu-item"><h6>그룹 만들기</h6></li>
+                        <li class="lnb-menu-item"><h6>그룹명 수정</h6></li>
+                        <li class="lnb-menu-item"><h6>그룹 삭제</h6></li>
+                        <li class="lnb-menu-item"><h6>즐겨찾기 대상 수정</h6></li>
+                        <li class="lnb-menu-item">
+                            <h6>멤버 보기 옵션</h6>
+                            <ul>
+                                <li>표시 대상 선택
+                                    <input type="radio" name="placeList" id="place-online" value="place-online" />
+                                    <label for="place-online">온라인 사용자</label>
+                                    <input type="radio" name="placeList" id="place-all" value="place-online" />
+                                    <label for="place-all">전체 사용자</label>
+                                </li>
+                                <li>
+                                    이름 보이기
+                                    <input type="checkbox" id="place-name" />
+                                </li>
+                                <li>직위 보이기<input type="checkbox" id="place-position" /></li>
+                                <li>대화명 보이기<input type="checkbox" id="place-alias" /></li>
+                                <li>부서명 보이기<input type="checkbox" id="place-department" /></li>
+                                <li>전화번호 보이기<input type="checkbox" id="place-phone-num" /></li>
+                                <li>휴대번호 보이기<input type="checkbox" id="place-mobile-num" /></li>
+                                <li>목록에 퀵버튼(쪽지,채팅,전화) 보이기<input type="checkbox" id="place-quick-btn" /></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
             <main className="main-wrap">
                 <div className="user-list-group my">
-                    <h6 className="user-list-title" onClick={selectClickedFirst}>나의 프로필<span className="sub2 user-list-num sss"></span></h6>
-                    <ul className={classFirst === "" ? "user-list-wrap" : "user-list-wrap-hide"} >
+                    <h6 className="user-list-title" onClick={clickMyProfileTab}>나의 프로필<span className="sub2 user-list-num sss"></span></h6>
+                    <ul className={isMyProfileTabOpen ? "user-list-wrap" : "user-list-wrap-hide"} >
                         <li className="user-row">
                             <div className="user-profile-state-wrap">
                                 <div className="user-pic-wrap">
@@ -46,8 +139,8 @@ function FavoritePage() {
                     </ul>
                 </div>
                 <div className="user-list-group favorite">
-                    <h6 className="user-list-title" onClick={selectClickedSecond}>즐겨찾기<span className="sub2 user-list-num"></span></h6>
-                    <ul className={classSecond === "" ? "user-list-wrap" : "user-list-wrap-hide"}  >
+                    <h6 className="user-list-title" onClick={clickFavoriteTab}>즐겨찾기<span className="sub2 user-list-num"></span></h6>
+                    <ul className={isFavoriteTabOpen ? "user-list-wrap" : "user-list-wrap-hide"}  >
                         <li className="user-row">
                             <div className="user-profile-state-wrap">
                                 <div className="user-pic-wrap">
@@ -64,6 +157,7 @@ function FavoritePage() {
                     </ul>
                 </div>
             </main>
+            <SignitureCi />
         </div>
     )
 }
