@@ -19,7 +19,7 @@
     width:30px;
     height:28px;
     margin-right:0px;
-    background-image: url('../../assets/images/icon_gnb.png');
+    background-image: url('../../../assets/images/icon_gnb.png');
     background-repeat: no-repeat;
     transition:margin-right 0.5s;
 }

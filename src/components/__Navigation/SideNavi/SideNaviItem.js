@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from "react-router-dom";
-import styled from "styled-components";
 
 function NavItem({ path, name, css, onItemClick, className, active, key }) {
 
