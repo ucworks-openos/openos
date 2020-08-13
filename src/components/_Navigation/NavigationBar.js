@@ -4,10 +4,10 @@ import userAvatarThumbnail from '../../assets/images/img_user-thumbnail.png'
 
 function NavigationBar() {
 
-  const [btnIsOpen, setBtnIsOpen] = useState(false)
+  const [dropDownIsOpen, setDropDownIsOpen] = useState(false)
 
-  const btnClickHandler = () => {
-    setBtnIsOpen(!btnIsOpen)
+  const onAvatarClick = () => {
+    setDropDownIsOpen(!dropDownIsOpen)
   }
 
   return (
@@ -39,14 +39,17 @@ function NavigationBar() {
           <label className="noti-toggle-inner" htmlFor="noti-check" title="알림"></label>
         </li>
       </ul>
+
       <div className="user-wrap">
-        <div className="user-profile-state-wrap">
+
+        <div className="user-profile-state-wrap" onClick={onAvatarClick}>
           <div className="user-pic-wrap">
             <img src={userAvatarThumbnail} alt="user-profile-picture" />
           </div>
           <div className="user-state online"></div>
         </div>
-        <div className="user-profile-dropdown-wrap">
+
+        <div className={dropDownIsOpen ? "user-profile-dropdown-wrap" : "user-profile-dropdown-wrap-hide"} >
           <div className="user-profile-state-wrap">
             <div className="user-pic-wrap">
               <img src={userAvatarThumbnail} alt="user-profile-picture" />
