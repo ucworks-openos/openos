@@ -17,7 +17,11 @@ function readDataStream(rcvData){
     // 헤더와 데이터가 따로 수신된다...
 
     // 헤더가 존재하는 경우 데이터만 넘어 옴으로 데이터만 받는다.
-    if (rcvCommand) {
+    //if (rcvCommand) {
+    if (rcvData.length > 8) {
+        if (!rcvCommand){
+            rcvCommand = new CommandHeader(0, 0);
+        }
         rcvCommand.data = rcvData;
         receive_command(rcvCommand)
         rcvCommand = null;
@@ -73,7 +77,7 @@ function readDataStream(rcvData){
  */
 function writeCommand(cmdHeader, dataBuf) {
     try {
-        writeMainProcLog("writeCommand CMD: " + cmdHeader.cmd + " SIZE: "+cmdHeader.size);
+        writeMainProcLog("writeCommand CMD: " + cmdHeader.cmd + " Data SIZE: " + dataBuf.size);
         // Header Buffer
         var codeBuf = Buffer.alloc(4);
         var sizeBuf = Buffer.alloc(4);
@@ -135,19 +139,19 @@ function connectToServer () {
 
     // 접속이 종료됬을때 메시지 출력
     clientSock.on('end', function(){
-        writeMainProcLog('disconnected.');
+        writeMainProcLog('Disconnected!');
     });
     // 
     clientSock.on('close', function(hadError){
-        writeMainProcLog("Close. hadError:" + hadError);
+        writeMainProcLog("Close. hadError: " + hadError);
     });
     // 에러가 발생할때 에러메시지 화면에 출력
     clientSock.on('error', function(err){
-        writeMainProcLog(err);
+        writeMainProcLog("Error: " + JSON.stringify(err));
     });
     // connection에서 timeout이 발생하면 메시지 출력
     clientSock.on('timeout', function(){
-        writeMainProcLog('connection timeout.');
+        writeMainProcLog('Connection timeout.');
     });
 };
 

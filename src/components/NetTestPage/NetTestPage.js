@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Button, Container, Row, Col } from 'react-bootstrap';
 import moment from 'moment';
@@ -20,6 +20,8 @@ function NetTestPage() {
   const [netLog, setNetLog] = useState("");
   const [localLog, setLocalLog] = useState("");
   var netLogMsg = '';
+
+  const netLogArea = useRef(null);
 
   //initialize
   useEffect(() => {
@@ -47,6 +49,11 @@ function NetTestPage() {
 
     netLogMsg = netLogMsg + (netLogMsg ? "\r\n" : "") + msg;
     setNetLog(netLogMsg);
+
+    if (netLogArea.current) {
+      netLogArea.current.scrollTop = netLogArea.current.scrollHeight;
+    }
+    
   }
   const appendLocalLog = (msg) => {
     msg = moment().format("hh:mm:ss.SSS >") + msg
@@ -117,7 +124,7 @@ function NetTestPage() {
           <textarea rows={10} value={localLog} className='mt-1'  />
         </Row>
         <Row xs={1} >
-          <textarea rows={10} value={netLog} className='mt-1'/>
+          <textarea ref={netLogArea} rows={10} value={netLog} className='mt-1'/>
         </Row>
       </Container>
     </GridWrapper>

@@ -26,8 +26,21 @@ function receive_command(command) {
                     //console.log(JSON.stringify(result));
 
                     let check_version = result.server_upgrade_info.current[0].$.ver;
-                    writeMainProcLog("CLIENT CHECK VERSION:" + check_version);
 
+                    if (global.SITE_CONFIG.client_version == check_version) {
+                         // login 가능
+
+                         global.SERVER_INFO.DS = result.server_upgrade_info.DS[0].$;
+                         global.SERVER_INFO.PS = result.server_upgrade_info.PS[0].$;
+                         global.SERVER_INFO.FS = result.server_upgrade_info.FS[0].$;
+
+                         writeMainProcLog("Server INFO : " + JSON.stringify(global.SERVER_INFO));
+
+                    } else {
+                        writeMainProcLog("CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version);
+                        // TODO 
+                        // goto update
+                    }
                   });
             }
 
@@ -37,7 +50,9 @@ function receive_command(command) {
           break;
       
         default :
-            writeMainProcLog('Unknown Command Receive: ' + command.cmd);
+            const rcvBuf = Buffer.from(command.data);
+            var dataStr = rcvBuf.toString('utf-8', 0);
+            writeMainProcLog('Unknown Command Receive: ' + command.cmd + ' Data:' + dataStr);
           break;
       }
 }

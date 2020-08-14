@@ -9,8 +9,26 @@ const { readConfig } = require("../main-process/configuration/site-config");
 
 global.SITE_CONFIG = {
 	server_ip:'192.168.0.172',
-  server_port:'32555',
-  client_version:651
+  server_port:'32551',
+  client_version:652
+}
+
+global.SERVER_INFO = {
+	DS:{
+      "pubip":'',
+      "ip":'',
+      "port":''
+      },
+  PS:{
+    "pubip":'',
+    "ip":'',
+    "port":''
+    },
+  FS:{
+    "pubip":'',
+    "ip":'',
+    "port":''
+    }
 }
 
 

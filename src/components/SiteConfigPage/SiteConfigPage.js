@@ -26,6 +26,7 @@ function SiteConfigPage() {
 
       setServerIp(data.server_ip);
       setServerPort(data.server_port);
+      setClientVersion(data.client_version);
 
     })
 
