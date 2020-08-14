@@ -16,7 +16,6 @@
     "react-hook-form": "^6.3.0",
     "react-modal": "^3.11.2",
     "react-router-dom": "^5.0.1",
-    "react-tooltip": "^4.2.8",
     "styled-components": "^4.3.2",
     "update-electron-app": "^1.2.0",
     "xml2js": "^0.4.23"
