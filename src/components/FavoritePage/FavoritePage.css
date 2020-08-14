@@ -97,6 +97,11 @@
     display: flex;
     padding: 12px;
     align-items: center;
+    border:1px solid transparent;
+}
+.user-row:hover {
+    background-color: #fff;
+    border: 1px solid #EBEDF1;
 }
 .user-list-title {
     background-color: #EBEDF1;
@@ -145,11 +150,35 @@
     width: 27px;
     background-position: -34px center;
 }
-.user-info-container {
+.user-quick-action-wrap {
     display: none;
+    margin-left: auto;
+}
+.user-row:hover .user-quick-action-wrap {
+    display: block;
+}
+.user-quick-action-wrap .btn-quick {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    margin-right: 12px;
+    background-image: url('../../assets/images/btn_quick_action.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    cursor:pointer;
+}
+.user-quick-action-wrap .btn-quick:last-child{
+    margin-right: 0;
+}
+.btn-quick.chat {background-position: 0px 0px;}
+.btn-quick.chat:hover {background-position: -36px 0px;}
+.btn-quick.message {background-position: -144px 0px;}
+.btn-quick.message:hover {background-position: -180px 0px;}
+.btn-quick.call {background-position: -288px 0px;}
+.btn-quick.call:hover {background-position: -324px 0px;}
+
+.user-info-container {
     position: absolute;
-    top: 64px;
-    left: 80px;
     width:308px;
     padding: 16px;
     background-color: #fff;
@@ -181,7 +210,6 @@
     white-space: initial;
 }
 .user-list-wrap{
-  padding: .5em;
   font-weight: bold;
   visibility: visible;
   opacity: 1;
@@ -379,4 +407,38 @@
 .toggleWrap input:active + div label > span,.toggleWrap input:checked +  div label > span {
 	left: 16px;
 }
+
+
+/*즐겨찾기그룹수정*/
+.btn-ghost-s.capsule, .btn-solid-s.capsule {
+    border-radius: 14px;
+}
+.list-edit-action-wrap{display: block;margin-left: auto;font-size: 0;}
+.list-edit-action-wrap .remove,.list-edit-action-wrap .cancel,.list-edit-action-wrap .up,.list-edit-action-wrap .down,.list-edit-action-wrap .save{
+    margin-right:12px;
+}
+.check-wrap,#ckeck-edit{display: none;}
+.user-row .check-wrap{margin-right: 8px;}
+.check-wrap input[type="checkbox"] + .btn-ckeck-edit{
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url('../../assets/images/btn_check.png');
+    background-repeat: no-repeat;
+    cursor: pointer;
+    background-position: 0px 0px;
+    vertical-align: middle;
+}
+
+.check-wrap input[type="checkbox"]:checked + .btn-ckeck-edit{
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url('../../assets/images/btn_check.png');
+    background-repeat: no-repeat;
+    cursor: pointer;
+    background-position: -32px 0px;
+    vertical-align: middle;
+}
+.check-wrap input[type="checkbox"] + .btn-ckeck-edit:hover,.check-wrap input[type="checkbox"]:checked + .btn-ckeck-edit:hover{background-position: -16px 0px;}
 

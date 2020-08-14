@@ -1,20 +1,19 @@
 import React from 'react';
 import { Link } from "react-router-dom";
 
-function NavItem({ path, name, css, onItemClick, className, active, key }) {
+function NavItem({ path, name, css, onItemClick, className, active }) {
 
   const handleClick = () => {
     onItemClick(path);
   }
 
   return (
-    <li className={className} active={active}>
+    <li className={className}>
       <Link
         to={path}
-        // className={css}
         onClick={handleClick}
       >
-        <i class="menu-icon"></i><h5>{name}</h5>
+        <i className="menu-icon"></i><h5>{name}</h5>
       </Link>
     </li>
   );

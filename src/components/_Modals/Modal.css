@@ -1,0 +1,26 @@
+
+.get-favorite-group-name {
+    width: 100%;
+    min-width: 240px;
+    height: 32px;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    padding: 4px 8px;
+    border: 1px solid #DFE2E8;
+}
+.modal-btn-wrap {
+    text-align: center;
+}
+.btn-ghost-s, .btn-solid-s {
+    display: inline-block;
+    padding: 2px 12px;
+    border: 1px solid #11378D;
+    border-radius: 4px;
+    color: #11378D;
+    font-weight: 500;
+    cursor: pointer;
+}
+.btn-ghost-s{margin-right: 16px;}
+.btn-solid-s{color: #fff;background-color:#11378D;}
+.btn-ghost-s:hover{background-color:#ebf1ff;}
+.btn-solid-s:hover{border-color:#2F59B7;background-color:#0A2768;}

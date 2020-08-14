@@ -31,14 +31,14 @@ function NavigationBar() {
       </form>
       <ul className="sub-action-wrap">
 
-        <li class="sub-action-item btn-go-to-link-wrap">
-          <div class="btn-go-to-link"><div class="btn-go-to-link-inner"></div></div>
-          <ul class="link-dropdown">
-            <li class="link-item go-to-survey" title="설문"><a href="#"></a></li>
-            <li class="link-item go-to-work-from-home" title="재실"><a href="#"></a></li>
-            <li class="link-item go-to-approval" title="결재"><a href="#"></a></li>
-            <li class="link-item go-to-sales" title="영업관리"><a href="#"></a></li>
-            <li class="link-item go-to-nas" title="나스"><a href="#"></a></li>
+        <li className="sub-action-item btn-go-to-link-wrap">
+          <div className="btn-go-to-link"><div className="btn-go-to-link-inner"></div></div>
+          <ul className="link-dropdown">
+            <li className="link-item go-to-survey" title="설문"><a href="#"></a></li>
+            <li className="link-item go-to-work-from-home" title="재실"><a href="#"></a></li>
+            <li className="link-item go-to-approval" title="결재"><a href="#"></a></li>
+            <li className="link-item go-to-sales" title="영업관리"><a href="#"></a></li>
+            <li className="link-item go-to-nas" title="나스"><a href="#"></a></li>
           </ul>
         </li>
 
