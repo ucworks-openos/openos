@@ -4,12 +4,15 @@ import imgHolder from '../../assets/images/img_imgHolder.png'
 import styled from 'styled-components'
 import './FavoritePage.css';
 import SignitureCi from '../_Common/SignitureCi';
+import AddGroupModal from '../_Modals/AddGroupModal';
+import Modal from 'react-modal';
 
 function FavoritePage() {
 
     const [isMyProfileTabOpen, setIsMyProfileTabOpen] = useState(true)
     const [isFavoriteTabOpen, setIsFavoriteTabOpen] = useState(true)
     const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(false)
+    const [addGroupModalIsOpen, setAddGroupModalIsOpen] = useState(false)
 
     useEffect(() => {
 
@@ -78,6 +81,14 @@ function FavoritePage() {
         }
     `;
 
+    const AddGroupModalOpen = () => {
+        setAddGroupModalIsOpen(true)
+    }
+
+    const AddGroupModalClose = () => {
+        setAddGroupModalIsOpen(false)
+    }
+
     return (
         <div className="contents-wrap">
             <div class="page-title-wrap">
@@ -92,7 +103,7 @@ function FavoritePage() {
                         <span></span>
                     </HamburgerButton>
                     <ul class={isHamburgerButtonClicked ? "lnb-menu-wrap" : "lnb-menu-wrap-hide"} >
-                        <li class="lnb-menu-item go-to-add-group"><h6>그룹 추가</h6></li>
+                        <li class="lnb-menu-item go-to-add-group" onClick={AddGroupModalOpen}><h6>그룹 추가</h6></li>
                         <li class="lnb-menu-item go-to-edit-group"><h6>그룹 수정/삭제</h6></li>
                         <li class="lnb-menu-item go-to-edit-favorit"><h6>즐겨찾기 대상 수정/삭제</h6></li>
                         <li class="lnb-menu-item favorite-view-option">
@@ -193,18 +204,36 @@ function FavoritePage() {
                 <div className="user-list-group my">
                     <h6 className="user-list-title" onClick={clickMyProfileTab}>나의 프로필<span className="sub2 user-list-num sss"></span></h6>
                     <ul className={isMyProfileTabOpen ? "user-list-wrap" : "user-list-wrap-hide"} >
-                        <li className="user-row">
-                            <div className="user-profile-state-wrap">
-                                <div className="user-pic-wrap">
+
+                        <li class="user-row">
+                            <span class="check-wrap"><input type="checkbox" id="ckeck-edit" /><label for="ckeck-edit" class="btn-ckeck-edit"></label></span>
+                            <div class="user-profile-state-wrap">
+                                <div class="user-pic-wrap">
                                     <img src={userThumbnail} alt="user-profile-picture" />
                                 </div>
-                                <div className="user-state online"></div>
+                                <div class="user-state online"></div>
                             </div>
-                            <div className="user-info-wrap">
-                                <div className="user-name"><h6>홍길동<span className="user-position">과장</span><span className="user-department">개발팀</span></h6></div>
-                                <div className="user-alias">오늘도 화이팅!</div>
+                            <div class="user-info-wrap">
+                                <div class="user-info-wrap-inner">
+                                    <h6 class="user-name">김철수</h6>
+                                    <span class="user-position">과장</span>
+                                    <span class="user-department">개발팀</span>
+                                    <span class="user-login-device pc" title="로그인 디바이스 : pc"></span>
+                                </div>
+                                <div class="user-alias">하하하! 즐겁게 일합시다!</div>
+                                <div class="user-contact-wrap">
+                                    <span class="user-phone">3653</span>
+                                    <span class="user-mobile">010-1234-5678</span>
+                                </div>
+                            </div>
+                            <div class="user-quick-action-wrap">
+                                <div class="btn-quick chat"></div>
+                                <div class="btn-quick message"></div>
+                                <div class="btn-quick call"></div>
                             </div>
                         </li>
+
+
                     </ul>
                 </div>
                 <div className="user-list-group favorite">
@@ -222,13 +251,38 @@ function FavoritePage() {
                                 <div className="user-phone">3653</div>
                                 <div className="user-alias">하하하! 즐겁게 일합시다!</div>
                             </div>
+                            <div class="user-quick-action-wrap">
+                                <div class="btn-quick chat"></div>
+                                <div class="btn-quick message"></div>
+                                <div class="btn-quick call"></div>
+                            </div>
                         </li>
                     </ul>
                 </div>
             </main>
             <SignitureCi />
+
+            {/* Modal Parts */}
+            <Modal
+                isOpen={addGroupModalIsOpen}
+                onRequestClose={AddGroupModalClose}
+                style={customStyles}
+            >
+                <AddGroupModal show={addGroupModalIsOpen} closeModal={AddGroupModalClose} />
+            </Modal>
         </div>
     )
 }
 
 export default FavoritePage
+
+const customStyles = {
+    content: {
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)'
+    }
+};
