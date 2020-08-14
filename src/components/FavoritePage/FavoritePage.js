@@ -6,6 +6,7 @@ import './FavoritePage.css';
 import SignitureCi from '../_Common/SignitureCi';
 import AddGroupModal from '../_Modals/AddGroupModal';
 import Modal from 'react-modal';
+import HamburgerButton from '../_Common/HamburgerButton';
 
 function FavoritePage() {
 
@@ -30,58 +31,8 @@ function FavoritePage() {
         setIsHamburgerButtonClicked(!isHamburgerButtonClicked)
     }
 
-    const HamburgerButton = styled.div`
-        width: 30px;
-        height: 30px;
-        padding: 6px 4px;
-        font-size: 0;
-        line-height: 0;
-        border-radius:15px;
-        cursor: pointer;
-
-        span {
-            display: inline-block;
-            margin-bottom: 6px;
-            width: 100%;
-            height: 2px;
-            border-radius: 1px;
-            background-color: #555;
-            font-size: 0;
-            line-height: 0;
-            transition: all 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
-                        background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
-                        opacity 0.55s ease,
-                        margin-bottom 0.5s ease;
-        }
-
-        :hover span{
-            background-color: #2F59B7;
-        }
-
-        background-color: ${(props) => props.active ? "#EBEDF1" : "transparent"};
-        
-        span { 
-            width: ${(props) => props.active ? "80%" : "100%"};
-            margin-bottom: ${(props) => props.active ? "0" : "6px"};
-            background-color: ${(props) => props.active ? "#0A2768" : "#555"};
-        }
-
-        span:first-child {
-            transform: ${(props) => props.active ? "rotate(45deg) translate(5px, -2px)" : "rotate(0deg) translate(0px, 0px)"}; 
-            transform-origin: ${(props) => props.active ? "0% 0%" : "0% 0%"}
-        }
-
-        span:last-child {
-            transform: ${(props) => props.active ? "rotate(-45deg) translate(-5px, 10px)" : "rotate(0deg) translate(0px, 0px)"}; 
-            transform-origin: ${(props) => props.active ? "0% 0%" : "0% 0%"}
-        }
-
-        span:nth-last-child(2) {
-            opacity: ${(props) => props.active ? "0" : "1"}; 
-        }
-    `;
-
     const AddGroupModalOpen = () => {
+        setIsHamburgerButtonClicked(false)
         setAddGroupModalIsOpen(true)
     }
 
@@ -91,39 +42,42 @@ function FavoritePage() {
 
     return (
         <div className="contents-wrap">
-            <div class="page-title-wrap">
-                <h4 class="page-title">즐겨찾기</h4>
-                <div class="local-search-wrap">
-                    <input type="text" class="local-search" placeholder="멤버 검색" title="이하와 같은 정보로 멤버를 검색해주세요. 사용자ID, 사용자명, 부서명, 직위명, 직책명, 직급명, 전화번호" />
+            <div className="page-title-wrap">
+                <h4 className="page-title">즐겨찾기</h4>
+                <div className="local-search-wrap">
+                    <input type="text" className="local-search" placeholder="멤버 검색" title="이하와 같은 정보로 멤버를 검색해주세요. 사용자ID, 사용자명, 부서명, 직위명, 직책명, 직급명, 전화번호" />
                 </div>
-                <div class="lnb" title="더보기">
-                    <HamburgerButton active={isHamburgerButtonClicked} class={isHamburgerButtonClicked ? "btn_lnb_clicked" : "btn_lnb"} onClick={clickHamburgerButton}>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </HamburgerButton>
-                    <ul class={isHamburgerButtonClicked ? "lnb-menu-wrap" : "lnb-menu-wrap-hide"} >
-                        <li class="lnb-menu-item go-to-add-group" onClick={AddGroupModalOpen}><h6>그룹 추가</h6></li>
-                        <li class="lnb-menu-item go-to-edit-group"><h6>그룹 수정/삭제</h6></li>
-                        <li class="lnb-menu-item go-to-edit-favorit"><h6>즐겨찾기 대상 수정/삭제</h6></li>
-                        <li class="lnb-menu-item favorite-view-option">
+                <div class="list-edit-action-wrap">
+                    <div class="btn-ghost-s capsule cancel">취소</div>
+                    <div class="btn-ghost-s capsule remove">삭제</div>
+                    <div class="btn-ghost-s capsule up">한칸위로</div>
+                    <div class="btn-ghost-s capsule down">한칸아래로</div>
+                    <div class="btn-solid-s capsule save">저장</div>
+                </div>
+                <div className="lnb" title="더보기">
+                    <HamburgerButton active={isHamburgerButtonClicked} clicked={isHamburgerButtonClicked} propsFunction={clickHamburgerButton} />
+                    <ul className={isHamburgerButtonClicked ? "lnb-menu-wrap" : "lnb-menu-wrap-hide"} >
+                        <li className="lnb-menu-item go-to-add-group" onClick={AddGroupModalOpen}><h6>그룹 추가</h6></li>
+                        <li className="lnb-menu-item go-to-edit-group"><h6>그룹 수정/삭제</h6></li>
+                        <li className="lnb-menu-item go-to-edit-favorit"><h6>즐겨찾기 대상 수정/삭제</h6></li>
+                        <li className="lnb-menu-item favorite-view-option">
                             <h6>멤버 보기 옵션</h6>
                             <ul>
                                 <li>표시 대상 선택
-                                        <div class="view-option-place-list-wrap">
+                                        <div className="view-option-place-list-wrap">
                                         <input type="radio" name="placeList" id="place-online" value="place-online" />
-                                        <label for="place-online" class="place-online-label">
+                                        <label htmlFor="place-online" className="place-online-label">
                                             <i></i>온라인 사용자</label>
                                         <input type="radio" name="placeList" id="place-all" value="place-online" />
-                                        <label for="place-all" class="place-all-label"><i></i>전체 사용자</label>
+                                        <label htmlFor="place-all" className="place-all-label"><i></i>전체 사용자</label>
                                     </div>
                                 </li>
                                 <li>
                                     이름 보이기
-                                        <div class="toggleWrap">
+                                        <div className="toggleWrap">
                                         <input type="checkbox" name="place-name" id="place-name" value="" />
                                         <div>
-                                            <label for="place-name" class="view-chk-slide">
+                                            <label htmlFor="place-name" className="view-chk-slide">
                                                 <span />
                                             </label>
                                         </div>
@@ -131,10 +85,10 @@ function FavoritePage() {
                                 </li>
                                 <li>
                                     직위 보이기
-                                        <div class="toggleWrap">
+                                        <div className="toggleWrap">
                                         <input type="checkbox" name="place-position" id="place-position" value="" />
                                         <div>
-                                            <label for="place-position" class="view-chk-slide">
+                                            <label htmlFor="place-position" className="view-chk-slide">
                                                 <span />
                                             </label>
                                         </div>
@@ -142,10 +96,10 @@ function FavoritePage() {
                                 </li>
                                 <li>
                                     대화명 보이기
-                                        <div class="toggleWrap">
+                                        <div className="toggleWrap">
                                         <input type="checkbox" name="place-alias" id="place-alias" value="" />
                                         <div>
-                                            <label for="place-alias" class="view-chk-slide">
+                                            <label htmlFor="place-alias" className="view-chk-slide">
                                                 <span />
                                             </label>
                                         </div>
@@ -153,10 +107,10 @@ function FavoritePage() {
                                 </li>
                                 <li>
                                     부서명 보이기
-                                        <div class="toggleWrap">
+                                        <div className="toggleWrap">
                                         <input type="checkbox" name="place-department" id="place-department" value="" />
                                         <div>
-                                            <label for="place-department" class="view-chk-slide">
+                                            <label htmlFor="place-department" className="view-chk-slide">
                                                 <span />
                                             </label>
                                         </div>
@@ -164,10 +118,10 @@ function FavoritePage() {
                                 </li>
                                 <li>
                                     전화번호 보이기
-                                        <div class="toggleWrap">
+                                        <div className="toggleWrap">
                                         <input type="checkbox" name="place-phone-num" id="place-phone-num" value="" />
                                         <div>
-                                            <label for="place-phone-num" class="view-chk-slide">
+                                            <label htmlFor="place-phone-num" className="view-chk-slide">
                                                 <span />
                                             </label>
                                         </div>
@@ -175,10 +129,10 @@ function FavoritePage() {
                                 </li>
                                 <li>
                                     휴대번호 보이기
-                                        <div class="toggleWrap">
+                                        <div className="toggleWrap">
                                         <input type="checkbox" name="place-mobile-num" id="place-mobile-num" value="" />
                                         <div>
-                                            <label for="place-mobile-num" class="view-chk-slide">
+                                            <label htmlFor="place-mobile-num" className="view-chk-slide">
                                                 <span />
                                             </label>
                                         </div>
@@ -186,10 +140,10 @@ function FavoritePage() {
                                 </li>
                                 <li>
                                     목록에 퀵버튼(쪽지,채팅,전화) 보이기
-                                        <div class="toggleWrap">
+                                        <div className="toggleWrap">
                                         <input type="checkbox" name="place-quick-btn" id="place-quick-btn" value="" />
                                         <div>
-                                            <label for="place-quick-btn" class="view-chk-slide">
+                                            <label htmlFor="place-quick-btn" className="view-chk-slide">
                                                 <span />
                                             </label>
                                         </div>
@@ -205,31 +159,31 @@ function FavoritePage() {
                     <h6 className="user-list-title" onClick={clickMyProfileTab}>나의 프로필<span className="sub2 user-list-num sss"></span></h6>
                     <ul className={isMyProfileTabOpen ? "user-list-wrap" : "user-list-wrap-hide"} >
 
-                        <li class="user-row">
-                            <span class="check-wrap"><input type="checkbox" id="ckeck-edit" /><label for="ckeck-edit" class="btn-ckeck-edit"></label></span>
-                            <div class="user-profile-state-wrap">
-                                <div class="user-pic-wrap">
+                        <li className="user-row">
+                            <span className="check-wrap"><input type="checkbox" id="ckeck-edit" /><label htmlFor="ckeck-edit" className="btn-ckeck-edit"></label></span>
+                            <div className="user-profile-state-wrap">
+                                <div className="user-pic-wrap">
                                     <img src={userThumbnail} alt="user-profile-picture" />
                                 </div>
-                                <div class="user-state online"></div>
+                                <div className="user-state online"></div>
                             </div>
-                            <div class="user-info-wrap">
-                                <div class="user-info-wrap-inner">
-                                    <h6 class="user-name">김철수</h6>
-                                    <span class="user-position">과장</span>
-                                    <span class="user-department">개발팀</span>
-                                    <span class="user-login-device pc" title="로그인 디바이스 : pc"></span>
+                            <div className="user-info-wrap">
+                                <div className="user-info-wrap-inner">
+                                    <h6 className="user-name">김철수</h6>
+                                    <span className="user-position">과장</span>
+                                    <span className="user-department">개발팀</span>
+                                    <span className="user-login-device pc" title="로그인 디바이스 : pc"></span>
                                 </div>
-                                <div class="user-alias">하하하! 즐겁게 일합시다!</div>
-                                <div class="user-contact-wrap">
-                                    <span class="user-phone">3653</span>
-                                    <span class="user-mobile">010-1234-5678</span>
+                                <div className="user-alias">하하하! 즐겁게 일합시다!</div>
+                                <div className="user-contact-wrap">
+                                    <span className="user-phone">3653</span>
+                                    <span className="user-mobile">010-1234-5678</span>
                                 </div>
                             </div>
-                            <div class="user-quick-action-wrap">
-                                <div class="btn-quick chat"></div>
-                                <div class="btn-quick message"></div>
-                                <div class="btn-quick call"></div>
+                            <div className="user-quick-action-wrap">
+                                <div className="btn-quick chat"></div>
+                                <div className="btn-quick message"></div>
+                                <div className="btn-quick call"></div>
                             </div>
                         </li>
 
@@ -251,10 +205,10 @@ function FavoritePage() {
                                 <div className="user-phone">3653</div>
                                 <div className="user-alias">하하하! 즐겁게 일합시다!</div>
                             </div>
-                            <div class="user-quick-action-wrap">
-                                <div class="btn-quick chat"></div>
-                                <div class="btn-quick message"></div>
-                                <div class="btn-quick call"></div>
+                            <div className="user-quick-action-wrap">
+                                <div className="btn-quick chat"></div>
+                                <div className="btn-quick message"></div>
+                                <div className="btn-quick call"></div>
                             </div>
                         </li>
                     </ul>
@@ -266,7 +220,7 @@ function FavoritePage() {
             <Modal
                 isOpen={addGroupModalIsOpen}
                 onRequestClose={AddGroupModalClose}
-                style={customStyles}
+                style={addGroupModalCustomStyles}
             >
                 <AddGroupModal show={addGroupModalIsOpen} closeModal={AddGroupModalClose} />
             </Modal>
@@ -276,7 +230,8 @@ function FavoritePage() {
 
 export default FavoritePage
 
-const customStyles = {
+Modal.setAppElement('#root')
+const addGroupModalCustomStyles = {
     content: {
         top: '50%',
         left: '50%',

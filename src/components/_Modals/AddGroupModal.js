@@ -23,11 +23,11 @@ function AddGroupModal(props) {
         <input
           value={inputValue}
           onChange={onInputChange}
-          class='get-favorite-group-name'
+          className='get-favorite-group-name'
           placeholder='추가할 그룹의 이름을 입력해주세요' />
-        <div class='modal-btn-wrap'>
-          <div class='btn-ghost-s cancel' onClick={onCloseModalClick}>취소하기</div>
-          <div class='btn-solid-s submit' onClick={onAddGroupClick}>그룹추가</div>
+        <div className='modal-btn-wrap'>
+          <div className='btn-ghost-s cancel' onClick={onCloseModalClick}>취소하기</div>
+          <div className='btn-solid-s submit' onClick={onAddGroupClick}>그룹추가</div>
         </div>
       </div>
     )

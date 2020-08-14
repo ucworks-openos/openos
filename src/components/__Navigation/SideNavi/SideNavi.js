@@ -21,26 +21,19 @@ function Sidebar() {
 		<nav className="gnb">
 			<div className="menu-wrap">
 				{
-					items.map((item) =>
+					items.map((item, i) =>
 						/* Return however many NavItems in array to be rendered */
-						<NavItem path={item.path} name={item.name} css={item.css} onItemClick={onItemClick} /* Simply passed an entire function to onClick prop */
-							active={item.path === activePath} key={item.key}
-							className={item.path === activePath ? `${item.className} current-menu` : item.className} />
+						<NavItem key={item.name} path={item.path} name={item.name} css={item.css} onItemClick={onItemClick} /* Simply passed an entire function to onClick prop */
+							active={item.path === activePath} className={item.path === activePath ? `${item.className} current-menu` : item.className} />
 					)
 				}
 			</div>
 
-			<li style={{
-				padding: "1rem",
-				fontSize: "1rem",
-				fontWeight: "bold",
-				textAlign: 'center'
-			}}
-				onClick={onLogOutClick}>
-				로그<br />
-				아웃
+			<li style={{ padding: "1rem", fontSize: "1rem", fontWeight: "bold", textAlign: 'center' }}
+				onClick={onLogOutClick}
+			>
+				로그<br />아웃
 			</li>
-
 		</nav >
 	);
 }
