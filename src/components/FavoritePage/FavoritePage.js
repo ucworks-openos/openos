@@ -8,13 +8,18 @@ import AddGroupModal from '../_Modals/AddGroupModal';
 import Modal from 'react-modal';
 import HamburgerButton from '../_Common/HamburgerButton';
 
+import Select from '../_ToolTips/Select';
+import ToolTipController from '../_ToolTips/ToolTipController';
+import UserInfoTooltip from '../_ToolTips/UserInfoTooltip';
+
 function FavoritePage() {
 
     const [isMyProfileTabOpen, setIsMyProfileTabOpen] = useState(true)
     const [isFavoriteTabOpen, setIsFavoriteTabOpen] = useState(true)
     const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(false)
-    const [addGroupModalIsOpen, setAddGroupModalIsOpen] = useState(false)
-
+    const [isAddGroupModalOpen, setIsAddGroupModalOpen] = useState(false)
+    const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState(false)
+    const [userInfoTooltipTrigger, setUserInfoTooltipTrigger] = useState(false)
     useEffect(() => {
 
     }, [])
@@ -33,11 +38,24 @@ function FavoritePage() {
 
     const AddGroupModalOpen = () => {
         setIsHamburgerButtonClicked(false)
-        setAddGroupModalIsOpen(true)
+        setIsAddGroupModalOpen(true)
     }
 
     const AddGroupModalClose = () => {
-        setAddGroupModalIsOpen(false)
+        setIsAddGroupModalOpen(false)
+    }
+
+    const EditGroupTabOpen = () => {
+        setIsHamburgerButtonClicked(false)
+        setIsEditGroupTabOpen(true)
+    }
+
+    const EditGroupTabClose = () => {
+        setIsEditGroupTabOpen(false)
+    }
+
+    const CloseUserInfoTooltip = () => {
+        setUserInfoTooltipTrigger(!userInfoTooltipTrigger)
     }
 
     return (
@@ -47,18 +65,20 @@ function FavoritePage() {
                 <div className="local-search-wrap">
                     <input type="text" className="local-search" placeholder="멤버 검색" title="이하와 같은 정보로 멤버를 검색해주세요. 사용자ID, 사용자명, 부서명, 직위명, 직책명, 직급명, 전화번호" />
                 </div>
-                <div class="list-edit-action-wrap">
-                    <div class="btn-ghost-s capsule cancel">취소</div>
-                    <div class="btn-ghost-s capsule remove">삭제</div>
-                    <div class="btn-ghost-s capsule up">한칸위로</div>
-                    <div class="btn-ghost-s capsule down">한칸아래로</div>
-                    <div class="btn-solid-s capsule save">저장</div>
-                </div>
-                <div className="lnb" title="더보기">
+                {isEditGroupTabOpen &&
+                    <div class="list-edit-action-wrap">
+                        <div class="btn-ghost-s capsule cancel" onClick={EditGroupTabClose}>취소</div>
+                        <div class="btn-ghost-s capsule remove">삭제</div>
+                        <div class="btn-ghost-s capsule up">한칸위로</div>
+                        <div class="btn-ghost-s capsule down">한칸아래로</div>
+                        <div class="btn-solid-s capsule save">저장</div>
+                    </div>
+                }
+                <div className="lnb" title="더보기" style={{ marginLeft: isEditGroupTabOpen ? "initial" : "auto" }}>
                     <HamburgerButton active={isHamburgerButtonClicked} clicked={isHamburgerButtonClicked} propsFunction={clickHamburgerButton} />
                     <ul className={isHamburgerButtonClicked ? "lnb-menu-wrap" : "lnb-menu-wrap-hide"} >
                         <li className="lnb-menu-item go-to-add-group" onClick={AddGroupModalOpen}><h6>그룹 추가</h6></li>
-                        <li className="lnb-menu-item go-to-edit-group"><h6>그룹 수정/삭제</h6></li>
+                        <li className="lnb-menu-item go-to-edit-group" onClick={EditGroupTabOpen}><h6>그룹 수정/삭제</h6></li>
                         <li className="lnb-menu-item go-to-edit-favorit"><h6>즐겨찾기 대상 수정/삭제</h6></li>
                         <li className="lnb-menu-item favorite-view-option">
                             <h6>멤버 보기 옵션</h6>
@@ -163,7 +183,20 @@ function FavoritePage() {
                             <span className="check-wrap"><input type="checkbox" id="ckeck-edit" /><label htmlFor="ckeck-edit" className="btn-ckeck-edit"></label></span>
                             <div className="user-profile-state-wrap">
                                 <div className="user-pic-wrap">
-                                    <img src={userThumbnail} alt="user-profile-picture" />
+                                    <ToolTipController
+                                        detect="click"
+                                        offsetX="centre"
+                                        offsetY={20}
+                                        closeOnClick={false}
+                                        triggerClose={userInfoTooltipTrigger}
+                                    // returnState={this.handleDisplayDueDateTimeMenu}
+                                    >
+                                        <Select>
+                                            <img src={userThumbnail} alt="user-profile-picture" />
+                                        </Select>
+                                        <UserInfoTooltip closeUserInfoTooltipFunction={CloseUserInfoTooltip} />
+                                    </ToolTipController>
+
                                 </div>
                                 <div className="user-state online"></div>
                             </div>
@@ -217,13 +250,15 @@ function FavoritePage() {
             <SignitureCi />
 
             {/* Modal Parts */}
+
             <Modal
-                isOpen={addGroupModalIsOpen}
+                isOpen={isAddGroupModalOpen}
                 onRequestClose={AddGroupModalClose}
                 style={addGroupModalCustomStyles}
             >
-                <AddGroupModal show={addGroupModalIsOpen} closeModal={AddGroupModalClose} />
+                <AddGroupModal show={isAddGroupModalOpen} closeModalFunction={AddGroupModalClose} />
             </Modal>
+
         </div>
     )
 }
@@ -231,6 +266,16 @@ function FavoritePage() {
 export default FavoritePage
 
 Modal.setAppElement('#root')
+const userInfoModalCustomStyles = {
+    content: {
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)'
+    }
+};
 const addGroupModalCustomStyles = {
     content: {
         top: '50%',

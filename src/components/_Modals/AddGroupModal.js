@@ -5,7 +5,7 @@ function AddGroupModal(props) {
   const [inputValue, setInputValue] = useState("")
 
   const onCloseModalClick = () => {
-    props.closeModal();
+    props.closeModalFunction();
   }
 
   const onAddGroupClick = () => {
