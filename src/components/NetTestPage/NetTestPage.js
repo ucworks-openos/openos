@@ -73,9 +73,9 @@ function NetTestPage() {
   }
   
   // button click
-  const handleHandShake = (e) => {
-    appendLocalLog("net-connect-req");
-    electron.ipcRenderer.send('net-handshake-req', '');
+  const handleLogin = (e) => {
+    appendLocalLog("net-login-req");
+    electron.ipcRenderer.send('net-login-req', '');
   }
  
   
@@ -105,15 +105,16 @@ function NetTestPage() {
             </Button>
           </Col>
           <Col>
-            <Button onClick={handleHandShake}>
-              핸드쉑
+            <Button onClick={handleUpgradeCheck}>
+              업그레이드 확인
             </Button>
           </Col>
           <Col>
-            <Button onClick={handleUpgradeCheck}>
-              서버 정보요청
+            <Button onClick={handleLogin}>
+              로그인
             </Button>
           </Col>
+          
           <Col>
             <Button onClick={handleLogClear}>
                 clear

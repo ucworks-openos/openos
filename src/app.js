@@ -17,19 +17,23 @@ global.SERVER_INFO = {
 	DS:{
       "pubip":'',
       "ip":'',
-      "port":''
+      "port":'',
+      "isConnected":false
       },
   PS:{
     "pubip":'',
     "ip":'',
-    "port":''
+    "port":'',
+    "isConnected":false
     },
   FS:{
     "pubip":'',
     "ip":'',
-    "port":''
+    "port":'',
+    "isConnected":false
     }
 }
+
 
 
 let mainWindow;

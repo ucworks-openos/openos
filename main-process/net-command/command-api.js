@@ -27,6 +27,19 @@ function req_DS_HANDSHAKE (userId) {
     writeCommand(new CommandHeader(CommandCodes.DS_HANDSHAKE, 0), dataBuf);
 }
 
+function req_DS_LOGIN (userId, userPass) {
+    // connect
+
+    // getServerInfo
+
+    // getUserRules
+
+    // handshake
+    req_DS_HANDSHAKE(userId);
+
+    // login (certify user)
+}
+
 /**
  * 서버로 업그레이드 정보를 확인합니다.
  */
@@ -42,5 +55,6 @@ function req_DS_UPGRADE_CHECK () {
 module.exports = {
     DS_CONNECT: DS_CONNECT,
     req_DS_HANDSHAKE: req_DS_HANDSHAKE,
+    req_DS_LOGIN:req_DS_LOGIN,
     req_DS_UPGRADE_CHECK: req_DS_UPGRADE_CHECK
 }
