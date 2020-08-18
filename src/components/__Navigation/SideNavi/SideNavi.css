@@ -1,0 +1,87 @@
+/*left-drawer gnb*/
+.gnb {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    bottom: 0;
+    background-color: #fff;
+    border-right: 1px solid #DFE2E8;
+    z-index: 1001;
+}
+.menu-item a {
+    display: flex;
+    padding: 12px 16px;
+    align-items: center;
+    cursor: pointer;
+}
+.menu-icon{
+    display: inline-block;
+    width:30px;
+    height:28px;
+    margin-right:0px;
+    background-image: url('../../../assets/images/icon_gnb.png');
+    background-repeat: no-repeat;
+    transition:margin-right 0.5s;
+}
+.favorite .menu-icon{background-position: 0px 0px;}
+.favorite.current-menu .menu-icon{background-position: -30px 0px;}
+.favorite:hover .menu-icon{background-position: -60px 0px;}
+.favorite.down .menu-icon{background-position: -90px 0px;}
+.favorite.disabled .menu-icon{background-position: -120px 0px;}
+.organization .menu-icon{background-position: 0px -28px;}
+.organization.current-menu .menu-icon{background-position: -30px -28px;}
+.organization:hover .menu-icon{background-position: -60px -28px;}
+.organization.down .menu-icon{background-position: -90px -28px;}
+.organization.disabled .menu-icon{background-position: -120px -28px;}
+.chat .menu-icon{background-position: 0px -56px;}
+.chat.current-menu .menu-icon{background-position: -30px -56px;}
+.chat:hover .menu-icon{background-position: -60px -56px;}
+.chat.down .menu-icon{background-position: -90px -56px;}
+.chat.disabled .menu-icon{background-position: -120px -56px;}
+.message .menu-icon{background-position: 0px -84px;}
+.message.current-menu .menu-icon{background-position: -30px -84px;}
+.message:hover .menu-icon{background-position: -60px -84px;}
+.message.down .menu-icon{background-position: -90px -84px;}
+.message.disabled .menu-icon{background-position: -120px -84px;}
+.call .menu-icon{background-position: 0px -112px;}
+.call.current-menu .menu-icon{background-position: -30px -112px;}
+.call:hover .menu-icon{background-position: -60px -112px;}
+.call.down .menu-icon{background-position: -90px -112px;}
+.call.disabled .menu-icon{background-position: -120px -112px;}
+.noti .menu-icon{background-position: 0px -140px;}
+.noti.current-menu .menu-icon{background-position: -30px -140px;}
+.noti:hover .menu-icon{background-position: -60px -140px;}
+.noti.down .menu-icon{background-position: -90px -140px;}
+.noti.disabled .menu-icon{background-position: -120px -140px;}
+.team .menu-icon{background-position: 0px -168px;}
+.team.current-menu .menu-icon{background-position: -30px -168px;}
+.team:hover .menu-icon{background-position: -60px -168px;}
+.team.down .menu-icon{background-position: -90px -168px;}
+.team.disabled .menu-icon{background-position: -120px -168px;}
+.feed .menu-icon{background-position: 0px -196px;}
+.feed.current-menu .menu-icon{background-position: -30px -196px;}
+.feed:hover .menu-icon{background-position: -60px -196px;}
+.feed.down .menu-icon{background-position: -90px -196px;}
+.feed.disabled .menu-icon{background-position: -120px -196px;}
+.menu-item h5{display:none;color:#C8CACE;transition:display 0.5s;}
+.menu-item.current-menu h5{color:#11378D;}
+.menu-item:hover h5{color:#2F59B7;}
+
+.gnb:hover .menu-icon{margin-right:12px;transition:margin-right 0.5s;}
+.gnb:hover .menu-item h5{display: inline-block;transition:display 0.5s;}
+/*시그니처 ci*/
+.signiture-ci-wrap {
+    width: 28px;
+    height: auto;
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+}
+.signiture-ci-wrap.color img{
+    filter: none;
+    opacity: 1;
+}
+.signiture-ci-wrap img{
+    filter: grayscale(0.9);
+    opacity: 0.1;
+}

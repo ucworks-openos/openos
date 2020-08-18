@@ -17,6 +17,7 @@ const electron = window.require("electron")
 function SiteConfigPage() {
   const [serverIp, setServerIp] = useState("");
   const [serverPort, setServerPort] = useState(0);
+  const [clientVersion, setClientVersion] = useState(0);
 
   //initialize
   useEffect(() => {
@@ -25,6 +26,7 @@ function SiteConfigPage() {
 
       setServerIp(data.server_ip);
       setServerPort(data.server_port);
+      setClientVersion(data.client_version);
 
     })
 
@@ -40,7 +42,8 @@ function SiteConfigPage() {
 
     var data = {
       serverIp: serverIp,
-      serverPort: serverPort
+      serverPort: serverPort,
+      clientVersion: clientVersion
     }
 
     console.log("saveConfig-req", data);
@@ -48,11 +51,18 @@ function SiteConfigPage() {
 
   }
 
-
   return (
     <div className="contents-wrap">
       <GridWrapper>
         <p>SITE CONFIG</p>
+
+        <InputGroup>
+          <InputGroup.Prepend>
+            <InputGroup.Text> CLIENT VERSION </InputGroup.Text>
+          </InputGroup.Prepend>
+
+          <FormControl type="number" onChange={(e) => setClientVersion(e.currentTarget.value)} value={clientVersion} />
+        </InputGroup>
 
         <InputGroup>
           <InputGroup.Prepend >
@@ -68,7 +78,6 @@ function SiteConfigPage() {
           </InputGroup.Prepend>
 
           <FormControl type="number" onChange={(e) => setServerPort(e.currentTarget.value)} value={serverPort} />
-
         </InputGroup>
 
         <Button onClick={handleSave}>

@@ -7,11 +7,33 @@ const isDev = require("electron-is-dev");
 const glob = require('glob');
 const { readConfig } = require("../main-process/configuration/site-config");
 
-// global.SITE_CONFIG = require('./student.json');
 global.SITE_CONFIG = {
 	server_ip:'192.168.0.172',
-	server_port:'32555',
+  server_port:'32551',
+  client_version:652
 }
+
+global.SERVER_INFO = {
+	DS:{
+      "pubip":'',
+      "ip":'',
+      "port":'',
+      "isConnected":false
+      },
+  PS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
+    },
+  FS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
+    }
+}
+
 
 
 let mainWindow;
