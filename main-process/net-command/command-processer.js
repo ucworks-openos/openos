@@ -10,6 +10,10 @@ function receive_command(command) {
     writeMainProcLog('Command Processer -  CMD: ' + command.cmd);
     console.log(command);
 
+    if (command.callback) {
+      rcvCommand.callback(command)
+    }
+
     switch( command.cmd ) {
 
         case CommandCodes.DS_UPGRADE_CHANGE :
@@ -47,6 +51,11 @@ function receive_command(command) {
           break;
       
         case CommandCodes.DS_UPGRADE_CHECK:
+          break;
+
+        case CommandCodes.DS_GET_SERVER_INFO:
+          
+         
           break;
       
         default :

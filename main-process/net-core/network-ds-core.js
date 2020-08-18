@@ -4,8 +4,11 @@ const { receive_command } = require('../net-command/command-processer');
 
 var CommandHeader = require('../net-command/command-header');
 
-var clientSock;
+var MAIN_DS_SOCK;
 var rcvCommand;
+var sndCommand;
+
+var commandDic = {}
 
 /**
  * 수신된 데이터를 Command형식으로 변환 합니다.
@@ -22,6 +25,11 @@ function readDataStream(rcvData){
         if (!rcvCommand){
             rcvCommand = new CommandHeader(0, 0);
         }
+
+        if (rcvCommand.cmd in commandDic) {
+            rcvCommand = commandDic[rcvCommand.cmd]
+        }
+
         rcvCommand.data = rcvData;
         receive_command(rcvCommand)
         rcvCommand = null;
@@ -98,13 +106,16 @@ function writeCommand(cmdHeader, dataBuf) {
         codeBuf.copy(cmdBuf);
 
         // full Size
-        sizeBuf.writeInt32LE(cmdBuf.length);
+        cmdHeader.size = cmdBuf.length;
+        sizeBuf.writeInt32LE(cmdHeader.size);
         sizeBuf.copy(cmdBuf, 4, 0);
 
         console.log(cmdBuf);
-        clientSock.write(cmdBuf);
+        MAIN_DS_SOCK.write(cmdBuf);
+
+        sndCommand = cmdHeader
         
-        writeMainProcLog("writeCommand SUCCESS! CMD: " + cmdHeader.cmd + " size: "+cmdBuf.length);
+        writeMainProcLog("writeCommand SUCCESS! CMD: " + cmdHeader.cmd + " size: "+cmdHeader.size);
     } catch (exception) {
         writeMainProcLog("writeCommand FAIL! CMD: " + cmdHeader.cmd + " ex: " + exception);
     }
@@ -113,24 +124,25 @@ function writeCommand(cmdHeader, dataBuf) {
  /**
   * 서버 접속
   */
-function connectToServer () {
+function connect_MAIN_DS () {
     
-    if (clientSock) {
-        clientSock.destroy();
+    if (MAIN_DS_SOCK) {
+        MAIN_DS_SOCK.destroy();
     }
     
-    writeMainProcLog("Conncect to " + JSON.stringify(global.SITE_CONFIG, null, 0))
+    writeMainProcLog("Conncect MAIN_DS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
 
     var tcpSock = require('net');  
     var client  = new tcpSock.Socket;  
-    clientSock = client.connect(global.SITE_CONFIG.server_port, global.SITE_CONFIG.server_ip, function() {
-        writeMainProcLog("Conncect Completed to " + JSON.stringify(global.SITE_CONFIG, null, 0))
+    MAIN_DS_SOCK = client.connect(global.SITE_CONFIG.server_port, global.SITE_CONFIG.server_ip, function() {
+        writeMainProcLog("Conncect MAIN_DS Completed to " + JSON.stringify(global.SITE_CONFIG, null, 0))
+        global.SERVER_INFO.DS.isConnected = true;
     });  
 
     var buffer =  Buffer.alloc(256);
 
     // listen for incoming data
-    clientSock.on("data", function(data){
+    MAIN_DS_SOCK.on("data", function(data){
 
         // a custom function for logging more readable binary
         writeMainProcLog('rcvData:' + data.length);
@@ -138,25 +150,29 @@ function connectToServer () {
     })
 
     // 접속이 종료됬을때 메시지 출력
-    clientSock.on('end', function(){
+    MAIN_DS_SOCK.on('end', function(){
         writeMainProcLog('Disconnected!');
+        global.SERVER_INFO.DS.isConnected = true;
     });
     // 
-    clientSock.on('close', function(hadError){
+    MAIN_DS_SOCK.on('close', function(hadError){
         writeMainProcLog("Close. hadError: " + hadError);
+        global.SERVER_INFO.DS.isConnected = true;
     });
     // 에러가 발생할때 에러메시지 화면에 출력
-    clientSock.on('error', function(err){
+    MAIN_DS_SOCK.on('error', function(err){
         writeMainProcLog("Error: " + JSON.stringify(err));
+        global.SERVER_INFO.DS.isConnected = true;
     });
     // connection에서 timeout이 발생하면 메시지 출력
-    clientSock.on('timeout', function(){
+    MAIN_DS_SOCK.on('timeout', function(){
         writeMainProcLog('Connection timeout.');
+        global.SERVER_INFO.DS.isConnected = true;
     });
 };
 
 
 module.exports = {
-    connectToServer: connectToServer,
-    writeCommand: writeCommand
+    connect_MAIN_DS: connect_MAIN_DS,
+    writeCommand_MAIN_DS: writeCommand
 };

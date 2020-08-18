@@ -1,6 +1,6 @@
 
 const {ipcMain} = require('electron');
-const { DS_CONNECT, req_DS_HANDSHAKE, req_DS_LOGIN, req_DS_UPGRADE_CHECK } = require('../net-command/command-api');
+const { DS_CONNECT, req_DS_LOGIN, req_DS_UPGRADE_CHECK } = require('../net-command/command-api');
 
 ipcMain.on('net-connect-req', (event, arg) => {
   DS_CONNECT()
