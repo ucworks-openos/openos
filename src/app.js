@@ -7,6 +7,7 @@ const isDev = require("electron-is-dev");
 const glob = require('glob');
 const { readConfig } = require("../main-process/configuration/site-config");
 
+global.ENC = "utf-8";
 global.SITE_CONFIG = {
 	server_ip:'192.168.0.172',
   server_port:'32551',
