@@ -10,9 +10,7 @@ const electron = window.require("electron")
 function Home(props) {
   const { register, errors, handleSubmit } = useForm({ mode: 'onChange' });
   const onSubmit = event => {
-
-    alert( 'LOGIN REQUEST:' + JSON.stringify(event));
-
+    console.log('LOGIN REQUEST:', event);
     electron.ipcRenderer.send('net-login-req', event);
   };
 
