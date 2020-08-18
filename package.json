@@ -5,10 +5,13 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "axios": "^0.19.2",
     "bootstrap": "^4.3.1",
     "cross-env": "6.0.2",
     "electron-is-dev": "1.1.0",
     "electron-log": "^3.0.8",
+    "node-sass": "^4.14.1",
+    "rc-tree": "^3.9.0",
     "react": "^16.10.2",
     "react-bootstrap": "^1.0.0-beta.14",
     "react-dom": "^16.10.2",
