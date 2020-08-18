@@ -14,7 +14,3 @@ ipcMain.on('net-upgradeCheck-req', (event, arg) => {
   req_DS_UPGRADE_CHECK("arg");
 })
 
-ipcMain.on('net-login-req', (event, arg) => {
-  
-})
-

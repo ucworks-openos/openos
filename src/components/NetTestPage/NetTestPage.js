@@ -75,7 +75,7 @@ function NetTestPage() {
   // button click
   const handleLogin = (e) => {
     appendLocalLog("net-login-req");
-    electron.ipcRenderer.send('net-login-req', '');
+    electron.ipcRenderer.send('net-login-req', {loginId:'bslee', loginPwd:'1111'});
   }
  
   

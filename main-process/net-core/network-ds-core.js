@@ -6,7 +6,6 @@ var CommandHeader = require('../net-command/command-header');
 
 var MAIN_DS_SOCK;
 var rcvCommand;
-var sndCommand;
 
 var commandDic = {}
 
@@ -17,21 +16,30 @@ var commandDic = {}
 function readDataStream(rcvData){  
     console.log(rcvData);
 
-    // 헤더와 데이터가 따로 수신된다...
+    // 헤더와 데이터가 따로 수신되는 경우와  같이 수신되는 경우가 있다.
 
     // 헤더가 존재하는 경우 데이터만 넘어 옴으로 데이터만 받는다.
     //if (rcvCommand) {
     if (rcvData.length > 8) {
+
         if (!rcvCommand){
-            rcvCommand = new CommandHeader(0, 0);
+            // 수신된 CommandHeader가 없다면 
+            // Header가 포함 되었다고 판단해 버린다.
+            let rcvBuf = Buffer.from(rcvData);
+            rcvCommand = new CommandHeader(rcvBuf.readInt32LE(0), rcvBuf.readInt32LE(4));
+            rcvCommand.data = rcvBuf.subarray(8);
+            writeMainProcLog('recv cmd Header(' + rcvBuf.length + ")  CMD: " + rcvCommand.cmd + ' SIZE:' + rcvCommand.size);
+        } else {
+            rcvCommand.data = rcvData;    
         }
 
-        if (rcvCommand.cmd in commandDic) {
-            rcvCommand = commandDic[rcvCommand.cmd]
+        if (global.MAIN_DS_SEND_COMMAND) {
+            rcvCommand.callback = global.MAIN_DS_SEND_COMMAND.callback;
         }
-
-        rcvCommand.data = rcvData;
+        
         receive_command(rcvCommand)
+
+        global.MAIN_DS_SEND_COMMAND = null;
         rcvCommand = null;
 
     } else {
@@ -113,7 +121,7 @@ function writeCommand(cmdHeader, dataBuf) {
         console.log(cmdBuf);
         MAIN_DS_SOCK.write(cmdBuf);
 
-        sndCommand = cmdHeader
+        global.MAIN_DS_SEND_COMMAND = cmdHeader
         
         writeMainProcLog("writeCommand SUCCESS! CMD: " + cmdHeader.cmd + " size: "+cmdHeader.size);
     } catch (exception) {
