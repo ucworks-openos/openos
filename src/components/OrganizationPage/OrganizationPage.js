@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Tree, { TreeNode } from "rc-tree";
 import styled from "styled-components";
-import "./index.scss";
+import "./OrganizationPage.scss";
 import { useParams } from "react-router-dom";
 import Node from "./Node";
 
@@ -268,19 +268,19 @@ export default function TreeComponent(props) {
   const switcherGenerator = (data) => (
     <>
       {data?.classKind === `2` && (
-        <>
+        <Switcher>
           {!data?.isLeaf && !data?.expanded ? (
             <img
               src="/images/icon_toggle_plus.png"
-              style={{ width: `20px`, height: `21px` }}
+              style={{ minWidth: `20px`, height: `21px` }}
             />
           ) : (
             <img
               src="/images/icon_toggle_min.png"
-              style={{ width: `20px`, height: `21px` }}
+              style={{ minWidth: `20px`, height: `21px` }}
             />
           )}
-        </>
+        </Switcher>
       )}
     </>
   );
@@ -300,38 +300,43 @@ export default function TreeComponent(props) {
   };
 
   return (
-    <>
-      {/* don't use tree caching  */}
-      {treeData.length && (
-        <div className="contents-wrap">
-          <main className="main-wrap">
-            <Container>
-              <Tree
-                loadData={load}
-                draggable
-                blockNode
-                showLine
-                showIcon={false}
-                onDrop={onDrop}
-                onSelect={handleSelect}
-                switcherIcon={switcherGenerator}
-              >
-                {renderTreeNodes(treeData)}
-              </Tree>
-            </Container>
-          </main>
+    <div className="contents-wrap">
+      <div className="page-title-wrap">
+        <h4 className="page-title">조직도</h4>
+        <div className="local-search-wrap">
+          <input
+            type="text"
+            className="local-search"
+            placeholder="멤버 검색"
+            title="이하와 같은 정보로 멤버를 검색해주세요. 사용자ID, 사용자명, 부서명, 직위명, 직책명, 직급명, 전화번호"
+          />
         </div>
-      )}
-    </>
+      </div>
+      <main className="main-wrap">
+        {treeData.length && (
+          <div className="rc-tree-wrap">
+            <Tree
+              loadData={load}
+              // draggable
+              blockNode
+              showLine
+              showIcon={false}
+              onDrop={onDrop}
+              onSelect={handleSelect}
+              switcherIcon={switcherGenerator}
+            >
+              {renderTreeNodes(treeData)}
+            </Tree>
+          </div>
+        )}
+      </main>
+    </div>
   );
 }
 
-const Container = styled.div`
-  display: flex;
-  height: 100%;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-  /* overflow: hidden으로 인해 노드 높이가 잘리는 버그로 인해 padding-bottom값 부여 */
-  padding-bottom: 50px;
+const Switcher = styled.div`
+  background-color: #ebedf1;
+  padding: 4px 8px;
+  height: 30px;
+  border-bottom: 1px solid #dfe2e8;
 `;
