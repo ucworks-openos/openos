@@ -1,6 +1,8 @@
 
-const { writeMainProcLog } = require('../communication/sync-msg');
+const { writeMainProcLog, loginResponse } = require('../communication/sync-msg');
+
 var CommandCodes = require('./command-code');
+var CmdConst = require('./command-const')
 
 /**
  * 수신한 Command를 처리합니다. 
@@ -11,50 +13,85 @@ function receive_command(command) {
     console.log(command);
 
     switch( command.cmd ) {
+      case CommandCodes.DS_SUCCESS :
+        {
+        const rcvBuf = Buffer.from(command.data);
 
-        case CommandCodes.DS_UPGRADE_CHANGE :
-            if (command.data) {
-                const rcvBuf = Buffer.from(command.data);
-                var serverInfoXml = rcvBuf.toString('utf-8', 4);
-                writeMainProcLog('ServerInfo: ' + serverInfoXml);
+        var userId = rcvBuf.toString(global.ENC, 0, CmdConst.BUF_LEN_USERID);
+        let userPwd = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID, CmdConst.BUF_LEN_USERPWD);
+        let connIp = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD, CmdConst.BUF_LEN_IP);
+        let svrSize = rcvBuf.readInt32LE(CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP)
+        let ruleSize = rcvBuf.readInt32LE(CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP + CmdConst.BUF_LEN_INT)
 
-                var xml2js = require('xml2js');
-                var parser = new xml2js.Parser();
-                parser.parseString(serverInfoXml, function(err, result) {
+        let rule = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP + (CmdConst.BUF_LEN_INT*2))
 
-                    //console.log(result);
-                    //console.log(JSON.stringify(result));
+        writeMainProcLog('LOGIN SUCESS!!  \r\n'
+        + 'userId:' + userId
+        + ' userPwd:' + userPwd
+        + ' connIp:' + connIp
+        + ' svrSize:' + svrSize
+        + ' ruleSize:' + ruleSize
+        + ' \r\nrule:' + rule)
+        }
 
-                    let check_version = result.server_upgrade_info.current[0].$.ver;
+        loginResponse({isSucess:true, loginId:userId})
+        break
 
-                    if (global.SITE_CONFIG.client_version == check_version) {
-                         // login 가능
+      case CommandCodes.DS_UPGRADE_CHANGE :
+        if (command.data) {
+          const rcvBuf = Buffer.from(command.data);
+          var serverInfoXml = rcvBuf.toString('utf-8', 4);
+          writeMainProcLog('ServerInfo: ' + serverInfoXml);
 
-                         global.SERVER_INFO.DS = result.server_upgrade_info.DS[0].$;
-                         global.SERVER_INFO.PS = result.server_upgrade_info.PS[0].$;
-                         global.SERVER_INFO.FS = result.server_upgrade_info.FS[0].$;
+          var xml2js = require('xml2js');
+          var parser = new xml2js.Parser();
+          parser.parseString(serverInfoXml, function(err, result) {
 
-                         writeMainProcLog("Server INFO : " + JSON.stringify(global.SERVER_INFO));
+              //console.log(result);
+              //console.log(JSON.stringify(result));
 
-                    } else {
-                        writeMainProcLog("CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version);
-                        // TODO 
-                        // goto update
-                    }
-                  });
-            }
+              let check_version = result.server_upgrade_info.current[0].$.ver;
 
-          break;
-      
-        case CommandCodes.DS_UPGRADE_CHECK:
-          break;
-      
-        default :
-            const rcvBuf = Buffer.from(command.data);
-            var dataStr = rcvBuf.toString('utf-8', 0);
-            writeMainProcLog('Unknown Command Receive: ' + command.cmd + ' Data:' + dataStr);
-          break;
-      }
+              if (global.SITE_CONFIG.client_version == check_version) {
+                    // login 가능
+
+                    global.SERVER_INFO.DS = result.server_upgrade_info.DS[0].$;
+                    global.SERVER_INFO.PS = result.server_upgrade_info.PS[0].$;
+                    global.SERVER_INFO.FS = result.server_upgrade_info.FS[0].$;
+
+                    //writeMainProcLog("Server INFO : " + JSON.stringify(global.SERVER_INFO));
+
+              } else {
+                  writeMainProcLog("CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version);
+                  // TODO 
+                  // goto update
+              }
+            });
+        }
+
+      break;
+    
+      case CommandCodes.DS_UPGRADE_CHECK:
+        break;
+
+      case CommandCodes.DS_GET_SERVER_INFO:
+        
+        
+        break;
+    
+      default :
+        {
+        const rcvBuf = Buffer.from(command.data);
+        var dataStr = rcvBuf.toString('utf-8', 0);
+          
+        writeMainProcLog('Unknown Command Receive: ' + command.cmd + ' Data:' + dataStr);
+        }
+        break;
+    }
+
+    if (command.callback) {
+      command.callback(command)
+    }
 }
 
 module.exports = {

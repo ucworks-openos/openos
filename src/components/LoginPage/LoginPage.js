@@ -4,14 +4,23 @@ import { useForm } from 'react-hook-form';
 import SignitureCi from '../_Common/SignitureCi';
 import styled from 'styled-components';
 
+// require("electron")시 webPack과 standard module이 충돌
+const electron = window.require("electron")
+
 function Home(props) {
   const { register, errors, handleSubmit } = useForm({ mode: 'onChange' });
   const onSubmit = event => {
-    // alert(JSON.stringify(event));
-    localStorage.setItem('isLoginElectronApp', true)
-    // props.history.push('/favorite')
-    window.location.href = '/favorite';
+
+    alert( 'LOGIN REQUEST:' + JSON.stringify(event));
+
+    electron.ipcRenderer.send('net-login-req', event);
   };
+
+  electron.ipcRenderer.on('res-login', (event, data) => {
+    alert('Login Response! ' + JSON.stringify(data))
+    localStorage.setItem('isLoginElectronApp', true)
+    window.location.href = '/favorite';
+  });
 
   return (
     <div className="sign-in">
@@ -25,7 +34,7 @@ function Home(props) {
               <input
                 type="text"
                 className="user-id-here"
-                name="id"
+                name="loginId"
                 aria-invalid={errors.id ? "true" : "false"}
                 placeholder="아이디를 입력해주세요"
                 ref={register({
@@ -38,7 +47,7 @@ function Home(props) {
               <input
                 type="password"
                 className="user-pw-here"
-                name="password"
+                name="loginPwd"
                 aria-invalid={errors.password ? "true" : "false"}
                 placeholder="비밀번호를 입력해주세요"
                 ref={register({
