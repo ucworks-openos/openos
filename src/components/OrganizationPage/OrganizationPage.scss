@@ -1,0 +1,193 @@
+/***************************************************************************
+                             custom rc-tree 
+***************************************************************************/
+
+.rc-tree-wrap {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  position: relative;
+}
+
+.rc-tree {
+  margin: 0;
+  border: 1px solid transparent;
+  user-select: none;
+  width: 100%;
+  &-focused:not(&-active-focused) {
+    border-color: cyan;
+  }
+
+  // padding: 5px;
+  .rc-tree-treenode {
+    display: flex;
+
+    .draggable {
+      color: #333;
+      -moz-user-select: none;
+      -khtml-user-select: none;
+      -webkit-user-select: none;
+      user-select: none;
+      /* Required to make elements draggable in old WebKit */
+      -khtml-user-drag: element;
+      -webkit-user-drag: element;
+    }
+    &.drag-over {
+      > .draggable {
+        color: white;
+        background-color: #316ac5;
+        border: 1px #316ac5 solid;
+        opacity: 0.8;
+      }
+    }
+    &.drag-over-gap-top {
+      > .draggable {
+        border-top: 2px blue solid;
+      }
+    }
+    &.drag-over-gap-bottom {
+      > .draggable {
+        border-bottom: 2px blue solid;
+      }
+    }
+    &.filter-node {
+      & > .rc-tree-node-content-wrapper {
+        color: #a60000 !important;
+        font-weight: bold !important;
+      }
+    }
+    ul {
+      margin: 0;
+      padding: 0 0 0 18px;
+    }
+    .rc-tree-node-content-wrapper {
+      display: inline-block;
+      width: 100%;
+      margin: 0;
+      // node position을 absolute로 주기 위함.
+      position: relative;
+      text-decoration: none;
+      vertical-align: top;
+    }
+    span {
+      &.rc-tree-switcher,
+      &.rc-tree-checkbox,
+      &.rc-tree-iconEle {
+        cursor: pointer;
+
+        &.rc-tree-icon__customize {
+          background-image: none;
+        }
+      }
+      &.rc-tree-icon_loading {
+        margin-right: 2px;
+        vertical-align: top;
+      }
+
+      &.rc-tree-checkbox {
+        width: 13px;
+        height: 13px;
+        margin: 0 3px;
+        background-position: 0 0;
+        &-checked {
+          background-position: -14px 0;
+        }
+        &-indeterminate {
+          background-position: -14px -28px;
+        }
+        &-disabled {
+          background-position: 0 -56px;
+        }
+        &.rc-tree-checkbox-checked.rc-tree-checkbox-disabled {
+          background-position: -14px -56px;
+        }
+        &.rc-tree-checkbox-indeterminate.rc-tree-checkbox-disabled {
+          position: relative;
+          background: #ccc;
+          border-radius: 3px;
+          &::after {
+            position: absolute;
+            top: 5px;
+            left: 3px;
+            width: 5px;
+            height: 0;
+            border: 2px solid #fff;
+            border-top: 0;
+            border-left: 0;
+            -webkit-transform: scale(1);
+            transform: scale(1);
+            content: " ";
+          }
+        }
+      }
+    }
+  }
+  &:not(.rc-tree-show-line) {
+    .rc-tree-treenode {
+      .rc-tree-treenode-switcher-noop {
+        background: none;
+      }
+    }
+  }
+  &.rc-tree-show-line {
+    .rc-tree-indent-unit {
+      &:after {
+        content: "";
+        border-left: 1px solid #d7dae0;
+        position: absolute;
+        height: 100%;
+        left: 17px;
+      }
+    }
+  }
+
+  &-child-tree {
+    display: none;
+    &-open {
+      display: block;
+    }
+  }
+  &-treenode-disabled {
+    & > span:not(.rc-tree-switcher),
+    & > a,
+    & > a span {
+      color: #767676;
+      cursor: not-allowed;
+    }
+  }
+  &-treenode-active {
+    background: rgba(0, 0, 0, 0.1);
+
+    .rc-tree-node-content-wrapper {
+      background: rgba(0, 0, 0, 0.1);
+    }
+  }
+  &-node-selected {
+  }
+  &-icon__open {
+    margin-right: 2px;
+    vertical-align: top;
+    background-position: -110px -16px;
+  }
+  &-icon__close {
+    margin-right: 2px;
+    vertical-align: top;
+    background-position: -110px 0;
+  }
+  &-icon__docu {
+    margin-right: 2px;
+    vertical-align: top;
+    background-position: -110px -32px;
+  }
+  &-icon__customize {
+    margin-right: 2px;
+    vertical-align: top;
+  }
+  &-indent {
+    display: flex;
+  }
+  &-indent-unit {
+    padding-left: 36px;
+    position: relative;
+  }
+}
