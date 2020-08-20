@@ -14,7 +14,8 @@ function Sidebar() {
 	const onLogOutClick = () => {
 		localStorage.removeItem('isLoginElectronApp')
 		// props.history.push('/favorite')
-		window.location.href = '/';
+		window.location.hash = '#/login';
+		window.location.reload();
 	}
 
 	return (

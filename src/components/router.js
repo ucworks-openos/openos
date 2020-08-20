@@ -1,9 +1,8 @@
-import React, { Suspense } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import NavigationBar from "./__Navigation/HeaderNavi/HeaderNavi";
-import Sidebar from "./__Navigation/SideNavi/SideNavi";
+import React, { Suspense } from 'react';
+import { BrowserRouter, MemoryRouter, HashRouter, Route, Switch, Redirect } from "react-router-dom";
+import NavigationBar from './__Navigation/HeaderNavi/HeaderNavi';
+import Sidebar from './__Navigation/SideNavi/SideNavi';
 // import Bottombar from './__Navigation/BottomNavi/BottomNavi';
-
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
 // import { Home } from './Home';
@@ -24,32 +23,29 @@ const NetTestPage = React.lazy(() => import("./NetTestPage/NetTestPage"));
 function RouterPage() {
   return (
     <React.Fragment>
-      <Router>
-        {localStorage.getItem("isLoginElectronApp") && (
-          <>
-            {" "}
-            <NavigationBar /> <Sidebar />{" "}
-          </>
-        )}
-        <Suspense fallback={<div>Loading...</div>}>
-          <Switch>
-            <Route exact path="/" component={LoginPage} />
-            <Route exact path="/favorite" component={FavoritePage} />
-            <Route
-              exact
-              path="/organization/:classOrgGroupCode"
-              component={OrganizationPage}
-            />
-            <Route exact path="/login" component={LoginPage} />
-            <Route exact path="/about" component={AboutPage} />
-            <Route exact path="/site-config" component={SiteConfigPage} />
-            <Route exact path="/net-test" component={NetTestPage} />
-            <Route component={NoMatchPage} />
-          </Switch>
-        </Suspense>
-      </Router>
+      <HashRouter
+      >
+        <div>
+          {localStorage.getItem('isLoginElectronApp') && <> <NavigationBar /> <Sidebar /> </>}
+          <Suspense fallback={<div>Loading...</div>}>
+            <Switch>
+              <Route exact path="/login" component={LoginPage} />
+              <Route exact path="/favorite" component={FavoritePage} />
+              <Route exact path="/organization/:classOrgGroupCode" component={OrganizationPage} />
+              <Route exact path="/about" component={AboutPage} />
+              <Route exact path="/site-config" component={SiteConfigPage} />
+              <Route exact path="/net-test" component={NetTestPage} />
+              <Route component={NoMatchPage} />
+            </Switch>
+          </Suspense>
+        </div>
+      </HashRouter>
     </React.Fragment>
   );
+}
+
+if (!window.location.hash || window.location.hash === '#/') {
+  window.location.hash = '#/login';
 }
 
 export default RouterPage;

@@ -1,7 +1,7 @@
 {
   "name": "react-electron",
   "description": "react-electron",
-  "author": "ucware",
+  "author": "ucware <support@ucware.net>",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
@@ -26,19 +26,65 @@
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
-    "concurrently": "4.1.2",
-    "electron": "7.2.4",
-    "electron-builder": "^21.2.0",
-    "prettier": "^1.4.4",
-    "react-scripts": "3.1.2",
-    "wait-on": "3.3.0"
+    "concurrently": "5.3.0",
+    "electron": "9.2.1",
+    "electron-builder": "^22.8.0",
+    "prettier": "^2.0.5",
+    "react-scripts": "3.4.3",
+    "wait-on": "5.2.0"
   },
   "build": {
-    "publish": {
-      "provider": "github"
+    "productName": "ucmMessenger",
+    "appId": "com.ucware.ucm",
+    "asar": true,
+    "protocols": {
+      "name": "ucmMessenger",
+      "schemes": [
+        "ucmmessenger"
+      ]
+    },
+    "copyright": "Copyright © year ${author}",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "public"
+    },
+    "mac": {
+      "target": [
+        "default"
+      ],
+      "category": "public.app-category.developer-tools",
+      "icon": "public/icon.icns"
+    },
+    "dmg": {
+      "title": "ucmMessenger",
+      "icon": "public/icon.icns"
+    },
+    "win": {
+      "target": [
+        "zip",
+        "nsis"
+      ],
+      "icon": "public/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm",
+        "zip",
+        "tar.gz"
+      ],
+      "icon": "public/React.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   },
-  "main": "src/app.js",
+  "main": "public/electron.js",
   "homepage": "./",
   "scripts": {
     "react-start": "react-scripts start",
@@ -48,7 +94,22 @@
     "electron-build": "electron-builder",
     "release": "yarn react-build && electron-builder --publish=always",
     "build": "yarn react-build && yarn electron-build",
-    "start": "concurrently \"cross-env BROWSER=none yarn react-start\" \"wait-on http://localhost:3000 && electron .\""
+    "start": "concurrently \"cross-env BROWSER=none yarn react-start\" \"wait-on http://localhost:3000 && electron .\"",
+    "build:osx": "electron-builder --mac",
+    "build:linux": "npm run build:linux32 && npm run build:linux64",
+    "build:linux32": "electron-builder --linux --ia32",
+    "build:linux64": "electron-builder --linux --x64",
+    "build:win": "npm run build:win32 && npm run build:win64",
+    "build:win32": "electron-builder --win --ia32",
+    "build:win64": "electron-builder --win --x64",
+    "builder-osx": "npm run build && rm -rf dist && electron-builder -c.extraMetadata.main=build/electron.js",
+    "builder-linux": "npm run build && rm -rf dist && electron-builder --linux deb tar.xz -c.extraMetadata.main=build/electron.js",
+    "packager-linux": "electron-packager . ucmMessenger --overwrite --asar=true --platform=linux --arch=x64 --icon=public/React.png --prune=true --out=release-builds",
+    "package-win": "electron-packager . ucmMessenger --overwrite --asar=true --platform=win32 --arch=ia32 --icon=public/icon.ico --prune=true --out=release-builds --version-string.CompanyName=UCWARE --version-string.FileDescription=UCWARE --version-string.ProductName=\"ucmMessenger\"",
+    "package-mac": "electron-packager . ucmMessenger --overwrite --asar=true --platform=darwin --arch=x64 --icon=public/icon.ico --prune=true --out=release-builds",
+    "create-debian-installer": "electron-installer-debian --src release-builds/ucmMessenger-linux-x64 --dest dist/installers/ --arch amd64 --config debian.json",
+    "create-installer-win": "node installers/windows/createinstaller.js",
+    "create-installer-mac": "electron-installer-dmg ./release-builds/ucmMessenger\\ Electron\\ app.app ucmMessenger --out=release-builds --overwrite --icon=public/icon.ico"
   },
   "browserslist": {
     "production": [
