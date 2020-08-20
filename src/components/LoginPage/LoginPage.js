@@ -11,16 +11,20 @@ function Home(props) {
   const { register, errors, handleSubmit } = useForm({ mode: 'onChange' });
   const onSubmit = event => {
 
-    alert( 'LOGIN REQUEST:' + JSON.stringify(event));
+    alert('LOGIN REQUEST:' + JSON.stringify(event));
 
     electron.ipcRenderer.send('net-login-req', event);
+
+    electron.ipcRenderer.on('res-login', (event, data) => {
+      alert('Login Response! ' + JSON.stringify(data))
+      localStorage.setItem('isLoginElectronApp', true)
+      // props.history.push('/favorite')
+      window.location.hash = '#/favorite';
+      window.location.reload();
+    })
+
   };
 
-  electron.ipcRenderer.on('res-login', (event, data) => {
-    alert('Login Response! ' + JSON.stringify(data))
-    localStorage.setItem('isLoginElectronApp', true)
-    window.location.href = '/favorite';
-  });
 
   return (
     <div className="sign-in">
@@ -72,7 +76,7 @@ function Home(props) {
             </div>
           </form>
         </main>
-        <SignitureCi color/>
+        <SignitureCi color />
       </div>
     </div>
   );
