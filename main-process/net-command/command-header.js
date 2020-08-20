@@ -1,11 +1,10 @@
-function CommandHeader(cmd, size) {
-  this.cmd = cmd;
-  this.size = size;
+function CommandHeader(cmdCode, size, callback) {
+    this.cmdCode = cmdCode;
+    this.size = size;
+    
+    if (callback) {
+        this.callback = callback;
+    }
 }
 
-function CommandHeader(cmd, size, callback) {
-  this.cmd = cmd;
-  this.size = size;
-  this.callback = callback;
-}
 module.exports = CommandHeader;

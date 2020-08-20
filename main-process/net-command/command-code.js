@@ -2,6 +2,7 @@ const DS_BASE = 3000;
 
 module.exports = Object.freeze({
     DS_HANDSHAKE:           DS_BASE + 300,
+    DS_SET_SESSION:         DS_BASE + 303,
 
     DS_SUCCESS:             DS_BASE + 3,
     DS_NO_USERID:           DS_BASE + 4,

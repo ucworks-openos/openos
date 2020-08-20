@@ -7,20 +7,39 @@ const isDev = require("electron-is-dev");
 const glob = require('glob');
 const { readConfig } = require("../main-process/configuration/site-config");
 
+global.USER = {
+  userId: ''
+}
 global.ENC = "utf-8";
+global.CERT = {
+  pukCertKey: '',
+  challenge: '',
+  session: ''
+}
 global.SITE_CONFIG = {
 	server_ip:'192.168.0.172',
   server_port:'32551',
   client_version:652
 }
-
 global.SERVER_INFO = {
-	DS:{
-      "pubip":'',
-      "ip":'',
-      "port":'',
-      "isConnected":false
-      },
+  DS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
+    },
+  CS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
+    },
+  NS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
+    },
   PS:{
     "pubip":'',
     "ip":'',
@@ -28,6 +47,13 @@ global.SERVER_INFO = {
     "isConnected":false
     },
   FS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
+    },
+  
+  SMS:{
     "pubip":'',
     "ip":'',
     "port":'',

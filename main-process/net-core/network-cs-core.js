@@ -3,7 +3,7 @@ const { receive_command } = require('../net-command/command-processer');
 
 var CommandHeader = require('../net-command/command-header');
 
-var MAIN_DS_SOCK;
+var MAIN_CS_SOCK;
 var rcvCommand;
 
 /**
@@ -39,12 +39,15 @@ function readDataStream(rcvData){
 
         var procCmd = rcvCommand;
         rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
-        global.MAIN_DS_SEND_COMMAND = null;
 
         if (!receive_command(procCmd)) {
             console.log('Revceive Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     }
+
+
+
+
     /*
     // 헤더와 데이터가 따로 수신되는 경우와  같이 수신되는 경우가 있다.
 
@@ -63,6 +66,9 @@ function readDataStream(rcvData){
                 console.log('Revceive Data Proc Fail! :', rcvData.toString('utf-8', 0));
             }
         }
+        
+        
+
     } else {
 
         // 헤더 정보를 받도록 하자.
@@ -128,11 +134,11 @@ function writeCommand(cmdHeader, dataBuf) {
   */
 function connect_MAIN_DS (callback) {
     
-    if (MAIN_DS_SOCK) {
-        MAIN_DS_SOCK.destroy();
+    if (MAIN_CS_SOCK) {
+        MAIN_CS_SOCK.destroy();
     }
     
-    writeMainProcLog("Conncect MAIN_DS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
+    writeMainProcLog("Conncect MAIN_CS to " + JSON.stringify(global.SERVER_INFO.CS, null, 0))
 
     var tcpSock = require('net');  
     var client  = new tcpSock.Socket;  

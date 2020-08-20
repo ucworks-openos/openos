@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import './Sections/LoginPage.css';
 import { useForm } from 'react-hook-form';
 import SignitureCi from '../_Common/SignitureCi';
@@ -14,11 +14,16 @@ function Home(props) {
     electron.ipcRenderer.send('net-login-req', event);
   };
 
-  electron.ipcRenderer.on('res-login', (event, data) => {
-    alert('Login Response! ' + JSON.stringify(data))
-    localStorage.setItem('isLoginElectronApp', true)
-    window.location.href = '/favorite';
-  });
+
+    //initialize
+    useEffect(() => {
+      electron.ipcRenderer.on('res-login', (event, data) => {
+        alert('Login Response! ' + JSON.stringify(data))
+        localStorage.setItem('isLoginElectronApp', true)
+        window.location.href = '/favorite';
+      });
+    }, []);
+ 
 
   return (
     <div className="sign-in">
