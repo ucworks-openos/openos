@@ -3,7 +3,7 @@ const { receive_command } = require('../net-command/command-processer');
 
 var CommandHeader = require('../net-command/command-header');
 
-var MAIN_DS_SOCK;
+var dsSock;
 var rcvCommand;
 
 /**
@@ -111,7 +111,7 @@ function writeCommand(cmdHeader, dataBuf) {
         sizeBuf.writeInt32LE(cmdHeader.size);
         sizeBuf.copy(cmdBuf, 4, 0);
 
-        MAIN_DS_SOCK.write(cmdBuf);
+        dsSock.write(cmdBuf);
 
         global.MAIN_DS_SEND_COMMAND = cmdHeader
         
@@ -126,17 +126,17 @@ function writeCommand(cmdHeader, dataBuf) {
  /**
   * 서버 접속
   */
-function connect_MAIN_DS (callback) {
+function connect (callback) {
     
-    if (MAIN_DS_SOCK) {
-        MAIN_DS_SOCK.destroy();
+    if (dsSock) {
+        dsSock.destroy();
     }
     
     writeMainProcLog("Conncect MAIN_DS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
 
     var tcpSock = require('net');  
     var client  = new tcpSock.Socket;  
-    MAIN_DS_SOCK = client.connect(global.SITE_CONFIG.server_port, global.SITE_CONFIG.server_ip, function() {
+    dsSock = client.connect(global.SITE_CONFIG.server_port, global.SITE_CONFIG.server_ip, function() {
         writeMainProcLog("Conncect MAIN_DS Completed to " + JSON.stringify(global.SITE_CONFIG, null, 0))
         global.SERVER_INFO.DS.isConnected = true;
 
@@ -144,27 +144,27 @@ function connect_MAIN_DS (callback) {
     });  
 
     // listen for incoming data
-    MAIN_DS_SOCK.on("data", function(data){
+    dsSock.on("data", function(data){
         readDataStream(data);
     })
 
     // 접속이 종료됬을때 메시지 출력
-    MAIN_DS_SOCK.on('end', function(){
+    dsSock.on('end', function(){
         writeMainProcLog('Disconnected!');
         global.SERVER_INFO.DS.isConnected = true;
     });
     // 
-    MAIN_DS_SOCK.on('close', function(hadError){
+    dsSock.on('close', function(hadError){
         writeMainProcLog("Close. hadError: " + hadError);
         global.SERVER_INFO.DS.isConnected = true;
     });
     // 에러가 발생할때 에러메시지 화면에 출력
-    MAIN_DS_SOCK.on('error', function(err){
+    dsSock.on('error', function(err){
         writeMainProcLog("Error: " + JSON.stringify(err));
         global.SERVER_INFO.DS.isConnected = true;
     });
     // connection에서 timeout이 발생하면 메시지 출력
-    MAIN_DS_SOCK.on('timeout', function(){
+    dsSock.on('timeout', function(){
         writeMainProcLog('Connection timeout.');
         global.SERVER_INFO.DS.isConnected = true;
     });
@@ -172,6 +172,6 @@ function connect_MAIN_DS (callback) {
 
 
 module.exports = {
-    connect_MAIN_DS: connect_MAIN_DS,
-    writeCommand_MAIN_DS: writeCommand
+    connectDS: connect,
+    writeCommandDS: writeCommand
 };

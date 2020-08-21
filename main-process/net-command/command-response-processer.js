@@ -35,6 +35,7 @@ function responseCmdProc(command) {
             global.SERVER_INFO.PS = result.server_info.PS[0].$;
             global.SERVER_INFO.FS = result.server_info.FS[0].$;
             global.SERVER_INFO.SMS = result.server_info.SMS[0].$;
+            global.CERT.enc = result.server_info.UserAuth[0].$.method;
           });
 
         writeMainProcLog('ServerInfo: ' + serverInfoXml);
@@ -120,15 +121,15 @@ function responseCmdProc(command) {
         writeMainProcLog('DS_HANDSHAKE CERT :' + JSON.stringify(global.CERT)); 
       }
       break;
-    default :
+    
+      default :
       {
-      const rcvBuf = Buffer.from(command.data);
-      var dataStr = rcvBuf.toString('utf-8', 0);
+      let rcvBuf = Buffer.from(command.data);
+      let dataStr = rcvBuf.toString('utf-8', 0);
       
       writeMainProcLog('Unknown Response Command Receive: ' + command.cmdCode); // + ' Data:' + dataStr);
-
-      return false;
       }
+      return false;
       break;
     }
 

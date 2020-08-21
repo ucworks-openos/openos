@@ -14,7 +14,8 @@ global.ENC = "utf-8";
 global.CERT = {
   pukCertKey: '',
   challenge: '',
-  session: ''
+  session: '',
+  enc: ''
 }
 global.SITE_CONFIG = {
 	server_ip:'192.168.0.172',
@@ -60,6 +61,9 @@ global.SERVER_INFO = {
     "isConnected":false
     }
 }
+
+global.MAIN_DS_SEND_COMMAND = {}
+global.MAIN_CS_SEND_COMMAND = {}
 
 
 
