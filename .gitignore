@@ -1,6 +1,10 @@
 
 build
 
+dist
+
+
+
 # SiteConfig
 site.cfg
 
@@ -108,3 +112,5 @@ dist
 
 # TernJS port file
 .tern-port
+
+ucmMessenger-linux-x64

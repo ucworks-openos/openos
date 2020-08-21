@@ -1,9 +1,8 @@
 import React, { Suspense } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch, HashRouter } from "react-router-dom";
 import NavigationBar from "./__Navigation/HeaderNavi/HeaderNavi";
 import Sidebar from "./__Navigation/SideNavi/SideNavi";
 // import Bottombar from './__Navigation/BottomNavi/BottomNavi';
-
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
 // import { Home } from './Home';
@@ -24,7 +23,7 @@ const NetTestPage = React.lazy(() => import("./NetTestPage/NetTestPage"));
 function RouterPage() {
   return (
     <React.Fragment>
-      <Router>
+      <HashRouter>
         {localStorage.getItem("isLoginElectronApp") && (
           <>
             {" "}
@@ -47,9 +46,13 @@ function RouterPage() {
             <Route component={NoMatchPage} />
           </Switch>
         </Suspense>
-      </Router>
+      </HashRouter>
     </React.Fragment>
   );
+}
+
+if (!window.location.hash || window.location.hash === '#/') {
+  window.location.hash = '#/login';
 }
 
 export default RouterPage;

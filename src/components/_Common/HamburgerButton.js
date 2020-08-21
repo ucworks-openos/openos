@@ -52,6 +52,8 @@ const Hamburger = styled.div`
     }
 `;
 
+    
+
 export default function ({ active, clicked, propsFunction }) {
     return <Hamburger
         active={active}

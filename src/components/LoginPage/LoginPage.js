@@ -10,10 +10,20 @@ const electron = window.require("electron")
 function Home(props) {
   const { register, errors, handleSubmit } = useForm({ mode: 'onChange' });
   const onSubmit = event => {
+<<<<<<< HEAD
     console.log('LOGIN REQUEST:', event);
+=======
+
+    alert('LOGIN REQUEST:' + JSON.stringify(event));
+
+>>>>>>> upstream/master
     electron.ipcRenderer.send('net-login-req', event);
+    localStorage.setItem('isLoginElectronApp', true)
+    window.location.hash = '#/favorite';
+    window.location.reload();
   };
 
+<<<<<<< HEAD
 
     //initialize
     useEffect(() => {
@@ -24,6 +34,14 @@ function Home(props) {
       });
     }, []);
  
+=======
+  electron.ipcRenderer.on('res-login', (event, data) => {
+    alert('Login Response! ' + JSON.stringify(data))
+    localStorage.setItem('isLoginElectronApp', true)
+    window.location.hash = '#/favorite';
+    window.location.reload();
+  });
+>>>>>>> upstream/master
 
   return (
     <div className="sign-in">
@@ -62,7 +80,7 @@ function Home(props) {
               {errors.password && <div className="err-msg">비밀번호는 필수입력항목이며 4~12자 입니다.</div>}
             </div>
             <div className="submit-wrap">
-              <button type="submit">Let's start</button>
+              <button type="submit">Let's start </button>
             </div>
             <div className="sign-in-action-wrap">
               <div className="auto-sign-in">
@@ -75,7 +93,7 @@ function Home(props) {
             </div>
           </form>
         </main>
-        <SignitureCi color/>
+        <SignitureCi color />
       </div>
     </div>
   );
