@@ -115,8 +115,6 @@ function responseCmdProc(command) {
           session: command.data.toString(global.ENC, CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_PUKCERTKEY + CmdConst.BUF_LEN_CHALLENGE, CmdConst.BUF_LEN_SESSION).trim()
         }
 
-        
-
         //console.log('DS_HANDSHAKE :', handShakeRes)
         writeMainProcLog('DS_HANDSHAKE CERT :' + JSON.stringify(global.CERT)); 
       }
