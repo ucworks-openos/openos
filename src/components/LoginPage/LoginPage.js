@@ -28,7 +28,7 @@ function Home(props) {
         <main className="main-wrap">
           <form onSubmit={handleSubmit(onSubmit)}>
             <h1 className="h-sig welcome-title">Sign in</h1>
-            <WelcomeWordWide className="sub2 welcome-txt">- 환영합니다! 서비스 사용을 위해 로그인 해주세요 -</WelcomeWordWide>
+            <WelcomeWordWide className="sub2 welcome-txt">- 환영합니다! 서비스 사용을 위해 로그인 해주세요. -</WelcomeWordWide>
             <WelcomeWord className="sub2 welcome-txt"> 서비스 사용을 위해 로그인 해주세요 -</WelcomeWord>
             <div className="row">
               <input
