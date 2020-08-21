@@ -34,19 +34,7 @@ function Home(props) {
             <h1 className="h-sig welcome-title">Sign in</h1>
             <WelcomeWordWide className="sub2 welcome-txt">- 환영합니다! 서비스 사용을 위해 로그인 해주세요 -</WelcomeWordWide>
             <WelcomeWord className="sub2 welcome-txt"> 서비스 사용을 위해 로그인 해주세요 -</WelcomeWord>
-            <div className="row">
-              <input
-                type="text"
-                className="user-id-here"
-                name="loginId"
-                aria-invalid={errors.id ? "true" : "false"}
-                placeholder="아이디를 입력해주세요"
-                ref={register({
-                  required: true
-                })}
-              />
-              {errors.id && <div className="err-msg">아이디는 필수입력항목입니다.</div>}
-            </div>
+            
             <div className="row">
               <input
                 type="password"
