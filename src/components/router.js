@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Switch, HashRouter } from "react-router
 import NavigationBar from "./__Navigation/HeaderNavi/HeaderNavi";
 import Sidebar from "./__Navigation/SideNavi/SideNavi";
 // import Bottombar from './__Navigation/BottomNavi/BottomNavi';
-
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
 // import { Home } from './Home';
@@ -50,6 +49,10 @@ function RouterPage() {
       </HashRouter>
     </React.Fragment>
   );
+}
+
+if (!window.location.hash || window.location.hash === '#/') {
+  window.location.hash = '#/login';
 }
 
 export default RouterPage;

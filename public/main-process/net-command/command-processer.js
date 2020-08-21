@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 const { writeMainProcLog, loginResponse } = require('../communication/sync-msg');
 
 var CommandCodes = require('./command-code');
 var CmdConst = require('./command-const')
+=======
+
+const { writeMainProcLog } = require('../communication/sync-msg');
+var CommandCodes = require('./command-code');
+>>>>>>> e632b9d8df3b57e67c76f8c0851c41ad6432daa0
 
 /**
  * 수신한 Command를 처리합니다. 
@@ -12,6 +18,7 @@ function receive_command(command) {
     console.log(command);
 
     switch( command.cmd ) {
+<<<<<<< HEAD
       case CommandCodes.DS_SUCCESS :
         {
         const rcvBuf = Buffer.from(command.data);
@@ -91,8 +98,58 @@ function receive_command(command) {
     if (command.callback) {
       command.callback(command)
     }
+=======
+
+        case CommandCodes.DS_UPGRADE_CHANGE :
+            if (command.data) {
+                const rcvBuf = Buffer.from(command.data);
+                var serverInfoXml = rcvBuf.toString('utf-8', 4);
+                writeMainProcLog('ServerInfo: ' + serverInfoXml);
+
+                var xml2js = require('xml2js');
+                var parser = new xml2js.Parser();
+                parser.parseString(serverInfoXml, function(err, result) {
+
+                    //console.log(result);
+                    //console.log(JSON.stringify(result));
+
+                    let check_version = result.server_upgrade_info.current[0].$.ver;
+
+                    if (global.SITE_CONFIG.client_version == check_version) {
+                         // login 가능
+
+                         global.SERVER_INFO.DS = result.server_upgrade_info.DS[0].$;
+                         global.SERVER_INFO.PS = result.server_upgrade_info.PS[0].$;
+                         global.SERVER_INFO.FS = result.server_upgrade_info.FS[0].$;
+
+                         writeMainProcLog("Server INFO : " + JSON.stringify(global.SERVER_INFO));
+
+                    } else {
+                        writeMainProcLog("CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version);
+                        // TODO 
+                        // goto update
+                    }
+                  });
+            }
+
+          break;
+      
+        case CommandCodes.DS_UPGRADE_CHECK:
+          break;
+      
+        default :
+            const rcvBuf = Buffer.from(command.data);
+            var dataStr = rcvBuf.toString('utf-8', 0);
+            writeMainProcLog('Unknown Command Receive: ' + command.cmd + ' Data:' + dataStr);
+          break;
+      }
+>>>>>>> e632b9d8df3b57e67c76f8c0851c41ad6432daa0
 }
 
 module.exports = {
     receive_command: receive_command
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> e632b9d8df3b57e67c76f8c0851c41ad6432daa0

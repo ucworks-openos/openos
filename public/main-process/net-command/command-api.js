@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const { connect_MAIN_DS, writeCommand_MAIN_DS } = require('../net-core/network-ds-core');
 const { writeMainProcLog } = require('../communication/sync-msg');
 //const { CommandHeader } = require('./command-header');
@@ -6,18 +7,29 @@ var CommandCodes = require('./command-code');
 var CmdConst = require('./command-const')
 
 var macaddress = require('macaddress');
+=======
+const { connectToServer, writeCommand } = require('../net-core/network-core');
+//const { CommandHeader } = require('./command-header');
+var CommandHeader = require('./command-header');
+var CommandCodes = require('./command-code');
+>>>>>>> e632b9d8df3b57e67c76f8c0851c41ad6432daa0
 
 /**
  * 서버로 접속요청 합니다.
  */
 function DS_CONNECT () {
+<<<<<<< HEAD
     connect_MAIN_DS(0);
+=======
+    connectToServer(0);
+>>>>>>> e632b9d8df3b57e67c76f8c0851c41ad6432daa0
 }
 
 /**
  * 서버와 통신가능여부를 확인 합니다. 
  * @param {UserID} userId 
  */
+<<<<<<< HEAD
 function req_DS_HANDSHAKE (userId, callback) {
     
     var idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
@@ -101,18 +113,53 @@ function req_DS_getServerInfo(userId, callback) {
     let cmdHeader = new CommandHeader(CommandCodes.DS_UPGRADE_CHECK, 0);
     cmdHeader.callback = callback;
     writeCommand_MAIN_DS(cmdHeader, dataBuf);
+=======
+function req_DS_HANDSHAKE (userId) {
+    
+    var idBuf = Buffer.alloc(51);
+    var len = idBuf.write(userId, "utf-8");
+
+    var pukCertKeyBuf = Buffer.alloc(513);
+    var challengeBuf = Buffer.alloc(33);
+    var sessionBuf = Buffer.alloc(33);
+
+    var dataBuf = Buffer.concat([idBuf, pukCertKeyBuf, challengeBuf, sessionBuf]);
+    writeCommand(new CommandHeader(CommandCodes.DS_HANDSHAKE, 0), dataBuf);
+}
+
+function req_DS_LOGIN (userId, userPass) {
+    // connect
+
+    // getServerInfo
+
+    // getUserRules
+
+    // handshake
+    req_DS_HANDSHAKE(userId);
+
+    // login (certify user)
+>>>>>>> e632b9d8df3b57e67c76f8c0851c41ad6432daa0
 }
 
 /**
  * 서버로 업그레이드 정보를 확인합니다.
  */
 function req_DS_UPGRADE_CHECK () {
+<<<<<<< HEAD
     var serverSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT); // ?
 
     var versionStr = global.SITE_CONFIG.version + CmdConst.CMD_SEP + global.SITE_CONFIG.server_ip;
     var dataBuf = Buffer.concat([serverSizeBuf, Buffer.from(versionStr, "utf-8")]);
     
     writeCommand_MAIN_DS(new CommandHeader(CommandCodes.DS_UPGRADE_CHECK, 0), dataBuf);
+=======
+    var serverSize = Buffer.alloc(4); // ?
+
+    var versionStr = global.SITE_CONFIG.version + '|' + global.SITE_CONFIG.server_ip;
+    var dataBuf = Buffer.concat([serverSize, Buffer.from(versionStr, "utf-8")]);
+    
+    writeCommand(new CommandHeader(CommandCodes.DS_UPGRADE_CHECK, 0), dataBuf);
+>>>>>>> e632b9d8df3b57e67c76f8c0851c41ad6432daa0
 }
      
 module.exports = {
