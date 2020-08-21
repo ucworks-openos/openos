@@ -65,6 +65,10 @@ function NetTestPage() {
     setLocalLog('');
   }
 
+  const handleTestFunction = (e) => {
+    appendLocalLog("test-function req");
+    electron.ipcRenderer.send('test-function');
+  }
   
   // button click
   const handleConnect = (e) => {
@@ -99,6 +103,11 @@ function NetTestPage() {
           <Col>Server PORT : {serverPort}</Col>
         </Row>
         <Row>
+        <Col>
+            <Button onClick={handleTestFunction}>
+              테스트
+            </Button>
+          </Col>
           <Col>
             <Button onClick={handleConnect}>
                 연결시도

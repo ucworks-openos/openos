@@ -34,7 +34,7 @@ const getChild = async ({ classOrgGroupCode, classGroupCode }) => {
   const {
     data: { resultSet },
   } = await axios.get(
-    `http://localhost:4000/v0/tree/child?classOrgGroupCode=${classOrgGroupCode}&classGroupCode=${classGroupCode}`
+    `http://192.168.50.200:4000/v0/tree/child?classOrgGroupCode=${classOrgGroupCode}&classGroupCode=${classGroupCode}`
   );
   return resultSet.map((v, i) => ({
     title: v.class_kind === `2` ? v.class_group_name : v.class_user_name,

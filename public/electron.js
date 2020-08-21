@@ -5,21 +5,42 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require("path");
 const isDev = require("electron-is-dev");
 const glob = require('glob');
-const { readConfig } = require(`${path.join(__dirname, '/../build/main-process/configuration/site-config')}`);
+const { readConfig } = require(`${path.join(__dirname, '/../public/main-process/configuration/site-config')}`);
 
+global.USER = {
+  userId: ''
+}
+global.ENC = "utf-8";
+global.CERT = {
+  pukCertKey: '',
+  challenge: '',
+  session: '',
+  enc: ''
+}
 global.SITE_CONFIG = {
 	server_ip:'192.168.0.172',
   server_port:'32551',
   client_version:652
 }
-
 global.SERVER_INFO = {
-	DS:{
-      "pubip":'',
-      "ip":'',
-      "port":'',
-      "isConnected":false
-      },
+  DS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
+    },
+  CS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
+    },
+  NS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
+    },
   PS:{
     "pubip":'',
     "ip":'',
@@ -31,19 +52,23 @@ global.SERVER_INFO = {
     "ip":'',
     "port":'',
     "isConnected":false
+    },
+  
+  SMS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
     }
 }
 
-
+global.MAIN_DS_SEND_COMMAND = {}
+global.MAIN_CS_SEND_COMMAND = {}
 
 let mainWindow;
 
 function initialize () {
-<<<<<<< HEAD
-  console.log('haha')
-=======
 
->>>>>>> e632b9d8df3b57e67c76f8c0851c41ad6432daa0
   // Main Process 파일들을 로드한다.
   loadMainProcesses();
 
@@ -83,11 +108,7 @@ function initialize () {
 
 // Require each JS file in the main-process dir
 function loadMainProcesses () {
-<<<<<<< HEAD
   const files = glob.sync(path.join(__dirname, '/../public/main-process/**/*.js'))
-=======
-  const files = glob.sync(path.join(__dirname, '/../main-process/**/*.js'))
->>>>>>> e632b9d8df3b57e67c76f8c0851c41ad6432daa0
   files.forEach((file) => { require(file) })
 }
 
