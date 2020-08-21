@@ -5,9 +5,8 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require("path");
 const isDev = require("electron-is-dev");
 const glob = require('glob');
-const { readConfig } = require("../main-process/configuration/site-config");
+const { readConfig } = require(`${path.join(__dirname, '/../build/main-process/configuration/site-config')}`);
 
-global.ENC = "utf-8";
 global.SITE_CONFIG = {
 	server_ip:'192.168.0.172',
   server_port:'32551',
@@ -40,7 +39,7 @@ global.SERVER_INFO = {
 let mainWindow;
 
 function initialize () {
-
+  console.log('haha')
   // Main Process 파일들을 로드한다.
   loadMainProcesses();
 
@@ -56,7 +55,7 @@ function initialize () {
     mainWindow.loadURL(
       isDev
         ? "http://localhost:3000"
-        : `file://${path.join(__dirname, "../index.html")}`
+        : `file://${path.join(__dirname, "/../build/index.html")}`
     );
     mainWindow.on("closed", () => (mainWindow = null));
 
@@ -80,7 +79,7 @@ function initialize () {
 
 // Require each JS file in the main-process dir
 function loadMainProcesses () {
-  const files = glob.sync(path.join(__dirname, '../main-process/**/*.js'))
+  const files = glob.sync(path.join(__dirname, '/../public/main-process/**/*.js'))
   files.forEach((file) => { require(file) })
 }
 

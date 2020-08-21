@@ -1,8 +1,8 @@
-
 const {ipcMain} = require('electron')
 const { writeConfig } = require('../configuration/site-config')
 
 function loginResponse(msg) {
+  console.log('jidjidj')
   global.MAIN_WINDOW.webContents.send('res-login', msg);
 }
 
@@ -23,7 +23,3 @@ module.exports = {
   writeMainProcLog: writeMainProcLog,
   loginResponse: loginResponse
 };
-
-
-
-

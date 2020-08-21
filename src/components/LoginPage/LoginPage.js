@@ -11,15 +11,19 @@ function Home(props) {
   const { register, errors, handleSubmit } = useForm({ mode: 'onChange' });
   const onSubmit = event => {
 
-    alert( 'LOGIN REQUEST:' + JSON.stringify(event));
+    alert('LOGIN REQUEST:' + JSON.stringify(event));
 
     electron.ipcRenderer.send('net-login-req', event);
+    localStorage.setItem('isLoginElectronApp', true)
+    window.location.hash = '#/favorite';
+    window.location.reload();
   };
 
   electron.ipcRenderer.on('res-login', (event, data) => {
     alert('Login Response! ' + JSON.stringify(data))
     localStorage.setItem('isLoginElectronApp', true)
-    window.location.href = '/favorite';
+    window.location.hash = '#/favorite';
+    window.location.reload();
   });
 
   return (
@@ -28,7 +32,7 @@ function Home(props) {
         <main className="main-wrap">
           <form onSubmit={handleSubmit(onSubmit)}>
             <h1 className="h-sig welcome-title">Sign in</h1>
-            <WelcomeWordWide className="sub2 welcome-txt">- 환영합니다! 서비스 사용을 위해 로그인 해주세요. -</WelcomeWordWide>
+            <WelcomeWordWide className="sub2 welcome-txt">- 환영합니다! 서비스 사용을 위해 로그인 해주세요 -</WelcomeWordWide>
             <WelcomeWord className="sub2 welcome-txt"> 서비스 사용을 위해 로그인 해주세요 -</WelcomeWord>
             <div className="row">
               <input
@@ -72,7 +76,7 @@ function Home(props) {
             </div>
           </form>
         </main>
-        <SignitureCi color/>
+        <SignitureCi color />
       </div>
     </div>
   );

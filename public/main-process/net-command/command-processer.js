@@ -1,4 +1,3 @@
-
 const { writeMainProcLog, loginResponse } = require('../communication/sync-msg');
 
 var CommandCodes = require('./command-code');
