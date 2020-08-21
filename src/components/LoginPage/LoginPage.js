@@ -14,17 +14,17 @@ function Home(props) {
     alert('LOGIN REQUEST:' + JSON.stringify(event));
 
     electron.ipcRenderer.send('net-login-req', event);
-
-    electron.ipcRenderer.on('res-login', (event, data) => {
-      alert('Login Response! ' + JSON.stringify(data))
-      localStorage.setItem('isLoginElectronApp', true)
-      // props.history.push('/favorite')
-      window.location.hash = '#/favorite';
-      window.location.reload();
-    })
-
+    localStorage.setItem('isLoginElectronApp', true)
+    window.location.hash = '#/favorite';
+    window.location.reload();
   };
 
+  electron.ipcRenderer.on('res-login', (event, data) => {
+    alert('Login Response! ' + JSON.stringify(data))
+    localStorage.setItem('isLoginElectronApp', true)
+    window.location.hash = '#/favorite';
+    window.location.reload();
+  });
 
   return (
     <div className="sign-in">
@@ -32,7 +32,7 @@ function Home(props) {
         <main className="main-wrap">
           <form onSubmit={handleSubmit(onSubmit)}>
             <h1 className="h-sig welcome-title">Sign in</h1>
-            <WelcomeWordWide className="sub2 welcome-txt">- 환영합니다! 서비스 사용을 위해 로그인 해주세요. -</WelcomeWordWide>
+            <WelcomeWordWide className="sub2 welcome-txt">- 환영합니다! 서비스 사용을 위해 로그인 해주세요 -</WelcomeWordWide>
             <WelcomeWord className="sub2 welcome-txt"> 서비스 사용을 위해 로그인 해주세요 -</WelcomeWord>
             <div className="row">
               <input
@@ -63,7 +63,7 @@ function Home(props) {
               {errors.password && <div className="err-msg">비밀번호는 필수입력항목이며 4~12자 입니다.</div>}
             </div>
             <div className="submit-wrap">
-              <button type="submit">Let's start</button>
+              <button type="submit">Let's start </button>
             </div>
             <div className="sign-in-action-wrap">
               <div className="auto-sign-in">
