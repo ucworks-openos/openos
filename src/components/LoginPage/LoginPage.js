@@ -63,7 +63,7 @@ function Home(props) {
               {errors.password && <div className="err-msg">비밀번호는 필수입력항목이며 4~12자 입니다.</div>}
             </div>
             <div className="submit-wrap">
-              <button type="submit">Let's start</button>
+              <button type="submit">Let's start </button>
             </div>
             <div className="sign-in-action-wrap">
               <div className="auto-sign-in">
