@@ -71,7 +71,7 @@ function Home(props) {
                 <label className="sub2" htmlFor="auto-sign-in-check">자동로그인</label>
               </div>
               <div className="go-to-reset-pw">
-                <a href="#" className="sub2">비밀번호 재설정.</a>
+                <a href="#" className="sub2">비밀번호 재설정</a>
               </div>
             </div>
           </form>
