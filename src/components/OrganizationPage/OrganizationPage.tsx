@@ -71,7 +71,7 @@ export default function OrganizationPage(props: any) {
       const root: TreeNodeInterface = {
         title: data ? data.class_group_name : "",
         key: data ? data.class_id : 0,
-        isLeaf: data && data.child_cnt === 0 ? true : false,
+        isLeaf: false,
         classGroupCode: data.class_group_code,
         classUpperGroupCode: data.class_upper_group_code,
         classId: data.class_id,
@@ -99,7 +99,7 @@ export default function OrganizationPage(props: any) {
     return resultSet.map((v: any) => ({
       title: v.class_kind === `2` ? v.class_group_name : v.class_user_name,
       key: v.class_id,
-      isLeaf: v.child_cnt === 0 ? true : false,
+      isLeaf: v.class_kind === `2` ? false : true,
       classGroupCode: v.class_group_code,
       classUpperGroupCode: v.class_upper_group_code,
       classId: v.class_id,
@@ -121,6 +121,7 @@ export default function OrganizationPage(props: any) {
         return {
           ...v,
           childCnt: children.length,
+          isLeaf: false,
           children,
         };
         // children searching
