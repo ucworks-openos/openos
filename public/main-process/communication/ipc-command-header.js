@@ -20,4 +20,4 @@ function IPC_Header(ipcCommand, resCode, data = '') {
     }
 }
 
-module.exports = CommandHeader;
+module.exports = IPC_Header;
