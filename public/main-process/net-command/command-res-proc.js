@@ -1,10 +1,10 @@
 
 const { writeMainProcLog, loginResponse } = require('../communication/sync-msg');
-const { responseCmdProc } = require('./command-response-processer');
+const { dsResProc } = require('./command-ds-res');
+const { csResProc } = require('./command-cs-res');
 
 var CommandCodes = require('./command-code');
 var CmdConst = require('./command-const');
-var ResponseProcesser = require('./command-response-processer');
 
 /**
  * 수신한 Command를 처리합니다. 
@@ -16,8 +16,20 @@ function receive_command(command) {
 
     // 요청커맨드로 처리되는 방식과 받은 Command로 처리되는 방식으로 나눈다.
     if (command.sendCmd) {
-      responseCmdProc(command)
 
+      console.log('IS DS_BASE:' , parseInt(command.cmdCode/CommandCodes.DS_BASE))
+
+      // 그룹코드가 규칙성이 없어 그룹코드를 별도로 비교한다.
+      if (parseInt(command.cmdCode/CommandCodes.DS_BASE) == 1) {
+        // DS COMMAND
+        dsResProc(command);
+        
+      } else if (parseInt(command.cmdCode/CommandCodes.CS_BASE) == 1) {
+        // CS COMMAND
+        csResProc(command);
+      } else {
+        writeMainProcLog('Can not find Command Group! -  CMD: ' + command.cmdCode);
+      }
     } else {
       //
       // 요청없이 받은 데이터
@@ -42,6 +54,8 @@ function receive_command(command) {
     if (command.sendCmd && command.sendCmd.callback) {
       //console.log('CallBack -- CMD:', command);  //JSON.stringify(command));
       command.sendCmd.callback(command)
+    } else {
+      
     }
 
     return true;

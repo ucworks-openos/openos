@@ -8,8 +8,15 @@ const glob = require('glob');
 const { readConfig } = require(`${path.join(__dirname, '/../public/main-process/configuration/site-config')}`);
 
 global.USER = {
-  userId: ''
+  userId: '',
+  authMethod: '' // 사용처??  그냥 로그인시 넘겨줌 BASE64
 }
+
+global.ENCRYPT = {
+  pwdAlgorithm: 'RC4', //default rc4
+  pwdCryptKey: ''
+}
+
 global.ENC = "utf-8";
 global.CERT = {
   pukCertKey: '',
