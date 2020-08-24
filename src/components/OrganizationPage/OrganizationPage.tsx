@@ -4,59 +4,59 @@ import Tree, { TreeNode } from "rc-tree";
 import styled from "styled-components";
 import "./OrganizationPage.scss";
 import { useParams } from "react-router-dom";
-import Node from "./Node";
+import Node from "./OrganizationNode";
+import { EventDataNode, DataNode } from "rc-tree/lib/interface";
 
-// attach children
-const attach = ({ prev, key, children }) =>
-  prev.map((v) => {
-    // 1 depth searching
-    if (Number(v.key) === Number(key)) {
-      return {
-        ...v,
-        childCnt: children.length,
-        children,
-      };
-      // children searching
-    } else if (v.children) {
-      return {
-        ...v,
-        children: attach({
-          prev: v.children,
-          key: key,
-          children,
-        }),
-      };
-    }
-    return v;
-  });
+interface OrganizationPageProps {
+  classOrgGroupCode: string;
+}
 
-const getChild = async ({ classOrgGroupCode, classGroupCode }) => {
-  const {
-    data: { resultSet },
-  } = await axios.get(
-    `http://localhost:4000/v0/tree/child?classOrgGroupCode=${classOrgGroupCode}&classGroupCode=${classGroupCode}`
-  );
-  return resultSet.map((v, i) => ({
-    title: v.class_kind === `2` ? v.class_group_name : v.class_user_name,
-    key: v.class_id,
-    isLeaf: v.child_cnt === 0 ? true : false,
-    classGroupCode: v.class_group_code,
-    classUpperGroupCode: v.class_upper_group_code,
-    classId: v.class_id,
-    classUpperClassId: v.class_upper_class_id,
-    classKind: v.class_kind,
-    classGroupName: v.class_group_name,
-  }));
-};
+interface TreeNodeInterface {
+  title: string;
+  key: number;
+  isLeaf: boolean;
+  classGroupCode: string;
+  classUpperGroupCode: string;
+  classId: number;
+  classUpperClassId: number;
+  classKind: `1` | `2`;
+  classGroupName: string;
+  children: TreeNodeInterface[];
+  classOrderNo: number;
+}
 
-export default function TreeComponent(props) {
+export default function OrganizationPage(props: any) {
   // set initial tree
-  const { classOrgGroupCode } = useParams();
-  const [treeData, setTreeData] = useState(() => {
-    const result = [{ title: "", key: 0, children: [] }];
-    return result;
+  const { classOrgGroupCode } = useParams<OrganizationPageProps>();
+  const [treeData, setTreeData] = useState<TreeNodeInterface[]>([
+    {
+      title: "",
+      key: 0,
+      isLeaf: false,
+      classGroupCode: ``,
+      classUpperGroupCode: ``,
+      classId: 0,
+      classUpperClassId: 0,
+      classKind: `2`,
+      classGroupName: ``,
+      classOrderNo: 1,
+      children: [],
+    },
+  ]);
+
+  const [selectedNode, setSelectedNode] = useState<TreeNodeInterface>({
+    title: "",
+    key: 0,
+    isLeaf: false,
+    classGroupCode: ``,
+    classUpperGroupCode: ``,
+    classId: 0,
+    classUpperClassId: 0,
+    classKind: `2`,
+    classGroupName: ``,
+    classOrderNo: 1,
+    children: [],
   });
-  const [selectedNode, setSelectedNode] = useState({});
   // fetching root
   useEffect(() => {
     const getRoot = async () => {
@@ -68,7 +68,7 @@ export default function TreeComponent(props) {
 
       const [data] = resultSet;
 
-      const root = {
+      const root: TreeNodeInterface = {
         title: data ? data.class_group_name : "",
         key: data ? data.class_id : 0,
         isLeaf: data && data.child_cnt === 0 ? true : false,
@@ -78,6 +78,8 @@ export default function TreeComponent(props) {
         classUpperClassId: data.class_upper_class_id,
         classKind: `2`,
         classGroupName: data.class_group_name,
+        classOrderNo: data.classOrderNo,
+        children: [],
       };
       setTreeData([root]);
     };
@@ -88,34 +90,72 @@ export default function TreeComponent(props) {
     };
   }, [classOrgGroupCode]);
 
+  const getChild = async (classGroupCode: string) => {
+    const {
+      data: { resultSet },
+    } = await axios.get(
+      `http://localhost:4000/v0/tree/child?classOrgGroupCode=${classOrgGroupCode}&classGroupCode=${classGroupCode}`
+    );
+    return resultSet.map((v: any) => ({
+      title: v.class_kind === `2` ? v.class_group_name : v.class_user_name,
+      key: v.class_id,
+      isLeaf: v.child_cnt === 0 ? true : false,
+      classGroupCode: v.class_group_code,
+      classUpperGroupCode: v.class_upper_group_code,
+      classId: v.class_id,
+      classUpperClassId: v.class_upper_class_id,
+      classKind: v.class_kind,
+      classGroupName: v.class_group_name,
+    }));
+  };
+
+  // attach children
+  const attach = (
+    prev: TreeNodeInterface[],
+    key: number,
+    children: TreeNodeInterface[]
+  ): TreeNodeInterface[] =>
+    prev.map((v) => {
+      // 1 depth searching
+      if (Number(v.key) === Number(key)) {
+        return {
+          ...v,
+          childCnt: children.length,
+          children,
+        };
+        // children searching
+      } else if (v.children) {
+        return {
+          ...v,
+          children: attach(v.children, key, children),
+        };
+      }
+      return v;
+    });
+
   // load children
-  const load = ({ key, children, isLeaf, classGroupCode }) => {
+  const load = (e: EventDataNode): Promise<void> => {
     return new Promise(async (resolve) => {
       // avoid duplicated axios call
-      if (children) {
+      if (e.children) {
         resolve();
         return;
         // if the node yet to load chilren, execute axios call.
-      } else if (!isLeaf) {
-        const children = await getChild({
-          classOrgGroupCode,
-          classGroupCode,
-        });
+      } else if (!e.isLeaf) {
+        const { v } = await find(treeData, Number(e.key));
+        const children = await getChild(v.classGroupCode);
         // update tree
-        setTreeData((prev) =>
-          attach({
-            prev,
-            key: key,
-            children,
-          })
-        );
+        setTreeData((prev) => attach(prev, Number(e.key), children));
       }
       resolve();
     });
   };
   // find node (promise)
   // list is lexically binded with treedata
-  const find = (list, key) =>
+  const find = (
+    list: TreeNodeInterface[],
+    key: number
+  ): Promise<{ v: TreeNodeInterface; i: number; list: TreeNodeInterface[] }> =>
     new Promise((resolve) => {
       for (let i = 0; i < list.length; i++) {
         if (Number(list[i].key) === Number(key)) {
@@ -130,14 +170,14 @@ export default function TreeComponent(props) {
     });
 
   // align list's order as 1 to n
-  const align = (list) =>
+  const align = (list: TreeNodeInterface[]): TreeNodeInterface[] =>
     list.map((v, i) => ({
       ...v,
       classOrderNo: i,
     }));
 
   // syncronize order with database
-  const syncronize = async (list) => {
+  const syncronize = async (list: TreeNodeInterface[]) => {
     const classList = list.map((v) => ({
       classId: v.classId,
       classOrderNo: v.classOrderNo,
@@ -148,10 +188,9 @@ export default function TreeComponent(props) {
     });
   };
 
-  const handleSelect = async (e) => {
-    const [key] = e;
-    const node = await find(treeData, key);
-    setSelectedNode(node);
+  const handleSelect = async ([selectedKeys]: (string | number)[]) => {
+    const { v } = await find(treeData, Number(selectedKeys));
+    setSelectedNode(v);
   };
 
   useEffect(() => {
@@ -159,16 +198,18 @@ export default function TreeComponent(props) {
   }, [selectedNode]);
 
   // update child's class info moving into other parent
-  const move = async (parent, child, dropPosition) => {
-    console.log(`parent class group name: `, parent.classGroupName);
-    console.log(`child class group name: `, child.classGroupName);
+  const move = async (
+    parent: TreeNodeInterface,
+    child: TreeNodeInterface,
+    dropPosition: number
+  ) => {
     if (
       parent.classUpperGroupCode === child.classUpperGroupCode &&
       dropPosition !== 0
     ) {
       return false;
     }
-    child = {
+    const data = {
       classId: child.classId,
       classUpperGroupCode:
         dropPosition === 0 ? parent.classGroupCode : parent.classUpperGroupCode,
@@ -187,18 +228,22 @@ export default function TreeComponent(props) {
           ? parent.classGroupName
           : parent.classGroupName,
     };
-    await axios.patch(`http://localhost:4000/v0/tree/child`, child);
+    await axios.patch(`http://localhost:4000/v0/tree/child`, data);
   };
 
   // validation check if you drop something to user
-  const validate = async (replica, dropKey, dropPosition) => {
+  const validate = async (
+    replica: TreeNodeInterface[],
+    dropKey: number,
+    dropPosition: number
+  ) => {
     const { v: dropV } = await find(replica, dropKey);
     console.log(`dropV: `, dropV);
     return dropV.classKind === "1" && dropPosition === 0 ? false : true;
   };
 
   // drop event
-  const onDrop = async (info) => {
+  const onDrop = async (info: any) => {
     const {
       dropToGap,
       dragNode: {
@@ -218,7 +263,7 @@ export default function TreeComponent(props) {
     // validation check if you drop something to user
     if (!(await validate(replica, dropKey, dropPosition))) {
       //_set_has_dropped_to_user(true);
-      alert("사용자 하위에 추가할 수 없습니다.");
+      // alert("사용자 하위에 추가할 수 없습니다.");
       return false;
     }
     const { v: dragV, i: dragI, list: dragList } = await find(replica, dragKey);
@@ -231,10 +276,7 @@ export default function TreeComponent(props) {
         dropV.children.push(dragV);
       } else {
         // if you drop something to node not having children(or yet to have), execute axios call
-        let children = await getChild({
-          classOrgGroupCode,
-          classGroupCode: dropV.classGroupCode,
-        });
+        let children = await getChild(dropV.classGroupCode);
         dropV.children = [...children, dragV];
       }
       move(dropV, dropV.children[dropV.children.length - 1], dropPosition);
@@ -265,7 +307,7 @@ export default function TreeComponent(props) {
     setTreeData(replica);
   };
 
-  const switcherGenerator = (data) => (
+  const switcherGenerator = (data: any) => (
     <>
       {data?.classKind === `2` && (
         <Switcher>
@@ -286,7 +328,7 @@ export default function TreeComponent(props) {
   );
 
   // need to be memorized
-  const renderTreeNodes = (data) => {
+  const renderTreeNodes = (data: TreeNodeInterface[]) => {
     return data.map((item) => {
       if (item.children) {
         return (
@@ -317,8 +359,7 @@ export default function TreeComponent(props) {
           <div className="rc-tree-wrap">
             <Tree
               loadData={load}
-              // draggable
-              blockNode
+              draggable
               showLine
               showIcon={false}
               onDrop={onDrop}
