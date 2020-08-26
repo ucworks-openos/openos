@@ -8,7 +8,7 @@ module.exports = Object.freeze({
     BUF_LEN_PUKCERTKEY:     513,
     BUF_LEN_CHALLENGE:      33,
     BUF_LEN_SESSION:        33,
-    BUF_LEN_IP:             51,
+    BUF_LEN_IP:             52,
     BUF_LEN_USERID:         51,
     BUF_LEN_USERPWD:        101,
     BUF_LEN_USERDN:         4001

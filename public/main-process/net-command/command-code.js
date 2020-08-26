@@ -2,6 +2,7 @@ const DS_BASE = 3000;
 const CS_BASE = 13000;
 
 module.exports = Object.freeze({
+    DS_BASE               : DS_BASE,
     DS_HANDSHAKE          : DS_BASE + 300,
     DS_SET_SESSION        : DS_BASE + 303,
 
@@ -12,10 +13,17 @@ module.exports = Object.freeze({
     DS_GET_SERVER_INFO    : DS_BASE + 93,
     DS_GET_RULES          : DS_BASE + 94,
 
-    DS_GET_BUDDY_DATA     : DS_BASE + 20,
+    DS_GET_BUDDY_MEMORY          : DS_BASE + 19,
+    DS_GET_BUDDY_MEMORY_LZ       : DS_BASE + 601,
+    DS_GET_BUDDY_MEMORY_LZO      : DS_BASE + 602,
+    DS_GET_BUDDY_DATA            : DS_BASE + 20,
+    DS_GET_BUDDY_DATA_LZ         : DS_BASE + 603,
+    DS_GET_BUDDY_DATA_LZO        : DS_BASE + 604,
+    DS_GET_BUDDY_DATA_OK         : DS_BASE + 21,
 
     
     //#region CS COMMAND
+    CS_BASE                      : CS_BASE,
     CS_CERTIFY                   : CS_BASE + 1,
     CS_SUCCESS                   : CS_BASE + 2,
     CS_NOT_CONNECT               : CS_BASE + 3,

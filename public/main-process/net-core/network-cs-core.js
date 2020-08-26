@@ -1,7 +1,8 @@
-const { writeMainProcLog } = require('../communication/sync-msg');
-const { receive_command } = require('../net-command/command-processer');
+const { sendLog } = require('../ipc/ipc-cmd-sender');
+const { receive_command } = require('../net-command/command-res-proc');
 
 var CommandHeader = require('../net-command/command-header');
+var ResData = require('../ResData');
 
 var csSock;
 var rcvCommand;
@@ -12,7 +13,7 @@ var rcvCommand;
  */
 function readDataStream(rcvData){  
     console.log('\r\n++++++++++++++++++++++++++++++++++');
-    console.log('rcvData:', rcvData);
+    console.log('CS rcvData:', rcvData);
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
@@ -32,7 +33,7 @@ function readDataStream(rcvData){
     }
 
     rcvCommand.readCnt += rcvData.length;
-    console.log('Recive Command Data :', rcvCommand);
+    console.log('Recive CS Command Data :', rcvCommand);
 
     if (rcvCommand.size <= rcvCommand.readCnt) {
         // 데이터를 모두 다 받았다.
@@ -41,7 +42,7 @@ function readDataStream(rcvData){
         rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
 
         if (!receive_command(procCmd)) {
-            console.log('Revceive Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            console.log('Revceive CS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     }
 };
@@ -85,57 +86,65 @@ function writeCommand(cmdHeader, dataBuf) {
         global.MAIN_CS_SEND_COMMAND = cmdHeader
         
         console.log('\r\n-------------------------- ');
-        //writeMainProcLog("write Command ------ CMD: " + JSON.stringify(global.MAIN_CS_SEND_COMMAND));
-        console.log("write Command : ", global.MAIN_CS_SEND_COMMAND);
+        //sendLog("write Command ------ CMD: " + JSON.stringify(global.MAIN_CS_SEND_COMMAND));
+        console.log("write CS Command : ", global.MAIN_CS_SEND_COMMAND);
     } catch (exception) {
-        writeMainProcLog("write Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
+        sendLog("write CS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     }
  };
 
  /**
   * 서버 접속
   */
-function connect (callback) {
+function connect () {
     
     if (csSock) {
         csSock.destroy();
     }
     
-    writeMainProcLog("Conncect MAIN_CS to " + JSON.stringify(global.SERVER_INFO.CS, null, 0))
+    sendLog("Conncect MAIN_CS to " + JSON.stringify(global.SERVER_INFO.CS, null, 0))
 
-    var tcpSock = require('net');  
-    var client  = new tcpSock.Socket;  
-    csSock = client.connect(global.SERVER_INFO.CS.server_port, global.SERVER_INFO.CS.server_ip, function() {
-        writeMainProcLog("Conncect MAIN_CS Completed to " + JSON.stringify(global.SERVER_INFO.CS, null, 0))
-        global.SERVER_INFO.CS.isConnected = true;
+    return new Promise(function(resolve, reject){
+        var tcpSock = require('net');  
+        var client  = new tcpSock.Socket;  
+        csSock = client.connect(global.SERVER_INFO.CS.port, global.SERVER_INFO.CS.pubip, function() {
+            sendLog("Conncect MAIN_CS Completed to " + JSON.stringify(global.SERVER_INFO.CS, null, 0))
+            global.SERVER_INFO.CS.isConnected = true;
 
-        callback();
-    });  
+            resolve(new ResData(true));
+        });  
 
-    // listen for incoming data
-    csSock.on("data", function(data){
-        readDataStream(data);
-    })
+        // listen for incoming data
+        csSock.on("data", function(data){
+            readDataStream(data);
+        })
 
-    // 접속이 종료됬을때 메시지 출력
-    csSock.on('end', function(){
-        writeMainProcLog('Disconnected!');
-        global.SERVER_INFO.CS.isConnected = true;
-    });
-    // 
-    csSock.on('close', function(hadError){
-        writeMainProcLog("Close. hadError: " + hadError);
-        global.SERVER_INFO.CS.isConnected = true;
-    });
-    // 에러가 발생할때 에러메시지 화면에 출력
-    csSock.on('error', function(err){
-        writeMainProcLog("Error: " + JSON.stringify(err));
-        global.SERVER_INFO.CS.isConnected = true;
-    });
-    // connection에서 timeout이 발생하면 메시지 출력
-    csSock.on('timeout', function(){
-        writeMainProcLog('Connection timeout.');
-        global.SERVER_INFO.CS.isConnected = true;
+        // 접속이 종료됬을때 메시지 출력
+        csSock.on('end', function(){
+            sendLog('Disconnected!');
+            global.SERVER_INFO.CS.isConnected = false;
+        });
+        // 
+        csSock.on('close', function(hadError){
+            sendLog("Close. hadError: " + hadError);
+            global.SERVER_INFO.CS.isConnected = false;
+        });
+        // 에러가 발생할때 에러메시지 화면에 출력
+        csSock.on('error', function(err){
+            sendLog("Error: " + JSON.stringify(err));
+
+            // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
+            if (!global.SERVER_INFO.CS.isConnected) {
+                reject(err);
+            } else {
+                global.SERVER_INFO.CS.isConnected = false;
+            }
+        });
+        // connection에서 timeout이 발생하면 메시지 출력
+        csSock.on('timeout', function(){
+            sendLog('Connection timeout.');
+            global.SERVER_INFO.CS.isConnected = false;
+        });
     });
 };
 

@@ -3,8 +3,8 @@ import './Sections/LoginPage.css';
 import { useForm } from 'react-hook-form';
 import SignitureCi from '../_Common/SignitureCi';
 import styled from 'styled-components';
+import {login} from '../ipcCommunication/ipcCommon';
 
-// require("electron")시 webPack과 standard module이 충돌
 const electron = window.require("electron")
 
 function Home(props) {
@@ -13,19 +13,30 @@ function Home(props) {
 
     console.log('LOGIN REQUEST:', event);
 
-    electron.ipcRenderer.send('net-login-req', event);
-    localStorage.setItem('isLoginElectronApp', true)
-    window.location.hash = '#/favorite';
-    window.location.reload();
+    login(event.loginId, event.loginPwd).then(function(resData){
+
+      console.log('Promiss login res', resData);
+
+      if (resData.resCode) {
+        alert('Login Success! ' + JSON.stringify(resData))
+        localStorage.setItem('isLoginElectronApp', true)
+        window.location.hash = '#/favorite';
+        window.location.reload();
+      } else {
+        alert('Login fail! ' + JSON.stringify(resData))
+      }
+    }).catch(function(err){
+      alert('Login fail! ' + JSON.stringify(err))
+    });
   };
 
 
-  electron.ipcRenderer.on('res-login', (event, data) => {
-    alert('Login Response! ' + JSON.stringify(data))
-    localStorage.setItem('isLoginElectronApp', true)
-    window.location.hash = '#/favorite';
-    window.location.reload();
-  });
+  // electron.ipcRenderer.on('res-login', (event, data) => {
+  //   alert('Login Response! ' + JSON.stringify(data))
+  //   localStorage.setItem('isLoginElectronApp', true)
+  //   window.location.hash = '#/favorite';
+  //   window.location.reload();
+  // });
 
   return (
     <div className="sign-in">

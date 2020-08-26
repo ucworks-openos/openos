@@ -3,6 +3,11 @@ import styled from 'styled-components';
 import { Button, Container, Row, Col } from 'react-bootstrap';
 import moment from 'moment';
 
+import {getConfig, login} from '../ipcCommunication/ipcCommon'
+import {connectDS, upgradeCheck, testAction} from '../ipcCommunication/ipcTest'
+
+const electron = window.require("electron")
+
 const GridWrapper = styled.div`
   display: grid;
   grid-gap: 5px;
@@ -10,9 +15,6 @@ const GridWrapper = styled.div`
   margin-left: 6em;
   margin-right: 1.2em;
 `;
-
-// require("electron")시 webPack과 standard module이 충돌
-const electron = window.require("electron")
 
 function NetTestPage() {
   const [serverIp, setServerIp] = useState("");
@@ -27,25 +29,19 @@ function NetTestPage() {
   useEffect(() => {
     console.log("NetTestPage Init");
 
-    electron.ipcRenderer.once('readConfig-res', (event, data) => {
-      console.log("readConfig-res", data);
-
-      setServerIp(data.server_ip);
-      setServerPort(data.server_port);
-
-    });
-
     electron.ipcRenderer.on('net-log', (event, data) => {
       appendNetLog(data);
     });
 
-    electron.ipcRenderer.send('readConfig-req', '');
-
+    let config = getConfig();
+    setServerIp(config.server_ip);
+    setServerPort(config.server_port);
   }, []);
+
+  //#region WriteLog ...
 
   const appendNetLog = (msg) => {
     msg = moment().format("hh:mm:ss.SSS >") + msg
-
 
     netLogMsg = netLogMsg + (netLogMsg ? "\r\n" : "") + msg;
     setNetLog(netLogMsg);
@@ -64,32 +60,49 @@ function NetTestPage() {
     setNetLog(netLogMsg);
     setLocalLog('');
   }
+  //#endregion WriteLog ...
 
   const handleTestFunction = (e) => {
-    appendLocalLog("test-function req");
-    electron.ipcRenderer.send('test-function');
+    testAction();
   }
   
   // button click
   const handleConnect = (e) => {
-    appendLocalLog("net-connect-req");
-    electron.ipcRenderer.send('net-connect-req', '');
+    connectDS().then(function(data) {
+      appendLocalLog('DS Connect Result:' + JSON.stringify(data));
+    });
   }
-  
-  // button click
-  const handleLogin = (e) => {
-    appendLocalLog("net-login-req");
-    electron.ipcRenderer.send('net-login-req', {loginId:'bslee', loginPwd:'1111'});
-  }
- 
+
   
   // button click
   const handleUpgradeCheck = (e) => {
     appendLocalLog("net-upgradeCheck-req");
-    electron.ipcRenderer.send('net-upgradeCheck-req', '');
+    upgradeCheck().then(function(data) {
+      appendLocalLog('upgradeCheck Result:' + JSON.stringify(data));
+    });
   }
 
-   
+  
+  // button click
+  const handleLogin = (e) => {
+    appendLocalLog("net-login-req");
+    login('bslee', '1234').then(function(resData){
+
+      console.log('Promiss login res', resData);
+
+      if (resData.resCode) {
+        alert('Login Success! ' + JSON.stringify(resData))
+        localStorage.setItem('isLoginElectronApp', true)
+        window.location.hash = '#/favorite';
+        window.location.reload();
+      } else {
+        alert('Login fail! ' + JSON.stringify(resData))
+      }
+    }).catch(function(err){
+      alert('Login fail! ' + err)
+    });;
+  }
+ 
   // button click
   const handleLogClear = (e) => {
     clearLog();
