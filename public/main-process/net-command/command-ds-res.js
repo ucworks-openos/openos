@@ -1,8 +1,10 @@
-const { writeMainProcLog } = require('../communication/sync-msg');
+const { sendLog } = require('../ipc/ipc-cmd-sender');
+const { callCallback } = require('./command-utils');
+const ResData = require('../ResData');
 
 var CmdCodes = require('./command-code');
 var CmdConst = require('./command-const');
-const { ListGroupItem } = require('react-bootstrap');
+
 
 /**
  * 수신한 Command를 처리합니다. 
@@ -10,11 +12,11 @@ const { ListGroupItem } = require('react-bootstrap');
  */
 function responseCmdProc(command) {
   if (!command.sendCmd) {
-    writeMainProcLog('Reqeust Command Empty! -  CMD: ' + command.cmdCode);
+    sendLog('Reqeust Command Empty! -  CMD: ' + command.cmdCode);
     return;
   }
 
-  writeMainProcLog('DS Response -  RES_CMD: ' + command.cmdCode);
+  sendLog('DS Response -  RES_CMD: ' + command.cmdCode);
 
   // 요청커맨드로 처리되는 방식과 받은 Command로 처리되는 방식으로 나눈다.
   
@@ -29,7 +31,7 @@ function responseCmdProc(command) {
         var parser = new xml2js.Parser();
         parser.parseString(serverInfoXml, function(err, result) {
             if (err) {
-              writeMainProcLog.log('ServerInfo parse error!  Ex: ' + err);
+              sendLog.log('ServerInfo parse error!  Ex: ' + err);
               return;
             }
 
@@ -41,12 +43,15 @@ function responseCmdProc(command) {
             global.SERVER_INFO.SMS = result.server_info.SMS[0].$;
 
             global.USER.authMethod = result.server_info.UserAuth[0].$.method;
+
+            callCallback(command.sendCmd, new ResData(true));
           });
 
-        writeMainProcLog('ServerInfo: ' + JSON.stringify(global.SERVER_INFO));
-        writeMainProcLog('authMethod: ' + global.USER.authMethod);
+        sendLog('ServerInfo: ' + JSON.stringify(global.SERVER_INFO));
+        sendLog('authMethod: ' + global.USER.authMethod);
       } else {
-        writeMainProcLog('DS_GET_SERVER_INFO  Response Fail! -  ', command.cmdCode);
+        callCallback(command.sendCmd, new ResData(false));
+        sendLog('DS_GET_SERVER_INFO  Response Fail! -  ', command.cmdCode);
       }
 
       break;
@@ -98,7 +103,7 @@ function responseCmdProc(command) {
           var parser = new xml2js.Parser();
           parser.parseString(rule, function(err, result) {
             if (err) {
-              writeMainProcLog('RULE parse error!  Ex: ' + err + ' \r\nResult:' + result + '\r\nrule:' + rule);
+              sendLog('RULE parse error!  Ex: ' + err + ' \r\nResult:' + result + '\r\nrule:' + rule);
               return ;
             }
 
@@ -120,23 +125,19 @@ function responseCmdProc(command) {
                       break;
                   }
                 });
+
+                console.log('RULE:', global.ENCRYPT)
               }
+
+              callCallback(command.sendCmd, new ResData(true));
             } catch (exception) {
+              callCallback(command.sendCmd, new ResData(false, exception));
               console.log('RULE PARSE ERR!!', exception)
-              //writeMainProcLog("RULE PARSE ERR!! " + JSON.stringify(exception) + ' \r\n rule:' + JSON.stringify(result));
             }
-
-            console.log('RULE:', global.ENCRYPT.pwd_cryptKey)
+            
           });
-
-          writeMainProcLog('LOGIN SUCESS!!  \r\n'
-            + 'userId:' + userId
-            + ' userPwd:' + userPwd
-            + ' connIp:' + connIp
-            + ' svrSize:' + svrSize
-            + ' ruleSize:' + ruleSize);
       } else {
-        writeMainProcLog('DS_GET_RULES  Response Fail! -  ', command.cmdCode);
+        sendLog('DS_GET_RULES  Response Fail! -  ', command.cmdCode);
       }
       break;
   
@@ -145,7 +146,7 @@ function responseCmdProc(command) {
         if (command.data) {
           const rcvBuf = Buffer.from(command.data);
           var serverInfoXml = rcvBuf.toString('utf-8', 4);
-          writeMainProcLog('ServerInfo: ' + serverInfoXml);
+          sendLog('ServerInfo: ' + serverInfoXml);
 
           var xml2js = require('xml2js');
           var parser = new xml2js.Parser();
@@ -156,21 +157,14 @@ function responseCmdProc(command) {
               // 버전이 동일하다면 로그인시 서버정보를 다시 받아오기 때문에 의미없고
               // 업그레이드시 대상 서버를 확인하기 위해 정보를 적용한다.
               if (global.SITE_CONFIG.client_version != check_version) {
-                  writeMainProcLog("CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version);
-                    // login 가능
-                    global.SERVER_INFO.DS = result.server_upgrade_info.DS[0].$;
-                    global.SERVER_INFO.PS = result.server_upgrade_info.PS[0].$;
-                    global.SERVER_INFO.FS = result.server_upgrade_info.FS[0].$;
-
-                  //writeMainProcLog("Server Upgrade Info : " + JSON.stringify(global.SERVER_INFO));
-                  
-                  // TODO 
-                  // goto update
+                  sendLog("CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version);
               }
+
+              callCallback(command.sendCmd, new ResData(true, "CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version))
             });
         }
       } else {
-        writeMainProcLog('DS_UPGRADE_CHECK  Response Fail! -  ', command.cmdCode);
+        sendLog('DS_UPGRADE_CHECK  Response Fail! -  ', command.cmdCode);
       }
       break;
 
@@ -179,15 +173,18 @@ function responseCmdProc(command) {
       if (command.data) {
 
         global.USER.userId = command.data.toString(global.ENC, 0, CmdConst.BUF_LEN_USERID).trim(),
-        writeMainProcLog('DS_HANDSHAKE USERID :' + global.USER.userId); 
+        sendLog('DS_HANDSHAKE USERID :' + global.USER.userId); 
         global.CERT = {
           pukCertKey: command.data.toString(global.ENC, CmdConst.BUF_LEN_USERID, CmdConst.BUF_LEN_PUKCERTKEY).trim(),
           challenge: command.data.toString(global.ENC, CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_PUKCERTKEY, CmdConst.BUF_LEN_CHALLENGE).trim(),
           session: command.data.toString(global.ENC, CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_PUKCERTKEY + CmdConst.BUF_LEN_CHALLENGE, CmdConst.BUF_LEN_SESSION).trim()
         }
 
+        callCallback(command.sendCmd, new ResData(true));
         //console.log('DS_HANDSHAKE :', handShakeRes)
-        writeMainProcLog('DS_HANDSHAKE CERT :' + JSON.stringify(global.CERT)); 
+        sendLog('DS_HANDSHAKE CERT :' + JSON.stringify(global.CERT)); 
+      } else {
+        callCallback(command.sendCmd, new ResData(false, 'Response Data Empty!'));
       }
       break;
 
@@ -195,7 +192,7 @@ function responseCmdProc(command) {
       switch(command.cmdCode){
         case CmdCodes.DS_GET_BUDDY_DATA_OK:
           // ?? 그냥 끝낸다.
-          writeMainProcLog('DS_GET_BUDDY_DATA_OK!!');
+          sendLog('DS_GET_BUDDY_DATA_OK!!');
           break;
 
         case CmdCodes.DS_GET_BUDDY_MEMORY:
@@ -207,7 +204,7 @@ function responseCmdProc(command) {
           var parser = new xml2js.Parser();
           parser.parseString(contactData, function(err, result) {
               if (err) {
-                writeMainProcLog.log('Contact parse error!  Ex: ' + err);
+                sendLog.log('Contact parse error!  Ex: ' + err);
                 return;
               }
 
@@ -215,7 +212,7 @@ function responseCmdProc(command) {
 
             });
           
-          writeMainProcLog('Contact Data Receive:' + contactData);
+          sendLog('Contact Data Receive:' + contactData);
           break;
       }
     
@@ -225,7 +222,7 @@ function responseCmdProc(command) {
       let rcvBuf = Buffer.from(command.data);
       let dataStr = rcvBuf.toString(global.ENC, 0);
       
-      writeMainProcLog('Unknown Response Command Receive: ' + command.cmdCode); // + ' Data:' + dataStr);
+      sendLog('Unknown Response Command Receive: ' + command.cmdCode); // + ' Data:' + dataStr);
       }
       return false;
       break;
@@ -233,6 +230,7 @@ function responseCmdProc(command) {
 
     return true;
 }
+
 
 module.exports = {
   dsResProc: responseCmdProc

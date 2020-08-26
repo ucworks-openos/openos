@@ -7,12 +7,12 @@
 
 /**
  * 
- * @param {ipc-command-code} ipcCommand 
+ * @param {ipc-command-code} actionCode 
  * @param {Nuber} resCode  // resCde>0:Sucess 0:fail (-1, -2 ...)
  * @param {Object} data  // msg:'Unknown code!'
  */
-function IPC_Header(ipcCommand, resCode, data = '') {
-    this.ipcCommand = ipcCommand;
+function IPC_Header(actionCode, resCode, data = '') {
+    this.actionCode = actionCode;
     this.resCode = resCode;
     
     if (data) {

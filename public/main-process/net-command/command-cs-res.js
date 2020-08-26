@@ -1,8 +1,11 @@
-const { writeMainProcLog } = require('../communication/sync-msg');
+const { sendLog } = require('../ipc/ipc-cmd-sender');
+const { callCallback } = require('./command-utils');
+const ResData = require('../ResData');
 
 var CmdCodes = require('./command-code');
 var CmdConst = require('./command-const');
-const { ListGroupItem } = require('react-bootstrap');
+
+
 
 /**
  * 수신한 Command를 처리합니다. 
@@ -10,11 +13,11 @@ const { ListGroupItem } = require('react-bootstrap');
  */
 function responseCmdProc(command) {
   if (!command.sendCmd) {
-    writeMainProcLog('CS Request Command Empty! -  CMD: ' + command.cmdCode);
+    sendLog('CS Request Command Empty! -  CMD: ' + command.cmdCode);
     return;
   }
 
-  writeMainProcLog('CS Response -  RES_CMD: ' + command.cmdCode);
+  sendLog('CS Response -  RES_CMD: ' + command.cmdCode);
 
   // 요청커맨드로 처리되는 방식과 받은 Command로 처리되는 방식으로 나눈다.
   
@@ -24,14 +27,18 @@ function responseCmdProc(command) {
       // resCommand
       switch(command.cmdCode) {
         case CmdCodes.CS_SUCCESS:
+          callCallback(command.sendCmd, new ResData(true));
           break;
         case CmdCodes.CS_WRONG_PASSWORD:
+          callCallback(command.sendCmd, new ResData(false, 'CS_WRONG_PASSWORD'));
           break;
         case CmdCodes.CS_NO_USERID:
+          callCallback(command.sendCmd, new ResData(false, 'CS_NO_USERID'));
           break;
 
         default:
-          writeMainProcLog('CS_CERTIFY  Response Fail! -  ', command.cmdCode);
+          sendLog('CS_CERTIFY  Response Fail! -  ', command.cmdCode);
+          callCallback(command.sendCmd, new ResData(false, 'CS_CERTIFY  Response Fail!'));
           break;
       }
 
@@ -41,7 +48,7 @@ function responseCmdProc(command) {
         let rcvBuf = Buffer.from(command.data);
         let dataStr = rcvBuf.toString('utf-8', 0);
         
-        writeMainProcLog('Unknown Response Command Receive: ' + command.cmdCode); // + ' Data:' + dataStr);
+        sendLog('Unknown Response Command Receive: ' + command.cmdCode); // + ' Data:' + dataStr);
       }
       return false;
     }

@@ -1,5 +1,5 @@
 const { connectDS, writeCommandDS } = require('../net-core/network-ds-core');
-const { writeMainProcLog } = require('../communication/sync-msg');
+const { sendLog } = require('../ipc/ipc-cmd-sender');
 
 var CsAPI = require('./command-cs-api');
 var CommandHeader = require('./command-header');
@@ -8,6 +8,7 @@ var CmdConst = require('./command-const');
 var OsUtil = require('../utils/utils-os');
 
 var CryptoUtil = require('../utils/utils-crypto');
+const ResData = require('../ResData');
 
 
 function testFunction () {
@@ -15,138 +16,190 @@ function testFunction () {
     let txt = '김영대1234567890'
 
     let encTxt = CryptoUtil.encryptRC4(key, txt)
-    writeMainProcLog('ENC: ' + encTxt);
+    sendLog('ENC: ' + encTxt);
 
     let decTxt = CryptoUtil.decryptRC4(key, encTxt);
-    writeMainProcLog('DES: ' + decTxt);
+    sendLog('DES: ' + decTxt);
 }
 
 /**
  * 서버로 접속요청 합니다.
  */
 function reqConnectDS () {
-    connectDS(function() {
-        console.log('!!!!!!!!!!!!!!!!!!!!!  CONNECTED');
-    });
+    return connectDS();
 }
 
 /**
  * 서버와 통신가능여부를 확인 합니다. 
  * @param {String} userId 
  */
-function reqHandshackDS (userId, callback) {
-    
-    // 1.보안키를 받아오고
-    var idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
-    idBuf.write(userId, global.ENC);
+function reqHandshackDS (userId) {
+    return new Promise(function(resolve, reject) {
 
-    var pukCertKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_PUKCERTKEY);
-    var challengeBuf = Buffer.alloc(CmdConst.BUF_LEN_CHALLENGE);
-    var sessionBuf = Buffer.alloc(CmdConst.BUF_LEN_SESSION);
+        // 1.보안키를 받아오고
+        var idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        idBuf.write(userId, global.ENC);
 
-    var dataBuf = Buffer.concat([idBuf, pukCertKeyBuf, challengeBuf, sessionBuf]);
-    writeCommandDS(new CommandHeader(CmdCodes.DS_HANDSHAKE, 0, callback), dataBuf);
+        var pukCertKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_PUKCERTKEY);
+        var challengeBuf = Buffer.alloc(CmdConst.BUF_LEN_CHALLENGE);
+        var sessionBuf = Buffer.alloc(CmdConst.BUF_LEN_SESSION);
 
+        var dataBuf = Buffer.concat([idBuf, pukCertKeyBuf, challengeBuf, sessionBuf]);
+        writeCommandDS(new CommandHeader(CmdCodes.DS_HANDSHAKE, 0, function(resData){
+            resolve(resData);
+        }), dataBuf);
+    });
 }
 
-async function reqSetSessionDS(userId, callback) {
+/**
+ * 
+ * @param {*} userId 
+ * @param {*} callback 
+ */
+ function reqSetSessionDS(userId) {
+    return new Promise(function(resolve, reject){
 
-    console.log('SET_SESSION CertInfo:', global.CERT);
+        // 2.세션정보 저장요청을 한다.
+        let localInfo = OsUtil.getIpAddress() + CmdConst.CMD_SEP + OsUtil.getMacAddress();
+        var localInfoBuf = Buffer.alloc(localInfo.length);
+        localInfoBuf.write(localInfo, global.ENC);
 
-    // 2.세션정보 저장요청을 한다.
-    let localInfo = OsUtil.getIpAddress() + CmdConst.CMD_SEP + await OsUtil.getMacAddress();
-    var localInfoBuf = Buffer.alloc(localInfo.length);
-    localInfoBuf.write(localInfo, global.ENC);
+        var idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        idBuf.write(userId, global.ENC);
 
-    var idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
-    idBuf.write(userId, global.ENC);
+        var pukCertKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_PUKCERTKEY);
+        pukCertKeyBuf.write(global.CERT.pukCertKey, global.ENC);
+        
+        var challengeBuf = Buffer.alloc(CmdConst.BUF_LEN_CHALLENGE);
+        challengeBuf.write(global.CERT.challenge, global.ENC);
+        
+        var sessionBuf = Buffer.alloc(CmdConst.BUF_LEN_SESSION);
+        sessionBuf.write(global.CERT.session, global.ENC);
 
-    var pukCertKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_PUKCERTKEY);
-    pukCertKeyBuf.write(global.CERT.pukCertKey, global.ENC);
-    
-    var challengeBuf = Buffer.alloc(CmdConst.BUF_LEN_CHALLENGE);
-    challengeBuf.write(global.CERT.challenge, global.ENC);
-    
-    var sessionBuf = Buffer.alloc(CmdConst.BUF_LEN_SESSION);
-    sessionBuf.write(global.CERT.session, global.ENC);
+        var dataBuf = Buffer.concat([idBuf, pukCertKeyBuf, challengeBuf, sessionBuf, localInfoBuf]);
+        writeCommandDS(new CommandHeader(CmdCodes.DS_SET_SESSION, 0), dataBuf);
 
-     var dataBuf = Buffer.concat([idBuf, pukCertKeyBuf, challengeBuf, sessionBuf, localInfoBuf]);
-     writeCommandDS(new CommandHeader(CmdCodes.DS_SET_SESSION, 0, callback), dataBuf);
-
-     // 응답없음. 보내고 끝냄
-     callback('')
+        // setSession은 응답이 없다.
+        resolve(new ResData(true));
+    });
 }
 
-function reqLogin (loginData, connectionTry=true) {
+/**
+ * Login을 요청합니다.
+ * @param {Object} loginData 
+ * @param {boolean} connectionTry 
+ */
+function reqLogin (loginData, connTry=true) {
+    return new Promise(async function(resolve, reject) {
 
-    // connect
-    if (connectionTry && !global.SERVER_INFO.DS.isConnected) {
-        connectDS(function() {
-            reqLogin(loginData, false)
+        // connect
+        if (connTry && !global.SERVER_INFO.DS.isConnected) {
+            await connectDS();
+        }
+
+        if (!global.SERVER_INFO.DS.isConnected) 
+        {
+            reject(new Error('DS Server Not Connected!'));
+            return;
+        }
+        
+        // GetServerInfo
+        let resData = await reqGetServerInfo(loginData.loginId);
+        if (!resData.resCode) {
+            reject(new Error(JSON.stringify(resData)));
+        }
+        sendLog('LOG IN STEP 1 --- GetServerInfo COMPLETED!' + JSON.stringify(resData));
+
+        // GetUserRules
+        resData = await reqGetUserRules(loginData.loginId, loginData.loginPwd);
+        if (!resData.resCode) {
+            reject(new Error(JSON.stringify(resData)));
+        }
+        sendLog('LOG IN STEP 2 --- GetUserRules COMPLETED!' + JSON.stringify(resData));
+
+        // HandshackDS
+        resData = await reqHandshackDS(loginData.loginId);
+        if (!resData.resCode) {
+            reject(new Error(JSON.stringify(resData)));
+        }
+        sendLog('LOG IN STEP 3 --- HandshackDS COMPLETED!' + JSON.stringify(resData));
+
+        // SetSessionDS
+        resData = await reqSetSessionDS(loginData.loginId);
+        if (!resData.resCode) {
+            reject(new Error(JSON.stringify(resData)));
+        }
+        sendLog('LOG IN STEP 4 --- SetSessionDS COMPLETED!' + JSON.stringify(resData));
+
+        // CertifyCS
+        resData = await CsAPI.reqCertifyCS(loginData.loginPwd, true);
+        sendLog('LOG IN STEP 5 --- CertifyCS COMPLETED!' + JSON.stringify(resData));
+        resolve(resData);
+
+        
+        //#region 
+        /*
+        // getServerInfo
+        reqGetServerInfo(loginData.loginId, function(cmd) {
+            sendLog('LOG IN PROCESS --- reqGetServerInfo COMPLETED!');        
+
+            // getUserRules
+            reqGetUserRules(loginData.loginId, loginData.loginPwd, function(cmd) {
+                sendLog('LOG IN PROCESS --- reqGetUserRules COMPLETED!');    
+                global.USER.userId = loginData.loginId;
+
+                // HANDSHAKE
+                reqHandshackDS(loginData.loginId, function(cmd) {
+                    sendLog('LOG IN PROCESS --- reqHandshackDS COMPLETED!');
+
+                    // SetSession
+                    reqSetSessionDS(loginData.loginId, function(cmd) {
+                        sendLog('LOG IN PROCESS --- reqSetSessionDS COMPLETED!');
+                    
+                        CsAPI.reqCertifyCS(loginData.loginPwd, true, function(cmd) {
+                            sendLog('LOG IN PROCESS --- reqCertifyCS COMPLETED!');
+                            callback(new ResData(fase, 'DS Server Not Connected!'));
+
+
+                            // reqGetUserContacts(loginData.loginId, function(cmd) {
+                            //     sendLog('LOG IN PROCESS --- reqGetUserContacts COMPLETED!');
+                            // })
+                        });
+                    })
+                    
+                });
+            });
         });
-        return ;
-    }
-
-    if (!global.SERVER_INFO.DS.isConnected) 
-    {
-        writeMainProcLog('DS Server Not Connected!');
-        return;
-    }
-
-    writeMainProcLog('--  START LOGIN --');
-
-    // getServerInfo
-    reqGetServerInfo(loginData.loginId, function(cmd) {
-        writeMainProcLog('LOG IN PROCESS --- reqGetServerInfo COMPLETED!');        
-
-        // getUserRules
-        reqGetUserRules(loginData.loginId, loginData.loginPwd, function(cmd) {
-            writeMainProcLog('LOG IN PROCESS --- reqGetUserRules COMPLETED!');    
-            global.USER.userId = loginData.loginId;
-
-            // HANDSHAKE
-            reqHandshackDS(loginData.loginId, function(cmd) {
-                writeMainProcLog('LOG IN PROCESS --- reqHandshackDS COMPLETED!');
-
-                // SetSession
-                reqSetSessionDS(loginData.loginId, function(cmd) {
-                    writeMainProcLog('LOG IN PROCESS --- reqSetSessionDS COMPLETED!');
-                   
-                    CsAPI.reqCertifyCS(loginData.loginPwd, true, function(cmd) {
-                        writeMainProcLog('LOG IN PROCESS --- reqCertifyCS COMPLETED!');
-                        
-                        reqGetUserContacts(loginData.loginId, function(cmd) {
-                            writeMainProcLog('LOG IN PROCESS --- reqGetUserContacts COMPLETED!');
-                        })
-                    });
-                })
-                 
-             });
-        });
+        */
+        //#endregion
     });
 }
 
 /**
  * 사용자 Rule 정보를 요청합니다.
  */
-async function reqGetUserRules(userId, userPwd, callback) {
+async function reqGetUserRules(userId, userPwd) {
+    return new Promise(function(resolve, reject) {
 
-    var idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
-    var passBuf = Buffer.alloc(CmdConst.BUF_LEN_USERPWD);
-    var connIpBuf = Buffer.alloc(CmdConst.BUF_LEN_IP);
-    var svrSize = Buffer.alloc(CmdConst.BUF_LEN_INT);
-    var ruleSize = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        var idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        var passBuf = Buffer.alloc(CmdConst.BUF_LEN_USERPWD);
+        var connIpBuf = Buffer.alloc(CmdConst.BUF_LEN_IP);
+        var svrSize = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        var ruleSize = Buffer.alloc(CmdConst.BUF_LEN_INT);
 
-    idBuf.write(userId, global.ENC);
-    passBuf.write(userPwd, global.ENC);
+        idBuf.write(userId, global.ENC);
+        passBuf.write(userPwd, global.ENC);
 
-    let localInfo = OsUtil.getIpAddress() + CmdConst.CMD_SEP + await OsUtil.getMacAddress();
-    console.log('-------  MAC ADDRESS', localInfo)
+        let localInfo = OsUtil.getIpAddress() + CmdConst.CMD_SEP + OsUtil.getMacAddress();
+        console.log('-------  MAC ADDRESS', localInfo)
 
-    //FC_local_ip + SEP + FC_local_mac_addr
-    connIpBuf.write(localInfo, global.ENC);
-    var dataBuf = Buffer.concat([idBuf, passBuf, connIpBuf, svrSize, ruleSize]);
-    writeCommandDS(new CommandHeader(CmdCodes.DS_GET_RULES, 0, callback), dataBuf);
+        //FC_local_ip + SEP + FC_local_mac_addr
+        connIpBuf.write(localInfo, global.ENC);
+        var dataBuf = Buffer.concat([idBuf, passBuf, connIpBuf, svrSize, ruleSize]);
+        writeCommandDS(new CommandHeader(CmdCodes.DS_GET_RULES, 0, function(resData){
+            resolve(resData);
+        }), dataBuf);
+    });
 }
 
 /**
@@ -154,37 +207,39 @@ async function reqGetUserRules(userId, userPwd, callback) {
  * @param {String} userId 
  * @param {Function} callback 
  */
-function reqGetServerInfo(userId, callback) {
+function reqGetServerInfo(userId) {
+    return new Promise(function(resolve, reject) {
+        var data =  userId + String.fromCharCode(13) +
+                    "PC-" + require("ip").address() + String.fromCharCode(13) +
+                    '' + String.fromCharCode(13) +
+                    '' + String.fromCharCode(13) +
+                    global.SERVER_INFO.DS.ip + String.fromCharCode(13) +
+                    'ALL';
+        
+        var dataBuf = Buffer.from(data, "utf-8");
+        var serverSizeBuf = Buffer.alloc(4); // ?
+        serverSizeBuf.writeInt32LE(dataBuf.length);
 
-    var data =  userId + String.fromCharCode(13) +
-                "PC-" + require("ip").address() + String.fromCharCode(13) +
-                '' + String.fromCharCode(13) +
-                '' + String.fromCharCode(13) +
-                global.SERVER_INFO.DS.ip + String.fromCharCode(13) +
-                'ALL';
-
-    
-    var dataBuf = Buffer.from(data, "utf-8");
-    var serverSizeBuf = Buffer.alloc(4); // ?
-    serverSizeBuf.writeInt32LE(dataBuf.length);
-
-    dataBuf = Buffer.concat([serverSizeBuf, dataBuf]);
-    
-    let cmdHeader = new CommandHeader(CmdCodes.DS_GET_SERVER_INFO, 0, callback);
-    writeCommandDS(cmdHeader, dataBuf);
+        dataBuf = Buffer.concat([serverSizeBuf, dataBuf]);
+        
+        let cmdHeader = new CommandHeader(CmdCodes.DS_GET_SERVER_INFO, 0, function(resData){
+            resolve(resData)
+        });
+        writeCommandDS(cmdHeader, dataBuf);
+    });
 }
 
 /**
  * 서버로 업그레이드 정보를 확인합니다. 
  * 응답을 서버정보를 주나 ServerInfo와는 다름
  */
-function reqUpgradeCheckDS () {
+function reqUpgradeCheckDS (callback) {
     var serverSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT); // ?
 
     var versionStr = global.SITE_CONFIG.version + CmdConst.CMD_SEP + global.SITE_CONFIG.server_ip;
     var dataBuf = Buffer.concat([serverSizeBuf, Buffer.from(versionStr, "utf-8")]);
     
-    writeCommandDS(new CommandHeader(CmdCodes.DS_UPGRADE_CHECK, 0), dataBuf);
+    writeCommandDS(new CommandHeader(CmdCodes.DS_UPGRADE_CHECK, 0, callback), dataBuf);
 }
 
 /**

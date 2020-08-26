@@ -1,5 +1,5 @@
 
-const { writeMainProcLog, loginResponse } = require('../communication/sync-msg');
+const { sendLog } = require('../ipc/ipc-cmd-sender');
 const { dsResProc } = require('./command-ds-res');
 const { csResProc } = require('./command-cs-res');
 
@@ -11,7 +11,7 @@ var CmdConst = require('./command-const');
  * @param {CommandHeader} command 
  */
 function receive_command(command) {
-    writeMainProcLog('Command Processer -  CMD: ' + command.cmdCode);
+  sendLog('Command Processer -  CMD: ' + command.cmdCode);
     console.log('Command Processer -  CMD:', command)
 
     // 요청커맨드로 처리되는 방식과 받은 Command로 처리되는 방식으로 나눈다.
@@ -28,7 +28,7 @@ function receive_command(command) {
         // CS COMMAND
         csResProc(command);
       } else {
-        writeMainProcLog('Can not find Command Group! -  CMD: ' + command.cmdCode);
+        sendLog('Can not find Command Group! -  CMD: ' + command.cmdCode);
       }
     } else {
       //
@@ -41,21 +41,13 @@ function receive_command(command) {
           const rcvBuf = Buffer.from(command.data);
           var dataStr = rcvBuf.toString('utf-8', 0);
             
-          writeMainProcLog('Unknown Command Receive: ' + command.cmdCode); // + ' Data:' + dataStr);
+          sendLog('Unknown Command Receive: ' + command.cmdCode); // + ' Data:' + dataStr);
 
           return false;
           }
           break;
       }
       //#endregion
-    }
-    
-    // Callback
-    if (command.sendCmd && command.sendCmd.callback) {
-      //console.log('CallBack -- CMD:', command);  //JSON.stringify(command));
-      command.sendCmd.callback(command)
-    } else {
-      
     }
 
     return true;
