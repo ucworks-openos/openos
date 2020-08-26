@@ -9,6 +9,7 @@ const { readConfig } = require(`${path.join(__dirname, '/../public/main-process/
 
 global.USER = {
   userId: '',
+  userPass: '',
   authMethod: '' // 사용처??  그냥 로그인시 넘겨줌 BASE64
 }
 

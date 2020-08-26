@@ -132,8 +132,12 @@ function reqLogin (loginData, connTry=true) {
         sendLog('LOG IN STEP 4 --- SetSessionDS COMPLETED!' + JSON.stringify(resData));
 
         // CertifyCS
-        resData = await CsAPI.reqCertifyCS(loginData.loginPwd, true);
+        resData = await CsAPI.reqCertifyCS(loginData.loginId, loginData.loginPwd, true);
         sendLog('LOG IN STEP 5 --- CertifyCS COMPLETED!' + JSON.stringify(resData));
+
+        // 마지막 인증까지 완료되었다면 저장한다. 
+        global.USER.userId = loginData.loginId;
+        global.USER.userPass = loginData.userPass;
         resolve(resData);
 
         
