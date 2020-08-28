@@ -23,10 +23,10 @@ function Home(props) {
         window.location.hash = '#/favorite';
         window.location.reload();
       } else {
-        alert('Login fail! ' + JSON.stringify(resData))
+        alert('Login fail! Res:' + JSON.stringify(resData))
       }
     }).catch(function(err){
-      alert('Login fail! ' + JSON.stringify(err))
+      alert('Login fail! Ex: ' + JSON.stringify(err))
     });
   };
 

@@ -12,12 +12,10 @@ global.USER = {
   userPass: '',
   authMethod: '' // 사용처??  그냥 로그인시 넘겨줌 BASE64
 }
-
 global.ENCRYPT = {
   pwdAlgorithm: 'RC4', //default rc4
   pwdCryptKey: ''
 }
-
 global.ENC = "utf-8";
 global.CERT = {
   pukCertKey: '',
@@ -69,9 +67,14 @@ global.SERVER_INFO = {
     "isConnected":false
     }
 }
+global.ORG = {
+  org_1_root: 'ORG001',
+  selected_org: ''
+}
 
 global.MAIN_DS_SEND_COMMAND = {}
 global.MAIN_CS_SEND_COMMAND = {}
+global.MAIN_PS_SEND_COMMAND = {}
 
 let mainWindow;
 

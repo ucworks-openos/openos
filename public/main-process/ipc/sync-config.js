@@ -1,24 +1,19 @@
-
 const {ipcMain} = require('electron')
 const { writeConfig } = require('../configuration/site-config')
 
-ipcMain.on('saveConfig-req', (event, arg) => {
-
-	console.log("saveConfig-req", arg)
-	event.reply('saveConfig-res', 'pong')
-	
-	global.SITE_CONFIG = {
-	  server_ip: arg.serverIp,
-	  server_port:arg.serverPort,
-	  client_version:arg.clientVersion
-	}
+  /** getConfig */
+ipcMain.on('getConfig', (event, ...args) => {
+	return event.returnValue = global.SITE_CONFIG;
+  });
   
-  	writeConfig();
-  })
+ipcMain.on('saveConfig', (event, configData) => {
+	global.SITE_CONFIG = {
+		server_ip: configData.serverIp,
+		server_port:configData.serverPort,
+		client_version:configData.clientVersion
+		}
 
-  ipcMain.on('readConfig-req', (event, arg) => {
-
-	console.log("readConfig-req", arg)
-	event.reply('readConfig-res', global.SITE_CONFIG)
-	
-  })
+	writeConfig();
+});
+  
+  
