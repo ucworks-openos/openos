@@ -64,10 +64,17 @@ export const items = [
     className: "menu-item favorite current-menu",
   },
   {
-    path: "/net-test",
+    path: "/netTest",
     name: "NetTestPage",
     css: "fas fa-hashtag",
     key: 10,
+    className: "menu-item favorite current-menu",
+  },
+  {
+    path: "/funcTest",
+    name: "FuncTestPage",
+    css: "fas fa-hashtag",
+    key: 11,
     className: "menu-item favorite current-menu",
   },
 ];

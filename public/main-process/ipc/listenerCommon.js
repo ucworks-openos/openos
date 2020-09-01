@@ -1,12 +1,9 @@
-const {ipcMain} = require('electron');
-const { reqConnectDS, reqLogin, reqUpgradeCheckDS, testFunction } = require('../net-command/command-ds-api');
-const { sendLog } = require('./ipc-cmd-sender');
+const { ipcMain } = require('electron');
+const { reqLogin, reqGetBuddyList, get } = require('../net-command/command-ds-api');
+const { reqGetOrganization, reqGetOrgChild } = require('../net-command/command-ps-api');
 const ResData = require('../ResData');
 
-/** getConfig */
-ipcMain.on('getConfig', (event, ...args) => {
-  return event.returnValue = global.SITE_CONFIG;
-});
+
 
 /** login */ 
 ipcMain.on('login', async (event, loginData) => {
@@ -21,31 +18,44 @@ ipcMain.on('login', async (event, loginData) => {
 });
 
 
+// getBuddyList
+ipcMain.on('getBuddyList', async (event, ...args) => {
+  
+  reqGetBuddyList(function(resData)
+  {
+    console.log('getBuddyList res:', resData)
+    event.reply('res-getBuddyList', resData);
+  }).catch(function(err) {
+    event.reply('res-getBuddyList', new ResData(false, err));
+  });
 
+});
 
-/**
- * 로그인 요청을 처리합니다.
- */
-ipcMain.on('common', (event, cmd) => {
+// getOrganization
+ipcMain.on('getBaseOrg', async (event, ...args) => {
+  
+  reqGetOrganization(global.ORG.org_1_root).then(function(resData)
+  {
+    console.log('getBaseOrg res:', resData)
+    event.reply('res-getBaseOrg', resData);
+  }).catch(function(err) {
+    event.reply('res-getBaseOrg', new ResData(false, err));
+  });
+  
+});
 
-  if (cmd) {
-    sendLog('IPC Command Empty! : ' + event);
-    return;
-  }
+// getOrganization
+ipcMain.on('getChildOrg', async (event, orgGroupCode, groupCode, groupSeq) => {
+  reqGetOrgChild(orgGroupCode, groupCode, groupSeq).then(function(resData)
+  {
+    console.log('getChildOrg res:', resData)
+    event.reply('res-getChildOrg', resData);
+  }).catch(function(err) {
+    event.reply('res-getChildOrg', new ResData(false, err));
+  });
+  
+});
 
-  console.log('COMMON IPC RECEIVE:', event, cmd);
-
-  switch(cmd.actionCode) {
-    case 'login':
-      reqLogin(arg);
-      break;
-
-    case 'getConfig':
-      //sendResponse('common', )
-      event.reply('res-getConfig', global.SITE_CONFIG)
-      break;
-  }
-})
 
 /** sample */
 // ipcMain.on('sample', (event, ...args) => {

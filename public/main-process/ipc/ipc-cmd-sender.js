@@ -8,9 +8,9 @@ function sendResponse(channel, ipcCmdHeader) {
   global.MAIN_WINDOW.webContents.send('res-' + channel, ipcCmdHeader);
 }
 
-function sendLog(msg) {
-  console.log(msg)
-  global.MAIN_WINDOW.webContents.send('net-log', msg);
+function sendLog(msg, ...args) {
+  console.log(msg, args)
+  global.MAIN_WINDOW.webContents.send('net-log', msg, args);
 };
 
 // ipcMain.on('asynchronous-message', (event, arg) => {

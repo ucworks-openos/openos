@@ -21,10 +21,10 @@ function NetTestPage() {
   const [serverPort, setServerPort] = useState(0);
   const [netLog, setNetLog] = useState("");
   const [localLog, setLocalLog] = useState("");
-  var netLogMsg = '';
 
   const netLogArea = useRef(null);
-
+  const localLogArea = useRef(null);
+  
   //initialize
   useEffect(() => {
     console.log("NetTestPage Init");
@@ -39,62 +39,65 @@ function NetTestPage() {
   }, []);
 
   //#region WriteLog ...
-
-  const appendNetLog = (msg) => {
-    msg = moment().format("hh:mm:ss.SSS >") + msg
-
-    netLogMsg = netLogMsg + (netLogMsg ? "\r\n" : "") + msg;
-    setNetLog(netLogMsg);
+  const appendNetLog = (msg, ...args) => {
+    
+    msg = moment().format("hh:mm:ss.SSS >") + msg + ':' + args
+    setNetLog(prev => prev + (prev ? "\r\n" : "") + msg);
 
     if (netLogArea.current) {
       netLogArea.current.scrollTop = netLogArea.current.scrollHeight;
     }
-    
   }
-  const appendLocalLog = (msg) => {
-    msg = moment().format("hh:mm:ss.SSS >") + msg
-    setLocalLog(localLog + (localLog ? "\r\n" : "") + msg);
+
+  const appendLocalLog = (msg, ...args) => {
+    msg = moment().format("hh:mm:ss.SSS >") + msg + ':' + args;
+    setLocalLog(prev => prev + (prev ? "\r\n" : "") + msg);
+
+    if (localLogArea.current) {
+      localLogArea.current.scrollTop = localLogArea.current.scrollHeight;
+    }
   }
+
   const clearLog = () => {
-    netLogMsg = '';
-    setNetLog(netLogMsg);
+    setNetLog('');
     setLocalLog('');
   }
   //#endregion WriteLog ...
 
+
   const handleTestFunction = (e) => {
-    testAction();
+
+    testAction().then(function(resData){
+      appendLocalLog('logging test res ', resData);
+    }).catch(function(err){
+      appendLocalLog('logging test Err', err)
+    });
   }
   
-  // button click
+  // 연결
   const handleConnect = (e) => {
     connectDS().then(function(data) {
       appendLocalLog('DS Connect Result:' + JSON.stringify(data));
     });
   }
 
-  
-  // button click
+  // UpgradeCheck
   const handleUpgradeCheck = (e) => {
-    appendLocalLog("net-upgradeCheck-req");
+    appendLocalLog("UpgradeCheck");
     upgradeCheck().then(function(data) {
       appendLocalLog('upgradeCheck Result:' + JSON.stringify(data));
     });
   }
 
-  
-  // button click
+  // Login
   const handleLogin = (e) => {
-    appendLocalLog("net-login-req");
+    appendLocalLog("Login");
     login('bslee', '1234').then(function(resData){
 
       console.log('Promiss login res', resData);
 
       if (resData.resCode) {
         alert('Login Success! ' + JSON.stringify(resData))
-        localStorage.setItem('isLoginElectronApp', true)
-        window.location.hash = '#/favorite';
-        window.location.reload();
       } else {
         alert('Login fail! ' + JSON.stringify(resData))
       }
@@ -103,7 +106,7 @@ function NetTestPage() {
     });;
   }
  
-  // button click
+  // LogClear
   const handleLogClear = (e) => {
     clearLog();
   }
@@ -111,12 +114,11 @@ function NetTestPage() {
   return (
     <GridWrapper className="contents-wrap">
       <Container fluid="md">
-        <Row  xs={2} md={3} lg={5}>
-          <Col>Server IP : {serverIp}</Col>
-          <Col>Server PORT : {serverPort}</Col>
+        <Row >
+          <Col>Server IP : {serverIp}   PORT : {serverPort}</Col>
         </Row>
         <Row>
-        <Col>
+          <Col>
             <Button onClick={handleTestFunction}>
               테스트
             </Button>
@@ -127,16 +129,10 @@ function NetTestPage() {
             </Button>
           </Col>
           <Col>
-            <Button onClick={handleUpgradeCheck}>
-              업그레이드 확인
-            </Button>
-          </Col>
-          <Col>
             <Button onClick={handleLogin}>
               로그인
             </Button>
           </Col>
-          
           <Col>
             <Button onClick={handleLogClear}>
                 clear
@@ -144,7 +140,7 @@ function NetTestPage() {
           </Col>
         </Row>
         <Row xs={1} >
-          <textarea rows={10} value={localLog} className='mt-1'  />
+          <textarea  ref={localLogArea} rows={10} value={localLog} className='mt-1'  />
         </Row>
         <Row xs={1} >
           <textarea ref={netLogArea} rows={10} value={netLog} className='mt-1'/>

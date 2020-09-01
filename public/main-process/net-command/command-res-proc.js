@@ -2,6 +2,7 @@
 const { sendLog } = require('../ipc/ipc-cmd-sender');
 const { dsResProc } = require('./command-ds-res');
 const { csResProc } = require('./command-cs-res');
+const { psResProc } = require('./command-ps-res');
 
 var CommandCodes = require('./command-code');
 var CmdConst = require('./command-const');
@@ -27,6 +28,9 @@ function receive_command(command) {
       } else if (parseInt(command.cmdCode/CommandCodes.CS_BASE) == 1) {
         // CS COMMAND
         csResProc(command);
+      } else if (parseInt(command.cmdCode/CommandCodes.PS_BASE) == 1) {
+        // PS COMMAND
+        psResProc(command);
       } else {
         sendLog('Can not find Command Group! -  CMD: ' + command.cmdCode);
       }

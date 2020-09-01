@@ -1,19 +1,11 @@
 const { connectCS, writeCommandCS } = require('../net-core/network-cs-core');
-const { writeMainProcLog } = require('../ipc/ipc-cmd-sender');
+const { sendLog } = require('../ipc/ipc-cmd-sender');
 
 var CommandHeader = require('./command-header');
 var CmdCodes = require('./command-code');
 var CmdConst = require('./command-const');
 var OsUtil = require('../utils/utils-os');
 var CryptoUtil = require('../utils/utils-crypto')
-
-/**
- * TEST_CS_FUNCTION
- */
-function testFunction () {
-    var num = 5;
-    writeMainProcLog(num.toString().padStart(5, '0'));
-}
 
 /**
  * 서버로 접속요청 합니다.
@@ -44,7 +36,7 @@ function reqCertifyCS(loginId, loginPass, connTry = true) {
                 cipherPwd = CryptoUtil.encryptRC4(global.ENCRYPT.pwdCryptKey, loginPass)
                 break;
             default:
-                writeMainProcLog('Unknown PWD Algorithm :' + global.ENCRYPT.pwdAlgorithm);
+                sendLog('Unknown PWD Algorithm :' + global.ENCRYPT.pwdAlgorithm);
                 break;
         }
 
@@ -74,7 +66,6 @@ function reqCertifyCS(loginId, loginPass, connTry = true) {
 }
 
 module.exports = {
-    testFunction: testFunction,
     reqconnectCS: reqconnectCS,
     reqCertifyCS: reqCertifyCS
 }

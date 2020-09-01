@@ -12,14 +12,18 @@ const ResData = require('../ResData');
 
 
 function testFunction () {
-    let key = 'abcd1234'
-    let txt = '김영대1234567890'
+    return new Promise(function(resolve, reject) {
+        let key = 'abcd1234'
+        let txt = '김영대1234567890'
 
-    let encTxt = CryptoUtil.encryptRC4(key, txt)
-    sendLog('ENC: ' + encTxt);
+        let encTxt = CryptoUtil.encryptRC4(key, txt)
+        sendLog('ENC: ' + encTxt);
 
-    let decTxt = CryptoUtil.decryptRC4(key, encTxt);
-    sendLog('DES: ' + decTxt);
+        let decTxt = CryptoUtil.decryptRC4(key, encTxt);
+        sendLog('DES: ' + decTxt);
+
+        resolve(new ResData(true, 'Call Success!'));
+    });
 }
 
 /**
@@ -28,6 +32,71 @@ function testFunction () {
 function reqConnectDS () {
     return connectDS();
 }
+
+
+/**
+ * Login을 요청합니다.
+ * @param {Object} loginData 
+ * @param {boolean} connectionTry 
+ */
+function reqLogin (loginData, connTry=true) {
+    return new Promise(async function(resolve, reject) {
+
+        // connect
+        if (connTry && !global.SERVER_INFO.DS.isConnected) {
+            await connectDS();
+        }
+
+        if (!global.SERVER_INFO.DS.isConnected) 
+        {
+            reject(new Error('DS Server Not Connected!'));
+            return;
+        }
+        
+        // GetServerInfo
+        let resData = await reqGetServerInfo(loginData.loginId);
+        if (!resData.resCode) {
+            reject(new Error(JSON.stringify(resData)));
+            return;
+        }
+        sendLog('LOG IN STEP 1 --- GetServerInfo COMPLETED!' + JSON.stringify(resData));
+
+        // GetUserRules
+        resData = await reqGetUserRules(loginData.loginId, loginData.loginPwd);
+        if (!resData.resCode) {
+            reject(new Error(JSON.stringify(resData)));
+            return;
+        }
+        sendLog('LOG IN STEP 2 --- GetUserRules COMPLETED!' + JSON.stringify(resData));
+
+        // HandshackDS
+        resData = await reqHandshackDS(loginData.loginId);
+        if (!resData.resCode) {
+            reject(new Error(JSON.stringify(resData)));
+            return;
+        }
+        sendLog('LOG IN STEP 3 --- HandshackDS COMPLETED!' + JSON.stringify(resData));
+
+        // SetSessionDS
+        resData = await reqSetSessionDS(loginData.loginId);
+        if (!resData.resCode) {
+            reject(new Error(JSON.stringify(resData)));
+            return;
+        }
+        sendLog('LOG IN STEP 4 --- SetSessionDS COMPLETED!' + JSON.stringify(resData));
+
+        // CertifyCS
+        resData = await CsAPI.reqCertifyCS(loginData.loginId, loginData.loginPwd, true);
+        sendLog('LOG IN STEP 5 --- CertifyCS COMPLETED!' + JSON.stringify(resData));
+
+        // 마지막 인증까지 완료되었다면 저장한다. 
+        global.USER.userId = loginData.loginId;
+        global.USER.userPass = loginData.userPass;
+        resolve(resData);
+
+    });
+}
+
 
 /**
  * 서버와 통신가능여부를 확인 합니다. 
@@ -81,101 +150,6 @@ function reqHandshackDS (userId) {
 
         // setSession은 응답이 없다.
         resolve(new ResData(true));
-    });
-}
-
-/**
- * Login을 요청합니다.
- * @param {Object} loginData 
- * @param {boolean} connectionTry 
- */
-function reqLogin (loginData, connTry=true) {
-    return new Promise(async function(resolve, reject) {
-
-        // connect
-        if (connTry && !global.SERVER_INFO.DS.isConnected) {
-            await connectDS();
-        }
-
-        if (!global.SERVER_INFO.DS.isConnected) 
-        {
-            reject(new Error('DS Server Not Connected!'));
-            return;
-        }
-        
-        // GetServerInfo
-        let resData = await reqGetServerInfo(loginData.loginId);
-        if (!resData.resCode) {
-            reject(new Error(JSON.stringify(resData)));
-        }
-        sendLog('LOG IN STEP 1 --- GetServerInfo COMPLETED!' + JSON.stringify(resData));
-
-        // GetUserRules
-        resData = await reqGetUserRules(loginData.loginId, loginData.loginPwd);
-        if (!resData.resCode) {
-            reject(new Error(JSON.stringify(resData)));
-        }
-        sendLog('LOG IN STEP 2 --- GetUserRules COMPLETED!' + JSON.stringify(resData));
-
-        // HandshackDS
-        resData = await reqHandshackDS(loginData.loginId);
-        if (!resData.resCode) {
-            reject(new Error(JSON.stringify(resData)));
-        }
-        sendLog('LOG IN STEP 3 --- HandshackDS COMPLETED!' + JSON.stringify(resData));
-
-        // SetSessionDS
-        resData = await reqSetSessionDS(loginData.loginId);
-        if (!resData.resCode) {
-            reject(new Error(JSON.stringify(resData)));
-        }
-        sendLog('LOG IN STEP 4 --- SetSessionDS COMPLETED!' + JSON.stringify(resData));
-
-        // CertifyCS
-        resData = await CsAPI.reqCertifyCS(loginData.loginId, loginData.loginPwd, true);
-        sendLog('LOG IN STEP 5 --- CertifyCS COMPLETED!' + JSON.stringify(resData));
-
-        // 마지막 인증까지 완료되었다면 저장한다. 
-        global.USER.userId = loginData.loginId;
-        global.USER.userPass = loginData.userPass;
-        resolve(resData);
-
-        
-        //#region 
-        /*
-        // getServerInfo
-        reqGetServerInfo(loginData.loginId, function(cmd) {
-            sendLog('LOG IN PROCESS --- reqGetServerInfo COMPLETED!');        
-
-            // getUserRules
-            reqGetUserRules(loginData.loginId, loginData.loginPwd, function(cmd) {
-                sendLog('LOG IN PROCESS --- reqGetUserRules COMPLETED!');    
-                global.USER.userId = loginData.loginId;
-
-                // HANDSHAKE
-                reqHandshackDS(loginData.loginId, function(cmd) {
-                    sendLog('LOG IN PROCESS --- reqHandshackDS COMPLETED!');
-
-                    // SetSession
-                    reqSetSessionDS(loginData.loginId, function(cmd) {
-                        sendLog('LOG IN PROCESS --- reqSetSessionDS COMPLETED!');
-                    
-                        CsAPI.reqCertifyCS(loginData.loginPwd, true, function(cmd) {
-                            sendLog('LOG IN PROCESS --- reqCertifyCS COMPLETED!');
-                            callback(new ResData(fase, 'DS Server Not Connected!'));
-
-
-                            // reqGetUserContacts(loginData.loginId, function(cmd) {
-                            //     sendLog('LOG IN PROCESS --- reqGetUserContacts COMPLETED!');
-                            // })
-                        });
-                    })
-                    
-                });
-            });
-        });
-        */
-        //#endregion
     });
 }
 
@@ -251,13 +225,12 @@ function reqUpgradeCheckDS (callback) {
  * @param {String} userId 
  * @param {Function} callback 
  */
-function reqGetUserContacts(userId, callback) {
+function reqGetBuddyList(callback) {
 
     var idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
-    idBuf.write(userId, global.ENC);
+    idBuf.write(global.USER.userId, global.ENC);
     writeCommandDS(new CommandHeader(CmdCodes.DS_GET_BUDDY_DATA, 0, callback), idBuf);
 }
-
 
 module.exports = {
     testFunction: testFunction,
@@ -265,5 +238,5 @@ module.exports = {
     reqHandshackDS: reqHandshackDS,
     reqLogin: reqLogin,
     reqUpgradeCheckDS: reqUpgradeCheckDS,
-    
+    reqGetBuddyList: reqGetBuddyList
 }
