@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Button, InputGroup, FormControl } from 'react-bootstrap';
 
+import {getConfig, saveConfig} from '../ipcCommunication/ipcCommon'
+
 const GridWrapper = styled.div`
   display: grid;
   grid-gap: 10px;
@@ -10,10 +12,6 @@ const GridWrapper = styled.div`
   margin-right: 6em;
 `;
 
-// require("electron")시 webPack과 standard module이 충돌
-const electron = window.require("electron")
-
-
 function SiteConfigPage() {
   const [serverIp, setServerIp] = useState("");
   const [serverPort, setServerPort] = useState(0);
@@ -21,21 +19,14 @@ function SiteConfigPage() {
 
   //initialize
   useEffect(() => {
-    electron.ipcRenderer.once('readConfig-res', (event, data) => {
-      console.log("readConfig-res", data);
-
-      setServerIp(data.server_ip);
-      setServerPort(data.server_port);
-      setClientVersion(data.client_version);
-
-    })
-
-
-    electron.ipcRenderer.send('readConfig-req', '');
-
+    let config = getConfig();
+    setServerIp(config.server_ip);
+    setServerPort(config.server_port);
+    setClientVersion(config.client_version);
   }, [])
 
 
+  // 저장 버튼 클릭
   const handleSave = (e) => {
 
     console.log("Save Click");
@@ -47,7 +38,7 @@ function SiteConfigPage() {
     }
 
     console.log("saveConfig-req", data);
-    electron.ipcRenderer.send('saveConfig-req', data)
+    saveConfig(data);
 
   }
 

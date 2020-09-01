@@ -15,7 +15,7 @@ export const items = [
     className: "menu-item organization",
   },
   {
-    path: "/conversation",
+    path: "/chat",
     name: "대화",
     css: "fa fa-fw fa-clock",
     key: 3,

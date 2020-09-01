@@ -1,14 +1,16 @@
 import React, { Suspense } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import NavigationBar from "./__Navigation/HeaderNavi/HeaderNavi";
-import Sidebar from "./__Navigation/SideNavi/SideNavi";
-// import Bottombar from './__Navigation/BottomNavi/BottomNavi';
-
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  HashRouter,
+} from "react-router-dom";
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
-// import { Home } from './Home';
-// import { About } from './About';
-// import { NoMatch } from './NoMatch';
+const Sidebar = React.lazy(() => import("./__Navigation/SideNavi/SideNavi"));
+const NavigationBar = React.lazy(() =>
+  import("./__Navigation/HeaderNavi/HeaderNavi")
+);
 const FavoritePage = React.lazy(() => import("./FavoritePage/FavoritePage"));
 const LoginPage = React.lazy(() => import("./LoginPage/LoginPage"));
 const AboutPage = React.lazy(() => import("./AboutPage/AboutPage"));
@@ -20,18 +22,20 @@ const SiteConfigPage = React.lazy(() =>
   import("./SiteConfigPage/SiteConfigPage")
 );
 const NetTestPage = React.lazy(() => import("./NetTestPage/NetTestPage"));
+const ChatPage = React.lazy(() => import("./ChatPage/ChatPage"));
 
 function RouterPage() {
   return (
     <React.Fragment>
-      <Router>
-        {localStorage.getItem("isLoginElectronApp") && (
-          <>
-            {" "}
-            <NavigationBar /> <Sidebar />{" "}
-          </>
-        )}
+      <HashRouter>
+        {/* <MyErrorBoundary> */}
         <Suspense fallback={<div>Loading...</div>}>
+          {localStorage.getItem("isLoginElectronApp") && (
+            <>
+              {" "}
+              <NavigationBar /> <Sidebar />{" "}
+            </>
+          )}
           <Switch>
             <Route exact path="/" component={LoginPage} />
             <Route
@@ -46,14 +50,20 @@ function RouterPage() {
             />
             <Route exact path="/login" component={LoginPage} />
             <Route exact path="/about" component={AboutPage} />
+            <Route exact path="/chat" component={ChatPage} />
             <Route exact path="/site-config" component={SiteConfigPage} />
             <Route exact path="/net-test" component={NetTestPage} />
             <Route component={NoMatchPage} />
           </Switch>
         </Suspense>
-      </Router>
+        {/* </ MyErrorBoundary> */}
+      </HashRouter>
     </React.Fragment>
   );
+}
+
+if (!window.location.hash || window.location.hash === "#/") {
+  window.location.hash = "#/login";
 }
 
 export default RouterPage;

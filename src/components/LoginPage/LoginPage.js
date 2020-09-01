@@ -1,26 +1,42 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import './Sections/LoginPage.css';
 import { useForm } from 'react-hook-form';
 import SignitureCi from '../_Common/SignitureCi';
 import styled from 'styled-components';
+import {login} from '../ipcCommunication/ipcCommon';
 
-// require("electron")시 webPack과 standard module이 충돌
 const electron = window.require("electron")
 
 function Home(props) {
   const { register, errors, handleSubmit } = useForm({ mode: 'onChange' });
   const onSubmit = event => {
 
-    alert( 'LOGIN REQUEST:' + JSON.stringify(event));
+    console.log('LOGIN REQUEST:', event);
 
-    electron.ipcRenderer.send('net-login-req', event);
+    login(event.loginId, event.loginPwd).then(function(resData){
+
+      console.log('Promiss login res', resData);
+
+      if (resData.resCode) {
+        alert('Login Success! ' + JSON.stringify(resData))
+        localStorage.setItem('isLoginElectronApp', true)
+        window.location.hash = '#/favorite';
+        window.location.reload();
+      } else {
+        alert('Login fail! ' + JSON.stringify(resData))
+      }
+    }).catch(function(err){
+      alert('Login fail! ' + JSON.stringify(err))
+    });
   };
 
-  electron.ipcRenderer.on('res-login', (event, data) => {
-    alert('Login Response! ' + JSON.stringify(data))
-    localStorage.setItem('isLoginElectronApp', true)
-    window.location.href = '/favorite';
-  });
+
+  // electron.ipcRenderer.on('res-login', (event, data) => {
+  //   alert('Login Response! ' + JSON.stringify(data))
+  //   localStorage.setItem('isLoginElectronApp', true)
+  //   window.location.hash = '#/favorite';
+  //   window.location.reload();
+  // });
 
   return (
     <div className="sign-in">
@@ -59,7 +75,7 @@ function Home(props) {
               {errors.password && <div className="err-msg">비밀번호는 필수입력항목이며 4~12자 입니다.</div>}
             </div>
             <div className="submit-wrap">
-              <button type="submit">Let's start</button>
+              <button type="submit">Let's start </button>
             </div>
             <div className="sign-in-action-wrap">
               <div className="auto-sign-in">
@@ -72,7 +88,7 @@ function Home(props) {
             </div>
           </form>
         </main>
-        <SignitureCi color/>
+        <SignitureCi color />
       </div>
     </div>
   );

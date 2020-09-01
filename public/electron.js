@@ -5,22 +5,50 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require("path");
 const isDev = require("electron-is-dev");
 const glob = require('glob');
-const { readConfig } = require("../main-process/configuration/site-config");
+const { readConfig } = require(`${path.join(__dirname, '/../public/main-process/configuration/site-config')}`);
+
+global.USER = {
+  userId: '',
+  userPass: '',
+  authMethod: '' // 사용처??  그냥 로그인시 넘겨줌 BASE64
+}
+
+global.ENCRYPT = {
+  pwdAlgorithm: 'RC4', //default rc4
+  pwdCryptKey: ''
+}
 
 global.ENC = "utf-8";
+global.CERT = {
+  pukCertKey: '',
+  challenge: '',
+  session: '',
+  enc: ''
+}
 global.SITE_CONFIG = {
 	server_ip:'192.168.0.172',
   server_port:'32551',
   client_version:652
 }
-
 global.SERVER_INFO = {
-	DS:{
-      "pubip":'',
-      "ip":'',
-      "port":'',
-      "isConnected":false
-      },
+  DS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
+    },
+  CS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
+    },
+  NS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
+    },
   PS:{
     "pubip":'',
     "ip":'',
@@ -32,10 +60,18 @@ global.SERVER_INFO = {
     "ip":'',
     "port":'',
     "isConnected":false
+    },
+  
+  SMS:{
+    "pubip":'',
+    "ip":'',
+    "port":'',
+    "isConnected":false
     }
 }
 
-
+global.MAIN_DS_SEND_COMMAND = {}
+global.MAIN_CS_SEND_COMMAND = {}
 
 let mainWindow;
 
@@ -56,7 +92,7 @@ function initialize () {
     mainWindow.loadURL(
       isDev
         ? "http://localhost:3000"
-        : `file://${path.join(__dirname, "../index.html")}`
+        : `file://${path.join(__dirname, "/../build/index.html")}`
     );
     mainWindow.on("closed", () => (mainWindow = null));
 
@@ -80,7 +116,7 @@ function initialize () {
 
 // Require each JS file in the main-process dir
 function loadMainProcesses () {
-  const files = glob.sync(path.join(__dirname, '../main-process/**/*.js'))
+  const files = glob.sync(path.join(__dirname, '/../public/main-process/**/*.js'))
   files.forEach((file) => { require(file) })
 }
 
