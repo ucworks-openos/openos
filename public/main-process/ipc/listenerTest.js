@@ -2,9 +2,20 @@
 const {ipcMain} = require('electron');
 var IPC_Header = require('./ipc-cmd-header');
 
-const { reqConnectDS, reqLogin, reqUpgradeCheckDS, testFunction } = require('../net-command/command-ds-api');
+const {testFunction, reqConnectDS, reqUpgradeCheckDS,
+  reqGetBuddyList, reqGetOrganization } = require('../net-command/command-ds-api');
 const { sendLog } = require('./ipc-cmd-sender');
 const ResData = require('../ResData');
+
+// testAction
+ipcMain.on('testAction', async (event, ...args) => {
+  testFunction().then(function(resData)
+  {
+    console.log('testFunction res:', resData)
+    event.reply('res-testAction', resData);
+  });
+
+});
 
 // connectDS
 ipcMain.on('connectDS', async (event, ...args) => {
@@ -17,7 +28,7 @@ ipcMain.on('connectDS', async (event, ...args) => {
     event.reply('res-connectDS', new ResData(false, err));
   });
 
-})
+});
 
 // upgradeCheck
 ipcMain.on('upgradeCheck', async (event, ...args) => {
@@ -28,12 +39,7 @@ ipcMain.on('upgradeCheck', async (event, ...args) => {
     event.reply('res-upgradeCheck', resData);
   });
 
-})
-
-
-
-
-
+});
 
 ipcMain.handle('invokeTest', async (event, ...args) => {
   

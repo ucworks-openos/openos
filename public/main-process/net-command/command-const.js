@@ -4,12 +4,16 @@ module.exports = Object.freeze({
 
     CMD_SEP:                    '|',
     
-    BUF_LEN_INT:            4,
-    BUF_LEN_PUKCERTKEY:     513,
-    BUF_LEN_CHALLENGE:      33,
-    BUF_LEN_SESSION:        33,
-    BUF_LEN_IP:             52,
-    BUF_LEN_USERID:         51,
-    BUF_LEN_USERPWD:        101,
-    BUF_LEN_USERDN:         4001
+    BUF_LEN_INT             : 4,
+    BUF_LEN_PUKCERTKEY      : 513,
+    BUF_LEN_CHALLENGE       : 33,
+    BUF_LEN_SESSION         : 33,
+    BUF_LEN_IP              : 52,
+    BUF_LEN_USERID          : 51,
+    BUF_LEN_USERPWD         : 101,
+    BUF_LEN_USERDN          : 4001,
+
+    BUF_LEN_ORG_GROUP_CODE    : 11,
+    BUF_LEN_GROUP_CODE        : 21,
+    
 });
