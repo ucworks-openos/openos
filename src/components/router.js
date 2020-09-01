@@ -1,54 +1,41 @@
 import React, { Suspense } from "react";
 import { BrowserRouter as Router, Route, Switch, HashRouter } from "react-router-dom";
-import NavigationBar from "./__Navigation/HeaderNavi/HeaderNavi";
-import Sidebar from "./__Navigation/SideNavi/SideNavi";
-// import Bottombar from './__Navigation/BottomNavi/BottomNavi';
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
-// import { Home } from './Home';
-// import { About } from './About';
-// import { NoMatch } from './NoMatch';
+const Sidebar = React.lazy(() => import("./__Navigation/SideNavi/SideNavi"));
+const NavigationBar = React.lazy(() => import("./__Navigation/HeaderNavi/HeaderNavi"));
 const FavoritePage = React.lazy(() => import("./FavoritePage/FavoritePage"));
 const LoginPage = React.lazy(() => import("./LoginPage/LoginPage"));
 const AboutPage = React.lazy(() => import("./AboutPage/AboutPage"));
 const NoMatchPage = React.lazy(() => import("./NoMatchPage/NoMatchPage"));
-const OrganizationPage = React.lazy(() =>
-  import("./OrganizationPage/OrganizationPage")
-);
-const SiteConfigPage = React.lazy(() =>
-  import("./SiteConfigPage/SiteConfigPage")
-);
-
+const OrganizationPage = React.lazy(() => import("./OrganizationPage/OrganizationPage"));
+const SiteConfigPage = React.lazy(() => import("./SiteConfigPage/SiteConfigPage"));
 const NetTestPage = React.lazy(() => import("./TestPages/NetTestPage"));
 const FuncTestPage = React.lazy(() => import("./TestPages/FuncTestPage"));
+const ChatPage = React.lazy(() => import("./ChatPage/ChatPage"));
+
 
 function RouterPage() {
   return (
     <React.Fragment>
       <HashRouter>
-        {localStorage.getItem("isLoginElectronApp") && (
-          <>
-            {" "}
-            <NavigationBar /> <Sidebar />{" "}
-          </>
-        )}
+        {/* <MyErrorBoundary> */}
         <Suspense fallback={<div>Loading...</div>}>
+          {localStorage.getItem("isLoginElectronApp") && (<> {" "} <NavigationBar /> <Sidebar />{" "} </>)}
           <Switch>
             <Route exact path="/" component={LoginPage} />
             <Route exact path="/favorite" component={FavoritePage} />
-            <Route
-              exact
-              path="/organization/:classOrgGroupCode"
-              component={OrganizationPage}
-            />
-            <Route exact path="/login" component={LoginPage} />
+            <Route exact path="/organization/:classOrgGroupCode" component={OrganizationPage} />
+            {/* <Route exact path="/login" component={LoginPage} /> */}
             <Route exact path="/about" component={AboutPage} />
+            <Route exact path="/chat" component={ChatPage} />
             <Route exact path="/site-config" component={SiteConfigPage} />
             <Route exact path="/netTest" component={NetTestPage} />
             <Route exact path="/funcTest" component={FuncTestPage} />
             <Route component={NoMatchPage} />
           </Switch>
         </Suspense>
+        {/* </ MyErrorBoundary> */}
       </HashRouter>
     </React.Fragment>
   );
