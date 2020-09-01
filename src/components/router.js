@@ -34,7 +34,11 @@ function RouterPage() {
         <Suspense fallback={<div>Loading...</div>}>
           <Switch>
             <Route exact path="/" component={LoginPage} />
-            <Route exact path="/favorite" component={FavoritePage} />
+            <Route
+              exact
+              path="/favorite/:classOrgGroupCode"
+              component={FavoritePage}
+            />
             <Route
               exact
               path="/organization/:classOrgGroupCode"

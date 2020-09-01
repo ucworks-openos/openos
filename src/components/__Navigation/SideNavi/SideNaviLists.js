@@ -1,7 +1,7 @@
 export const items = [
   {
     path:
-      "/favorite" /* path is used as id to check which NavItem is active basically */,
+      "/favorite/ORG001" /* path is used as id to check which NavItem is active basically */,
     name: "즐겨찾기",
     css: "fa fa-fw fa-home",
     key: 1 /* Key is required, else console throws error. Does this please you Mr. Browser?! */,

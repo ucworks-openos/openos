@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Tree, { TreeNode } from "rc-tree";
 import styled from "styled-components";
-import "./OrganizationPage.scss";
+import "../../Tree.scss";
 import { useParams } from "react-router-dom";
 import Node from "./OrganizationNode";
 import { EventDataNode, DataNode } from "rc-tree/lib/interface";
@@ -16,98 +16,76 @@ interface TreeNodeInterface {
   key: number;
   isLeaf: boolean;
   classGroupCode: string;
-  classUpperGroupCode: string;
+  classUpperGroupCode: string | null;
   classId: number;
-  classUpperClassId: number;
-  classKind: `1` | `2`;
+  classUpperClassId: number | null;
+  classKind: string;
   classGroupName: string;
   children: TreeNodeInterface[];
   classOrderNo: number;
 }
 
+const defaultTreeNode = {
+  title: "",
+  key: 0,
+  isLeaf: false,
+  classGroupCode: ``,
+  classUpperGroupCode: ``,
+  classId: 0,
+  classUpperClassId: 0,
+  classKind: `2`,
+  classGroupName: ``,
+  classOrderNo: 1,
+  children: [],
+};
+
 export default function OrganizationPage(props: any) {
   // set initial tree
   const { classOrgGroupCode } = useParams<OrganizationPageProps>();
   const [treeData, setTreeData] = useState<TreeNodeInterface[]>([
-    {
-      title: "",
-      key: 0,
-      isLeaf: false,
-      classGroupCode: ``,
-      classUpperGroupCode: ``,
-      classId: 0,
-      classUpperClassId: 0,
-      classKind: `2`,
-      classGroupName: ``,
-      classOrderNo: 1,
-      children: [],
-    },
+    defaultTreeNode,
   ]);
 
-  const [selectedNode, setSelectedNode] = useState<TreeNodeInterface>({
-    title: "",
-    key: 0,
-    isLeaf: false,
-    classGroupCode: ``,
-    classUpperGroupCode: ``,
-    classId: 0,
-    classUpperClassId: 0,
-    classKind: `2`,
-    classGroupName: ``,
-    classOrderNo: 1,
-    children: [],
-  });
+  const [selectedNode, setSelectedNode] = useState<TreeNodeInterface>(
+    defaultTreeNode
+  );
   // fetching root
   useEffect(() => {
-    const getRoot = async () => {
-      const {
-        data: { resultSet },
-      } = await axios.get(
-        `http://localhost:4000/v0/tree/root?classOrgGroupCode=${classOrgGroupCode}`
-      );
-
-      const [data] = resultSet;
-
-      const root: TreeNodeInterface = {
-        title: data ? data.class_group_name : "",
-        key: data ? data.class_id : 0,
-        isLeaf: false,
-        classGroupCode: data.class_group_code,
-        classUpperGroupCode: data.class_upper_group_code,
-        classId: data.class_id,
-        classUpperClassId: data.class_upper_class_id,
-        classKind: `2`,
-        classGroupName: data.class_group_name,
-        classOrderNo: data.classOrderNo,
-        children: [],
-      };
-      setTreeData([root]);
+    const root: TreeNodeInterface = {
+      title: `유씨웨어`,
+      key: 0,
+      isLeaf: false,
+      classGroupCode: `D0`,
+      classUpperGroupCode: null,
+      classId: 0,
+      classUpperClassId: null,
+      classKind: `2`,
+      classGroupName: `유씨웨어`,
+      classOrderNo: 0,
+      children: [],
     };
-    getRoot();
+    setTreeData([root]);
 
     return () => {
       setTreeData([]);
     };
-  }, [classOrgGroupCode]);
+  }, []);
 
-  const getChild = async (classGroupCode: string) => {
-    const {
-      data: { resultSet },
-    } = await axios.get(
-      `http://localhost:4000/v0/tree/child?classOrgGroupCode=${classOrgGroupCode}&classGroupCode=${classGroupCode}`
-    );
-    return resultSet.map((v: any) => ({
-      title: v.class_kind === `2` ? v.class_group_name : v.class_user_name,
-      key: v.class_id,
-      isLeaf: v.class_kind === `2` ? false : true,
-      classGroupCode: v.class_group_code,
-      classUpperGroupCode: v.class_upper_group_code,
-      classId: v.class_id,
-      classUpperClassId: v.class_upper_class_id,
-      classKind: v.class_kind,
-      classGroupName: v.class_group_name,
-    }));
-  };
+  const getChild = async (classGroupCode: string) => [
+    {
+      title: `개발팀`,
+      key: 1,
+      isLeaf: false,
+      classGroupCode: `D1`,
+      classUpperGroupCode: `D0`,
+      classId: 1,
+      classUpperClassId: 0,
+      classKind: `2`,
+      classOrderNo: 0,
+      classGroupName: `개발팀`,
+      children: [],
+    },
+  ];
 
   // attach children
   const attach = (
@@ -170,25 +148,6 @@ export default function OrganizationPage(props: any) {
       }
     });
 
-  // align list's order as 1 to n
-  const align = (list: TreeNodeInterface[]): TreeNodeInterface[] =>
-    list.map((v, i) => ({
-      ...v,
-      classOrderNo: i,
-    }));
-
-  // syncronize order with database
-  const syncronize = async (list: TreeNodeInterface[]) => {
-    const classList = list.map((v) => ({
-      classId: v.classId,
-      classOrderNo: v.classOrderNo,
-    }));
-
-    await axios.put(`http://localhost:4000/v0/tree/order`, {
-      list: classList,
-    });
-  };
-
   const handleSelect = async ([selectedKeys]: (string | number)[]) => {
     const { v } = await find(treeData, Number(selectedKeys));
     setSelectedNode(v);
@@ -197,116 +156,6 @@ export default function OrganizationPage(props: any) {
   useEffect(() => {
     console.log(`selected Node: `, selectedNode);
   }, [selectedNode]);
-
-  // update child's class info moving into other parent
-  const move = async (
-    parent: TreeNodeInterface,
-    child: TreeNodeInterface,
-    dropPosition: number
-  ) => {
-    if (
-      parent.classUpperGroupCode === child.classUpperGroupCode &&
-      dropPosition !== 0
-    ) {
-      return false;
-    }
-    const data = {
-      classId: child.classId,
-      classUpperGroupCode:
-        dropPosition === 0 ? parent.classGroupCode : parent.classUpperGroupCode,
-      classUpperClassId:
-        dropPosition === 0 ? parent.classId : parent.classUpperClassId,
-      classGroupCode:
-        child.classKind === "2"
-          ? child.classGroupCode
-          : dropPosition === 0
-          ? parent.classGroupCode
-          : parent.classUpperGroupCode,
-      classGroupName:
-        child.classKind === "2"
-          ? child.classGroupName
-          : dropPosition === 0
-          ? parent.classGroupName
-          : parent.classGroupName,
-    };
-    await axios.patch(`http://localhost:4000/v0/tree/child`, data);
-  };
-
-  // validation check if you drop something to user
-  const validate = async (
-    replica: TreeNodeInterface[],
-    dropKey: number,
-    dropPosition: number
-  ) => {
-    const { v: dropV } = await find(replica, dropKey);
-    console.log(`dropV: `, dropV);
-    return dropV.classKind === "1" && dropPosition === 0 ? false : true;
-  };
-
-  // drop event
-  const onDrop = async (info: any) => {
-    const {
-      dropToGap,
-      dragNode: {
-        props: { eventKey: dragKey },
-      },
-      node: {
-        props: { eventKey: dropKey, pos: dropPos },
-      },
-    } = info;
-    const dropPosArr = dropPos.split("-");
-    // drop position === -1 : drop to upper line
-    // drop position === 0 : drop to node
-    // drop position === 1 : drop to bottom line
-    const dropPosition =
-      info.dropPosition - Number(dropPosArr[dropPosArr.length - 1]);
-    const replica = [...treeData];
-    // validation check if you drop something to user
-    if (!(await validate(replica, dropKey, dropPosition))) {
-      //_set_has_dropped_to_user(true);
-      // alert("사용자 하위에 추가할 수 없습니다.");
-      return false;
-    }
-    const { v: dragV, i: dragI, list: dragList } = await find(replica, dragKey);
-    // delete drag node
-    dragList.splice(dragI, 1);
-    if (!dropToGap) {
-      const { v: dropV } = await find(replica, dropKey);
-      // if you drop something to node having children, push something to it's children
-      if (dropV.children) {
-        dropV.children.push(dragV);
-      } else {
-        // if you drop something to node not having children(or yet to have), execute axios call
-        let children = await getChild(dropV.classGroupCode);
-        dropV.children = [...children, dragV];
-      }
-      move(dropV, dropV.children[dropV.children.length - 1], dropPosition);
-      dropV.children = align(dropV.children);
-      syncronize(dropV.children);
-    } else {
-      if (dropPosition === -1) {
-        let { v: dropV, i: dropI, list: dropList } = await find(
-          replica,
-          dropKey
-        );
-        // splice i = arr[i-1]
-        dropList.splice(dropI, 0, dragV);
-        move(dropV, dragV, dropPosition);
-        dropList = align(dropList);
-        syncronize(dropList);
-      } else {
-        let { v: dropV, i: dropI, list: dropList } = await find(
-          replica,
-          dropKey
-        );
-        dropList.splice(dropI + 1, 0, dragV);
-        move(dropV, dragV, dropPosition);
-        dropList = align(dropList);
-        syncronize(dropList);
-      }
-    }
-    setTreeData(replica);
-  };
 
   const switcherGenerator = (data: any) => (
     <>
@@ -363,7 +212,6 @@ export default function OrganizationPage(props: any) {
               draggable
               showLine
               showIcon={false}
-              onDrop={onDrop}
               onSelect={handleSelect}
               switcherIcon={switcherGenerator}
             >
