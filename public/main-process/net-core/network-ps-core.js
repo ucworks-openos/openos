@@ -125,17 +125,17 @@ function connect () {
     
         // 접속이 종료됬을때 메시지 출력
         psSock.on('end', function(){
-            sendLog('Disconnected!');
+            sendLog('PS Disconnected!');
             global.SERVER_INFO.PS.isConnected = false;
         });
         // 
         psSock.on('close', function(hadError){
-            sendLog("Close. hadError: " + hadError);
+            sendLog("PS Close. hadError: " + hadError);
             global.SERVER_INFO.PS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         psSock.on('error', function(err){
-            sendLog("Error: " + JSON.stringify(err));
+            sendLog("PS Error: " + JSON.stringify(err));
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.PS.isConnected) {
@@ -147,7 +147,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         psSock.on('timeout', function(){
-            sendLog('Connection timeout.');
+            sendLog('PS Connection timeout.');
             global.SERVER_INFO.PS.isConnected = false;
         });
     });

@@ -2,6 +2,7 @@
 const macaddress = require('macaddress');
 const uuid = require('uuid');
 const moment = require('moment')
+const os = require('os')
 
 /**
  * 32자리 UUID를 반환합니다 
@@ -26,10 +27,30 @@ async function getMacAddress() {
 function getIpAddress() {
     return require("ip").address();
 }
+
+function getOsRelease(){
+    return os.release();
+}
+
+function getOsPlatForm(){
+    return os.platform();
+}
+
+function getOsInfo() {
+    return os.platform + '-' + os.release();
+}
+
+function getOsHostName() {
+    return os.hostname();
+}
     
 module.exports = {
     getUUID: getUUID,
     getDateString: getDateString,
     getMacAddress: getMacAddress,
-    getIpAddress: getIpAddress
+    getIpAddress: getIpAddress,
+    getOsRelease: getOsRelease,
+    getOsPlatForm: getOsPlatForm,
+    getOsInfo: getOsInfo,
+    getOsHostName: getOsHostName
 }

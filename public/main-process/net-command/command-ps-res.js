@@ -68,6 +68,9 @@ function responseCmdProc(command) {
 
         parseXmlToJSON(xmlData).then(function(jsonData) {
           global.USER.userName = jsonData.root_node.node_item.user_name.value;
+          global.ORG.orgGroupCode = jsonData.root_node.node_item.org_code.value;
+          global.ORG.groupCode = jsonData.root_node.node_item.user_group_code.value;
+
           callCallback(command.sendCmd, new ResData(true, jsonData));
           
         }).catch(function(err) {

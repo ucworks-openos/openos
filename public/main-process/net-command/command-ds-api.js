@@ -1,7 +1,6 @@
 const { connectDS, writeCommandDS } = require('../net-core/network-ds-core');
 const { sendLog } = require('../ipc/ipc-cmd-sender');
 
-const CsAPI = require('./command-cs-api');
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
@@ -73,10 +72,6 @@ function reqLogin (loginData, connTry=true) {
             return;
         }
         sendLog('LOG IN STEP 4 --- SetSessionDS COMPLETED!' + JSON.stringify(resData));
-
-        // CertifyCS
-        resData = await CsAPI.reqCertifyCS(loginData.loginId, loginData.loginPwd, true);
-        sendLog('LOG IN STEP 5 --- CertifyCS COMPLETED!' + JSON.stringify(resData));
 
         // 마지막 인증까지 완료되었다면 저장한다. 
         global.USER.userId = loginData.loginId;
@@ -183,7 +178,7 @@ function reqGetServerInfo(userId) {
                     global.SERVER_INFO.DS.ip + String.fromCharCode(13) +
                     'ALL';
         
-        var dataBuf = Buffer.from(data, "utf-8");
+        var dataBuf = Buffer.from(data, global.ENC);
         var serverSizeBuf = Buffer.alloc(4); // ?
         serverSizeBuf.writeInt32LE(dataBuf.length);
 

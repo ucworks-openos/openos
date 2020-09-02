@@ -19,6 +19,25 @@ module.exports = Object.freeze({
     MSG_ORG_ALERT           : 3,
 
 
+    STATE_ONLINE            : 0,     // 온라인
+    STATE_OFFLINE           : 0,     // 오프라인
+    STATE_DISP_OFFLINE      : 8,     // 오프라인
+    STATE_ABSENT            : 1,     // 자리비움
+    STATE_CALLING           : 4,     // 통화중
+    STATE_CONFERENCE        : 6,     // 회의중
+
+
+    CONNECT_TYPE_OUT                : 0,  // 접속안함
+    CONNECT_TYPE_APP                : 1,  // 윈도우즈 메신저
+    CONNECT_TYPE_WEB                : 2,  // 웹 메신저
+    CONNECT_TYPE_CON                : 3,  // 웹메신저 상담
+    CONNECT_TYPE_MOBILE_ANDROID     : 4,  // 안드로이드 모바일
+    CONNECT_TYPE_MOBILE_ANDROID_TAB : 5,  // 안드로이드 탭
+    CONNECT_TYPE_MOBILE_IOS         : 6,  // 아이폰
+    CONNECT_TYPE_MOBILE_IOS_PAD     : 7,  // 아이폰 PAD
+    CONNECT_TYPE_APP_MAC            : 10, // 맥버전
+
+
 
     //#region COMMAND LENGTH
     /*
@@ -46,6 +65,8 @@ module.exports = Object.freeze({
     BUF_LEN_SEND_DATE       : 15 + 1,
     BUF_LEN_RES_DATE        : 15 + 1,
     BUF_LEN_RECV_NAME       : 150 + 1,
+
+    BUF_LEN_TIME            : 14 + 1
 
     //#endregion COMMAND LENGTH
     

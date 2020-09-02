@@ -126,17 +126,17 @@ function connect () {
     
         // 접속이 종료됬을때 메시지 출력
         dsSock.on('end', function(){
-            sendLog('Disconnected!');
+            sendLog('DS Disconnected!');
             global.SERVER_INFO.DS.isConnected = false;
         });
         // 
         dsSock.on('close', function(hadError){
-            sendLog("Close. hadError: " + hadError);
+            sendLog("DS Close. hadError: " + hadError);
             global.SERVER_INFO.DS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         dsSock.on('error', function(err){
-            sendLog("Error: " + JSON.stringify(err));
+            sendLog("DS Error: " + JSON.stringify(err));
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.DS.isConnected) {
@@ -148,7 +148,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         dsSock.on('timeout', function(){
-            sendLog('Connection timeout.');
+            sendLog('DS Connection timeout.');
             global.SERVER_INFO.DS.isConnected = false;
         });
     });

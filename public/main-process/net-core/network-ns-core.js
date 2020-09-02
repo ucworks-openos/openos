@@ -1,8 +1,9 @@
 const { sendLog } = require('../ipc/ipc-cmd-sender');
-const { receive_command } = require('../net-command/command-res-proc');
+const { receiveCmdProc } = require('../net-command/command-ns-res');
 
 var CommandHeader = require('../net-command/command-header');
 var ResData = require('../ResData');
+const { BUF_LEN_ORG_GROUP_CODE } = require('../net-command/command-const');
 
 var nsSock;
 var rcvCommand;
@@ -12,39 +13,71 @@ var rcvCommand;
  * @param {Buffer}} rcvData 
  */
 function readDataStream(rcvData){  
+    let dataBuff = rcvData;
+
     console.log('\r\n++++++++++++++++++++++++++++++++++');
-    console.log('NS rcvData:', rcvData);
+    console.log('NS rcvData:', rcvData.toString('hex', 0));
+    // sendLog('NS rcvData Str:', rcvData.toString('utf-8', 0))
+    // sendLog('NS rcvData Hex:', rcvData.toString('hex', 0))
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
         rcvCommand = new CommandHeader(rcvData.readInt32LE(0), rcvData.readInt32LE(4));
+        rcvCommand.readCnt = 8;
 
-        rcvCommand.data = rcvData.subarray(8);
+        rcvCommand.data = Buffer.alloc(0);
+        dataBuff = dataBuff.subarray(8); // 받은 헤더를 잘라낸다.
+
         if (global.MAIN_NS_SEND_COMMAND) {
             rcvCommand.sendCmd = global.MAIN_NS_SEND_COMMAND
         }
-    } else {
-        // 헤더가 있다면 데이터 길이만큼 다 받았는지 확인한 후 처리로 넘긴다.
-        rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData]);        
     }
 
-    if (!rcvCommand.readCnt) {
-        rcvCommand.readCnt = 0;
-    }
+    // 받은 데이터가 전문의 길이 값보다 더크다면 다음 커맨드가 붙어왔을수 있다.
+    console.log('rcvCommand ----------------------', rcvCommand)
+    console.log('recvData : data Size  -----------------', rcvData.length , dataBuff.length)
 
-    rcvCommand.readCnt += rcvData.length;
-    console.log('Recive NS Command Data :', rcvCommand);
+    // 기존데이터 + 받은 데이터 길이가 사이즈보다 넘는다면, 이후 커맨드까지 같이 받은것이다.
+    if (rcvCommand.readCnt + dataBuff.length > rcvCommand.size) {
 
-    if (rcvCommand.size <= rcvCommand.readCnt) {
-        // 데이터를 모두 다 받았다.
-
+        let moreReadLen = rcvCommand.size - (rcvCommand.data.length + 8);
+        rcvCommand.data = Buffer.concat([rcvCommand.data, dataBuff.subarray(0, moreReadLen)]);
+        rcvCommand.readCnt += moreReadLen;
+        
         var procCmd = rcvCommand;
         rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
         global.MAIN_NS_SEND_COMMAND = null;
 
-        if (!receive_command(procCmd)) {
+        console.log(' >> Recived NS Command Data more :', procCmd);
+        if (!receiveCmdProc(procCmd)) {
             console.log('Revceive NS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
+
+        // 새로 전문을 받는다.
+        dataBuff = dataBuff.subarray(moreReadLen)
+        readDataStream(dataBuff)
+        return;
+    } else {
+        rcvCommand.data = Buffer.concat([rcvCommand.data, dataBuff]);
+        rcvCommand.readCnt += dataBuff.length;
+    }    
+        
+    console.log('rcvCommand.readCnt : Command.Size : rcvCommand.readCnt  -----------------', rcvData.length , dataBuff.length, rcvCommand.readCnt)
+    if (rcvCommand.size <= rcvCommand.readCnt) {
+        // 데이터를 모두 다 받았다.
+        var procCmd = rcvCommand;
+        rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
+        global.MAIN_NS_SEND_COMMAND = null;
+
+        console.log(' >> Recived NS Command Data :', procCmd);
+        if (!receiveCmdProc(procCmd)) {
+            console.log('Revceive NS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+        }
+    } else {
+        console.log('\r\n >> Reading data ..........................');
+        console.log('NS rcvData:', rcvData);
+        console.log('NS rcvData toStr:', rcvData.toString('utf-8', 0));
+        
     }
 };
 
@@ -125,17 +158,17 @@ function connect () {
     
         // 접속이 종료됬을때 메시지 출력
         nsSock.on('end', function(){
-            sendLog('Disconnected!');
+            sendLog('NS Disconnected!');
             global.SERVER_INFO.NS.isConnected = false;
         });
         // 
         nsSock.on('close', function(hadError){
-            sendLog("Close. hadError: " + hadError);
+            sendLog("NS Close. hadError: " + hadError);
             global.SERVER_INFO.NS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         nsSock.on('error', function(err){
-            sendLog("Error: " + JSON.stringify(err));
+            sendLog("NS Error: " + JSON.stringify(err));
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.NS.isConnected) {
@@ -147,7 +180,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         nsSock.on('timeout', function(){
-            sendLog('Connection timeout.');
+            sendLog('NS Connection timeout.');
             global.SERVER_INFO.NS.isConnected = false;
         });
     });

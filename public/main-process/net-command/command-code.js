@@ -79,6 +79,11 @@ module.exports = Object.freeze({
     //
     //#region NS COMMAND
     NS_BASE                      : NS_BASE,
+    NS_CONNECT                   : NS_BASE + 6,
+    NS_USER_DISCONNECT           : NS_BASE + 8,
     NS_SEND_MSG                  : NS_BASE + 11,
+    NS_UNREADALL_COUNT           : NS_BASE + 262,
+    NS_SERVER_BUSY               : NS_BASE + 999,
+    NS_SERVER_CLOSE              : NS_BASE + 998,
     //#endregion
 });

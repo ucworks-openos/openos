@@ -16,11 +16,90 @@ const { BUF_LEN_ORG_GROUP_CODE } = require('./command-const');
  * 서버로 접속요청 합니다.
  */
 function reqconnectNS () {
-    connectNS().then(function() {
-        sendLog('NS Connect Success!');
-    }).catch(function(err){
-        sendLog('NS Connect fale!' + JSON.stringify(err));
-    })
+    return new Promise(async function(resolve, reject) {
+        connectNS().then(function() {
+            sendLog('NS Connect Success!');
+
+            reqSignInNS().then(function(resData){
+                resolve(resData);
+            }).catch(function(err) {
+                reject(err);
+            })
+
+        }).catch(function(err){
+            sendLog('NS Connect fale!' + JSON.stringify(err));
+            reject(err);
+        })
+    });
+}
+
+/**
+ * NS 서버 접속시 통과인증 요청을 합니다.
+ */
+function reqSignInNS() {
+    return new Promise(async function(resolve, reject) {
+        if (!global.SERVER_INFO.NS.isConnected) {
+            reject(new Error('NS IS NOT CONNECTED!'));
+            return;
+        }
+
+        var stateBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        stateBuf.writeInt32LE(CmdConst.STATE_ONLINE);
+
+        var connectTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        connectTypeBuf.writeInt32LE(CmdConst.CONNECT_TYPE_APP);
+
+        var userIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        userIdBuf.write(global.USER.userId, global.ENC);
+
+        var groupCodeBuf = Buffer.alloc(CmdConst.BUF_LEN_GROUP_CODE);
+        groupCodeBuf.write(global.ORG.groupCode, global.ENC);
+
+        var orgGroupCode1Buf = Buffer.alloc(CmdConst.BUF_LEN_ORG_GROUP_CODE);
+        groupCodeBuf.write(global.ORG.orgGroupCode, global.ENC);
+        
+        var orgGroupCode2Buf = Buffer.alloc(CmdConst.BUF_LEN_ORG_GROUP_CODE);
+        groupCodeBuf.write(global.ORG.orgGroupCode, global.ENC);
+
+        var orgGroupCode3Buf = Buffer.alloc(CmdConst.BUF_LEN_ORG_GROUP_CODE);
+        groupCodeBuf.write(global.ORG.orgGroupCode, global.ENC);
+
+        var connectIpBuf = Buffer.alloc(CmdConst.BUF_LEN_IP);
+        connectIpBuf.write(OsUtil.getIpAddress(), global.ENC);
+
+        var connectTimeBuf = Buffer.alloc(CmdConst.BUF_LEN_TIME);
+
+        let userOsInfo = CmdConst.SEP + CmdConst.SEP 
+                        + OsUtil.getOsHostName() + '_' + global.USER.userName 
+                        + CmdConst.SEP + CmdConst.SEP 
+                        + OsUtil.getIpAddress() + CmdConst.SEP + OsUtil.getMacAddress()
+                        + CmdConst.SEP + CmdConst.SEP 
+                        + global.SITE_CONFIG.client_version + CmdConst.SEP + OsUtil.getOsInfo;
+
+        console.log('NS CONNECTION SIGN-IN :', userOsInfo)    
+        var userOsInfoBuf = Buffer.from(userOsInfo, global.ENC);
+
+
+
+        // Data Add
+        let dataBuf = Buffer.concat([
+            stateBuf
+            , connectTypeBuf
+            , userIdBuf
+            , groupCodeBuf
+            , orgGroupCode1Buf
+            , orgGroupCode2Buf
+            , orgGroupCode3Buf
+            , connectIpBuf
+            , connectTimeBuf
+            , userOsInfoBuf
+        ]);
+
+        writeCommandNS(new CommandHeader(CmdCodes.NS_CONNECT, 0, function(resData){
+            if (resData.resCode) resolve(resData);
+            else reject(new Error('NS SIGN_IN Fail! ' + JSON.stringify(resData)));
+        }), dataBuf);
+    });
 }
 
 /**
@@ -31,7 +110,7 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
     return new Promise(async function(resolve, reject) {
 
         if (!global.SERVER_INFO.NS.isConnected) {
-            await connectNS();
+            await reqconnectNS();
         }
 
         if (!global.SERVER_INFO.NS.isConnected) {
@@ -120,7 +199,7 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
 
 
         // default Header
-        var dataBuf = Buffer.concat([
+        let dataBuf = Buffer.concat([
             encryptKeyBuf
             , keyBuf
             , gubunBuf
@@ -152,5 +231,6 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
 
 
 module.exports = {
+    reqconnectNS: reqconnectNS,
     reqSendMessage: reqSendMessage
 }
