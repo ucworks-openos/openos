@@ -1,5 +1,10 @@
 import React, { Suspense } from "react";
-import { BrowserRouter as Router, Route, Switch, HashRouter } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  HashRouter,
+} from "react-router-dom";
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
 const Sidebar = React.lazy(() => import("./__Navigation/SideNavi/SideNavi"));
@@ -14,19 +19,23 @@ const NetTestPage = React.lazy(() => import("./TestPages/NetTestPage"));
 const FuncTestPage = React.lazy(() => import("./TestPages/FuncTestPage"));
 const ChatPage = React.lazy(() => import("./ChatPage/ChatPage"));
 
-
 function RouterPage() {
   return (
     <React.Fragment>
       <HashRouter>
         {/* <MyErrorBoundary> */}
         <Suspense fallback={<div>Loading...</div>}>
-          {localStorage.getItem("isLoginElectronApp") && (<> {" "} <NavigationBar /> <Sidebar />{" "} </>)}
+          {localStorage.getItem("isLoginElectronApp") && (
+            <>
+              {" "}
+              <NavigationBar /> <Sidebar />{" "}
+            </>
+          )}
           <Switch>
             <Route exact path="/" component={LoginPage} />
             <Route exact path="/favorite" component={FavoritePage} />
-            <Route exact path="/organization/:classOrgGroupCode" component={OrganizationPage} />
-            {/* <Route exact path="/login" component={LoginPage} /> */}
+            <Route exact path="/organization" component={OrganizationPage} />
+            <Route exact path="/login" component={LoginPage} />
             <Route exact path="/about" component={AboutPage} />
             <Route exact path="/chat" component={ChatPage} />
             <Route exact path="/site-config" component={SiteConfigPage} />
@@ -41,8 +50,8 @@ function RouterPage() {
   );
 }
 
-if (!window.location.hash || window.location.hash === '#/') {
-  window.location.hash = '#/login';
+if (!window.location.hash || window.location.hash === "#/") {
+  window.location.hash = "#/login";
 }
 
 export default RouterPage;

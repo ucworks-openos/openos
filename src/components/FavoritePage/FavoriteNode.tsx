@@ -2,9 +2,23 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import userThumbnail from "../../assets/images/img_user-thumbnail.png";
 
-export default function Node(props) {
-  const { data } = props;
-  const [visible, setVisible] = useState(false);
+interface TreeNodeInterface {
+  title: string;
+  key: number;
+  isLeaf: boolean;
+  classGroupCode: string;
+  classUpperGroupCode: string;
+  classId: number;
+  classUpperClassId: number;
+  classKind: `1` | `2`;
+  classGroupName: string;
+  children: TreeNodeInterface[];
+  classOrderNo: number;
+}
+
+export default function FavoriteNode(props: any) {
+  const data: TreeNodeInterface = props.data;
+  const [visible, setVisible] = useState<boolean>(false);
 
   const handleToggle = () => {
     setVisible((prev) => !prev);
