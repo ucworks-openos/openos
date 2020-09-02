@@ -6,85 +6,100 @@ import "../../Tree.scss";
 import { useParams } from "react-router-dom";
 import Node from "./OrganizationNode";
 import { EventDataNode, DataNode } from "rc-tree/lib/interface";
-
-interface OrganizationPageProps {
-  classOrgGroupCode: string;
-}
+import { getBaseOrg, getChildOrg } from "../ipcCommunication/ipcCommon";
 
 interface TreeNodeInterface {
   title: string;
   key: number;
-  isLeaf: boolean;
-  classGroupCode: string;
-  classUpperGroupCode: string | null;
-  classId: number;
-  classUpperClassId: number | null;
-  classKind: string;
-  classGroupName: string;
   children: TreeNodeInterface[];
-  classOrderNo: number;
+  groupCode: string;
+  groupName: string;
+  groupParentId: string;
+  groupSeq: string;
+  gubun: string;
+  nodeEnd: string;
+  nodeStart: string;
+  orgCode: string;
 }
 
-const defaultTreeNode = {
-  title: "",
+const _defaultTreeNode: TreeNodeInterface = {
+  title: ``,
   key: 0,
-  isLeaf: false,
-  classGroupCode: ``,
-  classUpperGroupCode: ``,
-  classId: 0,
-  classUpperClassId: 0,
-  classKind: `2`,
-  classGroupName: ``,
-  classOrderNo: 1,
   children: [],
-};
+  groupCode: ``,
+  groupName: ``,
+  groupParentId: ``,
+  groupSeq: ``,
+  gubun: ``,
+  nodeEnd: ``,
+  nodeStart: ``,
+  orgCode: ``,
+}
 
-export default function OrganizationPage(props: any) {
+let _orgCode = ``;
+
+export default function OrganizationPage() {
   // set initial tree
-  const { classOrgGroupCode } = useParams<OrganizationPageProps>();
   const [treeData, setTreeData] = useState<TreeNodeInterface[]>([
-    defaultTreeNode,
+    _defaultTreeNode,
   ]);
 
   const [selectedNode, setSelectedNode] = useState<TreeNodeInterface>(
-    defaultTreeNode
+    _defaultTreeNode
   );
   // fetching root
   useEffect(() => {
-    const root: TreeNodeInterface = {
-      title: `유씨웨어`,
-      key: 0,
-      isLeaf: false,
-      classGroupCode: `D0`,
-      classUpperGroupCode: null,
-      classId: 0,
-      classUpperClassId: null,
-      classKind: `2`,
-      classGroupName: `유씨웨어`,
-      classOrderNo: 0,
-      children: [],
-    };
-    setTreeData([root]);
-
+    const getRoot = async () => {
+      const { data: { root_node: { node_item: response } } } = await getBaseOrg();
+      const root = response.reduce((prev: any, cur: any, i: number) => {
+        if (i === 0) {
+          return {
+            title: cur.group_name.value,
+            key: cur.group_seq.value,
+            children: [],
+            groupCode: cur.group_code.value,
+            groupName: cur.group_name.value,
+            groupParentId: cur.group_parent_id.value,
+            groupSeq: cur.group_seq.value,
+            gubun: cur.gubun.value,
+            nodeEnd: cur.node_end.value,
+            nodeStart: cur.node_start.value,
+            orgCode: cur.org_code.value,
+          }
+        } else {
+          return {
+            ...prev,
+            children: [
+              ...prev.children,
+              {
+                title: cur.group_name.value,
+                key: cur.group_seq.value,
+                children: [],
+                groupCode: cur.group_code.value,
+                groupName: cur.group_name.value,
+                groupParentId: cur.group_parent_id.value,
+                groupSeq: cur.group_seq.value,
+                gubun: cur.gubun.value,
+                nodeEnd: cur.node_end.value,
+                nodeStart: cur.node_start.value,
+                orgCode: cur.org_code.value,
+              }
+            ]
+          }
+        }
+      }, {});
+      setTreeData([root]);
+      console.log(`root: `, root);
+      _orgCode = root.orgCode;
+    }
+    getRoot();
     return () => {
       setTreeData([]);
     };
   }, []);
 
-  const getChild = async (classGroupCode: string) => [
-    {
-      title: `개발팀`,
-      key: 1,
-      isLeaf: false,
-      classGroupCode: `D1`,
-      classUpperGroupCode: `D0`,
-      classId: 1,
-      classUpperClassId: 0,
-      classKind: `2`,
-      classOrderNo: 0,
-      classGroupName: `개발팀`,
-      children: [],
-    },
+  const getChild = async (groupCode: string) => [
+    // await getChildOrg();
   ];
 
   // attach children
@@ -98,8 +113,6 @@ export default function OrganizationPage(props: any) {
       if (Number(v.key) === Number(key)) {
         return {
           ...v,
-          childCnt: children.length,
-          isLeaf: false,
           children,
         };
         // children searching
@@ -120,12 +133,12 @@ export default function OrganizationPage(props: any) {
         resolve();
         return;
         // if the node yet to load chilren, execute axios call.
-      } else if (!e.isLeaf) {
-        const { v } = await find(treeData, Number(e.key));
-        const children = await getChild(v.classGroupCode);
-        // update tree
-        setTreeData((prev) => attach(prev, Number(e.key), children));
       }
+      const { v } = await find(treeData, Number(e.key));
+      const children = await getChild(v.groupCode);
+      // update tree
+      setTreeData((prev) => attach(prev, Number(e.key), children));
+
       resolve();
     });
   };
@@ -159,19 +172,19 @@ export default function OrganizationPage(props: any) {
 
   const switcherGenerator = (data: any) => (
     <>
-      {data?.classKind === `2` && (
+      {data?.gubun === `G` && (
         <Switcher>
-          {!data?.isLeaf && !data?.expanded ? (
+          {!data?.expanded ? (
             <img
               src="/images/icon_toggle_plus.png"
               style={{ minWidth: `20px`, height: `21px` }}
             />
           ) : (
-            <img
-              src="/images/icon_toggle_min.png"
-              style={{ minWidth: `20px`, height: `21px` }}
-            />
-          )}
+              <img
+                src="/images/icon_toggle_min.png"
+                style={{ minWidth: `20px`, height: `21px` }}
+              />
+            )}
         </Switcher>
       )}
     </>

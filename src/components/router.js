@@ -33,8 +33,8 @@ function RouterPage() {
           )}
           <Switch>
             <Route exact path="/" component={LoginPage} />
-            <Route exact path="/favorite/:classOrgGroupCode" component={FavoritePage} />
-            <Route exact path="/organization/:classOrgGroupCode" component={OrganizationPage} />
+            <Route exact path="/favorite" component={FavoritePage} />
+            <Route exact path="/organization" component={OrganizationPage} />
             <Route exact path="/login" component={LoginPage} />
             <Route exact path="/about" component={AboutPage} />
             <Route exact path="/chat" component={ChatPage} />

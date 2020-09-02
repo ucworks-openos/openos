@@ -1,14 +1,14 @@
 export const items = [
   {
     path:
-      "/favorite/ORG001" /* path is used as id to check which NavItem is active basically */,
+      "/favorite" /* path is used as id to check which NavItem is active basically */,
     name: "즐겨찾기",
     css: "fa fa-fw fa-home",
     key: 1 /* Key is required, else console throws error. Does this please you Mr. Browser?! */,
     className: "menu-item favorite",
   },
   {
-    path: "/organization/ORG001",
+    path: "/organization",
     name: "조직도",
     css: "fa fa-fw fa-clock",
     key: 2,
