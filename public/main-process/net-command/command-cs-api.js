@@ -12,9 +12,9 @@ var CryptoUtil = require('../utils/utils-crypto')
  */
 function reqconnectCS () {
     connectCS().then(function() {
-        console.log('CS Connect Success!');
+        sendLog('CS Connect Success!');
     }).catch(function(err){
-        console.log('CS Connect fale!' + JSON.stringify(err));
+        sendLog('CS Connect fale!' + JSON.stringify(err));
     })
 
 }
