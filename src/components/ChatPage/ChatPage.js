@@ -20,7 +20,7 @@ function ChatPage() {
     return (
         <div class="contents-wrap-chat">
             <div class="list-area">
-                <div class="page-title-wrap">
+                <div class="chat-page-title-wrap">
                     <h4 class="page-title">대화</h4>
                     <div class="chat-list-action-wrap">
                         <div class="chat-list-action add" title="대화 추가"></div>
@@ -474,14 +474,14 @@ function ChatPage() {
                     </ul>
                 </div>
             </div>
-            <main class="main-wrap">
+            <main class="chat-main-wrap">
                 <div class="chat-title-wrap">
                     <div class="btn-chat-ppl-info">
                         5
                         </div>
                     <h4 class="chat-name">tf팀</h4>
-                    <div class="local-search-wrap">
-                        <input type="text" class="local-search" placeholder="대화 검색" />
+                    <div class="chat-local-search-wrap">
+                        <input type="text" class="chat-local-search" placeholder="대화 검색" />
                     </div>
                     <div class="chat-action-wrap">
                         <div class="chat-action drawer" title="모아보기"></div>
@@ -497,11 +497,11 @@ function ChatPage() {
                         </div>
                     </div>
                     <div class="lnb" title="더보기">
-                            <HamburgerButton
-                                active={isHamburgerButtonClicked}
-                                clicked={isHamburgerButtonClicked}
-                                propsFunction={clickHamburgerButton}
-                            />
+                        <HamburgerButton
+                            active={isHamburgerButtonClicked}
+                            clicked={isHamburgerButtonClicked}
+                            propsFunction={clickHamburgerButton}
+                        />
                         <ul className={isHamburgerButtonClicked ? "lnb-menu-wrap" : "lnb-menu-wrap-hide"}>
                             <li class="lnb-menu-item"><h6>대화상대 초대</h6></li>
                             <li class="lnb-menu-item"><h6>대화방 설정</h6></li>

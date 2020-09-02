@@ -7,36 +7,7 @@ import { useParams } from "react-router-dom";
 import Node from "./OrganizationNode";
 import { EventDataNode, DataNode } from "rc-tree/lib/interface";
 import { getBaseOrg, getChildOrg } from "../ipcCommunication/ipcCommon";
-
-interface TreeNodeInterface {
-  title: string;
-  key: number;
-  children: TreeNodeInterface[];
-  groupCode: string;
-  groupName: string;
-  groupParentId: string;
-  groupSeq: string;
-  gubun: string;
-  nodeEnd: string;
-  nodeStart: string;
-  orgCode: string;
-}
-
-const _defaultTreeNode: TreeNodeInterface = {
-  title: ``,
-  key: 0,
-  children: [],
-  groupCode: ``,
-  groupName: ``,
-  groupParentId: ``,
-  groupSeq: ``,
-  gubun: ``,
-  nodeEnd: ``,
-  nodeStart: ``,
-  orgCode: ``,
-}
-
-let _orgCode = ``;
+import { TreeNodeInterface } from '../../@type'
 
 export default function OrganizationPage() {
   // set initial tree
@@ -47,6 +18,10 @@ export default function OrganizationPage() {
   const [selectedNode, setSelectedNode] = useState<TreeNodeInterface>(
     _defaultTreeNode
   );
+
+  const [expandedKeys, setExpandedKeys] = useState<(string | number)[]>([``]);
+  const [autoExpandParent, setAutoExpandParent] = useState<boolean>(false);
+
   // fetching root
   useEffect(() => {
     const getRoot = async () => {
@@ -89,7 +64,7 @@ export default function OrganizationPage() {
         }
       }, {});
       setTreeData([root]);
-      console.log(`root: `, root);
+      setExpandedKeys([root.key]);
       _orgCode = root.orgCode;
     }
     getRoot();
@@ -98,9 +73,70 @@ export default function OrganizationPage() {
     };
   }, []);
 
-  const getChild = async (groupCode: string) => [
-    // await getChildOrg();
-  ];
+  const getChild = async (groupCode: string) => {
+    const { data: { root_node: { node_item: response } } } = await getChildOrg(_orgCode, groupCode, -1);
+    const children: TreeNodeInterface[] = response?.filter((_: any, i: number) => i !== 0).map((v: any) => {
+      const defaultProps = {
+        key: v.group_seq.value,
+        gubun: v.gubun.value,
+        groupParentId: v.group_parent_id.value,
+        groupSeq: v.group_seq.value,
+        nodeEnd: v.node_end.value,
+        nodeStart: v.node_start.value,
+        orgCode: v.org_code.value,
+      };
+
+      if (v.gubun.value === `P`) {
+        const userProps = {
+          title: v.user_name?.value,
+          classMaxCode: v.class_max_code?.value,
+          connectType: v.connect_type?.value,
+          pullClassId: v.pull_class_id?.value,
+          pullGroupName: v.pull_group_name?.value,
+          sipId: v.sip_id?.value,
+          smsUsed: v.sms_used?.value,
+          syncOpt: v.sync_opt?.value,
+          userAliasName: v.user_aliasname?.value,
+          userBirthGubun: v.user_birth_gubun?.value,
+          userBirthday: v.user_birthday?.value,
+          userCertify: v.user_certify?.value,
+          userEmail: v.user_email?.value,
+          userEtcState: v.user_etc_state?.value,
+          userExtState: v.user_extstate?.value,
+          userGroupCode: v.user_group_code?.value,
+          userGroupName: v.user_group_name?.value,
+          userGubun: v.user_gubun?.value,
+          userId: v.user_id?.value,
+          userIpphoneDbGroup: v.user_ipphone_dbgroup?.value,
+          userName: v.user_name?.value,
+          userPayclName: v.user_paycl_name?.value,
+          userPhoneState: v.user_phone_state?.value,
+          userPicturePos: v.user_picture_pos?.value,
+          userState: v.user_state?.value,
+          userTelCompany: v.user_tel_company?.value,
+          userTelFax: v.user_tel_fax?.value,
+          userTelIpphone: v.user_tel_ipphone?.value,
+          userTelMobile: v.user_tel_mobile?.value,
+          userTelOffice: v.user_tel_office?.value,
+          userViewOrgGroup: v.user_view_org_groups?.value,
+          userWorkName: v.user_work_name?.value,
+          userXmlPic: v.user_xml_pic?.value,
+          viewOpt: v.view_opt?.value,
+        }
+        return Object.assign(defaultProps, userProps);
+      } else {// 부서
+        const departmentProps = {
+          children: [],
+          title: v.group_name?.value,
+          groupCode: v.group_code.value,
+          groupName: v.group_name.value,
+        }
+        return Object.assign(defaultProps, departmentProps);
+      }
+    })
+    console.log(`children: `, children);
+    return children;
+  };
 
   // attach children
   const attach = (
@@ -135,7 +171,7 @@ export default function OrganizationPage() {
         // if the node yet to load chilren, execute axios call.
       }
       const { v } = await find(treeData, Number(e.key));
-      const children = await getChild(v.groupCode);
+      const children = await getChild(v.groupCode!);
       // update tree
       setTreeData((prev) => attach(prev, Number(e.key), children));
 
@@ -154,7 +190,7 @@ export default function OrganizationPage() {
           resolve({ v: list[i], i: i, list: list });
         }
         if (list[i].children) {
-          find(list[i].children, key).then((result) => {
+          find(list[i].children!, key).then((result) => {
             if (result) resolve(result);
           });
         }
@@ -172,7 +208,7 @@ export default function OrganizationPage() {
 
   const switcherGenerator = (data: any) => (
     <>
-      {data?.gubun === `G` && (
+      {(data?.gubun === `G` || data?.gubun === `T`) && (
         <Switcher>
           {!data?.expanded ? (
             <img
@@ -204,6 +240,11 @@ export default function OrganizationPage() {
     });
   };
 
+  const handleExpand = (expandedKeys: (string | number)[]): void => {
+    setExpandedKeys(expandedKeys);
+    setAutoExpandParent(false);
+  }
+
   return (
     <div className="contents-wrap">
       <div className="page-title-wrap">
@@ -226,7 +267,10 @@ export default function OrganizationPage() {
               showLine
               showIcon={false}
               onSelect={handleSelect}
+              onExpand={handleExpand}
               switcherIcon={switcherGenerator}
+              expandedKeys={expandedKeys}
+              autoExpandParent={autoExpandParent}
             >
               {renderTreeNodes(treeData)}
             </Tree>
@@ -236,6 +280,22 @@ export default function OrganizationPage() {
     </div>
   );
 }
+
+const _defaultTreeNode: TreeNodeInterface = {
+  title: ``,
+  key: 0,
+  children: [],
+  groupCode: ``,
+  groupName: ``,
+  groupParentId: ``,
+  groupSeq: ``,
+  gubun: `G`,
+  nodeEnd: ``,
+  nodeStart: ``,
+  orgCode: ``,
+}
+
+let _orgCode = ``;
 
 const Switcher = styled.div`
   background-color: #ebedf1;

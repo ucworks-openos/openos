@@ -594,6 +594,8 @@ a:hover,
   border-bottom: 1px solid #dfe2e8;
 }
 
+
+
 .user-info-container .user-info-wrap * {
   text-overflow: initial;
   white-space: initial;
@@ -630,6 +632,11 @@ a:hover,
 .user-mobile {
   margin-bottom: 8px;
 }
+
+.user-phone {
+  margin-right: 10px;
+}
+
 .user-phone:before,
 .user-mobile:before,
 .user-email:before {
@@ -640,7 +647,7 @@ a:hover,
   background-image: url("./assets/images/icon_contact.png");
   background-repeat: no-repeat;
   vertical-align: middle;
-  margin-right: 8px;
+  margin-right: 6px;
 }
 .user-phone:before {
   background-position: 0px center;

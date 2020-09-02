@@ -219,14 +219,14 @@ function FavoritePage(props: any) {
         child.classKind === "2"
           ? child.classGroupCode
           : dropPosition === 0
-          ? parent.classGroupCode
-          : parent.classUpperGroupCode,
+            ? parent.classGroupCode
+            : parent.classUpperGroupCode,
       classGroupName:
         child.classKind === "2"
           ? child.classGroupName
           : dropPosition === 0
-          ? parent.classGroupName
-          : parent.classGroupName,
+            ? parent.classGroupName
+            : parent.classGroupName,
     };
     await axios.patch(`http://localhost:4000/v0/tree/child`, data);
   };
@@ -317,11 +317,11 @@ function FavoritePage(props: any) {
               style={{ minWidth: `20px`, height: `21px` }}
             />
           ) : (
-            <img
-              src="/images/icon_toggle_min.png"
-              style={{ minWidth: `20px`, height: `21px` }}
-            />
-          )}
+              <img
+                src="/images/icon_toggle_min.png"
+                style={{ minWidth: `20px`, height: `21px` }}
+              />
+            )}
         </Switcher>
       )}
     </>

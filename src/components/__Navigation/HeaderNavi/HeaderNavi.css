@@ -196,6 +196,9 @@
     padding: 8px 0px;
     border-bottom: 1px solid #DFE2E8;
 }
+.current-user-action-wrap {
+    margin-top: 10px;
+}
 
 /*헤더-서브액션*/
 .sub-action-wrap {
