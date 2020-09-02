@@ -8,14 +8,14 @@ export const items = [
     className: "menu-item favorite",
   },
   {
-    path: "/organization/ORG001",
+    path: "/organization",
     name: "조직도",
     css: "fa fa-fw fa-clock",
     key: 2,
     className: "menu-item organization",
   },
   {
-    path: "/conversation",
+    path: "/chat",
     name: "대화",
     css: "fa fa-fw fa-clock",
     key: 3,
