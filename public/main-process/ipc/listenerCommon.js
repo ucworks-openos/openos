@@ -32,6 +32,8 @@ ipcMain.on('login', async (event, loginData) => {
     }
     else throw new Error('reqGetCondition fail!');
 
+    event.reply('res-login', new ResData(true, resData));
+
   } catch(err){
     console.log('login fail! res:', err)
     event.reply('res-login', new ResData(false, err));
