@@ -114,14 +114,18 @@ function responseCmdProc(resCmd) {
                 result.server_rule_info.function.forEach(element => {
 
                   //console.log('RULE ELEMENT:', element);
-
                   switch(element.$.func_code) {
-                    case 'FUNC_ENCRYPT_3': // Enc Algorithm
-                      global.ENCRYPT.pwdAlgorithm = element.$.func_value1;
+                    case 'FUNC_ENCRYPT_2': // Message/Chat Encrypt Algorithm
+                      global.ENCRYPT.msgAlgorithm = element.$.func_value1;
                       console.log('SET FUNC_ENCRYPT_3 :', element.$.func_value1)
                       break;
 
-                    case 'FUNC_ENCRYPT_4': // Enc Key
+                    case 'FUNC_ENCRYPT_3': // Password Encrypt Algorithm
+                      global.ENCRYPT.pwdAlgorithm = element.$.func_value1;
+                      console.log('SET FUNC_ENCRYPT_3 :', element.$.func_value1)
+                      break;
+                      
+                    case 'FUNC_ENCRYPT_4': // Password Encrypt Key
                       global.ENCRYPT.pwdCryptKey = element.$.func_value1;
                       console.log('SET FUNC_ENCRYPT_4 :', element.$.func_value1)
                       break;
@@ -130,7 +134,6 @@ function responseCmdProc(resCmd) {
                       global.ORG.org_1_root = element.$.func_value1;
                       console.log('SET FUNC_ORG_1 :', element.$.func_value1)
                       break;
-
                   }
                 });
 

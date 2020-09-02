@@ -1,6 +1,6 @@
 const { ipcMain } = require('electron');
 const { reqLogin, reqGetBuddyList, get } = require('../net-command/command-ds-api');
-const { reqGetOrganization, reqGetOrgChild } = require('../net-command/command-ps-api');
+const { reqGetOrganization, reqGetOrgChild, reqGetCondition} = require('../net-command/command-ps-api');
 const ResData = require('../ResData');
 
 
@@ -9,12 +9,19 @@ const ResData = require('../ResData');
 ipcMain.on('login', async (event, loginData) => {
   
   reqLogin(loginData, true).then(function(resData) {
-    console.log('login success! res:', resData)
-    event.reply('res-login', resData);
+      reqGetCondition(loginData.loginId).then(function(resData) {
+        if (resData.resCode) {
+          console.log('login Success! res: User Condition Check Sucess!')
+        } else {
+          console.log('login fail! res: User Condition Check Fail!')
+        }
+        event.reply('res-login', resData);
+      });
   }).catch(function(err){
     console.log('login fail! res:', err)
     event.reply('res-login', new ResData(false, err));
   });
+ 
 });
 
 

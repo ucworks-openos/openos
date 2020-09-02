@@ -7,27 +7,48 @@ const isDev = require("electron-is-dev");
 const glob = require('glob');
 const { readConfig } = require(`${path.join(__dirname, '/../public/main-process/configuration/site-config')}`);
 
+
+// 
+// GLOBAL 정보는 선언을 하고 사용한다. (중앙관리)
+// 
+//#region GLOBAL 설정 정보
+/**
+ * 사용자 정보
+ */
 global.USER = {
   userId: '',
+  userName: '',
   userPass: '',
   authMethod: '' // 사용처??  그냥 로그인시 넘겨줌 BASE64
 }
+/**
+ * 암호화 (보안) 처리 정보
+ */
 global.ENCRYPT = {
   pwdAlgorithm: 'RC4', //default rc4
-  pwdCryptKey: ''
+  pwdCryptKey: '',
+  msgAlgorithm: 'NO',
 }
-global.ENC = "utf-8";
+/**
+ * 인증 정보
+ */
 global.CERT = {
   pukCertKey: '',
   challenge: '',
   session: '',
   enc: ''
 }
+/**
+ * 기본 설정 정보
+ */
 global.SITE_CONFIG = {
 	server_ip:'192.168.0.172',
   server_port:'32551',
   client_version:652
 }
+/**
+ * 서버 정보
+ */
 global.SERVER_INFO = {
   DS:{
     "pubip":'',
@@ -67,14 +88,24 @@ global.SERVER_INFO = {
     "isConnected":false
     }
 }
+/**
+ * 조직도 그룹 정보
+ */
 global.ORG = {
   org_1_root: 'ORG001',
   selected_org: ''
 }
+/**
+ * ENCODING 정보
+ */
+global.ENC = "utf-8";
 
 global.MAIN_DS_SEND_COMMAND = {}
 global.MAIN_CS_SEND_COMMAND = {}
 global.MAIN_PS_SEND_COMMAND = {}
+global.MAIN_NS_SEND_COMMAND = {}
+//#endregion GLOBAL 설정 정보
+
 
 let mainWindow;
 

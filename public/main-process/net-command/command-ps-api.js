@@ -13,14 +13,34 @@ var CryptoUtil = require('../utils/utils-crypto')
  */
 function reqconnectPS () {
     connectPS().then(function() {
-        console.log('PS Connect Success!');
+        sendLog('PS Connect Success!');
     }).catch(function(err){
-        console.log('PS Connect fale!' + JSON.stringify(err));
+        sendLog('PS Connect fale!' + JSON.stringify(err));
     })
 }
 
+function reqGetCondition(userId) {
+    return new Promise(async function(resolve, reject) {
+
+        if (!global.SERVER_INFO.PS.isConnected) {
+            await connectPS();
+        }
+
+        if (!global.SERVER_INFO.PS.isConnected) {
+            reject(new Error('PS IS NOT CONNECTED!'));
+            return;
+        }
+        
+        let idData = 'ID' + CmdConst.PIPE_SEP + userId;
+        var dataBuf = Buffer.from(idData, global.ENC);
+        writeCommandPS(new CommandHeader(CmdCodes.PS_GET_CONDICTION, 0, function(resData){
+            resolve(resData);
+        }), dataBuf);
+    });
+}
+
 /**
- * 사용자 인증을 요청합니다.
+ * 조직도 그룹을 요청합니다.
  * @param {String} userPass 
  */
 function reqGetOrganization(groupCode, connTry = true) {
@@ -50,7 +70,7 @@ function reqGetOrganization(groupCode, connTry = true) {
 
 
 /**
- * 사용자 인증을 요청합니다.
+ * 하위 그룹을 요청합니다.
  */
 function reqGetOrgChild(orgGroupCode, groupCode, groupSeq, connTry = true) {
     return new Promise(async function(resolve, reject) {
@@ -82,6 +102,7 @@ function reqGetOrgChild(orgGroupCode, groupCode, groupSeq, connTry = true) {
 }
 
 module.exports = {
+    reqGetCondition: reqGetCondition,
     reqGetOrganization: reqGetOrganization,
     reqGetOrgChild: reqGetOrgChild
 }
