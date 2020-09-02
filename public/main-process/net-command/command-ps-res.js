@@ -67,13 +67,11 @@ function responseCmdProc(command) {
         sendLog('PS_GET_CONDICTION  xml:', xmlData);
 
         parseXmlToJSON(xmlData).then(function(jsonData) {
-          global.USER.userName = jsonData.root_node.node_item[0].user_name[0].$.value;
-          console.log('PS_GET_CONDICTION >> ', global.USER.userName);
-
+          global.USER.userName = jsonData.root_node.node_item.user_name.value;
           callCallback(command.sendCmd, new ResData(true, jsonData));
           
         }).catch(function(err) {
-          console.log('PS_GET_CONDICTION  xml parse Error! str:', xmlData, err)
+          console.log('PS_GET_CONDICTION  xml parse Error! ', err)
           callCallback(command.sendCmd, new ResData(false, 'PS_GET_CONDICTION  xml parse Error! ex:' + JSON.stringify(err)));
         });
       } else {

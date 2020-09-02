@@ -1,5 +1,6 @@
 const { sendLog } = require('../ipc/ipc-cmd-sender');
 const { callCallback } = require('./command-utils');
+const { parseXmlToJSON } = require('../utils/utils-xmlParser')
 const ResData = require('../ResData');
 
 var CmdCodes = require('./command-code');
@@ -27,25 +28,23 @@ function responseCmdProc(resCmd) {
         var serverInfoXml = resCmd.data.toString(global.ENC, 4);
         console.log('ServerInfo: ', serverInfoXml);
 
-        var xml2js = require('xml2js');
-        var parser = new xml2js.Parser();
-        parser.parseString(serverInfoXml, function(err, result) {
-            if (err) {
-              sendLog.log('ServerInfo parse error!  Ex: ' + err);
-              return;
-            }
+        parseXmlToJSON(serverInfoXml).then(function(result) {
+            
 
-            global.SERVER_INFO.DS = result.server_info.DS[0].$;
-            global.SERVER_INFO.CS = result.server_info.CS[0].$;
+            global.SERVER_INFO.DS = result.server_info.DS;
+            global.SERVER_INFO.CS = result.server_info.CS;
 
-            if (result.server_info.NS) global.SERVER_INFO.NS = result.server_info.NS[0].$;
-            if (result.server_info.PS) global.SERVER_INFO.PS = result.server_info.PS[0].$;
-            if (result.server_info.FS) global.SERVER_INFO.FS = result.server_info.FS[0].$;
-            if (result.server_info.SMS) global.SERVER_INFO.SMS = result.server_info.SMS[0].$;
+            if (result.server_info.NS) global.SERVER_INFO.NS = result.server_info.NS;
+            if (result.server_info.PS) global.SERVER_INFO.PS = result.server_info.PS;
+            if (result.server_info.FS) global.SERVER_INFO.FS = result.server_info.FS;
+            if (result.server_info.SMS) global.SERVER_INFO.SMS = result.server_info.SMS;
 
-            global.USER.authMethod = result.server_info.UserAuth[0].$.method;
+            global.USER.authMethod = result.server_info.UserAuth.method;
 
             callCallback(resCmd.sendCmd, new ResData(true));
+          }).catch(function(err) {
+              sendLog.log('ServerInfo parse error!  Ex: ' + err);
+              callCallback(resCmd.sendCmd, new ResData(false, JSON.stringify(err)));
           });
 
         sendLog('ServerInfo: ' + JSON.stringify(global.SERVER_INFO));
@@ -70,7 +69,7 @@ function responseCmdProc(resCmd) {
   
           let ruleStartInx = CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP + (CmdConst.BUF_LEN_INT*2);
           let ruleEndInx = ruleStartInx + ruleSize;
-          let rule = rcvBuf.toString(global.ENC, ruleStartInx).trim();
+          let ruleXml = rcvBuf.toString(global.ENC, ruleStartInx).trim();
 
           /*
           let rcvRuleBuf = Buffer.alloc(ruleSize);
@@ -101,50 +100,44 @@ function responseCmdProc(resCmd) {
           console.log('-----------------------------------------------------');
           */
 
-          var xml2js = require('xml2js');
-          var parser = new xml2js.Parser();
-          parser.parseString(rule, function(err, result) {
-            if (err) {
-              sendLog('RULE parse error!  Ex: ' + err + ' \r\nResult:' + result + '\r\nrule:' + rule);
-              return ;
-            }
-
+         parseXmlToJSON(ruleXml).then(function(result) {
             try {
               if (result.server_rule_info.function) {
                 result.server_rule_info.function.forEach(element => {
-
                   //console.log('RULE ELEMENT:', element);
-                  switch(element.$.func_code) {
+                  switch(element.func_code) {
                     case 'FUNC_ENCRYPT_2': // Message/Chat Encrypt Algorithm
-                      global.ENCRYPT.msgAlgorithm = element.$.func_value1;
-                      console.log('SET FUNC_ENCRYPT_3 :', element.$.func_value1)
+                      global.ENCRYPT.msgAlgorithm = element.func_value1;
+                      console.log('SET FUNC_ENCRYPT_3 :', element.func_value1)
                       break;
 
                     case 'FUNC_ENCRYPT_3': // Password Encrypt Algorithm
-                      global.ENCRYPT.pwdAlgorithm = element.$.func_value1;
-                      console.log('SET FUNC_ENCRYPT_3 :', element.$.func_value1)
+                      global.ENCRYPT.pwdAlgorithm = element.func_value1;
+                      console.log('SET FUNC_ENCRYPT_3 :', element.func_value1)
                       break;
                       
                     case 'FUNC_ENCRYPT_4': // Password Encrypt Key
-                      global.ENCRYPT.pwdCryptKey = element.$.func_value1;
-                      console.log('SET FUNC_ENCRYPT_4 :', element.$.func_value1)
+                      global.ENCRYPT.pwdCryptKey = element.func_value1;
+                      console.log('SET FUNC_ENCRYPT_4 :', element.func_value1)
                       break;
 
                     case 'FUNC_ORG_1': // ROOT ORG CODE
-                      global.ORG.org_1_root = element.$.func_value1;
-                      console.log('SET FUNC_ORG_1 :', element.$.func_value1)
+                      global.ORG.org_1_root = element.func_value1;
+                      console.log('SET FUNC_ORG_1 :', element.func_value1)
                       break;
                   }
                 });
 
                 console.log('RULE:', global.ENCRYPT)
+                callCallback(resCmd.sendCmd, new ResData(true));
               }
-
-              callCallback(resCmd.sendCmd, new ResData(true));
-            } catch (exception) {
-              callCallback(resCmd.sendCmd, new ResData(false, exception));
-              console.log('RULE PARSE ERR!!', exception)
+            } catch (err) {
+              callCallback(resCmd.sendCmd, new ResData(false, JSON.stringify(err)));
+              console.log('RULE PARSE ERR!!', err)
             }
+          }).catch(function(err) {
+            sendLog('RULE parse error!  Ex: ' + err + ' \r\nResult:' + result + '\r\nrule:' + rule);
+            callCallback(resCmd.sendCmd, new ResData(false, JSON.stringify(err)));
           });
           break;
 
@@ -162,11 +155,9 @@ function responseCmdProc(resCmd) {
           var serverInfoXml = rcvBuf.toString('utf-8', 4);
           sendLog('ServerInfo: ' + serverInfoXml);
 
-          var xml2js = require('xml2js');
-          var parser = new xml2js.Parser();
-          parser.parseString(serverInfoXml, function(err, result) {
+          parseXmlToJSON(serverInfoXml).then(function(result) {
 
-              let check_version = result.server_upgrade_info.current[0].$.ver;
+              let check_version = result.server_upgrade_info.current.ver;
 
               // 버전이 동일하다면 로그인시 서버정보를 다시 받아오기 때문에 의미없고
               // 업그레이드시 대상 서버를 확인하기 위해 정보를 적용한다.
@@ -174,7 +165,9 @@ function responseCmdProc(resCmd) {
                   sendLog("CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version);
               }
 
-              callCallback(resCmd.sendCmd, new ResData(true, "CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version))
+              callCallback(resCmd.sendCmd, new ResData(true, "CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version));
+            }).catch(function(err) {
+              callCallback(resCmd.sendCmd, new ResData(false, JSON.stringify(err)));
             });
         }
       } else {
@@ -215,18 +208,13 @@ function responseCmdProc(resCmd) {
         case CmdCodes.DS_GET_BUDDY_MEMORY_LZ:
 
           let rcvBuf = Buffer.from(resCmd.data);
-          let contactData = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID);
-          var xml2js = require('xml2js');
-          var parser = new xml2js.Parser();
-          parser.parseString(contactData, function(err, result) {
-              if (err) {
-                sendLog.log('Contact parse error!  Ex: ' + JSON.stringify(err));
-                callCallback(resCmd.sendCmd, new ResData(false, 'Contact parse error!  Ex: ' + JSON.stringify(err)));
-                return;
-              }
-
+          let contactDataXml = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID);
+          parseXmlToJSON(contactDataXml).then(function(result) {
               console.log('Contact Data Parse Success!:', result);
               callCallback(resCmd.sendCmd, new ResData(true, result));
+            }).catch(function(err) {
+              sendLog.log('Contact parse error!  Ex: ' + JSON.stringify(err));
+              callCallback(resCmd.sendCmd, new ResData(false, 'Contact parse error!  Ex: ' + JSON.stringify(err)));
             });
           
           sendLog('Contact Data Receive:' + contactData);
