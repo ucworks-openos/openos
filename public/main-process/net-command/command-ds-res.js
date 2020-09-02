@@ -122,7 +122,7 @@ function responseCmdProc(resCmd) {
                       break;
 
                     case 'FUNC_ORG_1': // ROOT ORG CODE
-                      global.ORG.org_1_root = element.func_value1;
+                      global.ORG.orgGroupCode = element.func_value1;
                       console.log('SET FUNC_ORG_1 :', element.func_value1)
                       break;
                   }

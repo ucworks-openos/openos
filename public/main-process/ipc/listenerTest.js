@@ -1,6 +1,5 @@
 
 const {ipcMain} = require('electron');
-var IPC_Header = require('./ipc-cmd-header');
 
 const {reqConnectDS, reqUpgradeCheckDS,} = require('../net-command/command-ds-api');
 const {reqGetCondition} = require('../net-command/command-ps-api');

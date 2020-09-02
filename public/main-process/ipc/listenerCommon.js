@@ -1,29 +1,42 @@
 const { ipcMain } = require('electron');
-const { reqLogin, reqGetBuddyList, get } = require('../net-command/command-ds-api');
-const { reqGetOrganization, reqGetOrgChild, reqGetCondition} = require('../net-command/command-ps-api');
-const ResData = require('../ResData');
+const dsAPI = require('../net-command/command-ds-api');
+const psAPI = require('../net-command/command-ps-api');
+const csAPI = require('../net-command/command-cs-api');
+const nsAPI = require('../net-command/command-ns-api');
 
+
+const ResData = require('../ResData');
 
 
 /** login */ 
 ipcMain.on('login', async (event, loginData) => {
-  
-  reqLogin(loginData, true).then(function(resData) {
-      reqGetCondition(loginData.loginId).then(function(resData) {
-        if (resData.resCode) {
-          console.log('login Success! res: User Condition Check Sucess!')
-        } else {
-          console.log('login fail! res: User Condition Check Fail!')
-        }
-        event.reply('res-login', resData);
-      });
-  }).catch(function(err){
+  try {
+    // DS로 로그인 요청을 하고
+    let resData = await dsAPI.reqLogin(loginData, true);
+
+    // CS로 인증 요청을 하고
+    if (resData.resCode) {
+      resData = await csAPI.reqCertifyCS(loginData.loginId, loginData.loginPwd, true);
+    } 
+    else throw new Error('reqLogin fail!');
+
+    // PS로 사용자 정보를 받고
+    if (resData.resCode) {
+      resData = await psAPI.reqGetCondition(loginData.loginId)
+    }
+    else throw new Error('reqCertifyCS fail!');
+
+    // NS로 알림수신 대기를 한다.
+    if (resData.resCode) {
+      resData = await nsAPI.reqconnectNS(loginData.loginId)
+    }
+    else throw new Error('reqGetCondition fail!');
+
+  } catch(err){
     console.log('login fail! res:', err)
     event.reply('res-login', new ResData(false, err));
-  });
- 
+  };
 });
-
 
 // getBuddyList
 ipcMain.on('getBuddyList', async (event, ...args) => {
@@ -41,7 +54,7 @@ ipcMain.on('getBuddyList', async (event, ...args) => {
 // getOrganization
 ipcMain.on('getBaseOrg', async (event, ...args) => {
   
-  reqGetOrganization(global.ORG.org_1_root).then(function(resData)
+  reqGetOrganization(global.ORG.orgGroupCode).then(function(resData)
   {
     console.log('getBaseOrg res:', resData)
     event.reply('res-getBaseOrg', resData);
@@ -51,7 +64,7 @@ ipcMain.on('getBaseOrg', async (event, ...args) => {
   
 });
 
-// getOrganization
+// getChildOrg
 ipcMain.on('getChildOrg', async (event, orgGroupCode, groupCode, groupSeq) => {
   reqGetOrgChild(orgGroupCode, groupCode, groupSeq).then(function(resData)
   {

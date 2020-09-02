@@ -92,8 +92,9 @@ global.SERVER_INFO = {
  * 조직도 그룹 정보
  */
 global.ORG = {
-  org_1_root: 'ORG001',
-  selected_org: ''
+  orgGroupCode: 'ORG001',
+  groupCode: '',
+  selectedOrg: ''
 }
 /**
  * ENCODING 정보
