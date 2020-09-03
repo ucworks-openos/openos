@@ -43,7 +43,7 @@ ipcMain.on('login', async (event, loginData) => {
 // getBuddyList
 ipcMain.on('getBuddyList', async (event, ...args) => {
   
-  reqGetBuddyList(function(resData)
+  dsAPI.reqGetBuddyList(function(resData)
   {
     console.log('getBuddyList res:', resData)
     event.reply('res-getBuddyList', resData);

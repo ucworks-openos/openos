@@ -208,16 +208,17 @@ function responseCmdProc(resCmd) {
         case CmdCodes.DS_GET_BUDDY_MEMORY_LZ:
 
           let rcvBuf = Buffer.from(resCmd.data);
+          let userName = rcvBuf.toString(global.ENC, 0, CmdConst.BUF_LEN_USERID);
           let contactDataXml = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID);
           parseXmlToJSON(contactDataXml).then(function(result) {
               console.log('Contact Data Parse Success!:', result);
+              sendLog('Contact Data Receive:' + result);
               callCallback(resCmd.sendCmd, new ResData(true, result));
             }).catch(function(err) {
-              sendLog.log('Contact parse error!  Ex: ' + JSON.stringify(err));
+              sendLog('Contact parse error!  Ex: ', err, contactDataXml);
               callCallback(resCmd.sendCmd, new ResData(false, 'Contact parse error!  Ex: ' + JSON.stringify(err)));
             });
           
-          sendLog('Contact Data Receive:' + contactData);
           break;
         
         default :
