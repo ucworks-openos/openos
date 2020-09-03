@@ -6,7 +6,7 @@ const PS_BASE = 6000;
 const CS_BASE = 13000;
 
 module.exports = Object.freeze({
-    CONNECTION_CHECK            : 0,
+    CONNECTION_CHECK            : 99999,
 
     //
     //#region DS COMMAND
@@ -85,6 +85,11 @@ module.exports = Object.freeze({
     NS_USER_DISCONNECT           : NS_BASE + 8,
     NS_CHANGE_STATE              : NS_BASE + 10,
     NS_SEND_MSG                  : NS_BASE + 11,
+    NS_NOTIFY_FRIENDS            : NS_BASE + 78,
+    NS_UNNOTIFY_FRIENDS          : NS_BASE + 79,
+    NS_CHECK_SEND                : NS_BASE + 90,
+    NS_GET_STATE                 : NS_BASE + 96,
+    NS_STATE_LIST                : NS_BASE + 110,
     NS_UNREADALL_COUNT           : NS_BASE + 262,
     NS_SERVER_BUSY               : NS_BASE + 999,
     NS_SERVER_CLOSE              : NS_BASE + 998,

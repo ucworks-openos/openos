@@ -8,8 +8,9 @@ module.exports = Object.freeze({
     ENCODE_TYPE_OTS_AES256  : 'OTS_AES256',  // 4=OTP+세션키(AES256) 으로 암호화됨
     ENCODE_TYPE_NO          : 'NO',   // 암호화 하지 않음
 
-    PIPE_SEP                 : '|',
+    PIPE_SEP                : '|',
     CR_SEP                  : String.fromCharCode(13),
+    PT_SET                  : String.fromCharCode(7),
     COMMA_SEP               : ',',
 
     MSG_COMMON_DATA         : 'COMMON',
@@ -19,6 +20,11 @@ module.exports = Object.freeze({
     MSG_ALL_NOTIFY          : 2,
     MSG_ORG_ALERT           : 3,
 
+    ICON_STATE_ONLINE       : 2,   //온라인
+    ICON_STATE_CALLING      : 6,   //통화중
+    ICON_STATE_OFFLINE      : 9,   //오프라인
+    ICON_STATE_OFFLINE_0    : 0,   //오프라인
+    ICON_STATE_DELETED      : -9,  //삭제된 사용자
 
     STATE_ONLINE            : 0,     // 온라인
     STATE_OFFLINE           : 0,     // 오프라인
