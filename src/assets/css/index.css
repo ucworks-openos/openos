@@ -452,7 +452,7 @@ a:hover,
   border: 1px solid #dfe2e8;
   border-radius: 15px;
   background-color: #fff;
-  background-image: url("./assets/images/icon_search.png");
+  background-image: url("../images/icon_search.png");
   background-repeat: no-repeat;
   background-position: 12px center;
   box-sizing: border-box;
@@ -510,7 +510,7 @@ a:hover,
   width: 16px;
   height: 16px;
   vertical-align: middle;
-  background-image: url("./assets/images/icon_device.png");
+  background-image: url("../images/icon_device.png");
   background-repeat: no-repeat;
 }
 .user-login-device.mobile {
@@ -535,7 +535,7 @@ a:hover,
   width: 36px;
   height: 36px;
   margin-right: 12px;
-  background-image: url("./assets/images/btn_quick_action.png");
+  background-image: url("../images/btn_quick_action.png");
   background-repeat: no-repeat;
   background-size: cover;
   cursor: pointer;
@@ -594,6 +594,8 @@ a:hover,
   border-bottom: 1px solid #dfe2e8;
 }
 
+
+
 .user-info-container .user-info-wrap * {
   text-overflow: initial;
   white-space: initial;
@@ -618,7 +620,7 @@ a:hover,
   width: 10px;
   height: 10px;
   float: right;
-  background-image: url("./assets/images/btn_close.png");
+  background-image: url("../images/btn_close.png");
   background-repeat: no-repeat;
   background-position: 0px center;
   cursor: pointer;
@@ -630,6 +632,11 @@ a:hover,
 .user-mobile {
   margin-bottom: 8px;
 }
+
+.user-phone {
+  margin-right: 10px;
+}
+
 .user-phone:before,
 .user-mobile:before,
 .user-email:before {
@@ -637,10 +644,10 @@ a:hover,
   width: 14px;
   height: 16px;
   display: inline-block;
-  background-image: url("./assets/images/icon_contact.png");
+  background-image: url("../images/icon_contact.png");
   background-repeat: no-repeat;
   vertical-align: middle;
-  margin-right: 8px;
+  margin-right: 6px;
 }
 .user-phone:before {
   background-position: 0px center;
@@ -657,7 +664,7 @@ a:hover,
 .btn-contact-action {
   width: 24px;
   height: 24px;
-  background-image: url("./assets/images/icon_go-to-contact-action.png");
+  background-image: url("../images/icon_go-to-contact-action.png");
   background-repeat: no-repeat;
   margin-right: 12px;
   float: left;

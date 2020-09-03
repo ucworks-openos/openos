@@ -16,7 +16,7 @@ function NavigationBar() {
         <div className="btn-prev" title="이전으로"></div>
         <div className="btn-next disabled" title="앞으로"></div>
       </div>
-      <form className="golbal-search-wrap">
+      {/* <form className="golbal-search-wrap">
         <select className="global-search-cat">
           <option>이름</option>
           <option>직위</option>
@@ -28,7 +28,7 @@ function NavigationBar() {
         </select>
         <input type="text" className="input-global-search" placeholder="사용자 통합검색" />
         <input type="submit" className="submit-global-search" value="" />
-      </form>
+      </form> */}
       <ul className="sub-action-wrap">
 
         <li className="sub-action-item btn-go-to-link-wrap">

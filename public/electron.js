@@ -1,12 +1,11 @@
 const electron = require("electron");
-const { app, Menu } = require('electron')
+const { app, Menu, session } = require('electron')
 const BrowserWindow = electron.BrowserWindow;
 
 const path = require("path");
 const isDev = require("electron-is-dev");
 const glob = require('glob');
 const { readConfig } = require(`${path.join(__dirname, '/../public/main-process/configuration/site-config')}`);
-
 
 // 
 // GLOBAL 정보는 선언을 하고 사용한다. (중앙관리)
@@ -42,51 +41,51 @@ global.CERT = {
  * 기본 설정 정보
  */
 global.SITE_CONFIG = {
-	server_ip:'192.168.0.172',
-  server_port:'32551',
-  client_version:652
+  server_ip: '192.168.0.172',
+  server_port: '32551',
+  client_version: 652
 }
 /**
  * 서버 정보
  */
 global.SERVER_INFO = {
-  DS:{
-    "pubip":'',
-    "ip":'',
-    "port":'',
-    "isConnected":false
-    },
-  CS:{
-    "pubip":'',
-    "ip":'',
-    "port":'',
-    "isConnected":false
-    },
-  NS:{
-    "pubip":'',
-    "ip":'',
-    "port":'',
-    "isConnected":false
-    },
-  PS:{
-    "pubip":'',
-    "ip":'',
-    "port":'',
-    "isConnected":false
-    },
-  FS:{
-    "pubip":'',
-    "ip":'',
-    "port":'',
-    "isConnected":false
-    },
-  
-  SMS:{
-    "pubip":'',
-    "ip":'',
-    "port":'',
-    "isConnected":false
-    }
+  DS: {
+    "pubip": '',
+    "ip": '',
+    "port": '',
+    "isConnected": false
+  },
+  CS: {
+    "pubip": '',
+    "ip": '',
+    "port": '',
+    "isConnected": false
+  },
+  NS: {
+    "pubip": '',
+    "ip": '',
+    "port": '',
+    "isConnected": false
+  },
+  PS: {
+    "pubip": '',
+    "ip": '',
+    "port": '',
+    "isConnected": false
+  },
+  FS: {
+    "pubip": '',
+    "ip": '',
+    "port": '',
+    "isConnected": false
+  },
+
+  SMS: {
+    "pubip": '',
+    "ip": '',
+    "port": '',
+    "isConnected": false
+  }
 }
 /**
  * 조직도 그룹 정보
@@ -116,7 +115,7 @@ global.NS_CONN_CHECK;
 
 let mainWindow;
 
-function initialize () {
+function initialize() {
 
   // Main Process 파일들을 로드한다.
   loadMainProcesses();
@@ -127,9 +126,8 @@ function initialize () {
   //Menu.setApplicationMenu(null);
   createApplicationMenu();
 
-  function createWindow() {
-
-    mainWindow = new BrowserWindow({ width: 900, height: 680, webPreferences: { nodeIntegration: true }});
+  async function createWindow() {
+    mainWindow = new BrowserWindow({ width: 900, height: 680, webPreferences: { nodeIntegration: true } });
     mainWindow.loadURL(
       isDev
         ? "http://localhost:3000"
@@ -143,6 +141,7 @@ function initialize () {
   app.on("ready", createWindow);
 
   app.on("window-all-closed", () => {
+    session.defaultSession.clearStorageData();
     if (process.platform !== "darwin") {
       app.quit();
     }
@@ -156,17 +155,17 @@ function initialize () {
 }
 
 // Require each JS file in the main-process dir
-function loadMainProcesses () {
+function loadMainProcesses() {
   const files = glob.sync(path.join(__dirname, '/../public/main-process/**/*.js'))
   files.forEach((file) => { require(file) })
 }
 
 // create application menu
 function createApplicationMenu() {
-  
-const isMac = process.platform === 'darwin'
 
-const template = [
+  const isMac = process.platform === 'darwin'
+
+  const template = [
     // { role: 'appMenu' }
     ...(isMac ? [{
       label: app.name,
@@ -186,7 +185,7 @@ const template = [
           click: () => { mainWindow.webContents.openDevTools(); }
         }
       ]
-    }   
+    }
   ]
 
   const menu = Menu.buildFromTemplate(template)

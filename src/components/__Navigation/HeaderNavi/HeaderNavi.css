@@ -67,6 +67,8 @@
     width: auto;
     height: 56px;
     align-items: center;
+    margin-left: auto;
+    margin-right: 16px;
 }
 
 .sub-action-item {
@@ -195,6 +197,9 @@
     width: 100%;
     padding: 8px 0px;
     border-bottom: 1px solid #DFE2E8;
+}
+.current-user-action-wrap {
+    margin-top: 10px;
 }
 
 /*헤더-서브액션*/
