@@ -18,7 +18,6 @@ function randomPassword(len) {
     return pwdStr;
 }
 
-
 //#region RC4
 /**
  * RC4 알고이즘으로 람호화 합니다.
@@ -44,6 +43,8 @@ function encryptRC4(key, text) {
  * @param {String} ciphertext 
  */
 function decryptRC4(key, ciphertext) {
+
+    //console.log('[decryptRC4] -----------------  key:' + key + ', ciphertext :' + ciphertext + '')
     //var keyHash = crypto.createHash('sha256').update(key).digest();
     var keyHash = Buffer.from(key, global.ENC);
     var decipher = crypto.createDecipheriv('rc4', keyHash,'' );

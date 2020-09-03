@@ -43,10 +43,10 @@ function reqGetCondition(userId) {
  * 조직도 그룹을 요청합니다.
  * @param {String} userPass 
  */
-function reqGetOrganization(groupCode, connTry = true) {
+function reqGetOrganization(groupCode) {
     return new Promise(async function(resolve, reject) {
 
-        if (connTry && !global.SERVER_INFO.PS.isConnected) {
+        if (!global.SERVER_INFO.PS.isConnected) {
             await connectPS();
         }
 
@@ -72,10 +72,10 @@ function reqGetOrganization(groupCode, connTry = true) {
 /**
  * 하위 그룹을 요청합니다.
  */
-function reqGetOrgChild(orgGroupCode, groupCode, groupSeq, connTry = true) {
+function reqGetOrgChild(orgGroupCode, groupCode, groupSeq) {
     return new Promise(async function(resolve, reject) {
 
-        if (connTry && !global.SERVER_INFO.PS.isConnected) {
+        if (!global.SERVER_INFO.PS.isConnected) {
             await connectPS();
         }
 

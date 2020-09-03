@@ -101,11 +101,17 @@ global.ORG = {
  */
 global.ENC = "utf-8";
 
-global.MAIN_DS_SEND_COMMAND = {}
-global.MAIN_CS_SEND_COMMAND = {}
-global.MAIN_PS_SEND_COMMAND = {}
-global.MAIN_NS_SEND_COMMAND = {}
+global.DS_SEND_COMMAND = {}
+global.CS_SEND_COMMAND = {}
+global.PS_SEND_COMMAND = {}
+global.NS_SEND_COMMAND = {}
+
+global.NS_CONN_CHECK;
+
+
 //#endregion GLOBAL 설정 정보
+
+
 
 
 let mainWindow;

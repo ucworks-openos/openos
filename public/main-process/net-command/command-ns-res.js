@@ -2,6 +2,7 @@
 const { sendLog } = require('../ipc/ipc-cmd-sender');
 const { callCallback } = require('./command-utils');
 const { messageReceived, unreadCountReceived } = require('../notification/messageNoti');
+const EncUtil = require('../utils/utils-crypto')
 
 const ResData = require('../ResData');
 const CmdCodes = require('./command-code');
@@ -14,8 +15,8 @@ const CmdConst = require('./command-const');
 function receiveCmdProc(recvCmd) {
 
   sendLog('NS receiveCmdProc -- ' + recvCmd.cmdCode);
-  console.log('NS receiveCmdProc  -- ', recvCmd);
-  console.log('NS receiveCmdProc DataLen -- ', recvCmd.data.length);
+  // console.log('NS receiveCmdProc  -- ', recvCmd);
+  // console.log('NS receiveCmdProc DataLen -- ', recvCmd.data.length);
 
   // 보낸 Command가 없다면 알림으로 받은 Command이다.
   if (!recvCmd.sendCmd) {
@@ -68,28 +69,33 @@ function notifyCmdProc(recvCmd) {
       if (recvCmd.data) {
         let sInx = 0;
 
-        let encryptKey = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_ENCRYPT);
+        //let encryptKey = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_ENCRYPT).trim();
+        let encryptKeyBuf = recvCmd.data.slice(sInx, sInx + CmdConst.BUF_LEN_ENCRYPT);
+        let endOfStrInx = encryptKeyBuf.indexOf(0x00);  // 끝문자열 바이트 처리
+        encryptKeyBuf = encryptKeyBuf.slice(0, endOfStrInx);
+
+        let encryptKey = encryptKeyBuf.toString(global.ENC);
         sInx += CmdConst.BUF_LEN_ENCRYPT;
 
-        let key = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_KEY);               // 메세지 키 (전송시 키를 발생하여 수신시 해당 키로 데이터베이스에 저장한다.)
+        let key = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_KEY).trim();               // 메세지 키 (전송시 키를 발생하여 수신시 해당 키로 데이터베이스에 저장한다.)
         sInx += CmdConst.BUF_LEN_KEY;
 
-        let gubun = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_GUBUN);             // 메시지 구분 >> 일반(COMMON), 수신확인(CONFIRM))
+        let gubun = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_GUBUN).trim();             // 메시지 구분 >> 일반(COMMON), 수신확인(CONFIRM))
         sInx += CmdConst.BUF_LEN_GUBUN;
 
-        let subject = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_SUBJECT);           // 제목
+        let subject = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_SUBJECT).trim();           // 제목
         sInx += CmdConst.BUF_LEN_SUBJECT;
 
-        let sendId = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_USERID);            // 보낸사람 ID
+        let sendId = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_USERID).trim();            // 보낸사람 ID
         sInx += CmdConst.BUF_LEN_USERID;
 
-        let sendName = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_USERNAME);          // 보낸사람 이름
+        let sendName = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_USERNAME).trim();          // 보낸사람 이름
         sInx += CmdConst.BUF_LEN_USERNAME;
 
-        let sendDate = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_SEND_DATE);          // 보낸일자/시간
+        let sendDate = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_SEND_DATE).trim();          // 보낸일자/시간
         sInx += CmdConst.BUF_LEN_SEND_DATE;
 
-        let resDate = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_RES_DATE);           // 예비용
+        let resDate = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_RES_DATE).trim();           // 예비용
         sInx += CmdConst.BUF_LEN_RES_DATE;
 
         let resGubun = recvCmd.data.readInt32LE(sInx);          //?
@@ -117,39 +123,63 @@ function notifyCmdProc(recvCmd) {
         // 추가 데이터 수신
         let resData = '';
         if (resSize > 0) {
-          resData = recvCmd.data.toString(global.ENC, sInx, resSize);
+          resData = recvCmd.data.toString(global.ENC, sInx, sInx + resSize).trim();
           sInx += resSize;
         }
 
         let cipherContents = '';
         if (cipherContentSize > 0) {
-          cipherContents = recvCmd.data.toString(global.ENC, sInx, cipherContentSize);
+          cipherContents = recvCmd.data.toString(global.ENC, sInx, sInx + cipherContentSize).trim();
+          console.log('[MSG CONTENT] cipherContentSize ', cipherContentSize);
+          console.log('[MSG CONTENT] ', cipherContents);
           sInx += cipherContentSize;
         }
 
         let fileData = '';
         if (fileSize > 0) {
-          fileData = recvCmd.data.toString(global.ENC, sInx, fileSize);
+          fileData = recvCmd.data.toString(global.ENC, sInx, sInx + fileSize).trim();
           sInx += fileSize;
         }
 
         let destName = '';
         if (destNameSize > 0) {
-          destName = recvCmd.data.toString(global.ENC, sInx, destNameSize);
+          destName = recvCmd.data.toString(global.ENC, sInx, sInx + destNameSize).trim();
           sInx += destNameSize;
         }
 
         let allDestId = '';
         if (allDestIdSize > 0) {
-          allDestId = recvCmd.data.toString(global.ENC, sInx, allDestIdSize);
+          allDestId = recvCmd.data.toString(global.ENC, sInx, sInx + allDestIdSize).trim();
           sInx += allDestIdSize;
         }
 
         let destIds = '';
         if (destIdSize > 0) {
-          destIds = recvCmd.data.toString(global.ENC, sInx, destIdSize);
+          destIds = recvCmd.data.toString(global.ENC, sInx, sInx + destIdSize).trim();
           sInx += destIdSize;
         }
+
+        
+        let encArr = encryptKey.split(CmdConst.PIPE_SEP);
+        let encMode = encArr[0];
+        let encKey = encArr[1];
+        let message = '';
+
+        switch(encMode) {
+          case CmdConst.ENCODE_TYPE_OTS:
+            encKey = EncUtil.decryptRC4(CmdConst.SESSION_KEY, encKey);
+            message = EncUtil.decryptRC4(encKey, cipherContents);
+            break;
+          case CmdConst.ENCODE_TYPE_OTS_AES256:
+            encKey = EncUtil.decryptAES256(CmdConst.SESSION_KEY_AES256, encKey);
+            message = EncUtil.decryptAES256(encKey, cipherContents);
+            break;
+
+          default:
+            message = cipherContents;
+            break;
+        }
+        
 
         messageReceived({
           encryptKey: encryptKey,
@@ -162,7 +192,7 @@ function notifyCmdProc(recvCmd) {
           resDate: resDate,
           resGubun: resGubun,
           resData: resData,
-          cipherContents: cipherContents,
+          message: message,
           fileData: fileData,
           destName: destName,
           allDestId: allDestId,
@@ -181,7 +211,7 @@ function notifyCmdProc(recvCmd) {
       if (recvCmd.data) {
         let sInx = 0;
 
-        let userId = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_USERID);
+        let userId = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_USERID).trim();
         sInx += CmdConst.BUF_LEN_USERID;
 
         let msgCnt = recvCmd.data.readInt32LE(sInx);

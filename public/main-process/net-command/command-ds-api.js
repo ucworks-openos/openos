@@ -27,11 +27,11 @@ function reqConnectDS () {
  * @param {Object} loginData 
  * @param {boolean} connectionTry 
  */
-function reqLogin (loginData, connTry=true) {
+function reqLogin (loginData) {
     return new Promise(async function(resolve, reject) {
 
         // connect
-        if (connTry && !global.SERVER_INFO.DS.isConnected) {
+        if (!global.SERVER_INFO.DS.isConnected) {
             await connectDS();
         }
 
@@ -87,7 +87,11 @@ function reqLogin (loginData, connTry=true) {
  * @param {String} userId 
  */
 function reqHandshackDS (userId) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(async function(resolve, reject) {
+        // connect
+        if (!global.SERVER_INFO.DS.isConnected) {
+            await connectDS();
+        }
 
         // 1.보안키를 받아오고
         var idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
@@ -110,7 +114,12 @@ function reqHandshackDS (userId) {
  * @param {*} callback 
  */
  function reqSetSessionDS(userId) {
-    return new Promise(function(resolve, reject){
+    return new Promise(async function(resolve, reject){
+
+        // connect
+        if (!global.SERVER_INFO.DS.isConnected) {
+            await connectDS();
+        }
 
         // 2.세션정보 저장요청을 한다.
         let localInfo = OsUtil.getIpAddress() + CmdConst.PIPE_SEP + OsUtil.getMacAddress();
@@ -141,7 +150,11 @@ function reqHandshackDS (userId) {
  * 사용자 Rule 정보를 요청합니다.
  */
 async function reqGetUserRules(userId, userPwd) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(async function(resolve, reject) {
+        // connect
+        if (!global.SERVER_INFO.DS.isConnected) {
+            await connectDS();
+        }
 
         var idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
         var passBuf = Buffer.alloc(CmdConst.BUF_LEN_USERPWD);
@@ -170,7 +183,12 @@ async function reqGetUserRules(userId, userPwd) {
  * @param {Function} callback 
  */
 function reqGetServerInfo(userId) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(async function(resolve, reject) {
+        // connect
+        if (!global.SERVER_INFO.DS.isConnected) {
+            await connectDS();
+        }
+
         var data =  userId + String.fromCharCode(13) +
                     "PC-" + require("ip").address() + String.fromCharCode(13) +
                     '' + String.fromCharCode(13) +
@@ -195,7 +213,13 @@ function reqGetServerInfo(userId) {
  * 서버로 업그레이드 정보를 확인합니다. 
  * 응답을 서버정보를 주나 ServerInfo와는 다름
  */
-function reqUpgradeCheckDS (callback) {
+async function reqUpgradeCheckDS (callback) {
+
+    // connect
+    if (!global.SERVER_INFO.DS.isConnected) {
+        await connectDS();
+    }
+
     var serverSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT); // ?
 
     var versionStr = global.SITE_CONFIG.version + CmdConst.PIPE_SEP + global.SITE_CONFIG.server_ip;
@@ -209,8 +233,11 @@ function reqUpgradeCheckDS (callback) {
  * @param {String} userId 
  * @param {Function} callback 
  */
-function reqGetBuddyList(callback) {
-
+async function reqGetBuddyList(callback) {
+    // connect
+    if (!global.SERVER_INFO.DS.isConnected) {
+        await connectDS();
+    }
     var idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
     idBuf.write(global.USER.userId, global.ENC);
     writeCommandDS(new CommandHeader(CmdCodes.DS_GET_BUDDY_DATA, 0, callback), idBuf);
