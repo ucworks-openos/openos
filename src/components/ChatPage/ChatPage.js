@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./ChatPage.css"
 import userThumbnail from "../../assets/images/img_user-thumbnail.png";
-import HamburgerButton from "../_Common/HamburgerButton";
+import HamburgerButton from "../common/HamburgerButton";
 
 function ChatPage() {
 

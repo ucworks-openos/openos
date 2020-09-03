@@ -5,11 +5,12 @@ import { sendMessage } from '../ipcCommunication/ipcMessage';
 
 interface IMessageModalProps {
     closeModalFunction: () => void;
-    receiverData: IFavoriteNode;
+    receiverId: string;
+    receiverName: string;
 }
 
 export default function MessageModal(props: IMessageModalProps) {
-    const { closeModalFunction, receiverData } = props;
+    const { closeModalFunction, receiverId, receiverName } = props;
     const [inputValue, setInputValue] = useState("")
 
     const handleModalClose = () => {
@@ -18,8 +19,8 @@ export default function MessageModal(props: IMessageModalProps) {
 
     const handleMessageSubmit = async () => {
         try {
-            const response = await sendMessage(receiverData.id, receiverData.name, 'test', inputValue);
-            console.log(`message response: `, response);
+            sendMessage(receiverId, receiverName, 'test', inputValue);
+            closeModalFunction();
         } catch (error) {
             console.log(error);
         }
@@ -32,7 +33,7 @@ export default function MessageModal(props: IMessageModalProps) {
 
     return (
         <div>
-            <h5>{`${receiverData?.name}님에게 쪽지 발송`}</h5>
+            <h5>{`${receiverName}님에게 쪽지 발송`}</h5>
             <input
                 type="textArea"
                 value={inputValue}

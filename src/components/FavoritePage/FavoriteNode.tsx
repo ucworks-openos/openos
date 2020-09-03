@@ -3,7 +3,7 @@ import styled from "styled-components";
 import userThumbnail from "../../assets/images/img_user-thumbnail.png";
 import { IFavoriteNode } from "../../@type";
 import Modal from "react-modal";
-import MessageModal from './MessageModal';
+import MessageModal from '../common/MessageModal';
 
 interface IFavoriteNodeProps {
   data: IFavoriteNode
@@ -134,7 +134,8 @@ export default function FavoriteNode(props: IFavoriteNodeProps) {
         style={messageModalCustomStyles}
       >
         <MessageModal
-          receiverData={data}
+          receiverId={data?.id}
+          receiverName={data?.name}
           closeModalFunction={handleMessageModalClose}
         />
       </Modal>

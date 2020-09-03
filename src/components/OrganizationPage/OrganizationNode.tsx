@@ -3,12 +3,15 @@ import styled from "styled-components";
 import userThumbnail from "../../assets/images/img_user-thumbnail.png";
 import { ITreeNode, EconnectionType } from '../../@type'
 import { Image } from "react-bootstrap";
+import Modal from "react-modal";
+import MessageModal from '../common/MessageModal';
 
 const _connectType = ``;
 
 export default function OrganizationNode(props: any) {
   const data: ITreeNode = props.data;
   const [visible, setVisible] = useState<boolean>(false);
+  const [messageModalVisible, setMessageModalVisible] = useState(false);
 
   const handleToggle = () => {
     setVisible((prev) => !prev);
@@ -17,6 +20,14 @@ export default function OrganizationNode(props: any) {
   const handleImageError = (image: any) => {
     image.target.onerror = null;
     image.target.src = `/images/img_imgHolder.png`
+  }
+
+  const handleMessageModalOpen = () => {
+    setMessageModalVisible(true);
+  }
+
+  const handleMessageModalClose = () => {
+    setMessageModalVisible(false);
   }
 
 
@@ -78,6 +89,7 @@ export default function OrganizationNode(props: any) {
                       <div
                         className="btn-contact-action message"
                         title="쪽지"
+                        onClick={handleMessageModalOpen}
                       ></div>
                       <div
                         className="btn-contact-action remote"
@@ -125,13 +137,35 @@ export default function OrganizationNode(props: any) {
             </div>
             <div className="user-quick-action-wrap">
               <div className="btn-quick chat"></div>
-              <div className="btn-quick message"></div>
+              <div className="btn-quick message" onClick={handleMessageModalOpen}></div>
               <div className="btn-quick call"></div>
             </div>
           </li>
         )}
+      <Modal
+        isOpen={messageModalVisible}
+        onRequestClose={handleMessageModalClose}
+        style={messageModalCustomStyles}
+      >
+        <MessageModal
+          receiverId={data?.userId!}
+          receiverName={data?.userName!}
+          closeModalFunction={handleMessageModalClose}
+        />
+      </Modal>
     </>
   );
+}
+
+const messageModalCustomStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+  },
 }
 
 const StyledDepartment = styled.h6`
