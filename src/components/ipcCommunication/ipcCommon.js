@@ -59,3 +59,29 @@ export const getChildOrg = async (orgGroupCode, groupCode, groupSeq) => {
     });
 }
 
+/** changeStatus */
+export const changeStatus = async (status, force = false) => {
+  console.log('changeStatus:', status, force)
+
+  return new Promise(function(resolve, reject) {
+      electron.ipcRenderer.on('res-changeStatus', (event, arg) => {
+          resolve(arg);
+        })
+        electron.ipcRenderer.send('changeStatus', status, force)
+    });
+}
+
+/** setStatusMonitor */
+export const setStatusMonitor = async (userIds) => {
+  console.log('setStatusMonitor:', userIds)
+
+  return new Promise(function(resolve, reject) {
+      electron.ipcRenderer.on('res-setStatusMonitor', (event, arg) => {
+          resolve(arg);
+        })
+        electron.ipcRenderer.send('setStatusMonitor', userIds)
+    });
+}
+
+
+

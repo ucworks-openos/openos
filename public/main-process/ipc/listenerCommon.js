@@ -32,6 +32,9 @@ ipcMain.on('login', async (event, loginData) => {
     }
     else throw new Error('reqGetCondition fail!');
 
+    // 로그인에 성공하면 내 상태 변경알림 요청을 합니다.
+    nsAPI.reqSetStatusMonitor([loginData.loginId]);
+
     event.reply('res-login', new ResData(true, resData));
 
   } catch(err){
@@ -75,9 +78,29 @@ ipcMain.on('getChildOrg', async (event, orgGroupCode, groupCode, groupSeq) => {
   }).catch(function(err) {
     event.reply('res-getChildOrg', new ResData(false, err));
   });
-  
 });
 
+// changeStatus
+ipcMain.on('changeStatus', async (event, status, force = false) => {
+  nsAPI.reqChangeStatus(status, force).then(function(resData)
+  {
+    console.log('changeStatus res:', resData)
+    event.reply('res-changeStatus', resData);
+  }).catch(function(err) {
+    event.reply('res-changeStatus', new ResData(false, err));
+  });
+});
+
+
+ipcMain.on('setStatusMonitor', async (event, userIds) => {
+  nsAPI.reqSetStatusMonitor(userIds).then(function(resData)
+  {
+    console.log('setStatusMonitor res:', resData)
+    event.reply('res-setStatusMonitor', resData);
+  }).catch(function(err) {
+    event.reply('res-setStatusMonitor', new ResData(false, err));
+  });
+});
 
 /** sample */
 // ipcMain.on('sample', (event, ...args) => {
