@@ -2,6 +2,7 @@ module.exports = Object.freeze({
     
     SESSION_KEY             : '1111', //'ucware_)*!#';
     SESSION_KEY_AES256      : '783-+ucware_)*!#1234567890123456', //aes256 key
+    SESSION_CHECK_INTERVAL  : 10 * 1000,   // milisec
      
     ENCODE_TYPE_OTS         : 'OTS',  // 3=OTP+세션키(RC4) 로 암호화됨
     ENCODE_TYPE_OTS_AES256  : 'OTS_AES256',  // 4=OTP+세션키(AES256) 으로 암호화됨
@@ -13,7 +14,7 @@ module.exports = Object.freeze({
 
     MSG_COMMON_DATA         : 'COMMON',
     MSG_CONFIRM_DATA        : 'CONFIRM',
-
+    
     MSG_ALERT               : 1,
     MSG_ALL_NOTIFY          : 2,
     MSG_ORG_ALERT           : 3,

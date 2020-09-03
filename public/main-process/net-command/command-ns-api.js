@@ -76,7 +76,7 @@ function reqSignInNS() {
                         + CmdConst.SEP + CmdConst.SEP 
                         + global.SITE_CONFIG.client_version + CmdConst.SEP + OsUtil.getOsInfo;
 
-        console.log('NS CONNECTION SIGN-IN :', userOsInfo)    
+        //console.log('NS CONNECTION SIGN-IN :', userOsInfo)    
         var userOsInfoBuf = Buffer.from(userOsInfo, global.ENC);
 
 
@@ -108,10 +108,6 @@ function reqSignInNS() {
  */
 function reqSendMessage(recvIds, recvNames, subject, message) {
     return new Promise(async function(resolve, reject) {
-
-        if (!global.SERVER_INFO.NS.isConnected) {
-            await reqconnectNS();
-        }
 
         if (!global.SERVER_INFO.NS.isConnected) {
             reject(new Error('NS IS NOT CONNECTED!'));
@@ -222,9 +218,9 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
             , destNamesBuf
             , destIdsBuf]);
 
-        writeCommandNS(new CommandHeader(CmdCodes.NS_SEND_MSG, 0, function(resData){
-            resolve(resData);
-        }), dataBuf);
+
+        console.log('[SEND MESSAGE] -------  encryptKey,  cipherContent', encKey, cipherContent);
+        writeCommandNS(new CommandHeader(CmdCodes.NS_SEND_MSG, 0), dataBuf);
     });
 }
 
