@@ -8,8 +8,6 @@ const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
 const OsUtil = require('../utils/utils-os');
 const CryptoUtil = require('../utils/utils-crypto');
-const { BUF_LEN_ORG_GROUP_CODE } = require('./command-const');
-
 
 
 /**
@@ -224,9 +222,125 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
     });
 }
 
+/**
+ * 상태 정보 변경 요청
+ * @param {Number} status 
+ * @param {Boolean} force 
+ */
+function reqChangeStatus(status, force = false) {
+    return new Promise(async function(resolve, reject) {
 
+        if (!global.SERVER_INFO.NS.isConnected) {
+            reject(new Error('NS IS NOT CONNECTED!'));
+            return;
+        }
+
+        var svrSeqBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        if (force) svrSeqBuf.writeInt32LE(-99);
+        else svrSeqBuf.writeInt32LE(0);
+
+        var stateBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        stateBuf.writeInt32LE( Number(status) + 1);
+
+        var connectTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        connectTypeBuf.writeInt32LE(CmdConst.CONNECT_TYPE_APP);
+
+        var userIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        userIdBuf.write(global.USER.userId, global.ENC);
+
+        var senderIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        senderIdBuf.write(global.USER.userId, global.ENC);
+
+        // Data Add
+        let dataBuf = Buffer.concat([
+            svrSeqBuf
+            , stateBuf
+            , connectTypeBuf
+            , userIdBuf
+            , senderIdBuf
+        ]);
+
+        console.log('[CHANGE_STATUS] ', status, global.USER.userId)
+
+        writeCommandNS(new CommandHeader(CmdCodes.NS_CHANGE_STATE, 0), dataBuf);
+    });
+}
+
+/**
+ * 상태정보를 요청합니다.
+ * @param {Number} status 
+ * @param {String} userId 
+ */
+function reqGetStatus(status, userId) {
+    return new Promise(async function(resolve, reject) {
+
+        if (!global.SERVER_INFO.NS.isConnected) {
+            reject(new Error('NS IS NOT CONNECTED!'));
+            return;
+        }
+
+        var svrSeqBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        svrSeqBuf.writeInt32LE(0);
+
+        var stateBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        stateBuf.writeInt32LE(Number(status) + 1);
+
+        var connectTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        connectTypeBuf.writeInt32LE(CmdConst.CONNECT_TYPE_APP);
+
+        var userIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        userIdBuf.write(userId, global.ENC);
+
+        var senderIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        senderIdBuf.write(global.USER.userId, global.ENC);
+
+        // Data Add
+        let dataBuf = Buffer.concat([
+            svrSeqBuf
+            , stateBuf
+            , connectTypeBuf
+            , userIdBuf
+            , senderIdBuf
+        ]);
+
+        console.log('[CHANGE_STATUS] ', status, global.USER.userId)
+
+        writeCommandNS(new CommandHeader(CmdCodes.NS_GET_STATE, 0), dataBuf);
+    });
+}
+
+/**
+ * 상태 알림을 받을 대상을 등록합니다.
+ * @param  {Array} userIds 
+ */
+function reqSetStatusMonitor(userIds) {
+    return new Promise(async function(resolve, reject) {
+
+        if (!global.SERVER_INFO.NS.isConnected) {
+            reject(new Error('NS IS NOT CONNECTED!'));
+            return;
+        }
+
+        if (!userIds) {
+            reject(new Error('Empty Target!'));
+            return;
+        }
+
+        console.log('[NOTIFY_USERS] userIds:', userIds)
+
+        var data = userIds.join(CmdConst.PIPE_SEP);
+        var dataBuf = Buffer.from(data, global.ENC);
+
+        console.log('[NOTIFY_USERS] ', data)
+
+        writeCommandNS(new CommandHeader(CmdCodes.NS_NOTIFY_FRIENDS, 0), dataBuf);
+    });
+}
 
 module.exports = {
     reqconnectNS: reqconnectNS,
-    reqSendMessage: reqSendMessage
+    reqSendMessage: reqSendMessage,
+    reqChangeStatus: reqChangeStatus,
+    reqGetStatus: reqGetStatus,
+    reqSetStatusMonitor: reqSetStatusMonitor
 }

@@ -102,8 +102,8 @@ function readDataStream(rcvData){
     }
 
     // 받은 데이터가 전문의 길이 값보다 더크다면 다음 커맨드가 붙어왔을수 있다.
-    // console.log('rcvCommand ----------------------', rcvCommand)
-    // console.log('recvData : data Size  -----------------', rcvData.length , dataBuff.length)
+     console.log('rcvCommand ----------------------', rcvCommand)
+     console.log('recvData : data Size  -----------------', rcvData.length , dataBuff.length)
 
     // 기존데이터 + 받은 데이터 길이가 사이즈보다 넘는다면, 이후 커맨드까지 같이 받은것이다.
     if (rcvCommand.readCnt + dataBuff.length > rcvCommand.size) {
@@ -208,7 +208,6 @@ function startConnectionCheck() {
         if (global.SERVER_INFO.NS.isConnected) {
             // send connection check.
             writeCommand(new CommandHeader(CmdCodes.CONNECTION_CHECK, 0), null, false);
-            sendLog('SEND_NS_CONNECTION_CHECK.')
         } else {
             clearInterval(global.NS_CONN_CHECK);
         }

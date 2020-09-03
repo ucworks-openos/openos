@@ -6,7 +6,7 @@ import moment from 'moment';
 import {getConfig, login} from '../ipcCommunication/ipcCommon'
 import {connectDS, upgradeCheck, testAction} from '../ipcCommunication/ipcTest'
 
-const electron = window.require("electron")
+const electron  = window.require("electron")
 
 const GridWrapper = styled.div`
   display: grid;
@@ -66,7 +66,6 @@ function NetTestPage() {
 
 
   const handleTestFunction = (e) => {
-
     testAction().then(function(resData){
       appendLocalLog('logging test res ', resData);
     }).catch(function(err){

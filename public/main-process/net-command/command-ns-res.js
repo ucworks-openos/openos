@@ -1,7 +1,7 @@
 
 const { sendLog } = require('../ipc/ipc-cmd-sender');
 const { callCallback } = require('./command-utils');
-const { messageReceived, unreadCountReceived } = require('../notification/messageNoti');
+const { messageReceived, unreadCountReceived, userStatusChanged } = require('../notification/messageNoti');
 const EncUtil = require('../utils/utils-crypto')
 
 const ResData = require('../ResData');
@@ -257,7 +257,30 @@ function notifyCmdProc(recvCmd) {
         sendLog('Message Recive Fail!! Data:' + dataStr);
       }
       break;
-     default :
+     
+    case CmdCodes.NS_CHECK_SEND :
+      // 그대로 서버로??
+
+      break;
+    
+    case CmdCodes.NS_STATE_LIST :
+      if (recvCmd.data) {
+        let sInx = 0;
+
+        let statusListStr = recvCmd.data.toString(global.ENC).trim();
+        let statusList = statusListStr.split(CmdConst.CR_SEP);
+
+        statusList.forEach(status => {
+          statusInfos = status.split(CmdConst.PT_SET);
+          userStatusChanged(statusInfos[0],statusInfos[1], statusInfos[2])
+        });
+      } else {
+        let rcvBuf = Buffer.from(recvCmd.data);
+        let dataStr = rcvBuf.toString(global.ENC, 0);
+        sendLog('NS_STATE_LIST Fail!! Data:' + dataStr);
+      }
+      break;
+    default :
     {
       let rcvBuf = Buffer.from(recvCmd.data);
       let dataStr = rcvBuf.toString(global.ENC, 0);

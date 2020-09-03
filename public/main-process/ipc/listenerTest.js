@@ -3,17 +3,61 @@ const {ipcMain} = require('electron');
 
 const {reqConnectDS, reqUpgradeCheckDS,} = require('../net-command/command-ds-api');
 const {reqGetCondition} = require('../net-command/command-ps-api');
+
 const { sendLog } = require('./ipc-cmd-sender');
 const ResData = require('../ResData');
 const CryptoUtil =  require('../utils/utils-crypto');
 const OsUtil =  require('../utils/utils-os');
+
+const notifier = require('node-notifier');
+
+const nsAPI = require('../net-command/command-ns-api');
 
 // testAction
 ipcMain.on('testAction', async (event, ...args) => {
   var resData = new ResData(true, '');
 
   sendLog('DATE>>', OsUtil.getDateString('YYYYMMDDHHmmssSSS'));
+
+
+  nsAPI.reqGetStatus(1, 'bslee');
+
+  return;
+
+  let options = {
+    title: 'My awesome title',
+    message: 'Hello from node, Mr. User!',
+    sound: true, // Only Notification Center or Windows Toasters
+    wait: true // Wait with callback, until user action is taken against notification, does not apply to Windows Toasters as they always wait or notify-send as it does not support the wait option
+  }
   
+
+  //new notifier.NotificationCenter(options).notify(); Win X
+  // new notifier.NotifySend(options).notify(); Win X
+  new notifier.WindowsToaster(options).notify(options);  // WIN O
+  // new notifier.WindowsBalloon(options).notify(options);   // WIN O
+  // new notifier.Growl(options).notify(options);  Win X
+
+
+  return;
+  notifier.notify(
+    {
+      title: 'My awesome title',
+      message: 'Hello from node, Mr. User!',
+      sound: true, // Only Notification Center or Windows Toasters
+      wait: true // Wait with callback, until user action is taken against notification, does not apply to Windows Toasters as they always wait or notify-send as it does not support the wait option
+    },
+    function (err, response) {
+      // Response is response from notification
+    }
+  );
+
+
+
+
+
+
+
   
   ////////////////////////////////////
   //reqGetCondition('bslee');
