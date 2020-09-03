@@ -56,7 +56,7 @@ ipcMain.on('getBuddyList', async (event, ...args) => {
 // getOrganization
 ipcMain.on('getBaseOrg', async (event, ...args) => {
   
-  reqGetOrganization(global.ORG.orgGroupCode).then(function(resData)
+  psAPI.reqGetOrganization(global.ORG.orgGroupCode).then(function(resData)
   {
     console.log('getBaseOrg res:', resData)
     event.reply('res-getBaseOrg', resData);
@@ -68,7 +68,7 @@ ipcMain.on('getBaseOrg', async (event, ...args) => {
 
 // getChildOrg
 ipcMain.on('getChildOrg', async (event, orgGroupCode, groupCode, groupSeq) => {
-  reqGetOrgChild(orgGroupCode, groupCode, groupSeq).then(function(resData)
+  psAPI.reqGetOrgChild(orgGroupCode, groupCode, groupSeq).then(function(resData)
   {
     console.log('getChildOrg res:', resData)
     event.reply('res-getChildOrg', resData);
