@@ -1,11 +1,7 @@
 const {ipcMain} = require('electron')
 
-function send(channel, ipcCmdHeader) {
-  global.MAIN_WINDOW.webContents.send(channel, msg);
-}
-
-function sendResponse(channel, ipcCmdHeader) {
-  global.MAIN_WINDOW.webContents.send('res-' + channel, ipcCmdHeader);
+function send(channel, ...args) {
+  global.MAIN_WINDOW.webContents.send(channel, args);
 }
 
 function sendLog(msg, ...args) {
@@ -21,6 +17,5 @@ function sendLog(msg, ...args) {
 
 module.exports = {
   sendLog: sendLog,
-  sendResponse: sendResponse,
   send: send
 };

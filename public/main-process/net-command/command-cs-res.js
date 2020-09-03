@@ -42,6 +42,12 @@ function responseCmdProc(command) {
           break;
       }
 
+      {
+        let rcvBuf = Buffer.from(command.data);
+        let dataStr = rcvBuf.toString('utf-8', 0);
+        sendLog('CS_CERTIFY Response -- ', dataStr);
+      }
+
       break;
       default :
       {

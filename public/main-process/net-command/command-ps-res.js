@@ -33,14 +33,15 @@ function responseCmdProc(command) {
         parseXmlToJSON(xmlData).then(function(jsonData) {
           callCallback(command.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {
-          console.log('PS_GET_BASE_CLASS  xml parse Error! str:', xmlData)
-          callCallback(command.sendCmd, new ResData(false, 'PS_GET_BASE_CLASS  xml parse Error!'));
+          console.log('PS_GET_BASE_CLASS  xml parse Error! str:', xmlData, err)
+          callCallback(command.sendCmd, new ResData(false, 'PS_GET_BASE_CLASS xml parse Error! ex:' + JSON.stringify(err)));
         });
 
       } else {
         callCallback(command.sendCmd, new ResData(false, 'PS_GET_BASE_CLASS  Response Fail!'));
       }
       break;
+
     case CmdCodes.PS_GET_CHILD_CLASS:
       if (command.cmdCode == CmdCodes.PS_GET_CHILD_CLASS) {
 
@@ -50,12 +51,37 @@ function responseCmdProc(command) {
         parseXmlToJSON(xmlData).then(function(jsonData) {
           callCallback(command.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {
-          console.log('PS_GET_CHILD_CLASS  xml parse Error! str:', xmlData)
-          callCallback(command.sendCmd, new ResData(false, 'PS_GET_CHILD_CLASS  xml parse Error!'));
+          console.log('PS_GET_CHILD_CLASS  xml parse Error! str:', xmlData, err)
+          callCallback(command.sendCmd, new ResData(false, 'PS_GET_CHILD_CLASS  xml parse Error! ex:' + JSON.stringify(err)));
         });
 
       } else {
         callCallback(command.sendCmd, new ResData(false, 'PS_GET_CHILD_CLASS  Response Fail!'));
+      }
+      break;
+
+    case CmdCodes.PS_GET_CONDICTION:
+      if (command.cmdCode == CmdCodes.PS_GET_CONDICTION) {
+
+        let xmlData = command.data.toString('utf-8', 0);
+        sendLog('PS_GET_CONDICTION  xml:', xmlData);
+
+        parseXmlToJSON(xmlData).then(function(jsonData) {
+          global.USER.userName = jsonData.root_node.node_item.user_name.value;
+          global.ORG.orgGroupCode = jsonData.root_node.node_item.org_code.value;
+          global.ORG.groupCode = jsonData.root_node.node_item.user_group_code.value;
+
+          callCallback(command.sendCmd, new ResData(true, jsonData));
+          
+        }).catch(function(err) {
+          console.log('PS_GET_CONDICTION  xml parse Error! ', err)
+          callCallback(command.sendCmd, new ResData(false, 'PS_GET_CONDICTION  xml parse Error! ex:' + JSON.stringify(err)));
+        });
+      } else {
+        let rcvBuf = Buffer.from(command.data);
+        let dataStr = rcvBuf.toString('utf-8', 0);
+        
+        sendLog('PS_GET_CONDICTION - Unknown Response Command Receive!!! : ' + command.cmdCode + ' Data:' + dataStr);  
       }
       break;
     default :
@@ -63,7 +89,7 @@ function responseCmdProc(command) {
       let rcvBuf = Buffer.from(command.data);
       let dataStr = rcvBuf.toString('utf-8', 0);
       
-      sendLog('Unknown Response Command Receive!!! : ' + command.cmdCode); // + ' Data:' + dataStr);
+      sendLog('Unknown Response Command Receive!!! : ' + command.cmdCode + ' Data:' + dataStr);
     }
     return false;
   }

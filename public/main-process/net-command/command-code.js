@@ -1,8 +1,13 @@
+const CommandHeader = require("./command-header");
+
 const DS_BASE = 3000;
-const CS_BASE = 13000;
+const NS_BASE = 4000;
 const PS_BASE = 6000;
+const CS_BASE = 13000;
 
 module.exports = Object.freeze({
+    CONNECTION_CHECK            : 0,
+
     //
     //#region DS COMMAND
     DS_BASE               : DS_BASE,
@@ -72,4 +77,17 @@ module.exports = Object.freeze({
     PS_GET_CLASS_USER_NODE_LZ    : PS_BASE + 831,
     PS_GET_DATA_CONTINUE         : PS_BASE + 832,
     //#endregion PS COMMAND
+
+    //
+    //#region NS COMMAND
+    NS_BASE                      : NS_BASE,
+    NS_CONNECT                   : NS_BASE + 6,
+    NS_USER_DISCONNECT           : NS_BASE + 8,
+    NS_CHANGE_STATE              : NS_BASE + 10,
+    NS_SEND_MSG                  : NS_BASE + 11,
+    NS_UNREADALL_COUNT           : NS_BASE + 262,
+    NS_SERVER_BUSY               : NS_BASE + 999,
+    NS_SERVER_CLOSE              : NS_BASE + 998,
+
+    //#endregion
 });

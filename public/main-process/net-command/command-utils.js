@@ -9,7 +9,6 @@ function callCallback (sendCmd, resData) {
     }
 }
 
-
 module.exports = {
-    callCallback: callCallback,
+    callCallback: callCallback
 }

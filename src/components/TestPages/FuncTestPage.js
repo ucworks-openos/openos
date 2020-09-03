@@ -6,6 +6,9 @@ import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
 import {getConfig, login, getBuddyList, getBaseOrg, getChildOrg} from '../ipcCommunication/ipcCommon'
+import {sendMessage} from '../ipcCommunication/ipcMessage'
+
+
 
 const electron = window.require("electron")
 
@@ -27,6 +30,9 @@ function FuncTestPage() {
   const [orgGroupCode, setOrgGroupCode] = useState("ORG001");
   const [groupCode, setGroupCode] = useState("D698");
   const [groupSeq, setGroupSeq] = useState(-1);
+
+  const [msgRecvIds, setMsgRecvIds] = useState("bslee|proju");
+  const [msgText, setMsgText] = useState('Input Message');
 
   const netLogArea = useRef(null);
   const localLogArea = useRef(null);
@@ -109,6 +115,14 @@ function FuncTestPage() {
       appendLocalLog('getChildOrg Result:' + JSON.stringify(data));
     });
   }
+
+  const handleSendMessage = (e) => {
+    appendLocalLog("sendMessage:", msgRecvIds, msgText);
+
+    sendMessage(msgRecvIds, '이봉석,주병철', '메세지 테스트', msgText).then(function(data) {
+      appendLocalLog('sendMessage Result:' + JSON.stringify(data));
+    });
+  }
   
   // LogClear
   const handleLogClear = (e) => {
@@ -116,8 +130,8 @@ function FuncTestPage() {
   }
 
   return (
-    <GridWrapper className="contents-wrap">
-      <Container fluid="md" className='mt-15'>
+    <GridWrapper >
+      <Container fluid='false' className='mt-5'>
         <Row  xs={2} md={3} lg={5}>
           <Col>Server IP : {serverIp}</Col>
           <Col>Server PORT : {serverPort}</Col>
@@ -126,7 +140,7 @@ function FuncTestPage() {
         {/* 로그인 */}
         <Row className='mt-1'>
           <Col>
-            <InputGroup className="mb-3">
+            <InputGroup >
               <InputGroup.Prepend>
                 <InputGroup.Text id="loginId">Login Id</InputGroup.Text>
               </InputGroup.Prepend>
@@ -153,9 +167,9 @@ function FuncTestPage() {
         </Row>
 
         {/* 조직도 요청 */}
-        <Row >
+        <Row className='mt-1'>
           <Col>
-            <InputGroup className="mb-3">
+            <InputGroup >
             <InputGroup.Prepend>
                 <InputGroup.Text id="orgGroupCode">OrgGroupCode</InputGroup.Text>
               </InputGroup.Prepend>
@@ -189,9 +203,39 @@ function FuncTestPage() {
             </InputGroup>
           </Col>
         </Row>
+
+         {/* 쪽지 보내기 */}
+         <Row className='mt-1'>
+          <Col>
+            <InputGroup >
+            <InputGroup.Prepend>
+                <InputGroup.Text id="orgGroupCode">수신자 아이디</InputGroup.Text>
+              </InputGroup.Prepend>
+              <FormControl
+                aria-label="Default"
+                aria-describedby="inputGroup-sizing-default"
+                placeholder={msgRecvIds}
+                onChange={(e) => setMsgRecvIds(e.target.value)}
+              />
+              <InputGroup.Prepend>
+                <InputGroup.Text id="groupCode">메세지</InputGroup.Text>
+              </InputGroup.Prepend>
+              <FormControl
+                aria-label="Default"
+                aria-describedby="inputGroup-sizing-default"
+                placeholder={msgText}
+                onChange={(e) => setMsgText(e.target.value)}
+              />
+              
+              <InputGroup.Append>
+                <Button variant="outline-secondary" onClick={handleSendMessage}>쪽지보내기</Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+        </Row>
         
         {/* 부가기능 */}
-        <Row >
+        <Row className='mt-1'>
           <Col>
             <Button onClick={handleGetBuddyList}>
               즐겨찾기 목록
@@ -209,10 +253,10 @@ function FuncTestPage() {
           </Col>
         </Row>
 
-        <Row xs={1} >
-          <textarea ref={localLogArea} rows={10} value={localLog} className='mt-1'  />
+        <Row xs={1} className='mt-1' >
+          <textarea ref={localLogArea} rows={10} value={localLog} className='mt-1' />
         </Row>
-        <Row xs={1} >
+        <Row xs={1} className='mt-1'>
           <textarea ref={netLogArea} rows={10} value={netLog} className='mt-1'/>
         </Row>
       </Container>

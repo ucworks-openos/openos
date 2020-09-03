@@ -12,9 +12,9 @@ var CryptoUtil = require('../utils/utils-crypto')
  */
 function reqconnectCS () {
     connectCS().then(function() {
-        console.log('CS Connect Success!');
+        sendLog('CS Connect Success!');
     }).catch(function(err){
-        console.log('CS Connect fale!' + JSON.stringify(err));
+        sendLog('CS Connect fale!' + JSON.stringify(err));
     })
 
 }
@@ -23,10 +23,10 @@ function reqconnectCS () {
  * 사용자 인증을 요청합니다.
  * @param {String} userPass 
  */
-function reqCertifyCS(loginId, loginPass, connTry = true) {
+function reqCertifyCS(loginId, loginPass) {
     return new Promise(function(resolve, reject) {
 
-        if (connTry && !global.SERVER_INFO.CS.isConnected) {
+        if (!global.SERVER_INFO.CS.isConnected) {
             connectCS();
         }
 
