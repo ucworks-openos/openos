@@ -29,55 +29,57 @@ function reqConnectDS () {
  */
 function reqLogin (loginData, connTry=true) {
     return new Promise(async function(resolve, reject) {
+        try {
+            // connect
+            if (connTry && !global.SERVER_INFO.DS.isConnected) {
+                await connectDS();
+            }
 
-        // connect
-        if (connTry && !global.SERVER_INFO.DS.isConnected) {
-            await connectDS();
+            if (!global.SERVER_INFO.DS.isConnected) 
+            {
+                reject(new Error('DS Server Not Connected!'));
+                return;
+            }
+            
+            // GetServerInfo
+            let resData = await reqGetServerInfo(loginData.loginId);
+            if (!resData.resCode) {
+                reject(new Error(JSON.stringify(resData)));
+                return;
+            }
+            sendLog('LOG IN STEP 1 --- GetServerInfo COMPLETED!' + JSON.stringify(resData));
+
+            // GetUserRules
+            resData = await reqGetUserRules(loginData.loginId, loginData.loginPwd);
+            if (!resData.resCode) {
+                reject(new Error(JSON.stringify(resData)));
+                return;
+            }
+            sendLog('LOG IN STEP 2 --- GetUserRules COMPLETED!' + JSON.stringify(resData));
+
+            // HandshackDS
+            resData = await reqHandshackDS(loginData.loginId);
+            if (!resData.resCode) {
+                reject(new Error(JSON.stringify(resData)));
+                return;
+            }
+            sendLog('LOG IN STEP 3 --- HandshackDS COMPLETED!' + JSON.stringify(resData));
+
+            // SetSessionDS
+            resData = await reqSetSessionDS(loginData.loginId);
+            if (!resData.resCode) {
+                reject(new Error(JSON.stringify(resData)));
+                return;
+            }
+            sendLog('LOG IN STEP 4 --- SetSessionDS COMPLETED!' + JSON.stringify(resData));
+
+            // 마지막 인증까지 완료되었다면 저장한다. 
+            global.USER.userId = loginData.loginId;
+            global.USER.userPass = loginData.userPass;
+            resolve(resData);
+        } catch (err) {
+            reject(err);
         }
-
-        if (!global.SERVER_INFO.DS.isConnected) 
-        {
-            reject(new Error('DS Server Not Connected!'));
-            return;
-        }
-        
-        // GetServerInfo
-        let resData = await reqGetServerInfo(loginData.loginId);
-        if (!resData.resCode) {
-            reject(new Error(JSON.stringify(resData)));
-            return;
-        }
-        sendLog('LOG IN STEP 1 --- GetServerInfo COMPLETED!' + JSON.stringify(resData));
-
-        // GetUserRules
-        resData = await reqGetUserRules(loginData.loginId, loginData.loginPwd);
-        if (!resData.resCode) {
-            reject(new Error(JSON.stringify(resData)));
-            return;
-        }
-        sendLog('LOG IN STEP 2 --- GetUserRules COMPLETED!' + JSON.stringify(resData));
-
-        // HandshackDS
-        resData = await reqHandshackDS(loginData.loginId);
-        if (!resData.resCode) {
-            reject(new Error(JSON.stringify(resData)));
-            return;
-        }
-        sendLog('LOG IN STEP 3 --- HandshackDS COMPLETED!' + JSON.stringify(resData));
-
-        // SetSessionDS
-        resData = await reqSetSessionDS(loginData.loginId);
-        if (!resData.resCode) {
-            reject(new Error(JSON.stringify(resData)));
-            return;
-        }
-        sendLog('LOG IN STEP 4 --- SetSessionDS COMPLETED!' + JSON.stringify(resData));
-
-        // 마지막 인증까지 완료되었다면 저장한다. 
-        global.USER.userId = loginData.loginId;
-        global.USER.userPass = loginData.userPass;
-        resolve(resData);
-
     });
 }
 
