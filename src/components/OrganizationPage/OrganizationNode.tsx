@@ -1,8 +1,10 @@
 import React, { useEffect, useState, ImgHTMLAttributes } from "react";
 import styled from "styled-components";
 import userThumbnail from "../../assets/images/img_user-thumbnail.png";
-import { ITreeNode } from '../../@type'
+import { ITreeNode, EconnectionType } from '../../@type'
 import { Image } from "react-bootstrap";
+
+const _connectType = ``;
 
 export default function OrganizationNode(props: any) {
   const data: ITreeNode = props.data;
@@ -13,11 +15,10 @@ export default function OrganizationNode(props: any) {
   };
 
   const handleImageError = (image: any) => {
-
     image.target.onerror = null;
     image.target.src = `/images/img_imgHolder.png`
-
   }
+
 
   return (
     <>
@@ -112,7 +113,7 @@ export default function OrganizationNode(props: any) {
                 <span className="user-position">{data?.userPayclName}</span>
                 <span className="user-department">{data?.userGroupName}</span>
                 <span
-                  className="user-login-device pc"
+                  className={`user-login-device ${`user-login-device mobile`}`}
                   title="로그인 디바이스 : pc"
                 ></span>
               </div>

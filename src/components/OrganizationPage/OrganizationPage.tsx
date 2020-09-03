@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Tree, { TreeNode } from "rc-tree";
 import styled from "styled-components";
-import "../../Tree.scss";
+import "../../assets/css/Tree.scss";
 import { useParams } from "react-router-dom";
 import Node from "./OrganizationNode";
 import { EventDataNode, DataNode } from "rc-tree/lib/interface";

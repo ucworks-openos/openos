@@ -2,14 +2,28 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import userThumbnail from "../../assets/images/img_user-thumbnail.png";
 import { IFavoriteNode } from "../../@type";
+import Modal from "react-modal";
+import MessageModal from './MessageModal';
 
-export default function FavoriteNode(props: any) {
-  const data: IFavoriteNode = props.data;
+interface IFavoriteNodeProps {
+  data: IFavoriteNode
+}
+
+export default function FavoriteNode(props: IFavoriteNodeProps) {
+  const { data } = props;
   const [visible, setVisible] = useState<boolean>(false);
-
+  const [messageModalVisible, setMessageModalVisible] = useState(false);
   const handleToggle = () => {
     setVisible((prev) => !prev);
   };
+
+  const handleMessageModalOpen = () => {
+    setMessageModalVisible(true);
+  }
+
+  const handleMessageModalClose = () => {
+    setMessageModalVisible(false);
+  }
 
   return (
     <>
@@ -20,7 +34,7 @@ export default function FavoriteNode(props: any) {
             <div className="user-profile-state-wrap">
               <div className="user-pic-wrap">
                 <img
-                  src={userThumbnail}
+                  src="/images/img_imgHolder.png"
                   alt="user-profile-picture"
                   onClick={handleToggle}
                 />
@@ -29,39 +43,39 @@ export default function FavoriteNode(props: any) {
                     <div className="btn-close" onClick={handleToggle}></div>
                     <div className="user-profile-state-wrap">
                       <div className="user-pic-wrap">
-                        <img src={userThumbnail} alt="user-profile-picture" />
+                        <img src="/images/img_imgHolder.png" alt="user-profile-picture" />
                       </div>
                       <div className="user-state online"></div>
                     </div>
                     <div className="user-info-wrap">
                       <div className="user-info-wrap-inner">
                         <h6 className="user-name">{data?.title}</h6>
-                        <span className="user-position">주임</span>
+                        <span className="user-position">{``}</span>
                         <span className="user-department">
                           {``}
                         </span>
                       </div>
                       <div className="user-alias">
-                        하하하! 즐겁게 일합시다!하하하! 즐겁게 일합시다!하하하!
-                        즐겁게 일합시다!
-                    </div>
+                        {``}
+                      </div>
                     </div>
                     <div className="user-contact-wrap">
                       <div className="user-phone" title="전화번호">
-                        3653
-                    </div>
+                        {``}
+                      </div>
                       <div className="user-mobile" title="휴대폰번호">
-                        010-1234-5678
-                    </div>
+                        {``}
+                      </div>
                       <div className="user-email" title="이메일">
-                        cs.kim@ucware.net
-                    </div>
+                        {``}
+                      </div>
                     </div>
                     <div className="go-to-contact-action">
                       <div className="btn-contact-action chat" title="채팅"></div>
                       <div
                         className="btn-contact-action message"
                         title="쪽지"
+                        onClick={handleMessageModalOpen}
                       ></div>
                       <div
                         className="btn-contact-action remote"
@@ -94,28 +108,49 @@ export default function FavoriteNode(props: any) {
             <div className="user-info-wrap">
               <div className="user-info-wrap-inner">
                 <h6 className="user-name">{data?.title}</h6>
-                <span className="user-position">과장</span>
+                <span className="user-position">{``}</span>
                 <span className="user-department">{``}</span>
                 <span
                   className="user-login-device pc"
                   title="로그인 디바이스 : pc"
                 ></span>
               </div>
-              <div className="user-alias">하하하! 즐겁게 일합시다!</div>
+              <div className="user-alias">{``}</div>
               <div className="user-contact-wrap">
-                <span className="user-phone">3653</span>
-                <span className="user-mobile">010-1234-5678</span>
+                <span className="user-phone">{``}</span>
+                <span className="user-mobile">{``}</span>
               </div>
             </div>
             <div className="user-quick-action-wrap">
               <div className="btn-quick chat"></div>
-              <div className="btn-quick message"></div>
+              <div className="btn-quick message" onClick={handleMessageModalOpen}></div>
               <div className="btn-quick call"></div>
             </div>
           </li>
         )}
+      <Modal
+        isOpen={messageModalVisible}
+        onRequestClose={handleMessageModalClose}
+        style={messageModalCustomStyles}
+      >
+        <MessageModal
+          receiverData={data}
+          closeModalFunction={handleMessageModalClose}
+        />
+      </Modal>
     </>
   );
+}
+
+const messageModalCustomStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+  },
 }
 
 const Department = styled.h6`

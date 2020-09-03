@@ -1,5 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import RouterPage from "./components/router";
-import './index.css';
+import './assets/css/index.css';
 ReactDOM.render(<RouterPage />, document.getElementById('root'));

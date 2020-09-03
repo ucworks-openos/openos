@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import './Modal.css'
+import '../../assets/css/Modal.css'
 function AddGroupModal(props) {
 
   const [inputValue, setInputValue] = useState("")

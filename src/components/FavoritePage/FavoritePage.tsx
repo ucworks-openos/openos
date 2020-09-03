@@ -3,9 +3,9 @@ import userThumbnail from "../../assets/images/img_user-thumbnail.png";
 import imgHolder from "../../assets/images/img_imgHolder.png";
 import styled from "styled-components";
 import "./FavoritePage.css";
-import "../../Tree.scss";
+import "../../assets/css/Tree.scss";
 import SignitureCi from "../_Common/SignitureCi";
-import AddGroupModal from "../_Modals/AddGroupModal";
+import AddGroupModal from "./AddGroupModal";
 import Modal from "react-modal";
 import HamburgerButton from "../_Common/HamburgerButton";
 import { useParams } from "react-router-dom";
@@ -15,6 +15,8 @@ import Tree, { TreeNode } from "rc-tree";
 import { EventDataNode } from "rc-tree/lib/interface";
 import { getBuddyList } from "../ipcCommunication/ipcCommon";
 import { IFavoriteNode } from '../../@type'
+
+Modal.setAppElement("#root");
 
 export default function FavoritePage() {
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
@@ -57,13 +59,13 @@ export default function FavoritePage() {
           name: v.name,
         })))
       } else if (typeof response.node === `object`) {
-        Object.assign(root.children, {
+        Object.assign(root.children, [{
           title: response.node.name,
           key: response.node.id,
           gubun: response.node.gubun,
           id: response.node.id,
           name: response.node.name,
-        })
+        }])
       }
       console.log(`root: `, root);
 
@@ -228,7 +230,6 @@ export default function FavoritePage() {
   // };
 
   const handleExpand = (expandedKeys: (string | number)[]): void => {
-    console.log(`시발`)
     setExpandedKeys(expandedKeys);
     setAutoExpandParent(false);
   }
@@ -548,18 +549,6 @@ const _defaultFavoriteNode: IFavoriteNode = {
   children: []
 }
 
-
-Modal.setAppElement("#root");
-const userInfoModalCustomStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-  },
-};
 const addGroupModalCustomStyles = {
   content: {
     top: "50%",
