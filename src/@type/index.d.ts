@@ -1,9 +1,9 @@
 import { Interface } from "readline";
 
-export interface TreeNodeInterface {
+export interface ITreeNode {
     // 부서, 유저 공통
     title: string;
-    key: number;
+    key: string;
     gubun: `G` | `T` | `P`;
     groupParentId: string;
     groupSeq: string;
@@ -12,7 +12,7 @@ export interface TreeNodeInterface {
     orgCode: string;
 
     // 부서
-    children?: TreeNodeInterface[];
+    children?: ITreeNode[];
     groupCode?: string;
     groupName?: string;
 
@@ -50,4 +50,14 @@ export interface TreeNodeInterface {
     userWorkName?: string,
     userXmlPic?: string,
     viewOpt?: string
+}
+
+export interface IFavoriteNode {
+    title: string;
+    key: string;
+    gubun: `G` | `U`;
+    id: string;
+    name: string;
+
+    children?: IFavoriteNode[]
 }

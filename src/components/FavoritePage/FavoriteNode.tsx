@@ -1,23 +1,10 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import userThumbnail from "../../assets/images/img_user-thumbnail.png";
-
-interface TreeNodeInterface {
-  title: string;
-  key: number;
-  isLeaf: boolean;
-  classGroupCode: string;
-  classUpperGroupCode: string;
-  classId: number;
-  classUpperClassId: number;
-  classKind: `1` | `2`;
-  classGroupName: string;
-  children: TreeNodeInterface[];
-  classOrderNo: number;
-}
+import { IFavoriteNode } from "../../@type";
 
 export default function FavoriteNode(props: any) {
-  const data: TreeNodeInterface = props.data;
+  const data: IFavoriteNode = props.data;
   const [visible, setVisible] = useState<boolean>(false);
 
   const handleToggle = () => {
@@ -26,7 +13,7 @@ export default function FavoriteNode(props: any) {
 
   return (
     <>
-      {data?.classKind === `2` ? (
+      {data?.gubun === `G` ? (
         <Department>{data?.title}</Department>
       ) : (
           <li className="user-row">
@@ -51,7 +38,7 @@ export default function FavoriteNode(props: any) {
                         <h6 className="user-name">{data?.title}</h6>
                         <span className="user-position">주임</span>
                         <span className="user-department">
-                          {data?.classGroupName}
+                          {``}
                         </span>
                       </div>
                       <div className="user-alias">
@@ -108,7 +95,7 @@ export default function FavoriteNode(props: any) {
               <div className="user-info-wrap-inner">
                 <h6 className="user-name">{data?.title}</h6>
                 <span className="user-position">과장</span>
-                <span className="user-department">{data?.classGroupName}</span>
+                <span className="user-department">{``}</span>
                 <span
                   className="user-login-device pc"
                   title="로그인 디바이스 : pc"

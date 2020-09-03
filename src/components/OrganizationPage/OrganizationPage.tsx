@@ -7,15 +7,15 @@ import { useParams } from "react-router-dom";
 import Node from "./OrganizationNode";
 import { EventDataNode, DataNode } from "rc-tree/lib/interface";
 import { getBaseOrg, getChildOrg } from "../ipcCommunication/ipcCommon";
-import { TreeNodeInterface } from '../../@type'
+import { ITreeNode } from '../../@type'
 
 export default function OrganizationPage() {
   // set initial tree
-  const [treeData, setTreeData] = useState<TreeNodeInterface[]>([
+  const [treeData, setTreeData] = useState<ITreeNode[]>([
     _defaultTreeNode,
   ]);
 
-  const [selectedNode, setSelectedNode] = useState<TreeNodeInterface>(
+  const [selectedNode, setSelectedNode] = useState<ITreeNode>(
     _defaultTreeNode
   );
 
@@ -75,7 +75,7 @@ export default function OrganizationPage() {
 
   const getChild = async (groupCode: string) => {
     const { data: { root_node: { node_item: response } } } = await getChildOrg(_orgCode, groupCode, -1);
-    const children: TreeNodeInterface[] = response?.filter((_: any, i: number) => i !== 0).map((v: any) => {
+    const children: ITreeNode[] = response?.filter((_: any, i: number) => i !== 0).map((v: any) => {
       const defaultProps = {
         key: v.group_seq.value,
         gubun: v.gubun.value,
@@ -140,10 +140,10 @@ export default function OrganizationPage() {
 
   // attach children
   const attach = (
-    prev: TreeNodeInterface[],
+    prev: ITreeNode[],
     key: number,
-    children: TreeNodeInterface[]
-  ): TreeNodeInterface[] =>
+    children: ITreeNode[]
+  ): ITreeNode[] =>
     prev.map((v) => {
       // 1 depth searching
       if (Number(v.key) === Number(key)) {
@@ -181,9 +181,9 @@ export default function OrganizationPage() {
   // find node (promise)
   // list is lexically binded with treedata
   const find = (
-    list: TreeNodeInterface[],
+    list: ITreeNode[],
     key: number
-  ): Promise<{ v: TreeNodeInterface; i: number; list: TreeNodeInterface[] }> =>
+  ): Promise<{ v: ITreeNode; i: number; list: ITreeNode[] }> =>
     new Promise((resolve) => {
       for (let i = 0; i < list.length; i++) {
         if (Number(list[i].key) === Number(key)) {
@@ -227,7 +227,7 @@ export default function OrganizationPage() {
   );
 
   // need to be memorized
-  const renderTreeNodes = (data: TreeNodeInterface[]) => {
+  const renderTreeNodes = (data: ITreeNode[]) => {
     return data.map((item) => {
       if (item.children) {
         return (
@@ -281,9 +281,9 @@ export default function OrganizationPage() {
   );
 }
 
-const _defaultTreeNode: TreeNodeInterface = {
+const _defaultTreeNode: ITreeNode = {
   title: ``,
-  key: 0,
+  key: `0`,
   children: [],
   groupCode: ``,
   groupName: ``,

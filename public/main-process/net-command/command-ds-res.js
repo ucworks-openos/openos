@@ -19,8 +19,8 @@ function responseCmdProc(resCmd) {
   sendLog('DS Response -  RES_CMD: ' + resCmd.cmdCode);
 
   // 요청커맨드로 처리되는 방식과 받은 Command로 처리되는 방식으로 나눈다.
-  
-  switch(resCmd.sendCmd.cmdCode) {
+
+  switch (resCmd.sendCmd.cmdCode) {
     case CmdCodes.DS_GET_SERVER_INFO:
 
       if (resCmd.cmdCode == CmdCodes.DS_SUCCESS) {
@@ -29,24 +29,24 @@ function responseCmdProc(resCmd) {
 
         var xml2js = require('xml2js');
         var parser = new xml2js.Parser();
-        parser.parseString(serverInfoXml, function(err, result) {
-            if (err) {
-              sendLog.log('ServerInfo parse error!  Ex: ' + err);
-              return;
-            }
+        parser.parseString(serverInfoXml, function (err, result) {
+          if (err) {
+            sendLog.log('ServerInfo parse error!  Ex: ' + err);
+            return;
+          }
 
-            global.SERVER_INFO.DS = result.server_info.DS[0].$;
-            global.SERVER_INFO.CS = result.server_info.CS[0].$;
+          global.SERVER_INFO.DS = result.server_info.DS[0].$;
+          global.SERVER_INFO.CS = result.server_info.CS[0].$;
 
-            if (result.server_info.NS) global.SERVER_INFO.NS = result.server_info.NS[0].$;
-            if (result.server_info.PS) global.SERVER_INFO.PS = result.server_info.PS[0].$;
-            if (result.server_info.FS) global.SERVER_INFO.FS = result.server_info.FS[0].$;
-            if (result.server_info.SMS) global.SERVER_INFO.SMS = result.server_info.SMS[0].$;
+          if (result.server_info.NS) global.SERVER_INFO.NS = result.server_info.NS[0].$;
+          if (result.server_info.PS) global.SERVER_INFO.PS = result.server_info.PS[0].$;
+          if (result.server_info.FS) global.SERVER_INFO.FS = result.server_info.FS[0].$;
+          if (result.server_info.SMS) global.SERVER_INFO.SMS = result.server_info.SMS[0].$;
 
-            global.USER.authMethod = result.server_info.UserAuth[0].$.method;
+          global.USER.authMethod = result.server_info.UserAuth[0].$.method;
 
-            callCallback(resCmd.sendCmd, new ResData(true));
-          });
+          callCallback(resCmd.sendCmd, new ResData(true));
+        });
 
         sendLog('ServerInfo: ' + JSON.stringify(global.SERVER_INFO));
         sendLog('authMethod: ' + global.USER.authMethod);
@@ -58,17 +58,17 @@ function responseCmdProc(resCmd) {
       break;
 
     case CmdCodes.DS_GET_RULES:
-      switch(resCmd.cmdCode) {
+      switch (resCmd.cmdCode) {
         case CmdCodes.DS_SUCCESS:
           const rcvBuf = Buffer.from(resCmd.data);
-  
+
           var userId = rcvBuf.toString(global.ENC, 0, CmdConst.BUF_LEN_USERID);
           let userPwd = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID, CmdConst.BUF_LEN_USERPWD);
           let connIp = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD, CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP);
           let svrSize = rcvBuf.readInt32LE(CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP);
           let ruleSize = rcvBuf.readInt32LE(CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP + CmdConst.BUF_LEN_INT);
-  
-          let ruleStartInx = CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP + (CmdConst.BUF_LEN_INT*2);
+
+          let ruleStartInx = CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP + (CmdConst.BUF_LEN_INT * 2);
           let ruleEndInx = ruleStartInx + ruleSize;
           let rule = rcvBuf.toString(global.ENC, ruleStartInx).trim();
 
@@ -103,10 +103,10 @@ function responseCmdProc(resCmd) {
 
           var xml2js = require('xml2js');
           var parser = new xml2js.Parser();
-          parser.parseString(rule, function(err, result) {
+          parser.parseString(rule, function (err, result) {
             if (err) {
               sendLog('RULE parse error!  Ex: ' + err + ' \r\nResult:' + result + '\r\nrule:' + rule);
-              return ;
+              return;
             }
 
             try {
@@ -115,7 +115,7 @@ function responseCmdProc(resCmd) {
 
                   //console.log('RULE ELEMENT:', element);
 
-                  switch(element.$.func_code) {
+                  switch (element.$.func_code) {
                     case 'FUNC_ENCRYPT_3': // Enc Algorithm
                       global.ENCRYPT.pwdAlgorithm = element.$.func_value1;
                       console.log('SET FUNC_ENCRYPT_3 :', element.$.func_value1)
@@ -151,7 +151,7 @@ function responseCmdProc(resCmd) {
           break;
       }
       break;
-  
+
     case CmdCodes.DS_UPGRADE_CHECK:
       if (resCmd.cmdCode == CmdCodes.DS_UPGRADE_CHANGE) {
         if (resCmd.data) {
@@ -161,18 +161,18 @@ function responseCmdProc(resCmd) {
 
           var xml2js = require('xml2js');
           var parser = new xml2js.Parser();
-          parser.parseString(serverInfoXml, function(err, result) {
+          parser.parseString(serverInfoXml, function (err, result) {
 
-              let check_version = result.server_upgrade_info.current[0].$.ver;
+            let check_version = result.server_upgrade_info.current[0].$.ver;
 
-              // 버전이 동일하다면 로그인시 서버정보를 다시 받아오기 때문에 의미없고
-              // 업그레이드시 대상 서버를 확인하기 위해 정보를 적용한다.
-              if (global.SITE_CONFIG.client_version != check_version) {
-                  sendLog("CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version);
-              }
+            // 버전이 동일하다면 로그인시 서버정보를 다시 받아오기 때문에 의미없고
+            // 업그레이드시 대상 서버를 확인하기 위해 정보를 적용한다.
+            if (global.SITE_CONFIG.client_version != check_version) {
+              sendLog("CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version);
+            }
 
-              callCallback(resCmd.sendCmd, new ResData(true, "CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version))
-            });
+            callCallback(resCmd.sendCmd, new ResData(true, "CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version))
+          });
         }
       } else {
         sendLog('DS_UPGRADE_CHECK  Response Fail! -  ', resCmd.cmdCode);
@@ -180,12 +180,12 @@ function responseCmdProc(resCmd) {
       }
       break;
 
-    case CmdCodes.DS_HANDSHAKE :
+    case CmdCodes.DS_HANDSHAKE:
       console.log('DS_HANDSHAKE data :', resCmd.data)
       if (resCmd.data) {
 
         global.USER.userId = resCmd.data.toString(global.ENC, 0, CmdConst.BUF_LEN_USERID).trim(),
-        sendLog('DS_HANDSHAKE USERID :' + global.USER.userId); 
+          sendLog('DS_HANDSHAKE USERID :' + global.USER.userId);
         global.CERT = {
           pukCertKey: resCmd.data.toString(global.ENC, CmdConst.BUF_LEN_USERID, CmdConst.BUF_LEN_PUKCERTKEY).trim(),
           challenge: resCmd.data.toString(global.ENC, CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_PUKCERTKEY, CmdConst.BUF_LEN_CHALLENGE).trim(),
@@ -194,14 +194,14 @@ function responseCmdProc(resCmd) {
 
         callCallback(resCmd.sendCmd, new ResData(true));
         //console.log('DS_HANDSHAKE :', handShakeRes)
-        sendLog('DS_HANDSHAKE CERT :' + JSON.stringify(global.CERT)); 
+        sendLog('DS_HANDSHAKE CERT :' + JSON.stringify(global.CERT));
       } else {
         callCallback(resCmd.sendCmd, new ResData(false, 'Response Data Empty!'));
       }
       break;
 
     case CmdCodes.DS_GET_BUDDY_DATA:
-      switch(resCmd.cmdCode){
+      switch (resCmd.cmdCode) {
         case CmdCodes.DS_GET_BUDDY_DATA_OK:
           // ?? 그냥 끝낸다.
           sendLog('DS_GET_BUDDY_DATA_OK!!');
@@ -214,40 +214,40 @@ function responseCmdProc(resCmd) {
           let rcvBuf = Buffer.from(resCmd.data);
           let contactData = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID);
           var xml2js = require('xml2js');
-          var parser = new xml2js.Parser();
-          parser.parseString(contactData, function(err, result) {
-              if (err) {
-                sendLog.log('Contact parse error!  Ex: ' + JSON.stringify(err));
-                callCallback(resCmd.sendCmd, new ResData(false, 'Contact parse error!  Ex: ' + JSON.stringify(err)));
-                return;
-              }
+          var parser = new xml2js.Parser({ explicitArray: false, mergeAttrs: true });
+          parser.parseString(contactData, function (err, result) {
+            if (err) {
+              sendLog.log('Contact parse error!  Ex: ' + JSON.stringify(err));
+              callCallback(resCmd.sendCmd, new ResData(false, 'Contact parse error!  Ex: ' + JSON.stringify(err)));
+              return;
+            }
 
-              console.log('Contact Data Parse Success!:', result);
-              callCallback(resCmd.sendCmd, new ResData(true, result));
-            });
-          
+            console.log('Contact Data Parse Success!:', result);
+            callCallback(resCmd.sendCmd, new ResData(true, result));
+          });
+
           sendLog('Contact Data Receive:' + contactData);
           break;
-        
-        default :
+
+        default:
           console.log('Unknown Response Code!  Cmd: ', resCmd);
           callCallback(resCmd.sendCmd, new ResData(false, 'Unknown Response Code!  Cmd: ' + resCmd.cmdCode));
           break;
       }
-    
+
       break;
-    default :
+    default:
       {
-      let rcvBuf = Buffer.from(resCmd.data);
-      let dataStr = rcvBuf.toString(global.ENC, 0);
-      
-      sendLog('Unknown Send Command Response Receive! ReqCmd: ' + resCmd.sendCmd.cmdCode + ' ResCmd:' + resCmd.cmdCode); // + ' Data:' + dataStr);
+        let rcvBuf = Buffer.from(resCmd.data);
+        let dataStr = rcvBuf.toString(global.ENC, 0);
+
+        sendLog('Unknown Send Command Response Receive! ReqCmd: ' + resCmd.sendCmd.cmdCode + ' ResCmd:' + resCmd.cmdCode); // + ' Data:' + dataStr);
       }
       return false;
       break;
-    }
+  }
 
-    return true;
+  return true;
 }
 
 

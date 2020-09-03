@@ -1,11 +1,11 @@
 import React, { useEffect, useState, ImgHTMLAttributes } from "react";
 import styled from "styled-components";
 import userThumbnail from "../../assets/images/img_user-thumbnail.png";
-import { TreeNodeInterface } from '../../@type'
+import { ITreeNode } from '../../@type'
 import { Image } from "react-bootstrap";
 
 export default function OrganizationNode(props: any) {
-  const data: TreeNodeInterface = props.data;
+  const data: ITreeNode = props.data;
   const [visible, setVisible] = useState<boolean>(false);
 
   const handleToggle = () => {
