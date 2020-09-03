@@ -29,7 +29,7 @@ function reqConnectDS () {
  */
 function reqLogin (loginData) {
     return new Promise(async function(resolve, reject) {
-
+      
         // connect
         if (!global.SERVER_INFO.DS.isConnected) {
             await connectDS();
@@ -77,7 +77,6 @@ function reqLogin (loginData) {
         global.USER.userId = loginData.loginId;
         global.USER.userPass = loginData.userPass;
         resolve(resData);
-
     });
 }
 
