@@ -1,4 +1,3 @@
-const { connectDS, writeCommandDS } = require('../net-core/network-ds-core');
 const { sendLog } = require('../ipc/ipc-cmd-sender');
 
 const CommandHeader = require('./command-header');
@@ -6,15 +5,20 @@ const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
 const OsUtil = require('../utils/utils-os');
 const ResData = require('../ResData');
+const dsCore = require('../net-core/network-ds-core');
 
-const CryptoUtil = require('../utils/utils-crypto');
-const CmdUtil = require('./command-utils');
+/**
+ * 연결을 종료합니다.
+ */
+function close() {
+    dsCore.close();
+}
 
 /**
  * 서버로 접속요청 합니다.
  */
 function reqConnectDS () {
-    return connectDS().then(function() {
+    return dsCore.connectDS().then(function() {
         sendLog('DS Connect Success!');
     }).catch(function(err){
         sendLog('DS Connect fale!' + JSON.stringify(err));
@@ -32,7 +36,7 @@ function reqLogin (loginData) {
       
         // connect
         if (!global.SERVER_INFO.DS.isConnected) {
-            await connectDS();
+            await dsCore.connectDS();
         }
 
         if (!global.SERVER_INFO.DS.isConnected) 
@@ -89,7 +93,7 @@ function reqHandshackDS (userId) {
     return new Promise(async function(resolve, reject) {
         // connect
         if (!global.SERVER_INFO.DS.isConnected) {
-            await connectDS();
+            await dsCore.connectDS();
         }
 
         // 1.보안키를 받아오고
@@ -101,7 +105,7 @@ function reqHandshackDS (userId) {
         var sessionBuf = Buffer.alloc(CmdConst.BUF_LEN_SESSION);
 
         var dataBuf = Buffer.concat([idBuf, pukCertKeyBuf, challengeBuf, sessionBuf]);
-        writeCommandDS(new CommandHeader(CmdCodes.DS_HANDSHAKE, 0, function(resData){
+        dsCore.writeCommandDS(new CommandHeader(CmdCodes.DS_HANDSHAKE, 0, function(resData){
             resolve(resData);
         }), dataBuf);
     });
@@ -117,7 +121,7 @@ function reqHandshackDS (userId) {
 
         // connect
         if (!global.SERVER_INFO.DS.isConnected) {
-            await connectDS();
+            await dsCore.connectDS();
         }
 
         // 2.세션정보 저장요청을 한다.
@@ -138,7 +142,7 @@ function reqHandshackDS (userId) {
         sessionBuf.write(global.CERT.session, global.ENC);
 
         var dataBuf = Buffer.concat([idBuf, pukCertKeyBuf, challengeBuf, sessionBuf, localInfoBuf]);
-        writeCommandDS(new CommandHeader(CmdCodes.DS_SET_SESSION, 0), dataBuf);
+        dsCore.writeCommandDS(new CommandHeader(CmdCodes.DS_SET_SESSION, 0), dataBuf);
 
         // setSession은 응답이 없다.
         resolve(new ResData(true));
@@ -152,7 +156,7 @@ async function reqGetUserRules(userId, userPwd) {
     return new Promise(async function(resolve, reject) {
         // connect
         if (!global.SERVER_INFO.DS.isConnected) {
-            await connectDS();
+            await dsCore.connectDS();
         }
 
         var idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
@@ -170,7 +174,7 @@ async function reqGetUserRules(userId, userPwd) {
         //FC_local_ip + SEP + FC_local_mac_addr
         connIpBuf.write(localInfo, global.ENC);
         var dataBuf = Buffer.concat([idBuf, passBuf, connIpBuf, svrSize, ruleSize]);
-        writeCommandDS(new CommandHeader(CmdCodes.DS_GET_RULES, 0, function(resData){
+        dsCore.writeCommandDS(new CommandHeader(CmdCodes.DS_GET_RULES, 0, function(resData){
             resolve(resData);
         }), dataBuf);
     });
@@ -185,7 +189,7 @@ function reqGetServerInfo(userId) {
     return new Promise(async function(resolve, reject) {
         // connect
         if (!global.SERVER_INFO.DS.isConnected) {
-            await connectDS();
+            await dsCore.connectDS();
         }
 
         var data =  userId + String.fromCharCode(13) +
@@ -204,7 +208,7 @@ function reqGetServerInfo(userId) {
         let cmdHeader = new CommandHeader(CmdCodes.DS_GET_SERVER_INFO, 0, function(resData){
             resolve(resData)
         });
-        writeCommandDS(cmdHeader, dataBuf);
+        dsCore.writeCommandDS(cmdHeader, dataBuf);
     });
 }
 
@@ -216,7 +220,7 @@ async function reqUpgradeCheckDS (callback) {
 
     // connect
     if (!global.SERVER_INFO.DS.isConnected) {
-        await connectDS();
+        await dsCore.connectDS();
     }
 
     var serverSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT); // ?
@@ -224,7 +228,7 @@ async function reqUpgradeCheckDS (callback) {
     var versionStr = global.SITE_CONFIG.version + CmdConst.PIPE_SEP + global.SITE_CONFIG.server_ip;
     var dataBuf = Buffer.concat([serverSizeBuf, Buffer.from(versionStr, "utf-8")]);
     
-    writeCommandDS(new CommandHeader(CmdCodes.DS_UPGRADE_CHECK, 0, callback), dataBuf);
+    dsCore.writeCommandDS(new CommandHeader(CmdCodes.DS_UPGRADE_CHECK, 0, callback), dataBuf);
 }
 
 /**
@@ -235,11 +239,11 @@ async function reqUpgradeCheckDS (callback) {
 async function reqGetBuddyList(callback) {
     // connect
     if (!global.SERVER_INFO.DS.isConnected) {
-        await connectDS();
+        await dsCore.connectDS();
     }
     var idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
     idBuf.write(global.USER.userId, global.ENC);
-    writeCommandDS(new CommandHeader(CmdCodes.DS_GET_BUDDY_DATA, 0, callback), idBuf);
+    dsCore.writeCommandDS(new CommandHeader(CmdCodes.DS_GET_BUDDY_DATA, 0, callback), idBuf);
 }
 
 module.exports = {
@@ -247,5 +251,6 @@ module.exports = {
     reqHandshackDS: reqHandshackDS,
     reqLogin: reqLogin,
     reqUpgradeCheckDS: reqUpgradeCheckDS,
-    reqGetBuddyList: reqGetBuddyList
+    reqGetBuddyList: reqGetBuddyList,
+    close: close
 }

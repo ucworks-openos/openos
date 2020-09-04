@@ -1,5 +1,5 @@
 const { send, sendLog } = require('../ipc/ipc-cmd-sender');
-const notifier = require('node-notifier');
+const notifier = require('node-notifier'); //https://github.com/mikaelbr/node-notifier
 
 /**
  * 쪽지 수신 알림을 처리합니다.
@@ -7,6 +7,9 @@ const notifier = require('node-notifier');
  */
 function messageReceived(msgData) {
 
+  console.log('--------------- Received Message', msgData)
+  if (msgData.sendId != global.USER.userId) {
+    
     let options = {
         title: 'Message Received',
         message: msgData.subject,
@@ -18,8 +21,10 @@ function messageReceived(msgData) {
             console.log('Notification Click!', err, response );
         }
       );
+
     sendLog('Message Received! ', JSON.stringify(msgData));
     send('messageReceived', msgData)
+  }
 }
 
 /**
@@ -48,8 +53,10 @@ function userStatusChanged(userId, status, connType) {
     wait: true // Wait with callback, until user action is taken against notification, does not apply to Windows Toasters as they always wait or notify-send as it does not support the wait option
   }
 
-  //new notifier.WindowsToaster().notify(options);  // WIN O
-  new notifier.WindowsBalloon().notify(options);
+  notifier.notify(options, function (err, response) {
+        console.log('Notification Click!', err, response );
+    }
+  );
 }
 
 module.exports = {

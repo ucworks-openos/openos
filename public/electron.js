@@ -15,7 +15,7 @@ const { readConfig } = require(`${path.join(__dirname, '/../public/main-process/
  * 사용자 정보
  */
 global.USER = {
-  userId: '',
+  userId: null,
   userName: '',
   userPass: '',
   authMethod: '' // 사용처??  그냥 로그인시 넘겨줌 BASE64
@@ -109,9 +109,6 @@ global.NS_CONN_CHECK;
 
 
 //#endregion GLOBAL 설정 정보
-
-
-
 
 let mainWindow;
 

@@ -18,15 +18,15 @@ function Home(props) {
       console.log('Promiss login res', resData);
 
       if (resData.resCode) {
-        alert('Login Success! ' + JSON.stringify(resData))
-        localStorage.setItem('isLoginElectronApp', true)
+        console.log('Login Success! ', resData)
+        sessionStorage.setItem('isLoginElectronApp', true)
         window.location.hash = '#/favorite';
         window.location.reload();
       } else {
-        alert('Login fail! Res:' + JSON.stringify(resData))
+        console.log('Login fail! Res:', resData)
       }
     }).catch(function (err) {
-      alert('Login fail! Ex: ' + JSON.stringify(err))
+      console.log('Login fail! Ex: ', err);
     });
   };
 

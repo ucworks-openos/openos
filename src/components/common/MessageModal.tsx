@@ -19,7 +19,7 @@ export default function MessageModal(props: IMessageModalProps) {
 
     const handleMessageSubmit = async () => {
         try {
-            sendMessage(receiverId, receiverName, 'test', inputValue);
+            sendMessage(receiverId, receiverName, 'Message Send Test.', inputValue);
             closeModalFunction();
         } catch (error) {
             console.log(error);

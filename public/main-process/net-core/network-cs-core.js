@@ -68,6 +68,14 @@ function connect () {
     });
 };
 
+/**
+ * 종료
+ */
+function close() {
+    if (csSock) {
+        csSock.destroy();
+    }
+}
 
 /**
  * 수신된 데이터를 Command형식으로 변환 합니다.
@@ -157,5 +165,6 @@ function writeCommand(cmdHeader, dataBuf = null) {
 
 module.exports = {
     connectCS: connect,
-    writeCommandCS: writeCommand
+    writeCommandCS: writeCommand,
+    close: close
 };

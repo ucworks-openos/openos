@@ -3,6 +3,7 @@ const { sendLog } = require('../ipc/ipc-cmd-sender');
 const { callCallback } = require('./command-utils');
 const { messageReceived, unreadCountReceived, userStatusChanged } = require('../notification/messageNoti');
 const EncUtil = require('../utils/utils-crypto')
+const BufUtil = require('../utils/utils-buffer')
 
 const ResData = require('../ResData');
 const CmdCodes = require('./command-code');
@@ -70,11 +71,13 @@ function notifyCmdProc(recvCmd) {
         let sInx = 0;
 
         //let encryptKey = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_ENCRYPT).trim();
-        let encryptKeyBuf = recvCmd.data.slice(sInx, sInx + CmdConst.BUF_LEN_ENCRYPT);
-        let endOfStrInx = encryptKeyBuf.indexOf(0x00);  // 끝문자열 바이트 처리
-        encryptKeyBuf = encryptKeyBuf.slice(0, endOfStrInx);
+        // 끝문자열 바이트 처리
+        // let tempBuf = recvCmd.data.slice(sInx, sInx + CmdConst.BUF_LEN_ENCRYPT);
+        // let endOfStrInx = tempBuf.indexOf(0x00);  
+        // tempBuf = tempBuf.slice(0, endOfStrInx);
 
-        let encryptKey = encryptKeyBuf.toString(global.ENC);
+        //let encryptKey = tempBuf.toString(global.ENC);
+        let encryptKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, sInx + CmdConst.BUF_LEN_ENCRYPT);
         sInx += CmdConst.BUF_LEN_ENCRYPT;
 
         let key = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_KEY).trim();               // 메세지 키 (전송시 키를 발생하여 수신시 해당 키로 데이터베이스에 저장한다.)
@@ -86,7 +89,8 @@ function notifyCmdProc(recvCmd) {
         let subject = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_SUBJECT).trim();           // 제목
         sInx += CmdConst.BUF_LEN_SUBJECT;
 
-        let sendId = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_USERID).trim();            // 보낸사람 ID
+        //let sendId = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_USERID).trim();            // 보낸사람 ID
+        let sendId = BufUtil.getStringWithoutEndOfString(recvCmd.data,  sInx, sInx + CmdConst.BUF_LEN_USERID);            // 보낸사람 ID
         sInx += CmdConst.BUF_LEN_USERID;
 
         let sendName = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_USERNAME).trim();          // 보낸사람 이름

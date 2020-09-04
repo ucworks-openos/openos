@@ -1,39 +1,51 @@
-const { connectPS, writeCommandPS } = require('../net-core/network-ps-core');
 const { sendLog } = require('../ipc/ipc-cmd-sender');
 
-var CommandHeader = require('./command-header');
-var CmdCodes = require('./command-code');
-var CmdConst = require('./command-const');
-var OsUtil = require('../utils/utils-os');
-var CryptoUtil = require('../utils/utils-crypto')
+const CommandHeader = require('./command-header');
+const CmdCodes = require('./command-code');
+const CmdConst = require('./command-const');
+const psCore = require('../net-core/network-ps-core');
 
 
 /**
  * 서버로 접속요청 합니다.
  */
 function reqconnectPS () {
-    connectPS().then(function() {
+    psCore.connectPS().then(function() {
         sendLog('PS Connect Success!');
     }).catch(function(err){
         sendLog('PS Connect fale!' + JSON.stringify(err));
     })
 }
 
+/**
+ * 연결을 종료합니다.
+ */
+function close() {
+    psCore.close();
+}
+
 function reqGetCondition(userId) {
     return new Promise(async function(resolve, reject) {
 
         if (!global.SERVER_INFO.PS.isConnected) {
-            await connectPS();
+            await psCore.connectPS();
         }
 
         if (!global.SERVER_INFO.PS.isConnected) {
             reject(new Error('PS IS NOT CONNECTED!'));
             return;
         }
-        
+
+        if (!userId) {
+            reject(new Error('userId Empty!'));
+            return;
+        }
+
         let idData = 'ID' + CmdConst.PIPE_SEP + userId;
         var dataBuf = Buffer.from(idData, global.ENC);
-        writeCommandPS(new CommandHeader(CmdCodes.PS_GET_CONDICTION, 0, function(resData){
+
+        console.log('PS_GET_CONDICTION ------  ', idData)
+        psCore.writeCommandPS(new CommandHeader(CmdCodes.PS_GET_CONDICTION, 0, function(resData){
             resolve(resData);
         }), dataBuf);
     });
@@ -47,7 +59,7 @@ function reqGetOrganization(groupCode) {
     return new Promise(async function(resolve, reject) {
 
         if (!global.SERVER_INFO.PS.isConnected) {
-            await connectPS();
+            await psCore.connectPS();
         }
 
         if (!global.SERVER_INFO.PS.isConnected) {
@@ -62,7 +74,7 @@ function reqGetOrganization(groupCode) {
         orgGroupCodeBuf.write(groupCode, global.ENC);
 
         var dataBuf = Buffer.concat([orgGroupCodeBuf, groupCodeBuf, classIdBuf]);
-        writeCommandPS(new CommandHeader(CmdCodes.PS_GET_BASE_CLASS, 0, function(resData){
+        psCore.writeCommandPS(new CommandHeader(CmdCodes.PS_GET_BASE_CLASS, 0, function(resData){
             resolve(resData);
         }), dataBuf);
     });
@@ -76,7 +88,7 @@ function reqGetOrgChild(orgGroupCode, groupCode, groupSeq) {
     return new Promise(async function(resolve, reject) {
 
         if (!global.SERVER_INFO.PS.isConnected) {
-            await connectPS();
+            await psCore.connectPS();
         }
 
         if (!global.SERVER_INFO.PS.isConnected) {
@@ -95,7 +107,7 @@ function reqGetOrgChild(orgGroupCode, groupCode, groupSeq) {
         classIdBuf.writeInt32LE(groupSeq);
 
         var dataBuf = Buffer.concat([orgGroupCodeBuf, groupCodeBuf, classIdBuf]);
-        writeCommandPS(new CommandHeader(CmdCodes.PS_GET_CHILD_CLASS, 0, function(resData){
+        psCore.writeCommandPS(new CommandHeader(CmdCodes.PS_GET_CHILD_CLASS, 0, function(resData){
             resolve(resData);
         }), dataBuf);
     });
@@ -104,5 +116,6 @@ function reqGetOrgChild(orgGroupCode, groupCode, groupSeq) {
 module.exports = {
     reqGetCondition: reqGetCondition,
     reqGetOrganization: reqGetOrganization,
-    reqGetOrgChild: reqGetOrgChild
+    reqGetOrgChild: reqGetOrgChild,
+    close: close
 }
