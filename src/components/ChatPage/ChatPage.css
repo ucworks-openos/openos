@@ -17,7 +17,7 @@
     border-right: 1px solid #DFE2E8;
     background-color: #f8f9fa;
 }
-.page-title-wrap {
+.chat-page-title-wrap {
     position: absolute;
     top: 0;
     left: 0;
@@ -225,7 +225,7 @@
     font-family: 'Roboto', sans-serif;
 }
 /*채팅영역*/
-.main-wrap {
+.chat-main-wrap {
     position: absolute;
     top: 0;
     left: 360px;
@@ -257,12 +257,12 @@
     border-bottom: 1px solid #DFE2E8;
     align-items: center;
 }
-.local-search-wrap {
+.chat-local-search-wrap {
     width: 14%;
     min-width: 140px;
     margin-left:auto;
 }
-.local-search{
+.chat-local-search{
     width: 100%;
     height: 28px;
     padding: 4px 4px 4px 36px;
@@ -304,7 +304,7 @@
 .chat-action.chat-noti-toggle input[type="checkbox"]:checked + .chat-noti-toggle-inner:hover{background-position: -26px -110px;}
 
 .chat-action.chat-favorite-toggle input[type="checkbox"],.chat-action.chat-noti-toggle input[type="checkbox"]{display: none;}
-.local-search-wrap,.chat-action{margin-right:12px;}
+.chat-local-search-wrap,.chat-action{margin-right:12px;}
 .btn_lnb {
     width: 30px;
     height: 30px;

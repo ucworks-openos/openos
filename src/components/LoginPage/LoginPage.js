@@ -1,9 +1,9 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import './Sections/LoginPage.css';
 import { useForm } from 'react-hook-form';
-import SignitureCi from '../_Common/SignitureCi';
+import SignitureCi from '../common/SignitureCi';
 import styled from 'styled-components';
-import {login} from '../ipcCommunication/ipcCommon';
+import { login } from '../ipcCommunication/ipcCommon';
 
 const electron = window.require("electron")
 
@@ -13,20 +13,20 @@ function Home(props) {
 
     console.log('LOGIN REQUEST:', event);
 
-    login(event.loginId, event.loginPwd).then(function(resData){
+    login(event.loginId, event.loginPwd).then(function (resData) {
 
       console.log('Promiss login res', resData);
 
       if (resData.resCode) {
-        alert('Login Success! ' + JSON.stringify(resData))
-        localStorage.setItem('isLoginElectronApp', true)
+        console.log('Login Success! ', resData)
+        sessionStorage.setItem('isLoginElectronApp', true)
         window.location.hash = '#/favorite';
         window.location.reload();
       } else {
-        alert('Login fail! Res:' + JSON.stringify(resData))
+        console.log('Login fail! Res:', resData)
       }
-    }).catch(function(err){
-      alert('Login fail! Ex: ' + JSON.stringify(err))
+    }).catch(function (err) {
+      console.log('Login fail! Ex: ', err);
     });
   };
 

@@ -3,175 +3,97 @@ import userThumbnail from "../../assets/images/img_user-thumbnail.png";
 import imgHolder from "../../assets/images/img_imgHolder.png";
 import styled from "styled-components";
 import "./FavoritePage.css";
-import "../../Tree.scss";
-import SignitureCi from "../_Common/SignitureCi";
-import AddGroupModal from "../_Modals/AddGroupModal";
+import "../../assets/css/Tree.scss";
+import SignitureCi from "../common/SignitureCi";
+import AddGroupModal from "./AddGroupModal";
 import Modal from "react-modal";
-import HamburgerButton from "../_Common/HamburgerButton";
+import HamburgerButton from "../common/HamburgerButton";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Node from "./FavoriteNode";
 import Tree, { TreeNode } from "rc-tree";
 import { EventDataNode } from "rc-tree/lib/interface";
+import { getBuddyList } from "../ipcCommunication/ipcCommon";
+import { IFavoriteNode } from '../../@type'
 
-interface FavoritePageProps {
-  classOrgGroupCode: string;
-}
+Modal.setAppElement("#root");
 
-interface TreeNodeInterface {
-  title: string;
-  key: number;
-  isLeaf: boolean;
-  classGroupCode: string;
-  classUpperGroupCode: string;
-  classId: number;
-  classUpperClassId: number;
-  classKind: `1` | `2`;
-  classGroupName: string;
-  children: TreeNodeInterface[];
-  classOrderNo: number;
-}
-
-function FavoritePage(props: any) {
-  const { classOrgGroupCode } = useParams<FavoritePageProps>();
+export default function FavoritePage() {
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
     false
   );
   const [isAddGroupModalOpen, setIsAddGroupModalOpen] = useState(false);
   const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState(false);
-  const [treeData, setTreeData] = useState<TreeNodeInterface[]>([
-    {
-      title: "",
-      key: 0,
-      isLeaf: false,
-      classGroupCode: ``,
-      classUpperGroupCode: ``,
-      classId: 0,
-      classUpperClassId: 0,
-      classKind: `2`,
-      classGroupName: ``,
-      classOrderNo: 1,
-      children: [],
-    },
+  const [treeData, setTreeData] = useState<IFavoriteNode[]>([
+    _defaultFavoriteNode
   ]);
-  const [selectedNode, setSelectedNode] = useState<TreeNodeInterface>({
-    title: "",
-    key: 0,
-    isLeaf: false,
-    classGroupCode: ``,
-    classUpperGroupCode: ``,
-    classId: 0,
-    classUpperClassId: 0,
-    classKind: `2`,
-    classGroupName: ``,
-    classOrderNo: 1,
-    children: [],
-  });
+  const [selectedNode, setSelectedNode] = useState<IFavoriteNode>(
+    _defaultFavoriteNode
+  );
+  const [autoExpandParent, setAutoExpandParent] = useState<boolean>(false);
+  const [expandedKeys, setExpandedKeys] = useState<(string | number)[]>([``]);
+
+  useEffect(() => {
+    console.log(`selected Node: `, selectedNode);
+  }, [selectedNode]);
 
   // fetching root
   useEffect(() => {
-    const getRoot = async () => {
-      const {
-        data: { resultSet },
-      } = await axios.get(
-        `http://localhost:4000/v0/tree/root?classOrgGroupCode=${classOrgGroupCode}`
-      );
+    const getBuddy = async () => {
+      const { data: { contacts: { node: response } } } = await getBuddyList();
 
-      const [data] = resultSet;
+      const root: IFavoriteNode = {
+        title: response.name,
+        key: response.id,
+        gubun: response.gubun,
+        id: response.id,
+        name: response.name,
+        children: []
+      }
+      if (Array.isArray(response.node)) {
+        Object.assign(root.children, response.node.map((v: any) => ({
+          title: v.name,
+          key: v.id,
+          gubun: v.gubun,
+          id: v.id,
+          name: v.name,
+        })))
+      } else if (typeof response.node === `object`) {
+        Object.assign(root.children, [{
+          title: response.node.name,
+          key: response.node.id,
+          gubun: response.node.gubun,
+          id: response.node.id,
+          name: response.node.name,
+        }])
+      }
+      console.log(`root: `, root);
 
-      const root: TreeNodeInterface = {
-        title: data ? data.class_group_name : "",
-        key: data ? data.class_id : 0,
-        isLeaf: false,
-        classGroupCode: data.class_group_code,
-        classUpperGroupCode: data.class_upper_group_code,
-        classId: data.class_id,
-        classUpperClassId: data.class_upper_class_id,
-        classKind: `2`,
-        classGroupName: data.class_group_name,
-        classOrderNo: data.classOrderNo,
-        children: [],
-      };
       setTreeData([root]);
-    };
-    getRoot();
+      setExpandedKeys([root.id]);
 
-    return () => {
-      setTreeData([]);
-    };
-  }, [classOrgGroupCode]);
+    }
+    getBuddy();
 
-  const getChild = async (classGroupCode: string) => {
-    const {
-      data: { resultSet },
-    } = await axios.get(
-      `http://localhost:4000/v0/tree/child?classOrgGroupCode=${classOrgGroupCode}&classGroupCode=${classGroupCode}`
-    );
-    return resultSet.map((v: any) => ({
-      title: v.class_kind === `2` ? v.class_group_name : v.class_user_name,
-      key: v.class_id,
-      isLeaf: v.class_kind === `2` ? false : true,
-      classGroupCode: v.class_group_code,
-      classUpperGroupCode: v.class_upper_group_code,
-      classId: v.class_id,
-      classUpperClassId: v.class_upper_class_id,
-      classKind: v.class_kind,
-      classGroupName: v.class_group_name,
-    }));
-  };
 
-  const attach = (
-    prev: TreeNodeInterface[],
-    key: number,
-    children: TreeNodeInterface[]
-  ): TreeNodeInterface[] =>
-    prev.map((v) => {
-      // 1 depth searching
-      if (Number(v.key) === Number(key)) {
-        return {
-          ...v,
-          childCnt: children.length,
-          isLeaf: false,
-          children,
-        };
-        // children searching
-      } else if (v.children) {
-        return {
-          ...v,
-          children: attach(v.children, key, children),
-        };
-      }
-      return v;
-    });
+  }, []);
 
-  const load = (e: EventDataNode): Promise<void> => {
-    return new Promise(async (resolve) => {
-      // avoid duplicated axios call
-      if (e.children) {
-        resolve();
-        return;
-        // if the node yet to load chilren, execute axios call.
-      } else if (!e.isLeaf) {
-        const { v } = await find(treeData, Number(e.key));
-        const children = await getChild(v.classGroupCode);
-        // update tree
-        setTreeData((prev) => attach(prev, Number(e.key), children));
-      }
-      resolve();
-    });
+  const handleSelect = async ([selectedKeys]: (string | number)[]) => {
+    const { v } = await find(treeData, Number(selectedKeys));
+    setSelectedNode(v);
   };
 
   const find = (
-    list: TreeNodeInterface[],
+    list: IFavoriteNode[],
     key: number
-  ): Promise<{ v: TreeNodeInterface; i: number; list: TreeNodeInterface[] }> =>
+  ): Promise<{ v: IFavoriteNode; i: number; list: IFavoriteNode[] }> =>
     new Promise((resolve) => {
       for (let i = 0; i < list.length; i++) {
         if (Number(list[i].key) === Number(key)) {
           resolve({ v: list[i], i: i, list: list });
         }
         if (list[i].children) {
-          find(list[i].children, key).then((result) => {
+          find(list[i].children!, key).then((result) => {
             if (result) resolve(result);
           });
         }
@@ -179,156 +101,161 @@ function FavoritePage(props: any) {
     });
 
   // align list's order as 1 to n
-  const align = (list: TreeNodeInterface[]): TreeNodeInterface[] =>
-    list.map((v, i) => ({
-      ...v,
-      classOrderNo: i,
-    }));
+  // const align = (list: IFavoriteNode[]): IFavoriteNode[] =>
+  //   list.map((v, i) => ({
+  //     ...v,
+  //     classOrderNo: i,
+  //   }));
 
   // syncronize order with database
-  const syncronize = async (list: TreeNodeInterface[]) => {
-    const classList = list.map((v) => ({
-      classId: v.classId,
-      classOrderNo: v.classOrderNo,
-    }));
+  // const syncronize = async (list: IFavoriteNode[]) => {
+  //   const classList = list.map((v) => ({
+  //     classId: v.classId,
+  //     classOrderNo: v.classOrderNo,
+  //   }));
 
-    await axios.put(`http://localhost:4000/v0/tree/order`, {
-      list: classList,
-    });
-  };
+  //   await axios.put(`http://localhost:4000/v0/tree/order`, {
+  //     list: classList,
+  //   });
+  // };
 
   // update child's class info moving into other parent
-  const move = async (
-    parent: TreeNodeInterface,
-    child: TreeNodeInterface,
-    dropPosition: number
-  ) => {
-    if (
-      parent.classUpperGroupCode === child.classUpperGroupCode &&
-      dropPosition !== 0
-    ) {
-      return false;
-    }
-    const data = {
-      classId: child.classId,
-      classUpperGroupCode:
-        dropPosition === 0 ? parent.classGroupCode : parent.classUpperGroupCode,
-      classUpperClassId:
-        dropPosition === 0 ? parent.classId : parent.classUpperClassId,
-      classGroupCode:
-        child.classKind === "2"
-          ? child.classGroupCode
-          : dropPosition === 0
-          ? parent.classGroupCode
-          : parent.classUpperGroupCode,
-      classGroupName:
-        child.classKind === "2"
-          ? child.classGroupName
-          : dropPosition === 0
-          ? parent.classGroupName
-          : parent.classGroupName,
-    };
-    await axios.patch(`http://localhost:4000/v0/tree/child`, data);
-  };
+  // const move = async (
+  //   parent: IFavoriteNode,
+  //   child: IFavoriteNode,
+  //   dropPosition: number
+  // ) => {
+  //   if (
+  //     parent.classUpperGroupCode === child.classUpperGroupCode &&
+  //     dropPosition !== 0
+  //   ) {
+  //     return false;
+  //   }
+  //   const data = {
+  //     classId: child.classId,
+  //     classUpperGroupCode:
+  //       dropPosition === 0 ? parent.classGroupCode : parent.classUpperGroupCode,
+  //     classUpperClassId:
+  //       dropPosition === 0 ? parent.classId : parent.classUpperClassId,
+  //     classGroupCode:
+  //       child.classKind === "2"
+  //         ? child.classGroupCode
+  //         : dropPosition === 0
+  //           ? parent.classGroupCode
+  //           : parent.classUpperGroupCode,
+  //     classGroupName:
+  //       child.classKind === "2"
+  //         ? child.classGroupName
+  //         : dropPosition === 0
+  //           ? parent.classGroupName
+  //           : parent.classGroupName,
+  //   };
+  //   await axios.patch(`http://localhost:4000/v0/tree/child`, data);
+  // };
 
   // validation check if you drop something to user
-  const validate = async (
-    replica: TreeNodeInterface[],
-    dropKey: number,
-    dropPosition: number
-  ) => {
-    const { v: dropV } = await find(replica, dropKey);
-    console.log(`dropV: `, dropV);
-    return dropV.classKind === "1" && dropPosition === 0 ? false : true;
-  };
+  // const validate = async (
+  //   replica: IFavoriteNode[],
+  //   dropKey: number,
+  //   dropPosition: number
+  // ) => {
+  //   const { v: dropV } = await find(replica, dropKey);
+  //   console.log(`dropV: `, dropV);
+  //   return dropV.classKind === "1" && dropPosition === 0 ? false : true;
+  // };
 
   // drop event
-  const onDrop = async (info: any) => {
-    const {
-      dropToGap,
-      dragNode: {
-        props: { eventKey: dragKey },
-      },
-      node: {
-        props: { eventKey: dropKey, pos: dropPos },
-      },
-    } = info;
-    const dropPosArr = dropPos.split("-");
-    // drop position === -1 : drop to upper line
-    // drop position === 0 : drop to node
-    // drop position === 1 : drop to bottom line
-    const dropPosition =
-      info.dropPosition - Number(dropPosArr[dropPosArr.length - 1]);
-    const replica = [...treeData];
-    // validation check if you drop something to user
-    if (!(await validate(replica, dropKey, dropPosition))) {
-      //_set_has_dropped_to_user(true);
-      // alert("사용자 하위에 추가할 수 없습니다.");
-      return false;
-    }
-    const { v: dragV, i: dragI, list: dragList } = await find(replica, dragKey);
-    // delete drag node
-    dragList.splice(dragI, 1);
-    if (!dropToGap) {
-      const { v: dropV } = await find(replica, dropKey);
-      // if you drop something to node having children, push something to it's children
-      if (dropV.children) {
-        dropV.children.push(dragV);
-      } else {
-        // if you drop something to node not having children(or yet to have), execute axios call
-        let children = await getChild(dropV.classGroupCode);
-        dropV.children = [...children, dragV];
-      }
-      move(dropV, dropV.children[dropV.children.length - 1], dropPosition);
-      dropV.children = align(dropV.children);
-      syncronize(dropV.children);
-    } else {
-      if (dropPosition === -1) {
-        let { v: dropV, i: dropI, list: dropList } = await find(
-          replica,
-          dropKey
-        );
-        // splice i = arr[i-1]
-        dropList.splice(dropI, 0, dragV);
-        move(dropV, dragV, dropPosition);
-        dropList = align(dropList);
-        syncronize(dropList);
-      } else {
-        let { v: dropV, i: dropI, list: dropList } = await find(
-          replica,
-          dropKey
-        );
-        dropList.splice(dropI + 1, 0, dragV);
-        move(dropV, dragV, dropPosition);
-        dropList = align(dropList);
-        syncronize(dropList);
-      }
-    }
-    setTreeData(replica);
-  };
+  // const onDrop = async (info: any) => {
+  //   const {
+  //     dropToGap,
+  //     dragNode: {
+  //       props: { eventKey: dragKey },
+  //     },
+  //     node: {
+  //       props: { eventKey: dropKey, pos: dropPos },
+  //     },
+  //   } = info;
+  //   const dropPosArr = dropPos.split("-");
+  //   // drop position === -1 : drop to upper line
+  //   // drop position === 0 : drop to node
+  //   // drop position === 1 : drop to bottom line
+  //   const dropPosition =
+  //     info.dropPosition - Number(dropPosArr[dropPosArr.length - 1]);
+  //   const replica = [...treeData];
+  //   // validation check if you drop something to user
+  //   if (!(await validate(replica, dropKey, dropPosition))) {
+  //     //_set_has_dropped_to_user(true);
+  //     // alert("사용자 하위에 추가할 수 없습니다.");
+  //     return false;
+  //   }
+  //   const { v: dragV, i: dragI, list: dragList } = await find(replica, dragKey);
+  //   // delete drag node
+  //   dragList.splice(dragI, 1);
+  //   if (!dropToGap) {
+  //     const { v: dropV } = await find(replica, dropKey);
+  //     // if you drop something to node having children, push something to it's children
+  //     if (dropV.children) {
+  //       dropV.children.push(dragV);
+  //     } else {
+  //       // if you drop something to node not having children(or yet to have), execute axios call
+  //       let children = await getChild(dropV.classGroupCode);
+  //       dropV.children = [...children, dragV];
+  //     }
+  //     move(dropV, dropV.children[dropV.children.length - 1], dropPosition);
+  //     dropV.children = align(dropV.children);
+  //     syncronize(dropV.children);
+  //   } else {
+  //     if (dropPosition === -1) {
+  //       let { v: dropV, i: dropI, list: dropList } = await find(
+  //         replica,
+  //         dropKey
+  //       );
+  //       // splice i = arr[i-1]
+  //       dropList.splice(dropI, 0, dragV);
+  //       move(dropV, dragV, dropPosition);
+  //       dropList = align(dropList);
+  //       syncronize(dropList);
+  //     } else {
+  //       let { v: dropV, i: dropI, list: dropList } = await find(
+  //         replica,
+  //         dropKey
+  //       );
+  //       dropList.splice(dropI + 1, 0, dragV);
+  //       move(dropV, dragV, dropPosition);
+  //       dropList = align(dropList);
+  //       syncronize(dropList);
+  //     }
+  //   }
+  //   setTreeData(replica);
+  // };
+
+  const handleExpand = (expandedKeys: (string | number)[]): void => {
+    setExpandedKeys(expandedKeys);
+    setAutoExpandParent(false);
+  }
 
   const switcherGenerator = (data: any) => (
     <>
-      {data?.classKind === `2` && (
+      {data?.gubun === `G` && (
         <Switcher>
-          {!data?.isLeaf && !data?.expanded ? (
+          {!data?.expanded ? (
             <img
               src="/images/icon_toggle_plus.png"
               style={{ minWidth: `20px`, height: `21px` }}
             />
           ) : (
-            <img
-              src="/images/icon_toggle_min.png"
-              style={{ minWidth: `20px`, height: `21px` }}
-            />
-          )}
+              <img
+                src="/images/icon_toggle_min.png"
+                style={{ minWidth: `20px`, height: `21px` }}
+              />
+            )}
         </Switcher>
       )}
     </>
   );
 
   // need to be memorized
-  const renderTreeNodes = (data: TreeNodeInterface[]) => {
+  const renderTreeNodes = (data: IFavoriteNode[]) => {
     return data.map((item) => {
       if (item.children) {
         return (
@@ -340,15 +267,6 @@ function FavoritePage(props: any) {
       return <TreeNode {...item} title={<Node data={item} />} />;
     });
   };
-
-  const handleSelect = async ([selectedKeys]: (string | number)[]) => {
-    const { v } = await find(treeData, Number(selectedKeys));
-    setSelectedNode(v);
-  };
-
-  useEffect(() => {
-    console.log(`selected Node: `, selectedNode);
-  }, [selectedNode]);
 
   const clickHamburgerButton = () => {
     setIsHamburgerButtonClicked(!isHamburgerButtonClicked);
@@ -591,11 +509,13 @@ function FavoritePage(props: any) {
       </div>
       <main className="main-wrap">
         <Tree
-          loadData={load}
           draggable
           showLine
           showIcon={false}
-          onDrop={onDrop}
+          // onDrop={onDrop}
+          expandedKeys={expandedKeys}
+          autoExpandParent={autoExpandParent}
+          onExpand={handleExpand}
           onSelect={handleSelect}
           switcherIcon={switcherGenerator}
         >
@@ -603,8 +523,6 @@ function FavoritePage(props: any) {
         </Tree>
       </main>
       <SignitureCi />
-
-      {/* Modal Parts */}
 
       <Modal
         isOpen={isAddGroupModalOpen}
@@ -620,19 +538,17 @@ function FavoritePage(props: any) {
   );
 }
 
-export default FavoritePage;
+const _orgCode = ``;
 
-Modal.setAppElement("#root");
-const userInfoModalCustomStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-  },
-};
+const _defaultFavoriteNode: IFavoriteNode = {
+  title: ``,
+  key: `0`,
+  gubun: `G`,
+  id: ``,
+  name: ``,
+  children: []
+}
+
 const addGroupModalCustomStyles = {
   content: {
     top: "50%",

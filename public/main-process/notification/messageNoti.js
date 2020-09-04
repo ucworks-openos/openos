@@ -7,6 +7,9 @@ const notifier = require('node-notifier'); //https://github.com/mikaelbr/node-no
  */
 function messageReceived(msgData) {
 
+  console.log('--------------- Received Message', msgData)
+  if (msgData.sendId != global.USER.userId) {
+    
     let options = {
         title: 'Message Received',
         message: msgData.subject,
@@ -19,10 +22,9 @@ function messageReceived(msgData) {
         }
       );
 
-
-
     sendLog('Message Received! ', JSON.stringify(msgData));
     send('messageReceived', msgData)
+  }
 }
 
 /**

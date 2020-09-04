@@ -1,13 +1,13 @@
 
-const {ipcMain} = require('electron');
+const { ipcMain } = require('electron');
 
-const {reqConnectDS, reqUpgradeCheckDS,} = require('../net-command/command-ds-api');
-const {reqGetCondition} = require('../net-command/command-ps-api');
+const { reqConnectDS, reqUpgradeCheckDS, } = require('../net-command/command-ds-api');
+const { reqGetCondition } = require('../net-command/command-ps-api');
 
 const { sendLog } = require('./ipc-cmd-sender');
 const ResData = require('../ResData');
-const CryptoUtil =  require('../utils/utils-crypto');
-const OsUtil =  require('../utils/utils-os');
+const CryptoUtil = require('../utils/utils-crypto');
+const OsUtil = require('../utils/utils-os');
 
 const notifier = require('node-notifier');
 
@@ -19,10 +19,8 @@ ipcMain.on('testAction', async (event, ...args) => {
 
   sendLog('DATE>>', OsUtil.getDateString('YYYYMMDDHHmmssSSS'));
 
-
-  nsAPI.reqGetStatus(1, 'bslee');
-
-  return;
+  //nsAPI.reqGetStatus(1, 'bslee');
+  //return;
 
   let options = {
     title: 'My awesome title',
@@ -30,13 +28,13 @@ ipcMain.on('testAction', async (event, ...args) => {
     sound: true, // Only Notification Center or Windows Toasters
     wait: true // Wait with callback, until user action is taken against notification, does not apply to Windows Toasters as they always wait or notify-send as it does not support the wait option
   }
-  
 
-  //new notifier.NotificationCenter(options).notify(); Win X
-  // new notifier.NotifySend(options).notify(); Win X
-  new notifier.WindowsToaster(options).notify(options);  // WIN O
+
+  new notifier.NotificationCenter().notify(options); // Win X
+  // new notifier.NotifySend().notify(options); // Win X
+  // new notifier.WindowsToaster(options).notify(options);  // WIN O
   // new notifier.WindowsBalloon(options).notify(options);   // WIN O
-  // new notifier.Growl(options).notify(options);  Win X
+  new notifier.Growl(options).notify(options); // Win X
 
 
   return;
@@ -58,16 +56,16 @@ ipcMain.on('testAction', async (event, ...args) => {
 
 
 
-  
+
   ////////////////////////////////////
   //reqGetCondition('bslee');
-  
+
 
   //////////////////////////
   //return OsUtil.getUUID();
 
   ///////////////////////////
-  
+
 
   // let pwd4 = CryptoUtil.randomPassword(4);
   // sendLog('Random Pwd 4', pwd4.length, pwd4);
@@ -103,18 +101,18 @@ ipcMain.on('testAction', async (event, ...args) => {
   resolve(new ResData(true, 'Call Success!'));
   */
 
-  
-    console.log('testFunction res:', resData)
-    event.reply('res-testAction', resData);
+
+  console.log('testFunction res:', resData)
+  event.reply('res-testAction', resData);
 });
 
 // connectDS
 ipcMain.on('connectDS', async (event, ...args) => {
 
-  reqConnectDS().then(function(resData) {
+  reqConnectDS().then(function (resData) {
     console.log('DS CONNECTIN SUCCESS! res:', resData)
     event.reply('res-connectDS', resData);
-  }).catch(function(err) {
+  }).catch(function (err) {
     console.log('DS CONNECTIN FAIL!', err)
     event.reply('res-connectDS', new ResData(false, err));
   });
@@ -123,9 +121,8 @@ ipcMain.on('connectDS', async (event, ...args) => {
 
 // upgradeCheck
 ipcMain.on('upgradeCheck', async (event, ...args) => {
-  
-  reqUpgradeCheckDS(function(resData)
-  {
+
+  reqUpgradeCheckDS(function (resData) {
     console.log('upgradeCheck res:', resData)
     event.reply('res-upgradeCheck', resData);
   });
@@ -133,6 +130,6 @@ ipcMain.on('upgradeCheck', async (event, ...args) => {
 });
 
 ipcMain.handle('invokeTest', async (event, ...args) => {
-  
+
   return global.SITE_CONFIG;
 })

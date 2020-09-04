@@ -14,7 +14,6 @@ function Sidebar() {
 	}
 
 	const onLogOutClick = () => {
-
 		
 		logout();
 		localStorage.removeItem('isLoginElectronApp')

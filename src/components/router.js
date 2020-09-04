@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -25,7 +25,7 @@ function RouterPage() {
       <HashRouter>
         {/* <MyErrorBoundary> */}
         <Suspense fallback={<div>Loading...</div>}>
-          {localStorage.getItem("isLoginElectronApp") && (
+          {sessionStorage.getItem("isLoginElectronApp") && (
             <>
               {" "}
               <NavigationBar /> <Sidebar />{" "}
