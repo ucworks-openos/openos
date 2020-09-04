@@ -14,7 +14,6 @@ import Node from "./FavoriteNode";
 import Tree, { TreeNode } from "rc-tree";
 import { EventDataNode } from "rc-tree/lib/interface";
 import { getBuddyList } from "../ipcCommunication/ipcCommon";
-import { IFavoriteNode } from '../../@type'
 
 Modal.setAppElement("#root");
 

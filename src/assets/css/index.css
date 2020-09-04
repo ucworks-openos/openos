@@ -513,16 +513,16 @@ a:hover,
   background-image: url("../images/icon_device.png");
   background-repeat: no-repeat;
 }
-.user-login-device.mobile {
+.user-login-device.android, .user-login-device.iphone{
   background-position: 0px center;
 }
-.user-login-device.pc {
+.user-login-device.windows, .user-login-device.mac {
   background-position: -17px center;
 }
-.user-login-device.all {
+/* .user-login-device.mobile.pc {
   width: 27px;
   background-position: -34px center;
-}
+} */
 .user-quick-action-wrap {
   display: none;
   margin-left: auto;

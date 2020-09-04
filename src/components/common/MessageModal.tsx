@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import '../../assets/css/Modal.css'
-import { IFavoriteNode } from '../../@type';
 import { sendMessage } from '../ipcCommunication/ipcMessage';
 
 interface IMessageModalProps {
