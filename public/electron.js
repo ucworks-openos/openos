@@ -124,7 +124,13 @@ function initialize() {
   createApplicationMenu();
 
   async function createWindow() {
-    mainWindow = new BrowserWindow({ width: 900, height: 680, webPreferences: { nodeIntegration: true } });
+    mainWindow = new BrowserWindow({ 
+      width: 800, 
+      height: 750, 
+      webPreferences: { nodeIntegration: true },
+      icon: path.join(__dirname, 'icon.ico')
+     });
+
     mainWindow.loadURL(
       isDev
         ? "http://localhost:3000"
