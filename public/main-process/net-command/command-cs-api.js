@@ -1,17 +1,23 @@
-const { connectCS, writeCommandCS } = require('../net-core/network-cs-core');
 const { sendLog } = require('../ipc/ipc-cmd-sender');
 
-var CommandHeader = require('./command-header');
-var CmdCodes = require('./command-code');
-var CmdConst = require('./command-const');
-var OsUtil = require('../utils/utils-os');
-var CryptoUtil = require('../utils/utils-crypto')
+const CommandHeader = require('./command-header');
+const CmdCodes = require('./command-code');
+const CmdConst = require('./command-const');
+const CryptoUtil = require('../utils/utils-crypto')
+const csAPI = require('../net-core/network-cs-core');
+
+/**
+ * 연결을 종료합니다.
+ */
+function close() {
+    csAPI.close();
+}
 
 /**
  * 서버로 접속요청 합니다.
  */
 function reqconnectCS () {
-    connectCS().then(function() {
+    csAPI.connectCS().then(function() {
         sendLog('CS Connect Success!');
     }).catch(function(err){
         sendLog('CS Connect fale!' + JSON.stringify(err));
@@ -27,7 +33,7 @@ function reqCertifyCS(loginId, loginPass) {
     return new Promise(function(resolve, reject) {
 
         if (!global.SERVER_INFO.CS.isConnected) {
-            connectCS();
+            csAPI.connectCS();
         }
 
         var cipherPwd = loginPass;
@@ -58,7 +64,7 @@ function reqCertifyCS(loginId, loginPass) {
                     
         var certBuf = Buffer.from(certXml, global.ENC);
         var dataBuf = Buffer.concat([idBuf, dnBuf, certBuf]);
-        writeCommandCS(new CommandHeader(CmdCodes.CS_CERTIFY, 0, function(resData){
+        csAPI.writeCommandCS(new CommandHeader(CmdCodes.CS_CERTIFY, 0, function(resData){
             resolve(resData);
         }), dataBuf);
     });
@@ -67,5 +73,6 @@ function reqCertifyCS(loginId, loginPass) {
 
 module.exports = {
     reqconnectCS: reqconnectCS,
-    reqCertifyCS: reqCertifyCS
+    reqCertifyCS: reqCertifyCS,
+    close: close
 }

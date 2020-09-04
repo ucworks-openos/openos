@@ -1,6 +1,3 @@
-
-
-const { connectNS, writeCommandNS } = require('../net-core/network-ns-core');
 const { sendLog } = require('../ipc/ipc-cmd-sender');
 
 const CommandHeader = require('./command-header');
@@ -8,14 +5,21 @@ const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
 const OsUtil = require('../utils/utils-os');
 const CryptoUtil = require('../utils/utils-crypto');
+const nsCore = require('../net-core/network-ns-core');
 
+/**
+ * 연결을 종료합니다.
+ */
+function close() {
+    nsCore.close();
+}
 
 /**
  * 서버로 접속요청 합니다.
  */
 function reqconnectNS () {
     return new Promise(async function(resolve, reject) {
-        connectNS().then(function() {
+        nsCore.connectNS().then(function() {
             sendLog('NS Connect Success!');
 
             reqSignInNS().then(function(resData){
@@ -93,7 +97,7 @@ function reqSignInNS() {
             , userOsInfoBuf
         ]);
 
-        writeCommandNS(new CommandHeader(CmdCodes.NS_CONNECT, 0, function(resData){
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_CONNECT, 0, function(resData){
             if (resData.resCode) resolve(resData);
             else reject(new Error('NS SIGN_IN Fail! ' + JSON.stringify(resData)));
         }), dataBuf);
@@ -218,7 +222,7 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
 
 
         console.log('[SEND MESSAGE] -------  encryptKey,  cipherContent', encKey, cipherContent);
-        writeCommandNS(new CommandHeader(CmdCodes.NS_SEND_MSG, 0), dataBuf);
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_SEND_MSG, 0), dataBuf);
     });
 }
 
@@ -262,7 +266,7 @@ function reqChangeStatus(status, force = false) {
 
         console.log('[CHANGE_STATUS] ', status, global.USER.userId)
 
-        writeCommandNS(new CommandHeader(CmdCodes.NS_CHANGE_STATE, 0), dataBuf);
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_CHANGE_STATE, 0), dataBuf);
     });
 }
 
@@ -305,7 +309,7 @@ function reqGetStatus(status, userId) {
 
         console.log('[CHANGE_STATUS] ', status, global.USER.userId)
 
-        writeCommandNS(new CommandHeader(CmdCodes.NS_GET_STATE, 0), dataBuf);
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_GET_STATE, 0), dataBuf);
     });
 }
 
@@ -333,7 +337,7 @@ function reqSetStatusMonitor(userIds) {
 
         console.log('[NOTIFY_USERS] ', data)
 
-        writeCommandNS(new CommandHeader(CmdCodes.NS_NOTIFY_FRIENDS, 0), dataBuf);
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_NOTIFY_FRIENDS, 0), dataBuf);
     });
 }
 
@@ -342,5 +346,6 @@ module.exports = {
     reqSendMessage: reqSendMessage,
     reqChangeStatus: reqChangeStatus,
     reqGetStatus: reqGetStatus,
-    reqSetStatusMonitor: reqSetStatusMonitor
+    reqSetStatusMonitor: reqSetStatusMonitor,
+    close: close
 }

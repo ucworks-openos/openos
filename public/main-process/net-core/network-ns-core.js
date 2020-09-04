@@ -76,6 +76,15 @@ function connect () {
 };
 
 /**
+ * 종료
+ */
+function close() {
+    if (nsSock) {
+        nsSock.destroy();
+    }
+}
+
+/**
  * 수신된 데이터를 Command형식으로 변환 합니다.
  * @param {Buffer}} rcvData 
  */
@@ -219,5 +228,6 @@ function startConnectionCheck() {
 
 module.exports = {
     connectNS: connect,
-    writeCommandNS: writeCommand
+    writeCommandNS: writeCommand,
+    close: close
 };

@@ -43,6 +43,19 @@ ipcMain.on('login', async (event, loginData) => {
   };
 });
 
+
+
+
+// getBuddyList
+ipcMain.on('logout', async (event, ...args) => {
+  
+  nsAPI.close();
+  dsAPI.close();
+  csAPI.close();
+  psAPI.close();
+  event.reply('res-logout', new ResData(true));
+});
+
 // getBuddyList
 ipcMain.on('getBuddyList', async (event, ...args) => {
   

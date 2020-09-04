@@ -27,6 +27,19 @@ export const login = (loginId, loginPwd) => {
   });
 }
 
+/** 로그아웃 요청을 합니다. */
+export const logout = () => {
+  return new Promise(function(resolve, reject) {
+   
+    electron.ipcRenderer.on('res-logout', (event, arg) => {
+        resolve(arg);
+      })
+
+      electron.ipcRenderer.send('logout', null)
+  });
+}
+
+
 /** getFavorite */
 export const getBuddyList = async () => {
   return new Promise(function(resolve, reject) {

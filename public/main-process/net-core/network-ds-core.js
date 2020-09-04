@@ -70,6 +70,14 @@ function connect () {
     });
 };
 
+/**
+ * 종료
+ */
+function close() {
+    if (dsSock) {
+        dsSock.destroy();
+    }
+}
 
 /**
  * 수신된 데이터를 Command형식으로 변환 합니다.
@@ -162,5 +170,6 @@ function writeCommand(cmdHeader, dataBuf = null) {
 
 module.exports = {
     connectDS: connect,
-    writeCommandDS: writeCommand
+    writeCommandDS: writeCommand,
+    close: close
 };

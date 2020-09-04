@@ -111,9 +111,6 @@ global.NS_CONN_CHECK;
 
 //#endregion GLOBAL 설정 정보
 
-
-
-
 let mainWindow;
 
 function initialize () {
@@ -143,6 +140,8 @@ function initialize () {
   app.on("ready", createWindow);
 
   app.on("window-all-closed", () => {
+    console.log('--------------------window-all-closed--------------------------')
+
     if (process.platform !== "darwin") {
       app.quit();
     }
