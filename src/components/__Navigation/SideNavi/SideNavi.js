@@ -4,7 +4,7 @@ import NavItem from './SideNaviItem';
 import { items } from './SideNaviLists';
 import './SideNavi.css';
 
-import {logout} from '../../ipcCommunication/ipcCommon'
+import { logout } from '../../ipcCommunication/ipcCommon'
 
 function Sidebar() {
 	const [activePath, setActivePath] = useState("/");
@@ -14,9 +14,9 @@ function Sidebar() {
 	}
 
 	const onLogOutClick = () => {
-		
+
 		logout();
-		localStorage.removeItem('isLoginElectronApp')
+		sessionStorage.removeItem('isLoginElectronApp')
 		// props.history.push('/favorite')
 		window.location.hash = '#/login';
 		window.location.reload();
