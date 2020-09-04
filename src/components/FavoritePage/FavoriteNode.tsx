@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import userThumbnail from "../../assets/images/img_user-thumbnail.png";
-import { IFavoriteNode } from "../../@type";
 import Modal from "react-modal";
 import MessageModal from '../common/MessageModal';
 
@@ -110,10 +109,10 @@ export default function FavoriteNode(props: IFavoriteNodeProps) {
                 <h6 className="user-name">{data?.title}</h6>
                 <span className="user-position">{``}</span>
                 <span className="user-department">{``}</span>
-                <span
-                  className="user-login-device pc"
-                  title="로그인 디바이스 : pc"
-                ></span>
+                {/* <span
+                  className="user-login-device"
+                  title="로그인 디바이스"
+                ></span> */}
               </div>
               <div className="user-alias">{``}</div>
               <div className="user-contact-wrap">

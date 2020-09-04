@@ -7,7 +7,6 @@ import { useParams } from "react-router-dom";
 import Node from "./OrganizationNode";
 import { EventDataNode, DataNode } from "rc-tree/lib/interface";
 import { getBaseOrg, getChildOrg } from "../ipcCommunication/ipcCommon";
-import { ITreeNode } from '../../@type'
 
 export default function OrganizationPage() {
   // set initial tree

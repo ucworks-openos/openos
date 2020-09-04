@@ -1,12 +1,10 @@
-import React, { useEffect, useState, ImgHTMLAttributes } from "react";
+import React, { useEffect, useState, ImgHTMLAttributes, useMemo } from "react";
 import styled from "styled-components";
 import userThumbnail from "../../assets/images/img_user-thumbnail.png";
-import { ITreeNode, EconnectionType } from '../../@type'
+
 import { Image } from "react-bootstrap";
 import Modal from "react-modal";
 import MessageModal from '../common/MessageModal';
-
-const _connectType = ``;
 
 export default function OrganizationNode(props: any) {
   const data: ITreeNode = props.data;
@@ -30,6 +28,24 @@ export default function OrganizationNode(props: any) {
     setMessageModalVisible(false);
   }
 
+  enum EconnectType {
+    windows = 1,
+    android = 4,
+    iphone = 6,
+    mac = 10,
+  }
+
+  const connectTypeConverter = () => {
+    const maybeConnectTypeArr: string | string[] = data?.connectType ? data?.connectType.split(`|`) : ``;
+
+    if (Array.isArray(maybeConnectTypeArr)) {
+      return maybeConnectTypeArr.map((v: string) => EconnectType[Number(v)]).join(` `);
+    } else {
+      return EconnectType[Number(maybeConnectTypeArr)];
+    }
+  }
+
+  const connectType = useMemo(connectTypeConverter, []);
 
   return (
     <>
@@ -125,8 +141,8 @@ export default function OrganizationNode(props: any) {
                 <span className="user-position">{data?.userPayclName}</span>
                 <span className="user-department">{data?.userGroupName}</span>
                 <span
-                  className={`user-login-device ${`user-login-device mobile`}`}
-                  title="로그인 디바이스 : pc"
+                  className={connectType && `user-login-device ${connectType}`}
+                  title="로그인 디바이스"
                 ></span>
               </div>
               <div className="user-alias">{data?.userAliasName}</div>
