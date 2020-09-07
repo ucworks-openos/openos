@@ -198,8 +198,60 @@
     padding: 8px 0px;
     border-bottom: 1px solid #DFE2E8;
 }
+
 .current-user-action-wrap {
-    margin-top: 10px;
+    margin-left: -16px;
+    padding-top: 8px;
+    width: calc( 100% + 32px );
+}
+.current-user-action {
+    position: relative;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+.current-user-action.btn-edit-user-state:hover .change-state-wrap{
+    display: block;
+}
+.user-profile-dropdown-wrap .change-state-wrap {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: -129px;/*left값은 'change-state-wrap의가로값+1'만큼 -로 보낸다 */
+    background-color: #fff;
+    border-radius: 8px 0px 8px 8px;
+    box-shadow: 0px 0px 4px #dfe2e8;
+    z-index: 1002;
+}
+.current-user-action-icon{
+    display: inline-block;
+    margin-right: 8px;
+    width:14px;
+    height: 12px;
+    background-image: url('../../../assets/images/icon_current-user-action.png');
+    background-repeat: no-repeat;
+}
+.btn-edit-photo .current-user-action-icon{background-position: 0px 0px;}
+.btn-edit-photo:hover .current-user-action-icon{background-position: -14px 0px;}
+.btn-edit-user-state .current-user-action-icon{background-position: 0px -12px;}
+.btn-edit-user-state:hover .current-user-action-icon{background-position: -14px -12px;}
+.btn-edit-alias .current-user-action-icon{background-position: 0px -24px;}
+.btn-edit-alias:hover .current-user-action-icon{background-position: -14px -24px;}
+.btn-sign-out .current-user-action-icon{background-position: 0px -36px;}
+.btn-sign-out:hover .current-user-action-icon{background-position: -14px -36x;}
+.change-state-wrap li {
+    padding: 8px 16px;
+}
+.current-user-action:hover,.change-state-wrap li:hover {
+    background-color:#F5F6F8;
+    color: #11378D;
+}
+.change-state-wrap .user-state {
+    position: initial;
+    right: initial;
+    bottom: initial;
+    display: inline-block;
+    vertical-align: sub;
+    margin-right: 8px;
 }
 
 /*헤더-서브액션*/

@@ -124,12 +124,12 @@ function initialize() {
   createApplicationMenu();
 
   async function createWindow() {
-    mainWindow = new BrowserWindow({ 
-      width: 800, 
-      height: 750, 
+    mainWindow = new BrowserWindow({
+      width: 800,
+      height: 750,
       webPreferences: { nodeIntegration: true },
-      icon: path.join(__dirname, 'icon.ico')
-     });
+      // icon: path.join(__dirname, 'icon.ico')
+    });
 
     mainWindow.loadURL(
       isDev
