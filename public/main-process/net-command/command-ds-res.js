@@ -210,6 +210,9 @@ function responseCmdProc(resCmd) {
           let rcvBuf = Buffer.from(resCmd.data);
           let userName = rcvBuf.toString(global.ENC, 0, CmdConst.BUF_LEN_USERID);
           let contactDataXml = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID);
+
+          sendLog('contactDataXml', contactDataXml)
+
           parseXmlToJSON(contactDataXml).then(function (result) {
             console.log('Contact Data Parse Success!:', result);
             sendLog('Contact Data Receive:' + result);

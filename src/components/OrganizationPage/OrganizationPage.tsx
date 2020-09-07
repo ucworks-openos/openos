@@ -6,7 +6,7 @@ import "../../assets/css/Tree.scss";
 import { useParams } from "react-router-dom";
 import Node from "./OrganizationNode";
 import { EventDataNode, DataNode } from "rc-tree/lib/interface";
-import { getBaseOrg, getChildOrg } from "../ipcCommunication/ipcCommon";
+import { getBaseOrg, getChildOrg, setStatusMonitor } from "../ipcCommunication/ipcCommon";
 
 export default function OrganizationPage() {
   // set initial tree
@@ -62,8 +62,10 @@ export default function OrganizationPage() {
           }
         }
       }, {});
+      const monitorIds = response.filter((v: any) => v.gubun?.value === `P`).map((v: any) => v.user_id.value);
       setTreeData([root]);
       setExpandedKeys([root.key]);
+      setStatusMonitor(monitorIds);
       _orgCode = root.orgCode;
     }
     getRoot();
@@ -133,7 +135,8 @@ export default function OrganizationPage() {
         return Object.assign(defaultProps, departmentProps);
       }
     })
-    console.log(`children: `, children);
+    const monitorIds = response.filter((v: any) => v.gubun?.value === `P`).map((v: any) => v.user_id.value);
+    setStatusMonitor(monitorIds);
     return children;
   };
 

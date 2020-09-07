@@ -1,13 +1,29 @@
 import React, { useState } from 'react';
 import './HeaderNavi.css';
 import userAvatarThumbnail from '../../../assets/images/img_user-thumbnail.png'
+import { logout, changeStatus } from '../../ipcCommunication/ipcCommon'
 
 function NavigationBar() {
 
   const [avatarDropDownIsOpen, setAvatarDropDownIsOpen] = useState(false)
+  const [currentStatus, setCurrentStatus] = useState(`online`);
 
   const onAvatarClick = () => {
     setAvatarDropDownIsOpen(!avatarDropDownIsOpen)
+  }
+
+  const handleLogout = () => {
+    logout();
+    sessionStorage.removeItem('isLoginElectronApp')
+    window.location.hash = '#/login';
+    window.location.reload();
+  }
+
+  const handleStatusChange = (e) => {
+    const { code, name } = e.target.dataset
+    console.log(`code: `, code);
+    changeStatus(code, true);
+    setCurrentStatus(name);
   }
 
   return (
@@ -57,7 +73,7 @@ function NavigationBar() {
           <div className="user-pic-wrap">
             <img src={userAvatarThumbnail} alt="user-profile-picture" />
           </div>
-          <div className="user-state online"></div>
+          <div className={`user-state ${currentStatus}`}></div>
         </div>
         {avatarDropDownIsOpen
           &&
@@ -66,7 +82,7 @@ function NavigationBar() {
               <div className="user-pic-wrap">
                 <img src={userAvatarThumbnail} alt="user-profile-picture" />
               </div>
-              <div className="user-state online"></div>
+              <div className={`user-state ${currentStatus}`}></div>
             </div>
             <div className="user-owner sub1">MY</div>
             <div className="user-info-wrap">
@@ -83,21 +99,22 @@ function NavigationBar() {
               <div className="user-email" title="이메일">cs.kim@ucware.net</div>
             </div>
             <div className="current-user-action-wrap">
-              <div className="btn-edit-photo">프로필 사진 변경</div>
-              <div className="btn-edit-user-state">
-                로그인 상태 변경
-              <ul>
-                  <li>온라인</li>
-                  <li>자리 비움</li>
-                  <li>다른 용무중</li>
-                  <li>통화중</li>
-                  <li>식사중</li>
-                  <li>회의중</li>
-                  <li>오프라인</li>
+              <div className="current-user-action btn-edit-photo"><i className="current-user-action-icon"></i>프로필 사진 변경</div>
+              <div className="current-user-action btn-edit-user-state">
+                <i className="current-user-action-icon"></i>로그인 상태 변경
+                <ul className="change-state-wrap">
+                  <li onClick={handleStatusChange} data-code="0" data-name="online"><i className="user-state online"></i>온라인</li>
+                  <li onClick={handleStatusChange} data-code="1" data-name="absence"><i className="user-state absence"></i>자리 비움</li>
+                  <li onClick={handleStatusChange} data-code="2" data-name="otherWork"><i className="user-state otherWork"></i>다른 용무중</li>
+                  <li onClick={handleStatusChange} data-code="3" data-name="workingOutside"><i className="user-state workingOutside"></i>외근</li>
+                  <li onClick={handleStatusChange} data-code="4" data-name="onCall"><i className="user-state onCall"></i>통화중</li>
+                  <li onClick={handleStatusChange} data-code="5" data-name="atTable"><i className="user-state atTable"></i>식사중</li>
+                  <li onClick={handleStatusChange} data-code="6" data-name="inMeeting"><i className="user-state inMeeting"></i>회의중</li>
+                  <li onClick={handleStatusChange} data-code="7" data-name="offline"><i className="user-state offline"></i>오프라인</li>
                 </ul>
               </div>
-              <div className="btn-edit-alias">상태 메시지 변경</div>
-              <div className="btn-sign-out">로그아웃</div>
+              <div className="current-user-action btn-edit-alias"><i className="current-user-action-icon"></i>상태 메시지 변경</div>
+              <div className="current-user-action btn-sign-out" onClick={handleLogout}><i className="current-user-action-icon"></i>로그아웃</div>
             </div>
           </div>
         }

@@ -44,6 +44,7 @@ export const logout = () => {
 export const getBuddyList = async () => {
   return new Promise(function(resolve, reject) {
       electron.ipcRenderer.on('res-getBuddyList', (event, arg) => {
+        console.log('---getBuddyList----------', arg)
           resolve(arg);
         })
         electron.ipcRenderer.send('getBuddyList', '')

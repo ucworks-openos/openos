@@ -33,7 +33,6 @@ module.exports = Object.freeze({
     STATE_CALLING           : 4,     // 통화중
     STATE_CONFERENCE        : 6,     // 회의중
 
-
     CONNECT_TYPE_OUT                : 0,  // 접속안함
     CONNECT_TYPE_APP                : 1,  // 윈도우즈 메신저
     CONNECT_TYPE_WEB                : 2,  // 웹 메신저
