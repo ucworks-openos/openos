@@ -85,8 +85,8 @@ function close() {
  * @param {Buffer}} rcvData 
  */
 function readDataStream(rcvData){  
-    console.log('\r\n++++++++++++++++++++++++++++++++++');
-    console.log('PS rcvData:', rcvData);
+    // console.log('\r\n++++++++++++++++++++++++++++++++++');
+    // console.log('PS rcvData:', rcvData);
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
@@ -106,7 +106,7 @@ function readDataStream(rcvData){
     }
 
     rcvCommand.readCnt += rcvData.length;
-    console.log('Recive PS Command Data :', rcvCommand);
+    // console.log('Recive PS Command Data :', rcvCommand);
 
     if (rcvCommand.size <= rcvCommand.readCnt) {
         // 데이터를 모두 다 받았다.

@@ -72,6 +72,16 @@ export const getChildOrg = async (orgGroupCode, groupCode, groupSeq) => {
     });
 }
 
+/** getUserInfos */
+export const getUserInfos = async (userIds) => {
+  return new Promise(function(resolve, reject) {
+    electron.ipcRenderer.on('res-getUserInfos', (event, arg) => {
+      resolve(arg);
+    })
+    electron.ipcRenderer.send('getUserInfos', userIds);
+  });
+}
+
 /** changeStatus */
 export const changeStatus = async (status, force = false) => {
   console.log('changeStatus:', status, force)

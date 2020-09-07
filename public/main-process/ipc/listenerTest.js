@@ -17,6 +17,22 @@ const nsAPI = require('../net-command/command-ns-api');
 ipcMain.on('testAction', async (event, ...args) => {
   var resData = new ResData(true, '');
 
+
+  let result = 'https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference?a=Global_Objects&b=String&c=replace'.split('?');
+
+
+  // let result = xmldata.replace('&', function(match, s1, offset, string) {
+  //   console.log('-----------------match:', match)
+  //   console.log('-----------------s1:', s1)
+  //   console.log('-----------------offset:', offset)
+  //   console.log('-----------------string:', string)
+  //   return '&amp;'
+  // }) // 특정 위치 교환 안됨
+
+  console.log('-----------------result:', result)
+
+  return;
+
   sendLog('DATE>>', OsUtil.getDateString('YYYYMMDDHHmmssSSS'));
 
   //nsAPI.reqGetStatus(1, 'bslee');
