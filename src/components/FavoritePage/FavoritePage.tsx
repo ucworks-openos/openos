@@ -13,7 +13,7 @@ import axios from "axios";
 import Node from "./FavoriteNode";
 import Tree, { TreeNode } from "rc-tree";
 import { EventDataNode } from "rc-tree/lib/interface";
-import { getBuddyList } from "../ipcCommunication/ipcCommon";
+import { getBuddyList, setStatusMonitor } from "../ipcCommunication/ipcCommon";
 
 Modal.setAppElement("#root");
 
@@ -40,36 +40,37 @@ export default function FavoritePage() {
   useEffect(() => {
     const getBuddy = async () => {
       const { data: { contacts: { node: response } } } = await getBuddyList();
+      const root = response.reduce((prev: any, cur: any, i: number) => {
+        if (i === 0) {
+          return {
+            title: cur.name,
+            key: cur.id,
+            gubun: cur.gubun,
+            id: cur.id,
+            name: cur.name,
+            children: []
+          }
+        } else {
+          return {
+            ...prev,
+            children: [
+              ...prev.children,
+              {
+                title: cur.name,
+                key: cur.id,
+                gubun: cur.gubun,
+                id: cur.id,
+                name: cur.name,
+              }
+            ]
+          }
+        }
+      }, {})
 
-      const root: IFavoriteNode = {
-        title: response.name,
-        key: response.id,
-        gubun: response.gubun,
-        id: response.id,
-        name: response.name,
-        children: []
-      }
-      if (Array.isArray(response.node)) {
-        Object.assign(root.children, response.node.map((v: any) => ({
-          title: v.name,
-          key: v.id,
-          gubun: v.gubun,
-          id: v.id,
-          name: v.name,
-        })))
-      } else if (typeof response.node === `object`) {
-        Object.assign(root.children, [{
-          title: response.node.name,
-          key: response.node.id,
-          gubun: response.node.gubun,
-          id: response.node.id,
-          name: response.node.name,
-        }])
-      }
-      console.log(`root: `, root);
-
+      const monitorIds = response.filter((_: any, i: number) => i !== 0).map((v: IFavoriteNode, i: number) => v.id);
       setTreeData([root]);
       setExpandedKeys([root.id]);
+      setStatusMonitor(monitorIds)
 
     }
     getBuddy();
