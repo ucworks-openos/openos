@@ -93,6 +93,19 @@ ipcMain.on('getChildOrg', async (event, orgGroupCode, groupCode, groupSeq) => {
   });
 });
 
+
+// getUserInfos
+ipcMain.on('getUserInfos', async (event, userIds) => {
+  psAPI.reqGetUserInfos(userIds).then(function(resData)
+  {
+    console.log('getUserInfos res:', resData)
+    event.reply('res-getUserInfos', resData);
+  }).catch(function(err) {
+    event.reply('res-getUserInfos', new ResData(false, err));
+  });
+});
+
+
 // changeStatus
 ipcMain.on('changeStatus', async (event, status, force = false) => {
   nsAPI.reqChangeStatus(status, force).then(function(resData)

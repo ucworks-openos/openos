@@ -24,6 +24,10 @@ function close() {
     psCore.close();
 }
 
+/**
+ * 사용자의 컨디션 정보를 조회합니다.
+ * @param {*} userId 
+ */
 function reqGetCondition(userId) {
     return new Promise(async function(resolve, reject) {
 
@@ -80,7 +84,6 @@ function reqGetOrganization(groupCode) {
     });
 }
 
-
 /**
  * 하위 그룹을 요청합니다.
  */
@@ -113,9 +116,40 @@ function reqGetOrgChild(orgGroupCode, groupCode, groupSeq) {
     });
 }
 
+/**
+ * 사용자 정보를 요청합니다.
+ * @param {Array} userIds 
+ */
+function reqGetUserInfos(userIds) {
+    return new Promise(async function(resolve, reject) {
+
+        if (!global.SERVER_INFO.PS.isConnected) {
+            await psCore.connectPS();
+        }
+
+        if (!global.SERVER_INFO.PS.isConnected) {
+            reject(new Error('PS IS NOT CONNECTED!'));
+            return;
+        }
+
+        let idDatas = '';
+        userIds.forEach(function(userId){
+            idDatas += idDatas?CmdConst.CR_SEP+userId:userId;
+          });
+
+        console.log('reqUserInfos ----' , idDatas);
+
+        var dataBuf = Buffer.from(idDatas, global.ENC);
+        psCore.writeCommandPS(new CommandHeader(CmdCodes.PS_GET_USERS_INFO, 0, function(resData){
+            resolve(resData);
+        }), dataBuf);
+    });
+}
+
 module.exports = {
     reqGetCondition: reqGetCondition,
     reqGetOrganization: reqGetOrganization,
     reqGetOrgChild: reqGetOrgChild,
+    reqGetUserInfos: reqGetUserInfos,
     close: close
 }

@@ -43,7 +43,7 @@ function responseCmdProc(resCmd) {
 
           callCallback(resCmd.sendCmd, new ResData(true));
         }).catch(function (err) {
-          sendLog.log('ServerInfo parse error!  Ex: ' + err);
+          sendLog('ServerInfo parse error!  Ex: ' + err);
           callCallback(resCmd.sendCmd, new ResData(false, JSON.stringify(err)));
         });
 
@@ -136,7 +136,7 @@ function responseCmdProc(resCmd) {
               console.log('RULE PARSE ERR!!', err)
             }
           }).catch(function (err) {
-            sendLog('RULE parse error!  Ex: ' + err + ' \r\nResult:' + result + '\r\nrule:' + rule);
+            sendLog('RULE parse error!  Ex: ' + err + '\r\ruleXml:' + ruleXml);
             callCallback(resCmd.sendCmd, new ResData(false, JSON.stringify(err)));
           });
           break;
@@ -210,6 +210,9 @@ function responseCmdProc(resCmd) {
           let rcvBuf = Buffer.from(resCmd.data);
           let userName = rcvBuf.toString(global.ENC, 0, CmdConst.BUF_LEN_USERID);
           let contactDataXml = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID);
+
+          sendLog('contactDataXml', contactDataXml)
+
           parseXmlToJSON(contactDataXml).then(function (result) {
             console.log('Contact Data Parse Success!:', result);
             sendLog('Contact Data Receive:' + result);
