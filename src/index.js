@@ -7,6 +7,6 @@ import { CLIENT_RENEG_WINDOW } from 'tls';
 
 //
 // Dev Mode
-sessionStorage.setItem('isLoginElectronApp', true)
+//sessionStorage.setItem('isLoginElectronApp', true)
 
 ReactDOM.render(<RouterPage />, document.getElementById('root'));
