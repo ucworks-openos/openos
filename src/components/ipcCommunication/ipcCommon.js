@@ -83,6 +83,26 @@ export const getUserInfos = async (userIds) => {
   });
 }
 
+/** searchUsers */
+export const searchUsers = async (searchMode, searchText) => {
+  return new Promise(function(resolve, reject) {
+    electron.ipcRenderer.on('res-searchUsers', (event, arg) => {
+      resolve(arg);
+    })
+    electron.ipcRenderer.send('searchUsers', searchMode, searchText);
+  });
+}
+
+/** searchOrgUsers */
+export const searchOrgUsers = async (orgGroupCode, searchText) => {
+  return new Promise(function(resolve, reject) {
+    electron.ipcRenderer.on('res-searchOrgUsers', (event, arg) => {
+      resolve(arg);
+    })
+    electron.ipcRenderer.send('searchOrgUsers', orgGroupCode, searchText);
+  });
+}
+
 /** changeStatus */
 export const changeStatus = async (status, force = false) => {
   console.log('changeStatus:', status, force)

@@ -17,6 +17,7 @@ const OrganizationPage = React.lazy(() => import("./OrganizationPage/Organizatio
 const SiteConfigPage = React.lazy(() => import("./SiteConfigPage/SiteConfigPage"));
 const NetTestPage = React.lazy(() => import("./TestPages/NetTestPage"));
 const FuncTestPage = React.lazy(() => import("./TestPages/FuncTestPage"));
+const FuncTestPage2 = React.lazy(() => import("./TestPages/FuncTestPage2"));
 const ChatPage = React.lazy(() => import("./ChatPage/ChatPage"));
 
 function RouterPage() {
@@ -41,6 +42,7 @@ function RouterPage() {
             <Route exact path="/site-config" component={SiteConfigPage} />
             <Route exact path="/netTest" component={NetTestPage} />
             <Route exact path="/funcTest" component={FuncTestPage} />
+            <Route exact path="/funcTest2" component={FuncTestPage2} />
             <Route component={NoMatchPage} />
           </Switch>
         </Suspense>
