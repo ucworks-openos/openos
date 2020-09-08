@@ -3,13 +3,11 @@ import ReactDOM from 'react-dom';
 import RouterPage from "./components/router";
 import './assets/css/index.css';
 import { CLIENT_RENEG_WINDOW } from 'tls';
-
 import Reducer from './reducer';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import promiseMiddleware from 'redux-promise';
 import ReduxThunk from 'redux-thunk';
-
 // const { remote } = window.require("electron")
 const createStoreWithMiddleware = applyMiddleware(promiseMiddleware, ReduxThunk)(createStore);
 
@@ -29,3 +27,4 @@ ReactDOM.render(
 // if (remote.getGlobal('IS_DEV')) {
 //     sessionStorage.setItem('isLoginElectronApp', true)
 // }
+
