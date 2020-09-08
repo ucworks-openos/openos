@@ -8,10 +8,13 @@ import { createStore } from "redux";
 import rootReducer from "./reducer";
 
 const store = createStore(rootReducer);
+const { remote } = window.require("electron")
 
 //
 // Dev Mode
-//sessionStorage.setItem('isLoginElectronApp', true)
+if (remote.getGlobal('IS_DEV')) {
+    sessionStorage.setItem('isLoginElectronApp', true)
+}
 
 ReactDOM.render(
     <Provider store={store}>
