@@ -40,11 +40,6 @@ export default function FavoritePage() {
   useEffect(() => {
     const getBuddy = async () => {
       const { data: { contacts: { node: response } } } = await getBuddyList();
-<<<<<<< HEAD
-      console.log(`buddy list: `, response);
-=======
-
->>>>>>> 8e109a55443621bd5faeddb25e2b2246ba0a3fa4
       const root = response.reduce((prev: any, cur: any, i: number) => {
         if (i === 0) {
           return {
