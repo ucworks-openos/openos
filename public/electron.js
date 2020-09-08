@@ -1,10 +1,12 @@
 const electron = require("electron");
-const { app, Menu, session } = require('electron')
+const { app, Tray, Menu, session } = require('electron')
 const BrowserWindow = electron.BrowserWindow;
+const isMac = process.platform === 'darwin';
 
 const path = require("path");
 const isDev = require("electron-is-dev");
 const glob = require('glob');
+const { createLiteralTypeNode } = require("typescript");
 const { readConfig } = require(`${path.join(__dirname, '/../public/main-process/configuration/site-config')}`);
 
 // 
@@ -107,55 +109,147 @@ global.NS_SEND_COMMAND = {}
 
 global.NS_CONN_CHECK;
 
+global.TEMP = {
+  buddyXml: ''
+}
+
 //#endregion GLOBAL 설정 정보
 
-let mainWindow;
+var mainWindow;
+var tray = null;
+
+// Single Instance
+const gotTheLock = app.requestSingleInstanceLock()
+
+//app.whenReady().then(() => { });
+app.on("ready", createWindow);
+
+app.on('second-instance', (event, commandLine, workingDirectory) => {
+  // 두 번째 인스턴스를 만들려고 하면 원래 있던 윈도우에 포커스를 준다.
+  if (myWindow) {
+    if (myWindow.isMinimized()) myWindow.restore()
+    myWindow.focus()
+  }
+});
+
+app.on("activate", () => {
+  if (mainWindow === null) {
+    createWindow();
+  }
+});
+
+app.on('quit', function (evt) {
+  tray.destroy();
+  app.exit();
+
+  console.log('==================================================================')
+  console.log('===================  Application Exit! ===========================')
+  console.log('==================================================================')
+});
+
+app.on("window-all-closed", () => {
+  session.defaultSession.clearStorageData();
+  if (!isMac) {
+    app.quit();
+  }
+});
+
 
 function initialize() {
 
   global.IS_DEV = isDev;
 
+  // 개발모드가 아니면 SingleInstance를 적용한다.
+  if (!isDev && !gotTheLock) {
+    app.quit();
+    return;
+  }
+
   // Main Process 파일들을 로드한다.
   loadMainProcesses();
 
   readConfig();
-  //readConfig();
 
-  //Menu.setApplicationMenu(null);
   createApplicationMenu();
 
-  async function createWindow() {
-    mainWindow = new BrowserWindow({
-      width: 800,
-      height: 750,
-      webPreferences: { nodeIntegration: true },
-      icon: path.join(__dirname, 'icon.ico') 
-     });
+  createTray();
+}
 
-    mainWindow.loadURL(
-      isDev
-        ? "http://localhost:3000"
-        : `file://${path.join(__dirname, "/../build/index.html")}`
-    );
-    mainWindow.on("closed", () => (mainWindow = null));
+function createTray() {
 
-    global.MAIN_WINDOW = mainWindow;
-  }
-
-  app.on("ready", createWindow);
-
-  app.on("window-all-closed", () => {
-    session.defaultSession.clearStorageData();
-    if (process.platform !== "darwin") {
-      app.quit();
+  
+  console.log('-----------------  SET TRAY');
+  tray = new Tray(path.join(__dirname, 'icon.ico'))
+  tray.setTitle('uc Application')
+  tray.setToolTip('uc Messenger Application ')
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Window',
+      submenu: [
+        {
+          label: 'Close',
+          click: async () => {
+            mainWindow.destroy(-1);
+          }
+        },
+        {
+          label: 'Show',
+          click: async () => {
+            mainWindow.show()
+          }
+        },
+        {
+          label: 'Hide',
+          click: async () => {
+            mainWindow.hide()
+          }
+        }
+      ]
+    },
+    {
+      role: 'help',
+      submenu: [
+        {
+          label: 'Learn More',
+          click: async () => {
+            const { shell } = require('electron')
+            await shell.openExternal('https://electronjs.org')
+          }
+        }
+      ]
     }
+  ])
+  tray.setContextMenu(contextMenu)
+
+  tray.on('click', () => {
+    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
+  })
+}
+
+function createWindow() {
+
+  initialize()
+
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 750,
+    webPreferences: { nodeIntegration: true },
+    ...(isMac?{}:{icon: path.join(__dirname, 'icon.ico')}),
+   });
+
+  mainWindow.loadURL(
+    isDev
+      ? "http://localhost:3000"
+      : `file://${path.join(__dirname, "/../build/index.html")}`
+  );
+
+  //mainWindow.on("closed", () => (mainWindow = null));
+  mainWindow.on("close", (event) => {
+    event.preventDefault();
+    mainWindow.hide();
   });
 
-  app.on("activate", () => {
-    if (mainWindow === null) {
-      createWindow();
-    }
-  });
+  global.MAIN_WINDOW = mainWindow;
 }
 
 // Require each JS file in the main-process dir
@@ -166,8 +260,6 @@ function loadMainProcesses() {
 
 // create application menu
 function createApplicationMenu() {
-
-  const isMac = process.platform === 'darwin'
 
   const template = [
     // { role: 'appMenu' }
@@ -195,5 +287,3 @@ function createApplicationMenu() {
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
 }
-
-initialize()
