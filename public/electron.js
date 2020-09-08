@@ -212,13 +212,13 @@ app.on("ready", () => { //app.whenReady().then(() => { });
   Menu.setApplicationMenu(mainContextMenu);
 
   // Tray Context Menu
-  tray = new Tray(path.join(__dirname, 'icon.ico'))
-  tray.setToolTip('uc Messenger Application ')
-  tray.setContextMenu(trayContextMenu)
+  // tray = new Tray(path.join(__dirname, 'icon.ico'))
+  // tray.setToolTip('uc Messenger Application ')
+  // tray.setContextMenu(trayContextMenu)
 
-  tray.on('click', () => {
-    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
-  })
+  // tray.on('click', () => {
+  //   mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
+  // })
 
   // config file load
   readConfig();
@@ -265,7 +265,7 @@ app.on('second-instance', (event, commandLine, workingDirectory) => {
  */
 app.on("activate", () => {
   if (mainWindow === null) {
-    createWindow();
+    // createWindow();
   }
 });
 

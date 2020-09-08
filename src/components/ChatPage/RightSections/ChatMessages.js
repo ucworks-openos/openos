@@ -1,11 +1,19 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import userThumbnail from "../../../assets/images/img_user-thumbnail.png";
 import chatMessages from "../../../redux/mock-datas/chat-messages.json";
 import { useDispatch, useSelector } from 'react-redux';
+import {
+    getInitialChatMessages
+} from "../../../redux/actions/chat_actions";
 
 function ChatMessages() {
     const dispatch = useDispatch();
     const chats = useSelector(state => state.chats.chatMessages)
+    const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
+
+    useEffect(() => {
+        dispatch(getInitialChatMessages(currentChatRoom))
+    }, [currentChatRoom])
 
     const renderChatMessages = () => (
         chats && chats.map(message => {

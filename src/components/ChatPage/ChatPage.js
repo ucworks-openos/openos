@@ -4,9 +4,7 @@ import LeftPanel from "./LeftSections/LeftPanel";
 import RightPanel from "./RightSections/RightPanel";
 import { useDispatch } from 'react-redux';
 import {
-    getInitialChatMessages,
     getInitialChatRooms,
-    setCurrentChatRoom
 } from "../../redux/actions/chat_actions";
 
 function ChatPage() {
@@ -14,7 +12,6 @@ function ChatPage() {
 
     useEffect(() => {
         dispatch(getInitialChatRooms())
-        dispatch(getInitialChatMessages())
     }, [])
 
     return (

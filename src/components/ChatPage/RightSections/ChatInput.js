@@ -1,17 +1,43 @@
 import React, { useEffect, useState } from 'react'
+import { Alert } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+    addChatMessage
+} from '../../../redux/actions/chat_actions';
 
 function ChatInput() {
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
+    const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
+    const [inputValue, setInputValue] = useState("")
 
-    // useEffect(() => {
-    //     dispatch(getInitialChatRooms())
-    // }, [])
+    const onInputValueChange = (e) => {
+        setInputValue(e.currentTarget.value)
+    }
+
+
+    const onSubmit = (e) => {
+        e.preventDefault();
+        if(inputValue.trim().length === 0) {
+            alert("먼저 글자를 입력하세요 ~~")
+            return;
+        }
+        const body = {
+            "id": 5,
+            "roomId": currentChatRoom,
+            "person": "누구임?",
+            "content": inputValue,
+            "unread": 3,
+            "createdAt": "202012120313"
+        }
+        dispatch(addChatMessage(body))
+        setInputValue("")
+    }
 
     return (
         <div class="chat-input-area">
             <div class="chat-input-wrap">
-                <textarea class="chat-input" placeholder="채팅 내용을 입력해주세요."></textarea>
-                <input type="submit" value="전송" class="btn-ghost-m" />
+                <textarea class="chat-input" value={inputValue} onChange={onInputValueChange} placeholder="채팅 내용을 입력해주세요."></textarea>
+                <button onClick={onSubmit} type="submit" class="btn-ghost-m" />
             </div>
             <div class="input-action-wrap">
                 <div class="input-action btn-txt" title="텍스트 (글꼴, 크기, 색상,표)"></div>

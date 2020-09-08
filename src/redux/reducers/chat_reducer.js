@@ -1,9 +1,9 @@
 import {
     GET_INITIAL_CHAT_ROOMS,
     GET_INITIAL_CHAT_MESSAGES,
-    SET_CURRENT_CHAT_ROOM
+    SET_CURRENT_CHAT_ROOM,
     // GET_MORE_CHATS_MESSAGES,
-    // ADD_CHAT_MESSAGE,
+    ADD_CHAT_MESSAGE,
     // DELETE_CHAT_MESSAGE,
     // GET_SEARCHED_CHAT_MESSAGES
 } from '../actions/types';
@@ -18,12 +18,11 @@ export default function (state = {}, action) {
             return { ...state, currentChatRoom: action.payload }
         // case GET_MORE_CHATS_MESSAGES:
         //     return { ...state, chats: [...action.payload, ...state.chats], chatLength: action.payload.length, type: "normal" }
-        // case ADD_CHAT_MESSAGE:
-        //     return {
-        //         ...state,
-        //         chats: state.chats.concat(action.payload),
-        //         type: "normal"
-        //     };
+        case ADD_CHAT_MESSAGE:
+            return {
+                ...state,
+                chatMessages: state.chatMessages.concat(action.payload)
+            };
         // case DELETE_CHAT_MESSAGE:
         //     let deletedMessage = action.payload
         //     let filteredMessages = state.chats.filter(chat => chat.id !== deletedMessage.id)
