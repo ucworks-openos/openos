@@ -1,8 +1,10 @@
 import { combineReducers } from "redux";
 import tree from "./tree";
+import chats from "../redux/reducers/chat_reducer";
 
 const rootReducer = combineReducers({
-    tree
+    tree,
+    chats
 });
 
 export default rootReducer;
