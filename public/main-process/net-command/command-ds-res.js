@@ -209,17 +209,18 @@ function responseCmdProc(resCmd) {
 
           let rcvBuf = Buffer.from(resCmd.data);
           let userName = rcvBuf.toString(global.ENC, 0, CmdConst.BUF_LEN_USERID);
-          let contactDataXml = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID);
+          let buddyDataXml = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID);
 
-          sendLog('contactDataXml', contactDataXml)
+          sendLog('buddyDataXml', buddyDataXml)
+          global.TEMP.buddyXml = buddyDataXml;
 
-          parseXmlToJSON(contactDataXml).then(function (result) {
-            console.log('Contact Data Parse Success!:', result);
-            sendLog('Contact Data Receive:' + result);
+          parseXmlToJSON(buddyDataXml).then(function (result) {
+            console.log('Buddy Data Parse Success!:', result);
+            sendLog('Buddy Data Receive:' + result);
             callCallback(resCmd.sendCmd, new ResData(true, result));
           }).catch(function (err) {
-            sendLog('Contact parse error!  Ex: ', err, contactDataXml);
-            callCallback(resCmd.sendCmd, new ResData(false, 'Contact parse error!  Ex: ' + JSON.stringify(err)));
+            sendLog('Buddy parse error!  Ex: ', err, buddyDataXml);
+            callCallback(resCmd.sendCmd, new ResData(false, 'Buddy parse error!  Ex: ' + JSON.stringify(err)));
           });
 
           break;

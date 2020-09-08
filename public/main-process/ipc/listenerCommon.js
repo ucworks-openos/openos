@@ -134,6 +134,17 @@ ipcMain.on('searchOrgUsers', async (event, orgGrgoupCode, searchText) => {
   });
 });
 
+// saveBuddyData
+ipcMain.on('saveBuddyData', async (event, userIds) => {
+  nsAPI.reqSaveBuddyData(userIds).then(function(resData)
+  {
+    console.log('saveBuddyData res:', resData)
+    event.reply('res-saveBuddyData', resData);
+  }).catch(function(err) {
+    event.reply('res-saveBuddyData', new ResData(false, err));
+  });
+});
+
 
 // changeStatus
 ipcMain.on('changeStatus', async (event, status, force = false) => {
@@ -147,6 +158,7 @@ ipcMain.on('changeStatus', async (event, status, force = false) => {
 });
 
 
+// setStatusMonitor
 ipcMain.on('setStatusMonitor', async (event, userIds) => {
   nsAPI.reqSetStatusMonitor(userIds).then(function(resData)
   {

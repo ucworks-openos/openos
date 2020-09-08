@@ -341,11 +341,42 @@ function reqSetStatusMonitor(userIds) {
     });
 }
 
+/**
+ * 즐겨찾기 목록을 저장합니다.
+ * @param  {buddyData}} buddyData 
+ */
+function reqSaveBuddyData(buddyData) {
+    return new Promise(async function(resolve, reject) {
+
+        if (!global.SERVER_INFO.NS.isConnected) {
+            reject(new Error('NS IS NOT CONNECTED!'));
+            return;
+        }
+
+        if (!userIds) {
+            reject(new Error('Empty Target!'));
+            return;
+        }
+
+        console.log('[SAVE BUDDY] buddyData:', buddyData)
+
+        let idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        idBuf.write(global.USER.userId);
+
+        let buddyBuf = Buffer.from(buddyData)
+
+        let dataBuf = Buffer.concat([idBuf, buddyBuf]);
+        // DS명령으로 보낸다, 
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.DS_SAVE_BUDDY_DATA, 0), dataBuf);
+    });
+}
+
 module.exports = {
     reqconnectNS: reqconnectNS,
     reqSendMessage: reqSendMessage,
     reqChangeStatus: reqChangeStatus,
     reqGetStatus: reqGetStatus,
     reqSetStatusMonitor: reqSetStatusMonitor,
+    reqSaveBuddyData: reqSaveBuddyData,
     close: close
 }
