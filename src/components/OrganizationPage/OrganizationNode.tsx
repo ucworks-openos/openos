@@ -4,7 +4,7 @@ import userThumbnail from "../../assets/images/img_user-thumbnail.png";
 
 import { Image } from "react-bootstrap";
 import Modal from "react-modal";
-import MessageModal from '../common/MessageModal';
+import MessageModal from '../../common/components/Modal/MessageModal';
 
 export default function OrganizationNode(props: any) {
   const data: TTreeNode = props.data;

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import styled from "styled-components";
+import React, { useState } from 'react';
 import NavItem from './SideNaviItem';
 import { items } from './SideNaviLists';
 import './SideNavi.css';

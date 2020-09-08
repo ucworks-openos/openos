@@ -1,6 +1,5 @@
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense } from "react";
 import {
-  BrowserRouter as Router,
   Route,
   Switch,
   HashRouter,
@@ -22,33 +21,26 @@ const ChatPage = React.lazy(() => import("./ChatPage/ChatPage"));
 
 function RouterPage() {
   return (
-    <React.Fragment>
-      <HashRouter>
-        {/* <MyErrorBoundary> */}
-        <Suspense fallback={<div>Loading...</div>}>
-          {sessionStorage.getItem("isLoginElectronApp") && (
-            <>
-              {" "}
-              <NavigationBar /> <Sidebar />{" "}
-            </>
-          )}
-          <Switch>
-            <Route exact path="/" component={LoginPage} />
-            <Route exact path="/favorite" component={FavoritePage} />
-            <Route exact path="/organization" component={OrganizationPage} />
-            <Route exact path="/login" component={LoginPage} />
-            <Route exact path="/about" component={AboutPage} />
-            <Route exact path="/chat" component={ChatPage} />
-            <Route exact path="/site-config" component={SiteConfigPage} />
-            <Route exact path="/netTest" component={NetTestPage} />
-            <Route exact path="/funcTest" component={FuncTestPage} />
-            <Route exact path="/funcTest2" component={FuncTestPage2} />
-            <Route component={NoMatchPage} />
-          </Switch>
-        </Suspense>
-        {/* </ MyErrorBoundary> */}
-      </HashRouter>
-    </React.Fragment>
+    <HashRouter>
+      {/* <MyErrorBoundary> */}
+      <Suspense fallback={<div>Loading...</div>}>
+        {sessionStorage.getItem("isLoginElectronApp") && (<>{" "} <NavigationBar /> <Sidebar />{" "}</>)}
+        <Switch>
+          <Route exact path="/" component={LoginPage} />
+          <Route exact path="/favorite" component={FavoritePage} />
+          <Route exact path="/organization" component={OrganizationPage} />
+          <Route exact path="/login" component={LoginPage} />
+          <Route exact path="/about" component={AboutPage} />
+          <Route exact path="/chat" component={ChatPage} />
+          <Route exact path="/site-config" component={SiteConfigPage} />
+          <Route exact path="/netTest" component={NetTestPage} />
+          <Route exact path="/funcTest" component={FuncTestPage} />
+          <Route exact path="/funcTest2" component={FuncTestPage2} />
+          <Route component={NoMatchPage} />
+        </Switch>
+      </Suspense>
+      {/* </ MyErrorBoundary> */}
+    </HashRouter>
   );
 }
 
