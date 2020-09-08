@@ -1,6 +1,12 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 function ChatInput() {
+    // const dispatch = useDispatch();
+
+    // useEffect(() => {
+    //     dispatch(getInitialChatRooms())
+    // }, [])
+
     return (
         <div class="chat-input-area">
             <div class="chat-input-wrap">

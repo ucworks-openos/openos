@@ -11,11 +11,11 @@ import {
 import chatRooms from "../mock-datas/chat-rooms.json";
 import chatMessages from "../mock-datas/chat-messages.json";
 
-export function setCurrentChatRoom() {
+export function setCurrentChatRoom(roomId) {
 
     return {
         type: SET_CURRENT_CHAT_ROOM,
-        payload: chatRooms
+        payload: roomId
     }
 }
 
