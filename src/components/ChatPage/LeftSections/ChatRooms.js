@@ -8,7 +8,8 @@ import { useDispatch, useSelector } from 'react-redux';
 
 function ChatRooms() {
     const dispatch = useDispatch();
-    const chats = useSelector(state => state.chats.chatRooms)
+    const chatRooms = useSelector(state => state.chats.chatRooms)
+    const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
 
     const onChatRoomClick = (roomId) => {
         dispatch(getInitialChatMessages(roomId))
@@ -16,41 +17,44 @@ function ChatRooms() {
     }
 
     const renderChatRoom = () => (
-        chats && chats.map(room => {
+        chatRooms && chatRooms.map(room => {
+
+            const isCurrentChatRoom = room.id === Number(currentChatRoom) ? "current-chat" : "";
+
             return (
-                <li class="chat-list-single  ppl-1x2" key={room.id} onClick={() => onChatRoomClick(room.id)}>
-                    <div class="list-thumb-area">
-                        <div class="user-pic-wrap">
+                <li className={`chat-list-single  ppl-1x2 ${isCurrentChatRoom}`} key={room.id} onClick={() => onChatRoomClick(room.id)}>
+                    <div className="list-thumb-area">
+                        <div className="user-pic-wrap">
                             <img src={userThumbnail} alt="user-profile-picture" />
                         </div>
-                        <div class="user-pic-wrap">
+                        <div className="user-pic-wrap">
                             <img src={userThumbnail} alt="user-profile-picture" />
                         </div>
                     </div>
-                    <div class="list-info-area">
-                        <div class="list-row 1">
-                            <div class="chat-ppl-num">
+                    <div className="list-info-area">
+                        <div className="list-row 1">
+                            <div className="chat-ppl-num">
                                 {room.peopleCount}
                             </div>
-                            <div class="chat-room-name">
-                                {room.mainPerson}<span class="ppl-position">과장 (개발팀)</span>,
-                            김하나<span class="ppl-position">과장 (개발팀)</span>
+                            <div className="chat-room-name">
+                                {room.mainPerson}<span className="ppl-position">과장 (개발팀)</span>,
+                                김하나<span className="ppl-position">과장 (개발팀)</span>
                             </div>
-                            <div class="chat-counter unread">
+                            <div className="chat-counter unread">
                                 {room.unread}
                             </div>
                         </div>
-                        <div class="list-row 2">
-                            <div class="last-chat">
-                            {room.content}
+                        <div className="list-row 2">
+                            <div className="last-chat">
+                                {room.content}
+                            </div>
+                            <div className="icon-chat-noti on"></div>
                         </div>
-                            <div class="icon-chat-noti on"></div>
-                        </div>
-                        <div class="list-row 3">
-                            <div class="last-chat-from sub1">
+                        <div className="list-row 3">
+                            <div className="last-chat-from sub1">
                                 {room.mainPerson}
                             </div>
-                            <div class="last-chat-time sub1">
+                            <div className="last-chat-time sub1">
                                 {room.createdAt}
                             </div>
                         </div>

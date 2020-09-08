@@ -15,7 +15,6 @@ function ChatPage() {
     useEffect(() => {
         dispatch(getInitialChatRooms())
         dispatch(getInitialChatMessages())
-        dispatch(setCurrentChatRoom())
     }, [])
 
     return (

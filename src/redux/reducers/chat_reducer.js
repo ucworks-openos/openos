@@ -11,7 +11,7 @@ import {
 export default function (state = {}, action) {
     switch (action.type) {
         case GET_INITIAL_CHAT_ROOMS:
-            return { ...state, chatRooms: action.payload }
+            return { ...state, chatRooms: action.payload, currentChatRoom: action.payload[0].id }
         case GET_INITIAL_CHAT_MESSAGES:
             return { ...state, chatMessages: action.payload }
         case SET_CURRENT_CHAT_ROOM:
