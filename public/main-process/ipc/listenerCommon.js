@@ -49,15 +49,18 @@ ipcMain.on('login', async (event, loginData) => {
 });
 
 
-
-
-// getBuddyList
+// logout
 ipcMain.on('logout', async (event, ...args) => {
   
+  console.log('``````````````````````````logout')
+
   nsAPI.close();
   dsAPI.close();
   csAPI.close();
   psAPI.close();
+
+  console.log('``````````````````````````logout completed!')
+
   event.reply('res-logout', new ResData(true));
 });
 

@@ -5,7 +5,7 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
-import {getConfig, login, getUserInfos, searchUsers, searchOrgUsers} from '../ipcCommunication/ipcCommon'
+import {getConfig, login, searchUsers, searchOrgUsers} from '../ipcCommunication/ipcCommon'
 
 const electron = window.require("electron")
 
@@ -27,9 +27,6 @@ function FuncTestPage2() {
   const [searchMode, setSearchMode] = useState('ALL');
   const [searchText, setSearchText] = useState('이봉석');
   const [orgGroupCode, setOrgGroupCode] = useState("ORG001");
-
-  const [infoUserIds, setInfoUserIds] = useState("bslee,proju");
-
   const netLogArea = useRef(null);
   const localLogArea = useRef(null);
   

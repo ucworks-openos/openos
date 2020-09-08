@@ -1,5 +1,5 @@
 
-const { ipcMain } = require('electron');
+const { ipcMain, BrowserWindow } = require('electron');
 
 const { reqConnectDS, reqUpgradeCheckDS, } = require('../net-command/command-ds-api');
 const { reqGetCondition } = require('../net-command/command-ps-api');
@@ -18,19 +18,15 @@ ipcMain.on('testAction', async (event, ...args) => {
   var resData = new ResData(true, '');
 
 
-  let result = 'https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference?a=Global_Objects&b=String&c=replace'.split('?');
+  let top = new BrowserWindow()
+  top = new BrowserWindow({
+    width: 800,
+    height: 750,
+    webPreferences: { nodeIntegration: true },
+    //icon: require("path").join(__dirname, 'icon.ico'),
+   });
 
-
-  // let result = xmldata.replace('&', function(match, s1, offset, string) {
-  //   console.log('-----------------match:', match)
-  //   console.log('-----------------s1:', s1)
-  //   console.log('-----------------offset:', offset)
-  //   console.log('-----------------string:', string)
-  //   return '&amp;'
-  // }) // 특정 위치 교환 안됨
-
-  console.log('-----------------result:', result)
-
+   top.loadURL("http://localhost:3000/funcTest2");
   return;
 
   sendLog('DATE>>', OsUtil.getDateString('YYYYMMDDHHmmssSSS'));

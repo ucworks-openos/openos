@@ -15,11 +15,12 @@ function Sidebar() {
 
 	const onLogOutClick = () => {
 
-		logout();
-		sessionStorage.removeItem('isLoginElectronApp')
-		// props.history.push('/favorite')
-		window.location.hash = '#/login';
-		window.location.reload();
+		logout().then(function(resData) {
+			sessionStorage.removeItem('isLoginElectronApp')
+			// props.history.push('/favorite')
+			window.location.hash = '#/login';
+			window.location.reload();
+		});
 	}
 
 	return (
