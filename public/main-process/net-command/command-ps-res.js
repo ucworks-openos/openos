@@ -86,10 +86,9 @@ function responseCmdProc(command) {
 
         let xmlData = command.data.toString('utf-8', 0);
         sendLog('PS_GET_USERS_INFO  xml:', xmlData);
-
+        xmlData = "<items>" + xmlData + "</items>";
         parseXmlToJSON(xmlData).then(function(jsonData) {
           callCallback(command.sendCmd, new ResData(true, jsonData));
-          
         }).catch(function(err) {
           console.log('PS_GET_USERS_INFO  xml parse Error! ', err)
           callCallback(command.sendCmd, new ResData(false, 'PS_GET_USERS_INFO  xml parse Error! ex:' + JSON.stringify(err)));
