@@ -4,11 +4,11 @@ import userThumbnail from "../../assets/images/img_user-thumbnail.png";
 import Modal from "react-modal";
 import MessageModal from '../../common/components/Modal/MessageModal';
 
-interface IFavoriteNodeProps {
-  data: IFavoriteNode
+type TFavoriteNodeProps = {
+  data: TFavoriteNode
 }
 
-export default function FavoriteNode(props: IFavoriteNodeProps) {
+export default function FavoriteNode(props: TFavoriteNodeProps) {
   const { data } = props;
   const [visible, setVisible] = useState<boolean>(false);
   const [messageModalVisible, setMessageModalVisible] = useState(false);

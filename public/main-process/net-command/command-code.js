@@ -16,6 +16,7 @@ module.exports = Object.freeze({
 
     DS_SUCCESS            : DS_BASE + 3,
     DS_NO_USERID          : DS_BASE + 4,
+    DS_SAVE_BUDDY_DATA    : DS_BASE + 22,
     DS_UPGRADE_CHECK      : DS_BASE + 91,
     DS_UPGRADE_CHANGE     : DS_BASE + 92,
     DS_GET_SERVER_INFO    : DS_BASE + 93,
@@ -28,6 +29,7 @@ module.exports = Object.freeze({
     DS_GET_BUDDY_MEMORY_LZO      : DS_BASE + 602,
     DS_GET_BUDDY_DATA_LZ         : DS_BASE + 603,
     DS_GET_BUDDY_DATA_LZO        : DS_BASE + 604,
+    
     //#endregion DS COMMAND
 
     //

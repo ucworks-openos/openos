@@ -7,7 +7,7 @@ import Modal from "react-modal";
 import MessageModal from '../../common/components/Modal/MessageModal';
 
 export default function OrganizationNode(props: any) {
-  const data: ITreeNode = props.data;
+  const data: TTreeNode = props.data;
   const [visible, setVisible] = useState<boolean>(false);
   const [messageModalVisible, setMessageModalVisible] = useState(false);
 
