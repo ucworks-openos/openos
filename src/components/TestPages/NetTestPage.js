@@ -133,6 +133,11 @@ function NetTestPage() {
             </Button>
           </Col>
           <Col>
+            <Button onClick={handleUpgradeCheck}>
+              업데이트확인
+            </Button>
+          </Col>
+          <Col>
             <Button onClick={handleLogClear}>
                 clear
             </Button>
