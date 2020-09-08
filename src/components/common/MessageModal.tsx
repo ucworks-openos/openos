@@ -2,13 +2,13 @@ import React, { useState } from 'react'
 import '../../assets/css/Modal.css'
 import { sendMessage } from '../ipcCommunication/ipcMessage';
 
-interface IMessageModalProps {
+type TMessageModalProps = {
     closeModalFunction: () => void;
     receiverId: string;
     receiverName: string;
 }
 
-export default function MessageModal(props: IMessageModalProps) {
+export default function MessageModal(props: TMessageModalProps) {
     const { closeModalFunction, receiverId, receiverName } = props;
     const [inputValue, setInputValue] = useState("")
 

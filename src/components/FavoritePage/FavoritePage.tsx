@@ -23,10 +23,10 @@ export default function FavoritePage() {
   );
   const [isAddGroupModalOpen, setIsAddGroupModalOpen] = useState(false);
   const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState(false);
-  const [treeData, setTreeData] = useState<IFavoriteNode[]>([
+  const [treeData, setTreeData] = useState<TFavoriteNode[]>([
     _defaultFavoriteNode
   ]);
-  const [selectedNode, setSelectedNode] = useState<IFavoriteNode>(
+  const [selectedNode, setSelectedNode] = useState<TFavoriteNode>(
     _defaultFavoriteNode
   );
   const [autoExpandParent, setAutoExpandParent] = useState<boolean>(false);
@@ -67,7 +67,7 @@ export default function FavoritePage() {
         }
       }, {})
 
-      const monitorIds = response.filter((_: any, i: number) => i !== 0).map((v: IFavoriteNode, i: number) => v.id);
+      const monitorIds = response.filter((_: any, i: number) => i !== 0).map((v: TFavoriteNode, i: number) => v.id);
       setTreeData([root]);
       setExpandedKeys([root.id]);
       setStatusMonitor(monitorIds)
@@ -84,9 +84,9 @@ export default function FavoritePage() {
   };
 
   const find = (
-    list: IFavoriteNode[],
+    list: TFavoriteNode[],
     key: number
-  ): Promise<{ v: IFavoriteNode; i: number; list: IFavoriteNode[] }> =>
+  ): Promise<{ v: TFavoriteNode; i: number; list: TFavoriteNode[] }> =>
     new Promise((resolve) => {
       for (let i = 0; i < list.length; i++) {
         if (Number(list[i].key) === Number(key)) {
@@ -101,14 +101,14 @@ export default function FavoritePage() {
     });
 
   // align list's order as 1 to n
-  // const align = (list: IFavoriteNode[]): IFavoriteNode[] =>
+  // const align = (list: TFavoriteNode[]): TFavoriteNode[] =>
   //   list.map((v, i) => ({
   //     ...v,
   //     classOrderNo: i,
   //   }));
 
   // syncronize order with database
-  // const syncronize = async (list: IFavoriteNode[]) => {
+  // const syncronize = async (list: TFavoriteNode[]) => {
   //   const classList = list.map((v) => ({
   //     classId: v.classId,
   //     classOrderNo: v.classOrderNo,
@@ -121,8 +121,8 @@ export default function FavoritePage() {
 
   // update child's class info moving into other parent
   // const move = async (
-  //   parent: IFavoriteNode,
-  //   child: IFavoriteNode,
+  //   parent: TFavoriteNode,
+  //   child: TFavoriteNode,
   //   dropPosition: number
   // ) => {
   //   if (
@@ -155,7 +155,7 @@ export default function FavoritePage() {
 
   // validation check if you drop something to user
   // const validate = async (
-  //   replica: IFavoriteNode[],
+  //   replica: TFavoriteNode[],
   //   dropKey: number,
   //   dropPosition: number
   // ) => {
@@ -255,7 +255,7 @@ export default function FavoritePage() {
   );
 
   // need to be memorized
-  const renderTreeNodes = (data: IFavoriteNode[]) => {
+  const renderTreeNodes = (data: TFavoriteNode[]) => {
     return data.map((item) => {
       if (item.children) {
         return (
@@ -540,7 +540,7 @@ export default function FavoritePage() {
 
 const _orgCode = ``;
 
-const _defaultFavoriteNode: IFavoriteNode = {
+const _defaultFavoriteNode: TFavoriteNode = {
   title: ``,
   key: `0`,
   gubun: `G`,

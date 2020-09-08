@@ -129,8 +129,8 @@ function initialize() {
       width: 800,
       height: 750,
       webPreferences: { nodeIntegration: true },
-      icon: path.join(__dirname, 'icon.ico') 
-     });
+      // icon: path.join(__dirname, 'icon.ico') 
+    });
 
     mainWindow.loadURL(
       isDev
