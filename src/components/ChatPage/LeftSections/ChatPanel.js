@@ -1,7 +1,11 @@
 import React from 'react'
-import ChatBoxLists from '../RightSections/ChatBoxLists';
+import ChatMessages from '../RightSections/ChatMessages';
+// import { useDispatch, useSelector } from 'react-redux';
 
 function ChatPanel() {
+    // const dispatch = useDispatch();
+    // const chats = useSelector(state => state.chats)
+
     return (
         <div class="chat-area">
             <div class="divider-wrap no-more-chat">
@@ -12,7 +16,7 @@ function ChatPanel() {
                 <div class="divider-txt">2020-08-21-금</div>
                 <div class="divider"></div>
             </div>
-            <ChatBoxLists />
+            <ChatMessages />
         </div>
     )
 }

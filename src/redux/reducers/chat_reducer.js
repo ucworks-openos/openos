@@ -1,5 +1,7 @@
 import {
+    GET_INITIAL_CHAT_ROOMS,
     GET_INITIAL_CHAT_MESSAGES,
+    SET_CURRENT_CHAT_ROOM
     // GET_MORE_CHATS_MESSAGES,
     // ADD_CHAT_MESSAGE,
     // DELETE_CHAT_MESSAGE,
@@ -8,8 +10,12 @@ import {
 
 export default function (state = {}, action) {
     switch (action.type) {
+        case GET_INITIAL_CHAT_ROOMS:
+            return { ...state, chatRooms: action.payload }
         case GET_INITIAL_CHAT_MESSAGES:
-            return { ...state, chats: action.payload, chatLength: action.payload.length, type: "normal" }
+            return { ...state, chatMessages: action.payload }
+        case SET_CURRENT_CHAT_ROOM:
+            return { ...state, currentChatRoom: action.payload }
         // case GET_MORE_CHATS_MESSAGES:
         //     return { ...state, chats: [...action.payload, ...state.chats], chatLength: action.payload.length, type: "normal" }
         // case ADD_CHAT_MESSAGE:

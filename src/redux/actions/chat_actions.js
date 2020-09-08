@@ -1,15 +1,40 @@
 import axios from 'axios';
 import {
+    GET_INITIAL_CHAT_ROOMS,
     GET_INITIAL_CHAT_MESSAGES,
+    SET_CURRENT_CHAT_ROOM,
     GET_MORE_CHATS_MESSAGES,
     ADD_CHAT_MESSAGE,
     DELETE_CHAT_MESSAGE,
     GET_SEARCHED_CHAT_MESSAGES
 } from './types';
+import chatRooms from "../mock-datas/chat-rooms.json";
+import chatMessages from "../mock-datas/chat-messages.json";
 
-export function getInitialChatMessages(bandId, page = 1) {
-    const request = axios.get(`:5000/api/talk?bandId=${bandId}&page=${page}`)
-        .then(response => response.data);
+export function setCurrentChatRoom() {
+
+    return {
+        type: SET_CURRENT_CHAT_ROOM,
+        payload: chatRooms
+    }
+}
+
+export function getInitialChatRooms() {
+
+    return {
+        type: GET_INITIAL_CHAT_ROOMS,
+        payload: chatRooms
+    }
+}
+
+export function getInitialChatMessages(roomId) {
+
+    let request;
+    if (roomId) {
+        request = chatMessages.filter(msg => msg.roomId === roomId)
+    } else {
+        request = chatMessages
+    }
 
     return {
         type: GET_INITIAL_CHAT_MESSAGES,

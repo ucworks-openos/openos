@@ -1,41 +1,46 @@
 import React from 'react'
 import userThumbnail from "../../../assets/images/img_user-thumbnail.png";
+import chatMessages from "../../../redux/mock-datas/chat-messages.json";
+import { useDispatch, useSelector } from 'react-redux';
 
-function ChatBoxLists() {
+function ChatMessages() {
+    const dispatch = useDispatch();
+    const chats = useSelector(state => state.chats.chatMessages)
+
+    const renderChatMessages = () => (
+        chats && chats.map(message => {
+            return (
+                <div class="speech-row speech-others" key={message.id} >
+                    <div class="user-pic-wrap">
+                        <img src={userThumbnail} alt="user-profile-picture" />
+                    </div>
+                    <div class="speach-content-wrap">
+                        <div class="speaker-info-wrap">
+                            {message.person}
+                        </div>
+                        <div class="speech-inner-wrap">
+                            <div class="speech-content">
+                                {message.content}
+                            </div>
+                            <div class="speech-info">
+                                <span class="unread-ppl read-all">{message.unread}</span>
+                                <span class="time">{message.createdAt}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div >
+            )
+        })
+    )
+
     return (
         <div>
-            <ChatBox />
+            {renderChatMessages()}
         </div>
     )
 }
 
-export default ChatBoxLists
-
-
-export function ChatBox() {
-    return (
-        <div class="speech-row speech-others">
-            <div class="user-pic-wrap">
-                <img src={userThumbnail} alt="user-profile-picture" />
-            </div>
-            <div class="speach-content-wrap">
-                <div class="speaker-info-wrap">
-                    박철수
-                </div>
-                <div class="speech-inner-wrap">
-                    <div class="speech-content">
-                        tf팀 대화방 만들었습니다~
-                    </div>
-                    <div class="speech-info">
-                        <span class="unread-ppl read-all">0</span>
-                        <span class="time">오후 01:30</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-}
-
+export default ChatMessages
 
 
 {/* <div class="speech-row speech-my">

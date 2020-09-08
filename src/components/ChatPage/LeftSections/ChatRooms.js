@@ -1,53 +1,74 @@
 import React from 'react'
 import userThumbnail from "../../../assets/images/img_user-thumbnail.png";
+import {
+    getInitialChatMessages,
+    setCurrentChatRoom
+} from "../../../redux/actions/chat_actions";
+import { useDispatch, useSelector } from 'react-redux';
 
-function ChatRoomLists() {
+function ChatRooms() {
+    const dispatch = useDispatch();
+    const chats = useSelector(state => state.chats.chatRooms)
+
+    const onChatRoomClick = (roomId) => {
+        dispatch(getInitialChatMessages(roomId))
+        dispatch(setCurrentChatRoom(roomId))
+    }
+
+    const renderChatRoom = () => (
+        chats && chats.map(room => {
+            return (
+                <li class="chat-list-single  ppl-1x2" key={room.id} onClick={() => onChatRoomClick(room.id)}>
+                    <div class="list-thumb-area">
+                        <div class="user-pic-wrap">
+                            <img src={userThumbnail} alt="user-profile-picture" />
+                        </div>
+                        <div class="user-pic-wrap">
+                            <img src={userThumbnail} alt="user-profile-picture" />
+                        </div>
+                    </div>
+                    <div class="list-info-area">
+                        <div class="list-row 1">
+                            <div class="chat-ppl-num">
+                                {room.peopleCount}
+                            </div>
+                            <div class="chat-room-name">
+                                {room.mainPerson}<span class="ppl-position">과장 (개발팀)</span>,
+                            김하나<span class="ppl-position">과장 (개발팀)</span>
+                            </div>
+                            <div class="chat-counter unread">
+                                {room.unread}
+                            </div>
+                        </div>
+                        <div class="list-row 2">
+                            <div class="last-chat">
+                            {room.content}
+                        </div>
+                            <div class="icon-chat-noti on"></div>
+                        </div>
+                        <div class="list-row 3">
+                            <div class="last-chat-from sub1">
+                                {room.mainPerson}
+                            </div>
+                            <div class="last-chat-time sub1">
+                                {room.createdAt}
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            )
+        })
+    )
+
     return (
-        <ChatRoom />
+        <div>
+            {renderChatRoom()}
+        </div>
     )
 }
 
-export default ChatRoomLists
+export default ChatRooms
 
-
-export function ChatRoom() {
-    return (
-        <li class="chat-list-single  ppl-1x1">
-            <div class="list-thumb-area">
-                <div class="user-pic-wrap">
-                    <img src={userThumbnail} alt="user-profile-picture" />
-                </div>
-            </div>
-            <div class="list-info-area">
-                <div class="list-row 1">
-                    <div class="chat-ppl-num">
-                        2
-                    </div>
-                    <div class="chat-room-name">
-                        김철수<span class="ppl-position">과장 (개발팀)</span>
-                    </div>
-                    <div class="chat-counter unread">
-                        1
-                    </div>
-                </div>
-                <div class="list-row 2">
-                    <div class="last-chat">
-                        네 알겠습니다
-                                </div>
-                    <div class="icon-chat-noti off"></div>
-                </div>
-                <div class="list-row 3">
-                    <div class="last-chat-from sub1">
-                        김철수
-                    </div>
-                    <div class="last-chat-time sub1">
-                        오전 11:00
-                    </div>
-                </div>
-            </div>
-        </li>
-    )
-}
 
 
 {/* <li class="chat-list-single  ppl-1x2">
