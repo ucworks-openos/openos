@@ -1,11 +1,11 @@
 import React from 'react'
-import ChatLists from './ChatLists';
+import ChatRoomLists from './ChatRoomLists';
 
 function LeftPanel() {
 
 
-    const renderChatLists = () => {
-        return <ChatLists />
+    const renderChatRoomLists = () => {
+        return <ChatRoomLists />
     }
 
     return (
@@ -26,7 +26,7 @@ function LeftPanel() {
 
             <div class="chat-list-wrap">
                 <ul>
-                    {renderChatLists()}
+                    {renderChatRoomLists()}
                 </ul>
             </div>
         </div>

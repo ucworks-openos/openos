@@ -1,5 +1,5 @@
 import React from 'react'
-import ChatItem from '../RightSections/ChatItem';
+import ChatBoxLists from '../RightSections/ChatBoxLists';
 
 function ChatPanel() {
     return (
@@ -12,7 +12,7 @@ function ChatPanel() {
                 <div class="divider-txt">2020-08-21-금</div>
                 <div class="divider"></div>
             </div>
-            <ChatItem />
+            <ChatBoxLists />
         </div>
     )
 }

@@ -1,7 +1,16 @@
 import React from 'react'
 import userThumbnail from "../../../assets/images/img_user-thumbnail.png";
 
-function ChatLists() {
+function ChatRoomLists() {
+    return (
+        <ChatRoom />
+    )
+}
+
+export default ChatRoomLists
+
+
+export function ChatRoom() {
     return (
         <li class="chat-list-single  ppl-1x1">
             <div class="list-thumb-area">
@@ -39,8 +48,6 @@ function ChatLists() {
         </li>
     )
 }
-
-export default ChatLists
 
 
 {/* <li class="chat-list-single  ppl-1x2">
