@@ -6,11 +6,6 @@ import { CLIENT_RENEG_WINDOW } from 'tls';
 
 const { remote } = window.require("electron")
 
-//
-// Dev Mode
-if (remote.getGlobal('IS_DEV')) {
-    sessionStorage.setItem('isLoginElectronApp', true)
-}
 import Reducer from './redux/reducers';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
@@ -30,5 +25,10 @@ ReactDOM.render(
         <RouterPage />
     </Provider>
     , document.getElementById('root'));
+
+
+
 // Dev Mode
-//sessionStorage.setItem('isLoginElectronApp', true)
+if (remote.getGlobal('IS_DEV')) {
+    sessionStorage.setItem('isLoginElectronApp', true)
+}
