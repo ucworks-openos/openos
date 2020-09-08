@@ -1,0 +1,24 @@
+[
+    {
+        "id": 1,
+        "roomName": "hello",
+        "people": ["재원","민수"],
+        "mainPerson": "민수",
+        "mainPersonJobTitle": "사원",
+        "content": "안녕하세요",
+        "createdAt": "201801011231",
+        "unread": 3,
+        "peopleCount": 2
+    },
+    {
+        "id": 2,
+        "roomName": "바이",
+        "people": ["재원","민수"],
+        "mainPerson": "재원",
+        "mainPersonJobTitle": "사원",
+        "content": "호호호호호호호",
+        "createdAt": "201901011231",
+        "unread": 3,
+        "peopleCount": 2
+    }
+]

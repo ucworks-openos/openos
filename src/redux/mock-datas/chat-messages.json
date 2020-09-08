@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "roomId": 1,
+        "person": "민수",
+        "content": "안녕하세요 ~~~",
+        "unread": 3,
+        "createdAt": "202012120313"
+    },
+    {
+        "id": 2,
+        "roomId": 2,
+        "person": "재원",
+        "content": "ㅎ호호호호호호호~",
+        "unread": 4,
+        "createdAt": "202012120313"
+    },
+    {
+        "id": 3,
+        "roomId": 1,
+        "person": "재원",
+        "content": "안녕하세요 ㅎㅎㅎㅎㅎㅎㅎ~~~",
+        "unread": 1,
+        "createdAt": "202012120313"
+    }
+]

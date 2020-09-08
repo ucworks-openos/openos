@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import userThumbnail from "../../assets/images/img_user-thumbnail.png";
 import Modal from "react-modal";
-import MessageModal from '../common/MessageModal';
+import MessageModal from '../../common/components/Modal/MessageModal';
 
 interface IFavoriteNodeProps {
   data: IFavoriteNode

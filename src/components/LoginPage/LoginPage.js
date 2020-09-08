@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import './Sections/LoginPage.css';
 import { useForm } from 'react-hook-form';
-import SignitureCi from '../common/SignitureCi';
+import SignitureCi from '../../common/components/SignitureCi';
 import styled from 'styled-components';
 import { login } from '../ipcCommunication/ipcCommon';
 
