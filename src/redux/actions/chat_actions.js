@@ -42,6 +42,13 @@ export function getInitialChatMessages(roomId) {
     }
 }
 
+
+export function addChatMessage(newMessage) {
+    return {
+        type: ADD_CHAT_MESSAGE,
+        payload: newMessage
+    }
+}
 // export function getMoreChatMessages(bandId, page = 1) {
 //     const request = axios.get(`${SERVER_URI}:5000/api/talk?bandId=${bandId}&page=${page}`)
 //         .then(response => response.data);
@@ -49,13 +56,6 @@ export function getInitialChatMessages(roomId) {
 //     return {
 //         type: GET_MORE_CHATS_MESSAGES,
 //         payload: request
-//     }
-// }
-
-// export function addChatMessage(variables) {
-//     return {
-//         type: ADD_CHAT_MESSAGE,
-//         payload: variables
 //     }
 // }
 
