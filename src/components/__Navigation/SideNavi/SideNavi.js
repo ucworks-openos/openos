@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import styled from "styled-components";
+import React, { useState } from 'react';
 import NavItem from './SideNaviItem';
 import { items } from './SideNaviLists';
 import './SideNavi.css';
@@ -15,11 +14,12 @@ function Sidebar() {
 
 	const onLogOutClick = () => {
 
-		logout();
-		sessionStorage.removeItem('isLoginElectronApp')
-		// props.history.push('/favorite')
-		window.location.hash = '#/login';
-		window.location.reload();
+		logout().then(function(resData) {
+			sessionStorage.removeItem('isLoginElectronApp')
+			// props.history.push('/favorite')
+			window.location.hash = '#/login';
+			window.location.reload();
+		});
 	}
 
 	return (

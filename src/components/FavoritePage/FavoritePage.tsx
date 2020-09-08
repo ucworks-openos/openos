@@ -4,10 +4,10 @@ import imgHolder from "../../assets/images/img_imgHolder.png";
 import styled from "styled-components";
 import "./FavoritePage.css";
 import "../../assets/css/Tree.scss";
-import SignitureCi from "../common/SignitureCi";
-import AddGroupModal from "./AddGroupModal";
+import SignitureCi from "../../common/components/SignitureCi";
+import AddGroupModal from "../../common/components/Modal/AddGroupModal";
 import Modal from "react-modal";
-import HamburgerButton from "../common/HamburgerButton";
+import HamburgerButton from "../../common/components/HamburgerButton";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Node from "./FavoriteNode";
@@ -44,6 +44,7 @@ export default function FavoritePage() {
 
       console.log(`userIds: `, userIds);
 
+      console.log(`buddy list: `, response);
       const root = response.reduce((prev: any, cur: any, i: number) => {
         if (i === 0) {
           return {
