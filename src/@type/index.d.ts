@@ -1,7 +1,7 @@
 import { Interface } from "readline";
 
 declare global {
-    interface ITreeNode {
+    type TTreeNode = {
         // 부서, 유저 공통
         title: string;
         key: string;
@@ -13,7 +13,7 @@ declare global {
         orgCode: string;
 
         // 부서
-        children?: ITreeNode[];
+        children?: TTreeNode[];
         groupCode?: string;
         groupName?: string;
 
@@ -63,13 +63,13 @@ declare global {
         viewOpt?: string
     }
 
-    interface IFavoriteNode {
+    type TFavoriteNode = {
         title: string;
         key: string;
         gubun: `G` | `U`;
         id: string;
         name: string;
 
-        children?: IFavoriteNode[]
+        children?: TFavoriteNode[]
     }
 }

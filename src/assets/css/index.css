@@ -519,10 +519,23 @@ a:hover,
 .user-login-device.windows, .user-login-device.mac {
   background-position: -17px center;
 }
-/* .user-login-device.mobile.pc {
+.user-login-device.android.windows {
   width: 27px;
   background-position: -34px center;
-} */
+}
+.user-login-device.android.mac {
+  width: 27px;
+  background-position: -34px center;
+}
+.user-login-device.iphone.windows {
+  width: 27px;
+  background-position: -34px center;
+}
+.user-login-device.iphone.mac {
+  width: 27px;
+  background-position: -34px center;
+}
+
 .user-quick-action-wrap {
   display: none;
   margin-left: auto;
