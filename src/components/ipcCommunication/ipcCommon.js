@@ -44,6 +44,7 @@ export const logout = () => {
 export const getBuddyList = async () => {
   return new Promise(function(resolve, reject) {
       electron.ipcRenderer.on('res-getBuddyList', (event, arg) => {
+        console.log('---getBuddyList----------', arg)
           resolve(arg);
         })
         electron.ipcRenderer.send('getBuddyList', '')
@@ -70,6 +71,36 @@ export const getChildOrg = async (orgGroupCode, groupCode, groupSeq) => {
         })
         electron.ipcRenderer.send('getChildOrg', orgGroupCode, groupCode, groupSeq)
     });
+}
+
+/** getUserInfos */
+export const getUserInfos = async (userIds) => {
+  return new Promise(function(resolve, reject) {
+    electron.ipcRenderer.on('res-getUserInfos', (event, arg) => {
+      resolve(arg);
+    })
+    electron.ipcRenderer.send('getUserInfos', userIds);
+  });
+}
+
+/** searchUsers */
+export const searchUsers = async (searchMode, searchText) => {
+  return new Promise(function(resolve, reject) {
+    electron.ipcRenderer.on('res-searchUsers', (event, arg) => {
+      resolve(arg);
+    })
+    electron.ipcRenderer.send('searchUsers', searchMode, searchText);
+  });
+}
+
+/** searchOrgUsers */
+export const searchOrgUsers = async (orgGroupCode, searchText) => {
+  return new Promise(function(resolve, reject) {
+    electron.ipcRenderer.on('res-searchOrgUsers', (event, arg) => {
+      resolve(arg);
+    })
+    electron.ipcRenderer.send('searchOrgUsers', orgGroupCode, searchText);
+  });
 }
 
 /** changeStatus */

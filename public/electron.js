@@ -107,12 +107,13 @@ global.NS_SEND_COMMAND = {}
 
 global.NS_CONN_CHECK;
 
-
 //#endregion GLOBAL 설정 정보
 
 let mainWindow;
 
 function initialize() {
+
+  global.IS_DEV = isDev;
 
   // Main Process 파일들을 로드한다.
   loadMainProcesses();
@@ -128,8 +129,8 @@ function initialize() {
       width: 800,
       height: 750,
       webPreferences: { nodeIntegration: true },
-      // icon: path.join(__dirname, 'icon.ico')
-    });
+      icon: path.join(__dirname, 'icon.ico') 
+     });
 
     mainWindow.loadURL(
       isDev

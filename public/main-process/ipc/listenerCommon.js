@@ -28,6 +28,11 @@ ipcMain.on('login', async (event, loginData) => {
 
     // NS로 알림수신 대기를 한다.
     if (resData.resCode) {
+
+      global.USER.userName = resData.data.root_node.node_item.user_name.value;
+      global.ORG.orgGroupCode = resData.data.root_node.node_item.org_code.value;
+      global.ORG.groupCode = resData.data.root_node.node_item.user_group_code.value;
+
       resData = await nsAPI.reqconnectNS(loginData.loginId)
     }
     else throw new Error('reqGetCondition fail!');
@@ -92,6 +97,43 @@ ipcMain.on('getChildOrg', async (event, orgGroupCode, groupCode, groupSeq) => {
     event.reply('res-getChildOrg', new ResData(false, err));
   });
 });
+
+
+// getUserInfos
+ipcMain.on('getUserInfos', async (event, userIds) => {
+  psAPI.reqGetUserInfos(userIds).then(function(resData)
+  {
+    console.log('getUserInfos res:', resData)
+    event.reply('res-getUserInfos', resData);
+  }).catch(function(err) {
+    event.reply('res-getUserInfos', new ResData(false, err));
+  });
+});
+
+
+// searchUsers
+ipcMain.on('searchUsers', async (event, searchMode, searchText) => {
+  psAPI.reqSearchUsers(searchMode, searchText).then(function(resData)
+  {
+    console.log('searchUsers res:', resData)
+    event.reply('res-searchUsers', resData);
+  }).catch(function(err) {
+    event.reply('res-searchUsers', new ResData(false, err));
+  });
+});
+
+
+// searchUsers
+ipcMain.on('searchOrgUsers', async (event, orgGrgoupCode, searchText) => {
+  psAPI.reqSearchOrgUsers(orgGrgoupCode, searchText).then(function(resData)
+  {
+    console.log('searchOrgUsers res:', resData)
+    event.reply('res-searchOrgUsers', resData);
+  }).catch(function(err) {
+    event.reply('res-searchOrgUsers', new ResData(false, err));
+  });
+});
+
 
 // changeStatus
 ipcMain.on('changeStatus', async (event, status, force = false) => {

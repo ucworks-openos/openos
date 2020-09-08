@@ -5,10 +5,9 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
-import {getConfig, login, getBuddyList, getBaseOrg, getChildOrg, changeStatus, setStatusMonitor} from '../ipcCommunication/ipcCommon'
+import {getConfig, login, getBuddyList, getBaseOrg, getChildOrg, changeStatus, setStatusMonitor,
+  getUserInfos} from '../ipcCommunication/ipcCommon'
 import {sendMessage} from '../ipcCommunication/ipcMessage'
-
-
 
 const electron = window.require("electron")
 
@@ -37,6 +36,8 @@ function FuncTestPage() {
   const [status, setStatus] = useState(2);
 
   const [statusTarget, setStatusTarget] = useState('proju')
+
+  const [infoUserIds, setInfoUserIds] = useState("bslee,proju");
 
   const netLogArea = useRef(null);
   const localLogArea = useRef(null);
@@ -143,6 +144,15 @@ function FuncTestPage() {
 
     setStatusMonitor(userIds).then(function(data) {
       appendLocalLog('SetStatusMonitor Result:' + JSON.stringify(data));
+    });
+  }
+
+  const handleGetUserInfos = (e) => {
+    let userIds = infoUserIds.split(',')
+    appendLocalLog("handleGetUserInfos:", userIds);
+
+    getUserInfos(userIds).then(function(data) {
+      appendLocalLog('handleGetUserInfos Result:' + JSON.stringify(data));
     });
   }
   
@@ -289,6 +299,25 @@ function FuncTestPage() {
               />
               <InputGroup.Append>
                 <Button variant="outline-secondary" onClick={handleChangeStgatus}>상태변경</Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            {/* 사용자 정보 요청 */}
+            <InputGroup >
+              <InputGroup.Prepend>
+                <InputGroup.Text id="infoUserIds">요청 IDS</InputGroup.Text>
+              </InputGroup.Prepend>
+              <FormControl
+                aria-label="Default"
+                aria-describedby="inputGroup-sizing-default"
+                placeholder={infoUserIds}
+                onChange={(e) => setInfoUserIds(e.target.value)}
+              />
+              <InputGroup.Append>
+                <Button variant="outline-secondary" onClick={handleGetUserInfos}>정보 요청</Button>
               </InputGroup.Append>
             </InputGroup>
           </Col>
