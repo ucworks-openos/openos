@@ -198,75 +198,53 @@ app.on("ready", () => { //app.whenReady().then(() => { });
   // Single Instance
   let gotTheLock = app.requestSingleInstanceLock()
 
+  // 개발모드가 아니면 SingleInstance를 적용한다.
+  if (!isDev && !gotTheLock) {
+    app.quit();
+    return;
+  }
+
+  //loadMainProcesses
+  const files = glob.sync(path.join(__dirname, '/../public/main-process/**/*.js'))
+  files.forEach((file) => { require(file) })
+
+  // App Main Context Menu
+  Menu.setApplicationMenu(mainContextMenu);
+
+  // Tray Context Menu
+  tray = new Tray(path.join(__dirname, 'icon.ico'))
+  tray.setToolTip('uc Messenger Application ')
+  tray.setContextMenu(trayContextMenu)
+
+  tray.on('click', () => {
+    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
+  })
+
+  // config file load
   readConfig();
-  //readConfig();
 
-  //Menu.setApplicationMenu(null);
-  createApplicationMenu();
-
-  async function createWindow() {
-    mainWindow = new BrowserWindow({
-      width: 800,
-      height: 750,
-      webPreferences: { nodeIntegration: true },
-      // icon: path.join(__dirname, 'icon.ico')
-    });
-
-    mainWindow.loadURL(
-      isDev
-        ? "http://localhost:3000"
-        : `file://${path.join(__dirname, "/../build/index.html")}`
-    );
-    mainWindow.on("closed", () => (mainWindow = null));
-
-    global.MAIN_WINDOW = mainWindow;
-    // 개발모드가 아니면 SingleInstance를 적용한다.
-    if (!isDev && !gotTheLock) {
-      app.quit();
-      return;
-    }
-
-    //loadMainProcesses
-    const files = glob.sync(path.join(__dirname, '/../public/main-process/**/*.js'))
-    files.forEach((file) => { require(file) })
-
-    // App Main Context Menu
-    Menu.setApplicationMenu(mainContextMenu);
-
-    // Tray Context Menu
-    tray = new Tray(path.join(__dirname, 'icon.ico'))
-    tray.setToolTip('uc Messenger Application ')
-    tray.setContextMenu(trayContextMenu)
-
-    tray.on('click', () => {
-      mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
-    })
-
-    // config file load
-    readConfig();
-
-    // Create Main Window
-    mainWindow = new BrowserWindow({
-      width: 800,
-      height: 750,
-      webPreferences: { nodeIntegration: true },
-      ...(isMac ? {} : { icon: path.join(__dirname, 'icon.ico') }),
-    });
-
-    mainWindow.loadURL(
-      isDev
-        ? "http://localhost:3000"
-        : `file://${path.join(__dirname, "/../build/index.html")}`
-    );
-
-    //mainWindow.on("closed", () => (mainWindow = null));
-    mainWindow.on("close", (event) => {
-      event.preventDefault();
-      mainWindow.hide();
-    });
-
-    global.MAIN_WINDOW = mainWindow;
+  // Create Main Window
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 750,
+    webPreferences: { nodeIntegration: true },
+    ...(isMac ? {} : { icon: path.join(__dirname, 'icon.ico') }),
   });
+
+  mainWindow.loadURL(
+    isDev
+      ? "http://localhost:3000"
+      : `file://${path.join(__dirname, "/../build/index.html")}`
+  );
+
+  //mainWindow.on("closed", () => (mainWindow = null));
+  mainWindow.on("close", (event) => {
+    event.preventDefault();
+    mainWindow.hide();
+  });
+
+  global.MAIN_WINDOW = mainWindow;
+});
 
 /**
  * second-instance
