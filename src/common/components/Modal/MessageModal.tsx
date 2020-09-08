@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import '../../assets/css/Modal.css'
-import { sendMessage } from '../ipcCommunication/ipcMessage';
+import '../../../assets/css/Modal.css'
+import { sendMessage } from '../../../components/ipcCommunication/ipcMessage';
 
 interface IMessageModalProps {
     closeModalFunction: () => void;
