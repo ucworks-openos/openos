@@ -228,8 +228,8 @@ app.on("ready", () => { //app.whenReady().then(() => { });
     width: 800,
     height: 750,
     webPreferences: { nodeIntegration: true },
-    ...(isMac?{}:{icon: path.join(__dirname, 'icon.ico')}),
-   });
+    ...(isMac ? {} : { icon: path.join(__dirname, 'icon.ico') }),
+  });
 
   mainWindow.loadURL(
     isDev
@@ -254,7 +254,7 @@ app.on('second-instance', (event, commandLine, workingDirectory) => {
   if (mainWindow) {
 
     if (mainWindow.isMinimized()) mainWindow.restore();
-    
+
     mainWindow.show();
     mainWindow.focus();
   }

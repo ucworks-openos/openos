@@ -7,20 +7,23 @@ import { useParams } from "react-router-dom";
 import Node from "./OrganizationNode";
 import { EventDataNode, DataNode } from "rc-tree/lib/interface";
 import { getBaseOrg, getChildOrg, setStatusMonitor } from "../ipcCommunication/ipcCommon";
+import { CLIENT_RENEG_WINDOW } from "tls";
+import useTree from "../../hooks/useTree";
 
 export default function OrganizationPage() {
   // set initial tree
-  const [treeData, setTreeData] = useState<ITreeNode[]>([
-    _defaultTreeNode,
-  ]);
+  // const [treeData, setTreeData] = useState<TTreeNode[]>([
+  //   _defaultTreeNode,
+  // ]);
 
-  const [selectedNode, setSelectedNode] = useState<ITreeNode>(
+  const [selectedNode, setSelectedNode] = useState<TTreeNode>(
     _defaultTreeNode
   );
 
-  const [expandedKeys, setExpandedKeys] = useState<(string | number)[]>([``]);
-  const [autoExpandParent, setAutoExpandParent] = useState<boolean>(false);
+  // const [expandedKeys, setExpandedKeys] = useState<(string | number)[]>([``]);
+  // const [autoExpandParent, setAutoExpandParent] = useState<boolean>(false);
 
+  const { treeData, expandedKeys, autoExpandParent, setTreeData, setExpandedKeys, toggleAutoExpandParent } = useTree();
   // fetching root
   useEffect(() => {
     const getRoot = async () => {
@@ -68,15 +71,13 @@ export default function OrganizationPage() {
       setStatusMonitor(monitorIds);
       _orgCode = root.orgCode;
     }
-    getRoot();
-    return () => {
-      setTreeData([]);
-    };
+    !treeData.length && getRoot();
+
   }, []);
 
   const getChild = async (groupCode: string) => {
     const { data: { root_node: { node_item: response } } } = await getChildOrg(_orgCode, groupCode, -1);
-    const children: ITreeNode[] = response?.filter((_: any, i: number) => i !== 0).map((v: any) => {
+    const children: TTreeNode[] = response?.filter((_: any, i: number) => i !== 0).map((v: any) => {
       const defaultProps = {
         key: v.group_seq.value,
         gubun: v.gubun.value,
@@ -142,10 +143,10 @@ export default function OrganizationPage() {
 
   // attach children
   const attach = (
-    prev: ITreeNode[],
+    prev: TTreeNode[],
     key: number,
-    children: ITreeNode[]
-  ): ITreeNode[] =>
+    children: TTreeNode[]
+  ): TTreeNode[] =>
     prev.map((v) => {
       // 1 depth searching
       if (Number(v.key) === Number(key)) {
@@ -175,7 +176,7 @@ export default function OrganizationPage() {
       const { v } = await find(treeData, Number(e.key));
       const children = await getChild(v.groupCode!);
       // update tree
-      setTreeData((prev) => attach(prev, Number(e.key), children));
+      setTreeData(attach(treeData, Number(e.key), children));
 
       resolve();
     });
@@ -183,9 +184,9 @@ export default function OrganizationPage() {
   // find node (promise)
   // list is lexically binded with treedata
   const find = (
-    list: ITreeNode[],
+    list: TTreeNode[],
     key: number
-  ): Promise<{ v: ITreeNode; i: number; list: ITreeNode[] }> =>
+  ): Promise<{ v: TTreeNode; i: number; list: TTreeNode[] }> =>
     new Promise((resolve) => {
       for (let i = 0; i < list.length; i++) {
         if (Number(list[i].key) === Number(key)) {
@@ -229,7 +230,7 @@ export default function OrganizationPage() {
   );
 
   // need to be memorized
-  const renderTreeNodes = (data: ITreeNode[]) => {
+  const renderTreeNodes = (data: TTreeNode[]) => {
     return data.map((item) => {
       if (item.children) {
         return (
@@ -244,7 +245,7 @@ export default function OrganizationPage() {
 
   const handleExpand = (expandedKeys: (string | number)[]): void => {
     setExpandedKeys(expandedKeys);
-    setAutoExpandParent(false);
+    toggleAutoExpandParent();
   }
 
   return (
@@ -283,7 +284,7 @@ export default function OrganizationPage() {
   );
 }
 
-const _defaultTreeNode: ITreeNode = {
+const _defaultTreeNode: TTreeNode = {
   title: ``,
   key: `0`,
   children: [],
