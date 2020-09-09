@@ -15,7 +15,7 @@ function ChatPage() {
     }, [])
 
     return (
-        <div class="contents-wrap-chat">
+        <div className="contents-wrap-chat">
             <LeftPanel />
             <RightPanel />
         </div>
