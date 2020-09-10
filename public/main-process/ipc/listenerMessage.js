@@ -1,14 +1,15 @@
 const { ipcMain } = require('electron');
 
 const { sendLog } = require('./ipc-cmd-sender');
-const { reqSendMessage, reqGetOrgChild } = require('../net-command/command-ns-api');
+const nsAPI = require('../net-command/command-ns-api');
+const fetchAPI = require('../net-command/command-fetch-api');
 const ResData = require('../ResData');
 
 
-// getBuddyList
+// sendMessage
 ipcMain.on('sendMessage', async (event, recvIds, recvNames, subject, message) => {
   
-  reqSendMessage(recvIds, recvNames, subject, message).then(function(resData)
+  nsAPI.reqSendMessage(recvIds, recvNames, subject, message).then(function(resData)
   {
     sendLog('[IPC] sendMessage res:', resData)
     event.reply('res-sendMessage', resData);
@@ -17,4 +18,18 @@ ipcMain.on('sendMessage', async (event, recvIds, recvNames, subject, message) =>
     event.reply('res-sendMessage', new ResData(false, err));
   });
 
+});
+
+
+// getMessage
+ipcMain.on('getMessage', async (event, msgType, rowOffset = 0, rowLimit = 100) => {
+  
+  fetchAPI.reqMessageHistory(msgType, rowOffset, rowLimit).then(function(resData)
+  {
+    sendLog('[IPC] getMessage res:', resData)
+    event.reply('res-getMessage', resData);
+  }).catch(function(err) {
+    sendLog.log('[IPC] getMessage res  Err:', err)
+    event.reply('res-getMessage', new ResData(false, err));
+  });
 });

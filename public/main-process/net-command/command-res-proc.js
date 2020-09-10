@@ -3,6 +3,7 @@ const { sendLog } = require('../ipc/ipc-cmd-sender');
 const { dsResProc } = require('./command-ds-res');
 const { csResProc } = require('./command-cs-res');
 const { psResProc } = require('./command-ps-res');
+const { fetchResProc } = require('./command-fetch-res');
 
 var CommandCodes = require('./command-code');
 var CmdConst = require('./command-const');

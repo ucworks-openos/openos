@@ -145,8 +145,13 @@ global.SERVER_INFO = {
     "port": '',
     "isConnected": false
   },
-
   SMS: {
+    "pubip": '',
+    "ip": '',
+    "port": '',
+    "isConnected": false
+  },
+  FETCH: {
     "pubip": '',
     "ip": '',
     "port": '',
@@ -160,6 +165,15 @@ global.ORG = {
   orgGroupCode: 'ORG001',
   groupCode: '',
   selectedOrg: ''
+}
+
+/**
+ * RULE - FUNC_COMP_39-서버보관
+ */
+global.FUNC_COMP_39 = {
+  DB_KIND: 0,
+  PER_MEM_TABLE: false,
+  PER_DISK_TABLE: false,
 }
 /**
  * ENCODING 정보

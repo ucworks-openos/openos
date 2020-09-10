@@ -38,6 +38,7 @@ function responseCmdProc(resCmd) {
           if (result.server_info.PS) global.SERVER_INFO.PS = result.server_info.PS;
           if (result.server_info.FS) global.SERVER_INFO.FS = result.server_info.FS;
           if (result.server_info.SMS) global.SERVER_INFO.SMS = result.server_info.SMS;
+          if (result.server_info.FETCH) global.SERVER_INFO.FETCH = result.server_info.FETCH;
 
           global.USER.authMethod = result.server_info.UserAuth.method;
 
@@ -124,6 +125,40 @@ function responseCmdProc(resCmd) {
                     case 'FUNC_ORG_1': // ROOT ORG CODE
                       global.ORG.org_1_root = element.func_value1;
                       console.log('SET FUNC_ORG_1 :', element.func_value1)
+                      break;
+
+                    case 'FUNC_COMP_39':
+                        let options = element.func_value1.split(',');
+
+                        console.log('------------ element.func_value1', element.func_value1)
+                        console.log('------------ options', options);
+
+                        //let dicOption = {};
+                        options.forEach((element) => {
+                          let option = element.split('=');
+                          switch(option[0]) {
+                            case 'DB_KIND':
+                              global.FUNC_COMP_39.DB_KIND = option[1];
+                              break;
+
+                            case 'PER_MEM_TABLE':
+                              global.FUNC_COMP_39.PER_MEM_TABLE =  option[1];
+                              break;
+
+                            case 'PER_DISK_TABLE':
+                              global.FUNC_COMP_39.PER_DISK_TABLE =  option[1];
+                              break;
+                          }
+                          
+                          //dicOption[option[0]] = option[1];
+                        });
+
+                        // console.log('=========================  FNC_COMP_39')
+                        // // debug
+                        // for (let key in dicOption) {
+                        //   console.log('Key:' + key + " val:" + dicOption[key])
+                        // }
+
                       break;
                   }
                 });
