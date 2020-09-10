@@ -665,6 +665,7 @@
     margin-bottom: auto;
 }
 .btn-ghost-m {
+    min-width: 75px;
     display: inline-block;
     padding: 6px 20px;
     border: 2px solid #11378d;

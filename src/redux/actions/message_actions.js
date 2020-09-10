@@ -1,54 +1,46 @@
 import axios from 'axios';
 import {
-    GET_INITIAL_CHAT_ROOMS,
-    GET_INITIAL_CHAT_MESSAGES,
-    SET_CURRENT_CHAT_ROOM,
+    GET_INITIAL_MESSAGE_LISTS,
+    GET_MESSAGE,
+    SET_CURRENT_MESSAGE,
     GET_MORE_CHATS_MESSAGES,
-    ADD_CHAT_MESSAGE,
+    ADD_MESSAGE,
     DELETE_CHAT_MESSAGE,
     GET_SEARCHED_CHAT_MESSAGES
 } from './types';
-// import chatRooms from "../mock-datas/chat-rooms.json";
-// import chatMessages from "../mock-datas/chat-messages.json";
+import { useDispatch, useSelector } from 'react-redux';
+import messageLists from "../mock-datas/messages.json";
 
-// export function setCurrentChatRoom(roomId) {
+export function setCurrentMessage(messageId) {
+    return {
+        type: SET_CURRENT_MESSAGE,
+        payload: messageId
+    }
+}
 
-//     return {
-//         type: SET_CURRENT_CHAT_ROOM,
-//         payload: roomId
-//     }
-// }
+export function getInitialMessageLists() {
 
-// export function getInitialChatRooms() {
+    return {
+        type: GET_INITIAL_MESSAGE_LISTS,
+        payload: messageLists
+    }
+}
 
-//     return {
-//         type: GET_INITIAL_CHAT_ROOMS,
-//         payload: chatRooms
-//     }
-// }
+export function getMessage(messageId) {
+    let request = messageLists.filter(msg => msg.id === messageId)
+    return {
+        type: GET_MESSAGE,
+        payload: request[0]
+    }
+}
 
-// export function getInitialChatMessages(roomId) {
+export function addMessage(newMessage) {
+    return {
+        type: ADD_MESSAGE,
+        payload: newMessage
+    }
+}
 
-//     let request;
-//     if (roomId) {
-//         request = chatMessages.filter(msg => msg.roomId === roomId)
-//     } else {
-//         request = chatMessages
-//     }
-
-//     return {
-//         type: GET_INITIAL_CHAT_MESSAGES,
-//         payload: request
-//     }
-// }
-
-
-// export function addChatMessage(newMessage) {
-//     return {
-//         type: ADD_CHAT_MESSAGE,
-//         payload: newMessage
-//     }
-// }
 // export function getMoreChatMessages(bandId, page = 1) {
 //     const request = axios.get(`${SERVER_URI}:5000/api/talk?bandId=${bandId}&page=${page}`)
 //         .then(response => response.data);
