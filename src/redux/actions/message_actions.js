@@ -8,47 +8,47 @@ import {
     DELETE_CHAT_MESSAGE,
     GET_SEARCHED_CHAT_MESSAGES
 } from './types';
-import chatRooms from "../mock-datas/chat-rooms.json";
-import chatMessages from "../mock-datas/chat-messages.json";
+// import chatRooms from "../mock-datas/chat-rooms.json";
+// import chatMessages from "../mock-datas/chat-messages.json";
 
-export function setCurrentChatRoom(roomId) {
+// export function setCurrentChatRoom(roomId) {
 
-    return {
-        type: SET_CURRENT_CHAT_ROOM,
-        payload: roomId
-    }
-}
+//     return {
+//         type: SET_CURRENT_CHAT_ROOM,
+//         payload: roomId
+//     }
+// }
 
-export function getInitialChatRooms() {
+// export function getInitialChatRooms() {
 
-    return {
-        type: GET_INITIAL_CHAT_ROOMS,
-        payload: chatRooms
-    }
-}
+//     return {
+//         type: GET_INITIAL_CHAT_ROOMS,
+//         payload: chatRooms
+//     }
+// }
 
-export function getInitialChatMessages(roomId) {
+// export function getInitialChatMessages(roomId) {
 
-    let request;
-    if (roomId) {
-        request = chatMessages.filter(msg => msg.roomId === roomId)
-    } else {
-        request = chatMessages
-    }
+//     let request;
+//     if (roomId) {
+//         request = chatMessages.filter(msg => msg.roomId === roomId)
+//     } else {
+//         request = chatMessages
+//     }
 
-    return {
-        type: GET_INITIAL_CHAT_MESSAGES,
-        payload: request
-    }
-}
+//     return {
+//         type: GET_INITIAL_CHAT_MESSAGES,
+//         payload: request
+//     }
+// }
 
 
-export function addChatMessage(newMessage) {
-    return {
-        type: ADD_CHAT_MESSAGE,
-        payload: newMessage
-    }
-}
+// export function addChatMessage(newMessage) {
+//     return {
+//         type: ADD_CHAT_MESSAGE,
+//         payload: newMessage
+//     }
+// }
 // export function getMoreChatMessages(bandId, page = 1) {
 //     const request = axios.get(`${SERVER_URI}:5000/api/talk?bandId=${bandId}&page=${page}`)
 //         .then(response => response.data);

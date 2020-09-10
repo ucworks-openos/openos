@@ -18,6 +18,7 @@ const NetTestPage = React.lazy(() => import("./TestPages/NetTestPage"));
 const FuncTestPage = React.lazy(() => import("./TestPages/FuncTestPage"));
 const FuncTestPage2 = React.lazy(() => import("./TestPages/FuncTestPage2"));
 const ChatPage = React.lazy(() => import("./ChatPage/ChatPage"));
+const MessagePage = React.lazy(() => import("./MessagePage/MessagePage"));
 
 function RouterPage() {
   return (
@@ -31,6 +32,7 @@ function RouterPage() {
           <Route exact path="/organization" component={OrganizationPage} />
           <Route exact path="/login" component={LoginPage} />
           <Route exact path="/about" component={AboutPage} />
+          <Route exact path="/message" component={MessagePage} />
           <Route exact path="/chat" component={ChatPage} />
           <Route exact path="/site-config" component={SiteConfigPage} />
           <Route exact path="/netTest" component={NetTestPage} />
