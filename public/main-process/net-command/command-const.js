@@ -72,7 +72,12 @@ module.exports = Object.freeze({
     BUF_LEN_RES_DATE        : 15 + 1,
     BUF_LEN_RECV_NAME       : 150 + 1,
 
-    BUF_LEN_TIME            : 14 + 1
+    BUF_LEN_TIME            : 14 + 1,
+
+    BUF_LEN_SQL_KEY         : 128 + 1,
+    BUF_LEN_SQL_NAME        : 100 + 1,
+    BUF_LEN_SQL_DATA        : 512 + 1,
+    BUF_LEN_SQL_FIELD       : 50 + 1,
 
     //#endregion COMMAND LENGTH
     

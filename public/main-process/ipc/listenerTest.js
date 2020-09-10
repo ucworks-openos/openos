@@ -3,6 +3,7 @@ const { ipcMain, BrowserWindow } = require('electron');
 
 const { reqConnectDS, reqUpgradeCheckDS, } = require('../net-command/command-ds-api');
 const { reqGetCondition } = require('../net-command/command-ps-api');
+const FetchAPI = require('../net-command/command-fetch-api');
 
 const { sendLog } = require('./ipc-cmd-sender');
 const ResData = require('../ResData');
@@ -17,6 +18,10 @@ const nsAPI = require('../net-command/command-ns-api');
 ipcMain.on('testAction', async (event, ...args) => {
   var resData = new ResData(true, '');
 
+
+  FetchAPI.reqMessageHistory('MSG_RECV')
+
+  return;
 
   let top = new BrowserWindow()
   top = new BrowserWindow({

@@ -4,6 +4,7 @@ const DS_BASE = 3000;
 const NS_BASE = 4000;
 const PS_BASE = 6000;
 const CS_BASE = 13000;
+const FETCH_BASE = 25000;
 
 module.exports = Object.freeze({
     CONNECTION_CHECK            : 99999,
@@ -95,6 +96,29 @@ module.exports = Object.freeze({
     NS_UNREADALL_COUNT           : NS_BASE + 262,
     NS_SERVER_BUSY               : NS_BASE + 999,
     NS_SERVER_CLOSE              : NS_BASE + 998,
+    //#endregion NS COMMAND
 
-    //#endregion
+    //
+    //#region FETCH COMMAND
+    FETCH_BASE                      : FETCH_BASE,
+    FETCH_NO_SQL                    : FETCH_BASE + 1,
+    FETCH_SELECT_SUCCESS            : FETCH_BASE + 2,
+    FETCH_INSERT_SUCCESS            : FETCH_BASE + 3,
+    FETCH_UPDATE_SUCCESS            : FETCH_BASE + 4,
+    FETCH_DELETE_SUCCESS            : FETCH_BASE + 5,
+    FETCH_SELECT_SYNC_ROW_SUCCESS   : FETCH_BASE + 6,
+    FETCH_SELECT_SYNC_COUNT_SUCCESS : FETCH_BASE + 7,
+
+    FETCH_NOT_CONNECT              : FETCH_BASE + 8,
+    FETCH_NOT_DB_CONNECT           : FETCH_BASE + 9,
+    FETCH_ERROR                    : FETCH_BASE + 10,
+    FETCH_QUERY_ERROR              : FETCH_BASE + 11,
+    FETCH_ENV_MEM_ERROR            : FETCH_BASE + 12,
+    FETCH_ENV_DISK_ERROR           : FETCH_BASE + 13,
+
+    FETCH_SQL_REQUEST            : FETCH_BASE + 14,
+    FETCH_SQL_REQUEST_LZ         : FETCH_BASE + 814,  
+    FETCH_SQL_RESPONSE           : FETCH_BASE + 15,
+    FETCH_NO_DATA                : FETCH_BASE + 16,
+    //#endregion FETCH COMMAND
 });

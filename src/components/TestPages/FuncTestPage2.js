@@ -6,6 +6,7 @@ import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
 import {getConfig, login, searchUsers, searchOrgUsers} from '../ipcCommunication/ipcCommon'
+import {getMessage} from '../ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")
 
@@ -102,6 +103,15 @@ function FuncTestPage2() {
       appendLocalLog('handleSearchOrgUser Result:' + JSON.stringify(data));
     });
   }
+
+  // GetMessage
+  const handleGetMessage = (e) => {
+    appendLocalLog("handleGetMessage:", e.target.value);
+
+    getMessage(e.target.value, 0, 10).then(function(data) {
+      appendLocalLog('handleGetMessage Result:' + JSON.stringify(data));
+    });
+  }
   
   // LogClear
   const handleLogClear = (e) => {
@@ -191,6 +201,17 @@ function FuncTestPage2() {
 
               <InputGroup.Append>
                 <Button variant="outline-secondary" onClick={handleSearchOrgUser}>조직도검색</Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col>
+            <InputGroup >
+              <InputGroup.Append>
+                <Button variant="outline-secondary" onClick={handleGetMessage} value='MSG_RECV'>받은쪽지</Button> &nbsp;
+                <Button variant="outline-secondary" onClick={handleGetMessage} value='MSG_SEND'> 보낸쪽지</Button>
               </InputGroup.Append>
             </InputGroup>
           </Col>
