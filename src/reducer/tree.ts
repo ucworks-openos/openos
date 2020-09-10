@@ -1,36 +1,70 @@
-type TTreeState = {
-    treeData: TTreeNode[]
-    expandedKeys: string[],
-    autoExpandParent: boolean,
-}
+const initialState: TOrganizationState & TFavoriteState = {
+  organizationTreeData: [],
+  organizationExpandedKeys: [],
+  organizationAutoExpandParent: false,
+  favoriteTreeData: [],
+  favoriteExpandedKeys: [],
+  favoriteAutoExpandParent: false,
+};
 
-const initialState: TTreeState = {
-    treeData: [],
-    expandedKeys: [],
-    autoExpandParent: false,
-}
+export const SET_ORGANIZATION_TREE_DATA = `tree/SET_ORGANIZATION_TREE_DATA` as const;
+export const SET_ORGANIZATION_EXPANDED_KEYS = `tree/SET_ORGANIZATION_EXPANDED_KEYS` as const;
+export const TOGGLE_ORGANIZATION_AUTO_EXPAND_PARENT = `tree/TOGGLE_ORGANIZATION_AUTO_EXPAND_PARENT` as const;
 
-export const SET_TREE_DATA = `tree/SET_TREE_DATA` as const;
-export const SET_EXPANDED_KEYS = `tree/SET_EXPANDED_KEYS` as const;
-export const TOGGLE_AUTO_EXPAND_PARENT = `tree/SET_AUTO_EXPAND_PARENT` as const;
+export const SET_FAVORITE_TREE_DATA = `tree/SET_FAVORITE_TREE_DATA` as const;
+export const SET_FAVORITE_EXPANDED_KEYS = `tree/SET_FAVORITE_EXPANDED_KEYS` as const;
+export const TOGGLE_FAVORITE_AUTO_EXPAND_PARENT = `tree/TOGGLE_ORGANIZATION_AUTO_EXPAND_PARENT` as const;
 
-export const setTreeData = (treeData: TTreeNode[]) => ({ type: SET_TREE_DATA, payload: treeData });
-export const setExpandedKeys = (keys: (string | number)[]) => ({ type: SET_EXPANDED_KEYS, payload: keys });
-export const toggleAutoExpandParent = () => ({ type: TOGGLE_AUTO_EXPAND_PARENT });
+export const setTreeData = (treeData: TTreeNode[], type: string) => ({
+  type:
+    type === `organization`
+      ? SET_ORGANIZATION_TREE_DATA
+      : SET_FAVORITE_TREE_DATA,
+  payload: treeData,
+});
+export const setExpandedKeys = (keys: (string | number)[], type: string) => ({
+  type:
+    type === `organization`
+      ? SET_ORGANIZATION_EXPANDED_KEYS
+      : SET_FAVORITE_EXPANDED_KEYS,
+  payload: keys,
+});
+export const toggleAutoExpandParent = (type: string) => ({
+  type:
+    type === `organization`
+      ? TOGGLE_ORGANIZATION_AUTO_EXPAND_PARENT
+      : TOGGLE_FAVORITE_AUTO_EXPAND_PARENT,
+});
 
 type TreeAction =
-    | ReturnType<typeof setTreeData>
-    | ReturnType<typeof setExpandedKeys>
-    | ReturnType<typeof toggleAutoExpandParent>
+  | ReturnType<typeof setTreeData>
+  | ReturnType<typeof setExpandedKeys>
+  | ReturnType<typeof toggleAutoExpandParent>;
 
-export default function tree(state: TTreeState = initialState, action: TreeAction) {
-    switch (action.type) {
-        case SET_TREE_DATA:
-            return { ...state, treeData: action.payload }
-        case SET_EXPANDED_KEYS:
-            return { ...state, expandedKeys: action.payload }
-        case TOGGLE_AUTO_EXPAND_PARENT:
-            return { ...state, autoExpandParent: !state.autoExpandParent }
-        default: return initialState;
-    }
+export default function tree(
+  state: TOrganizationState & TFavoriteState = initialState,
+  action: TreeAction
+) {
+  switch (action.type) {
+    case SET_ORGANIZATION_TREE_DATA:
+      return { ...state, organizationTreeData: action.payload };
+    case SET_ORGANIZATION_EXPANDED_KEYS:
+      return { ...state, organizationExpandedKeys: action.payload };
+    case TOGGLE_ORGANIZATION_AUTO_EXPAND_PARENT:
+      return {
+        ...state,
+        organizationAutoExpandParent: !state.organizationAutoExpandParent,
+      };
+    case SET_FAVORITE_TREE_DATA:
+      return { ...state, favoriteTreeData: action.payload };
+    case SET_FAVORITE_EXPANDED_KEYS:
+      return { ...state, favoriteExpandedKeys: action.payload };
+    case TOGGLE_FAVORITE_AUTO_EXPAND_PARENT:
+      return {
+        ...state,
+        favoriteAutoExpandParent: !state.favoriteAutoExpandParent,
+      };
+    default:
+      return initialState;
+  }
 }
