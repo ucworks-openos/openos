@@ -108,7 +108,7 @@ function FuncTestPage2() {
   // GetMessage
   const handleGetMessage = (e) => {
     appendLocalLog("handleGetMessage:", e.target.value);
-
+    console.log('e', e.target.value)
     getMessage(e.target.value, 0, 10).then(function(data) {
       appendLocalLog('handleGetMessage Result:' + JSON.stringify(data));
     });

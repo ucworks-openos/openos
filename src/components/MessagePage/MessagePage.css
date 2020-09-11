@@ -622,6 +622,28 @@
 .speech-info .unread-ppl.read-all {
     opacity: 0;
 }
+.chat-select-area {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 250px;
+    width: 100%;
+    height: 70px;
+    padding: 16px;
+    background-color: #fff;
+    border-top: 1px solid #dfe2e8;
+}
+.chat-title-area {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 200px;
+    width: 100%;
+    height: 50px;
+    padding: 16px;
+    background-color: #fff;
+    border-top: 1px solid #dfe2e8;
+}
 .chat-input-area {
     position: absolute;
     left: 0;
@@ -665,10 +687,11 @@
     margin-bottom: auto;
 }
 .btn-ghost-m {
+    height: 169px;
+    min-width: 75px;
     display: inline-block;
     padding: 6px 20px;
     border: 2px solid #11378d;
-    border-radius: 4px;
     color: #11378d;
     font-weight: 500;
     cursor: pointer;
