@@ -10,7 +10,7 @@ function MessagesLists() {
     const dispatch = useDispatch();
     const messageLists = useSelector(state => state.messages.messageLists)
     const currentMessage = useSelector(state => state.messages.currentMessage)
-
+    console.log('messageLists', messageLists)
     const onMessageClick = (messageId) => {
         console.log('messageId',messageId)
         dispatch(getMessageHo(messageId))
@@ -19,12 +19,15 @@ function MessagesLists() {
 
     const renderMessageLists = () => (
         messageLists && messageLists.map(message => {
-            const isCurrentMessage = message.id === Number(currentMessage) ? "current-chat" : "";
-            const renderSendTo = message.sendTo.map(user => {
+            const isCurrentMessage = Number(message.index) === Number(currentMessage) ? "current-chat" : "";
+            let receieveNames = message.msg_recv_name.split(',')
+            console.log('message', message);
+            
+            const renderSendTo = receieveNames.map(user => {
                 return <span>{user}{" "}</span>
             })
             return (
-                <li className={`chat-list-single  ppl-1x2 ${isCurrentMessage} `} key={message.id} onClick={() => onMessageClick(message.id)}>
+                <li className={`chat-list-single  ppl-1x2 ${isCurrentMessage} `} key={Number(message.index)} onClick={() => onMessageClick(Number(message.index))}>
                     <div className="list-thumb-area">
                         <div className="user-pic-wrap">
                             <img src={userThumbnail} alt="user-profile-picture" />
@@ -44,16 +47,16 @@ function MessagesLists() {
                         </div>
                         <div className="list-row 2">
                             <div className="last-chat">
-                                {message.title}
+                                {message.msg_subject}
                             </div>
                             <div className="icon-chat-noti on"></div>
                         </div>
                         <div className="list-row 3">
                             <div className="last-chat-from sub1">
-                                {" "}{message.sentBy}
+                                {" "}{message.msg_send_name}
                             </div>
                             <div className="last-chat-time sub1">
-                                {message.createdAt}
+                                {message.msg_send_date}
                             </div>
                         </div>
                     </div>
