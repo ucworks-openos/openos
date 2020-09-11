@@ -1,19 +1,15 @@
 const initialState: TOrganizationState & TFavoriteState = {
   organizationTreeData: [],
   organizationExpandedKeys: [],
-  organizationAutoExpandParent: false,
   favoriteTreeData: [],
   favoriteExpandedKeys: [],
-  favoriteAutoExpandParent: false,
 };
 
 export const SET_ORGANIZATION_TREE_DATA = `tree/SET_ORGANIZATION_TREE_DATA` as const;
 export const SET_ORGANIZATION_EXPANDED_KEYS = `tree/SET_ORGANIZATION_EXPANDED_KEYS` as const;
-export const TOGGLE_ORGANIZATION_AUTO_EXPAND_PARENT = `tree/TOGGLE_ORGANIZATION_AUTO_EXPAND_PARENT` as const;
 
 export const SET_FAVORITE_TREE_DATA = `tree/SET_FAVORITE_TREE_DATA` as const;
 export const SET_FAVORITE_EXPANDED_KEYS = `tree/SET_FAVORITE_EXPANDED_KEYS` as const;
-export const TOGGLE_FAVORITE_AUTO_EXPAND_PARENT = `tree/TOGGLE_ORGANIZATION_AUTO_EXPAND_PARENT` as const;
 
 export const setTreeData = (treeData: TTreeNode[], type: string) => ({
   type:
@@ -29,17 +25,10 @@ export const setExpandedKeys = (keys: (string | number)[], type: string) => ({
       : SET_FAVORITE_EXPANDED_KEYS,
   payload: keys,
 });
-export const toggleAutoExpandParent = (type: string) => ({
-  type:
-    type === `organization`
-      ? TOGGLE_ORGANIZATION_AUTO_EXPAND_PARENT
-      : TOGGLE_FAVORITE_AUTO_EXPAND_PARENT,
-});
 
 type TreeAction =
   | ReturnType<typeof setTreeData>
-  | ReturnType<typeof setExpandedKeys>
-  | ReturnType<typeof toggleAutoExpandParent>;
+  | ReturnType<typeof setExpandedKeys>;
 
 export default function tree(
   state: TOrganizationState & TFavoriteState = initialState,
@@ -50,20 +39,10 @@ export default function tree(
       return { ...state, organizationTreeData: action.payload };
     case SET_ORGANIZATION_EXPANDED_KEYS:
       return { ...state, organizationExpandedKeys: action.payload };
-    case TOGGLE_ORGANIZATION_AUTO_EXPAND_PARENT:
-      return {
-        ...state,
-        organizationAutoExpandParent: !state.organizationAutoExpandParent,
-      };
     case SET_FAVORITE_TREE_DATA:
       return { ...state, favoriteTreeData: action.payload };
     case SET_FAVORITE_EXPANDED_KEYS:
       return { ...state, favoriteExpandedKeys: action.payload };
-    case TOGGLE_FAVORITE_AUTO_EXPAND_PARENT:
-      return {
-        ...state,
-        favoriteAutoExpandParent: !state.favoriteAutoExpandParent,
-      };
     default:
       return initialState;
   }

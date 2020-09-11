@@ -17,14 +17,9 @@ import useTree from "../../hooks/useTree";
 let _orgCode = ``;
 
 export default function OrganizationPage() {
-  const {
-    treeData,
-    expandedKeys,
-    autoExpandParent,
-    setTreeData,
-    setExpandedKeys,
-    toggleAutoExpandParent,
-  } = useTree({ type: `organization` });
+  const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
+    type: `organization`,
+  });
   const [selectedNode, setSelectedNode] = useState<TTreeNode | string[]>([]);
   useEffect(() => {
     const getRoot = async () => {
@@ -268,7 +263,6 @@ export default function OrganizationPage() {
 
   const handleExpand = (expandedKeys: (string | number)[]): void => {
     setExpandedKeys(expandedKeys);
-    toggleAutoExpandParent();
   };
 
   return (
@@ -296,7 +290,6 @@ export default function OrganizationPage() {
               onExpand={handleExpand}
               switcherIcon={switcherGenerator}
               expandedKeys={expandedKeys}
-              autoExpandParent={autoExpandParent}
             >
               {renderTreeNodes(treeData)}
             </Tree>

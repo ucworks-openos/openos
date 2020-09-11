@@ -31,23 +31,42 @@
       /* Required to make elements draggable in old WebKit */
       -khtml-user-drag: element;
       -webkit-user-drag: element;
+      position: relative;
     }
     &.drag-over {
-      > .draggable {
+      & > .draggable {
         color: white;
         background-color: #316ac5;
-        border: 1px #316ac5 solid;
-        opacity: 0.8;
+        opacity: 0.6;
+      }
+      & > .draggable > span > h6 {
+        color: white;
+        background-color: #316ac5;
+
+        &:before {
+          position: absolute;
+          content: "";
+          background-color: #316ac5;
+          // opacity: 0.8;
+          height: 29px;
+          width: 36px;
+          left: -36px;
+          top: 0px;
+        }
+      }
+
+      & * {
+        color: white;
       }
     }
     &.drag-over-gap-top {
       > .draggable {
-        border-top: 2px blue solid;
+        // border-top: 2px red solid;
       }
     }
     &.drag-over-gap-bottom {
       > .draggable {
-        border-bottom: 2px blue solid;
+        // border-bottom: 2px blue solid;
       }
     }
     &.filter-node {

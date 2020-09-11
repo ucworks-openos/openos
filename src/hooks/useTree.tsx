@@ -4,16 +4,13 @@ import { RootState } from "../reducer";
 import {
   setTreeData as RsetTreeData,
   setExpandedKeys as RsetExpandedKeys,
-  toggleAutoExpandParent as RtoggleAutoExpandParent,
 } from "../reducer/tree";
 
 type TuseTreeReturnTypes = {
   treeData: TTreeNode[];
   expandedKeys: (string | number)[];
-  autoExpandParent: boolean;
   setTreeData: (treeData: TTreeNode[]) => void;
   setExpandedKeys: (expandedKeys: (string | number)[]) => void;
-  toggleAutoExpandParent: () => void;
 };
 
 type TuseTreeProps = {
@@ -36,11 +33,6 @@ export default function useTree(props: TuseTreeProps): TuseTreeReturnTypes {
       dispatch(RsetExpandedKeys(expandedKeys, type)),
     [dispatch]
   );
-  const toggleAutoExpandParent = useCallback(
-    () => dispatch(RtoggleAutoExpandParent(type)),
-    [dispatch]
-  );
-
   return {
     treeData:
       type === `organization`
@@ -50,12 +42,7 @@ export default function useTree(props: TuseTreeProps): TuseTreeReturnTypes {
       type === `organization`
         ? states.organizationExpandedKeys
         : states.favoriteExpandedKeys,
-    autoExpandParent:
-      type === `organization`
-        ? states.organizationAutoExpandParent
-        : states.favoriteAutoExpandParent,
     setTreeData,
     setExpandedKeys,
-    toggleAutoExpandParent,
   };
 }

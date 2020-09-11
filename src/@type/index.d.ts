@@ -5,7 +5,7 @@ declare global {
     // 부서, 유저 공통
     title: string;
     key: string;
-    gubun: `G` | `T` | `P`;
+    gubun: `G` | `T` | `P` | `U`;
 
     // 미분류
     nodeEnd?: string;
@@ -79,12 +79,10 @@ declare global {
   type TOrganizationState = {
     organizationTreeData: TTreeNode[];
     organizationExpandedKeys: string[];
-    organizationAutoExpandParent: boolean;
   };
 
   type TFavoriteState = {
     favoriteTreeData: TTreeNode[];
     favoriteExpandedKeys: string[];
-    favoriteAutoExpandParent: boolean;
   };
 }
