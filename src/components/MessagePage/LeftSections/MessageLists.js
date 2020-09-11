@@ -12,22 +12,21 @@ function MessagesLists() {
     const currentMessage = useSelector(state => state.messages.currentMessage)
     console.log('messageLists', messageLists)
     const onMessageClick = (messageId) => {
-        console.log('messageId',messageId)
+        console.log('messageId', messageId)
         dispatch(getMessageHo(messageId))
         dispatch(setCurrentMessage(messageId))
     }
 
     const renderMessageLists = () => (
         messageLists && messageLists.map(message => {
-            const isCurrentMessage = Number(message.index) === Number(currentMessage) ? "current-chat" : "";
+            const isCurrentMessage = message.msg_key === currentMessage ? "current-chat" : "";
             let receieveNames = message.msg_recv_name.split(',')
-            console.log('message', message);
-            
+
             const renderSendTo = receieveNames.map(user => {
                 return <span>{user}{" "}</span>
             })
             return (
-                <li className={`chat-list-single  ppl-1x2 ${isCurrentMessage} `} key={Number(message.index)} onClick={() => onMessageClick(Number(message.index))}>
+                <li className={`chat-list-single  ppl-1x2 ${isCurrentMessage} `} key={message.msg_key} onClick={() => onMessageClick(message.msg_key)}>
                     <div className="list-thumb-area">
                         <div className="user-pic-wrap">
                             <img src={userThumbnail} alt="user-profile-picture" />
@@ -42,7 +41,7 @@ function MessagesLists() {
                             <div className="chat-ppl-num">
                             </div>
                             <div className="chat-room-name">
-                                {renderSendTo} 
+                                {renderSendTo}
                             </div>
                         </div>
                         <div className="list-row 2">
