@@ -15,7 +15,7 @@ function MessageInput() {
     const [files, setFiles] = useState([])
     const [sendTo, setSendTo] = useState([])
     const [selectedUsers, setSelectedUsers] = useState([])
-    
+
     const onEditorChange = (value) => {
         setContent(value)
         console.log(content)
@@ -31,7 +31,7 @@ function MessageInput() {
 
     const onSendToChange = (selectedItems) => {
         let newSendTo = [];
-        selectedItems.map(item => {
+        selectedItems && selectedItems.map(item => {
             newSendTo.push(item.label)
         })
         setSelectedUsers(selectedItems)

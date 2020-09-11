@@ -8,7 +8,7 @@ import {
 export default function (state = {}, action) {
     switch (action.type) {
         case GET_INITIAL_MESSAGE_LISTS:
-            return { ...state, messageLists: action.payload, currentMessage: action.payload[0].id }
+            return { ...state, messageLists: action.payload, currentMessage: action.payload[0].msg_key }
         case GET_MESSAGE:
             return { ...state, message: action.payload }
         case SET_CURRENT_MESSAGE:
