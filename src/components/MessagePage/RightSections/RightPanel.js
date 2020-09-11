@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import HamburgerButton from "../../../common/components/HamburgerButton";
 import MessageInput from "./MessageInput";
-import MessagePanel from "./MessagePanel";
+import MessageContent from "./MessageContent";
 
 function RightPanel() {
     const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(false);
@@ -55,7 +55,7 @@ function RightPanel() {
                     </ul>
                 </div>
             </div>
-            <MessagePanel />
+            <MessageContent />
             <MessageInput />
         </main>
     )

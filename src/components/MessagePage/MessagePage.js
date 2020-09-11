@@ -4,14 +4,14 @@ import LeftPanel from "./LeftSections/LeftPanel";
 import RightPanel from "./RightSections/RightPanel";
 import { useDispatch } from 'react-redux';
 import {
-    getInitialChatRooms,
-} from "../../redux/actions/chat_actions";
+    getInitialMessageLists,
+} from "../../redux/actions/message_actions";
 
 function MessagePage() {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(getInitialChatRooms())
+        dispatch(getInitialMessageLists())
     }, [])
 
     return (

@@ -6,3 +6,9 @@ export const ADD_CHAT_MESSAGE = 'add_chat_message';
 // export const DELETE_CHAT_MESSAGE = 'delete_chat_message';
 // export const GET_SEARCHED_CHAT_MESSAGES = 'get_searched_chat_messages';
 
+
+export const GET_INITIAL_MESSAGE_LISTS = 'get_initial_message_lists';
+export const GET_MESSAGE = 'get_message';
+export const SET_CURRENT_MESSAGE = 'set_current_message';
+export const ADD_MESSAGE = 'add_message';
+
