@@ -16,5 +16,9 @@ module.exports = Object.freeze({
     '   AND (b.msg_etc3 is null)    '+
     ' ORDER BY b.msg_send_date DESC '+
     ' LIMIT :ROW_LIMIT: OFFSET :ROW_OFFSET: ',
+
+    SQL_select_tbl_message_msg_key_from_server:
+    'SELECT * FROM tbl_message ' +
+    ' WHERE msg_key = \':MSG_KEY:\' ',
     
 });     

@@ -33,3 +33,19 @@ ipcMain.on('getMessage', async (event, msgType, rowOffset = 0, rowLimit = 100) =
     event.reply('res-getMessage', new ResData(false, err));
   });
 });
+
+// getMessage
+ipcMain.on('getMessageDetail', async (event, msgKey) => {
+  
+  fetchAPI.reqGetMessageDetail(msgKey).then(function(resData)
+  {
+    sendLog('[IPC] getMessageDetail res:', resData)
+    event.reply('res-getMessageDetail', resData);
+  }).catch(function(err) {
+    sendLog.log('[IPC] getMessageDetail res  Err:', err)
+    event.reply('res-getMessageDetail', new ResData(false, err));
+  });
+});
+
+
+
