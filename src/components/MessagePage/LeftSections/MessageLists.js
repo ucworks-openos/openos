@@ -1,7 +1,7 @@
 import React from 'react'
 import userThumbnail from "../../../assets/images/img_user-thumbnail.png";
 import {
-    getMessage,
+    getMessageHo,
     setCurrentMessage
 } from "../../../redux/actions/message_actions";
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,7 +13,7 @@ function MessagesLists() {
 
     const onMessageClick = (messageId) => {
         console.log('messageId',messageId)
-        dispatch(getMessage(messageId))
+        dispatch(getMessageHo(messageId))
         dispatch(setCurrentMessage(messageId))
     }
 

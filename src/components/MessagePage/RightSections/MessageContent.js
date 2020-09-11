@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import userThumbnail from "../../../assets/images/img_user-thumbnail.png";
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    getMessage
+    getMessageHo
 } from "../../../redux/actions/message_actions";
 
 function MessageContent() {
@@ -10,7 +10,7 @@ function MessageContent() {
     const content = useSelector(state => state.messages.message)
     const currentMessage = useSelector(state => state.messages.currentMessage)
     useEffect(() => {
-        dispatch(getMessage(currentMessage))
+        dispatch(getMessageHo(currentMessage))
     }, [currentMessage])
 
     return (

@@ -10,6 +10,7 @@ import {
 } from './types';
 import { useDispatch, useSelector } from 'react-redux';
 import messageLists from "../mock-datas/messages.json";
+import {getMessage} from '../../components/ipcCommunication/ipcMessage'
 
 export function setCurrentMessage(messageId) {
     return {
@@ -20,13 +21,17 @@ export function setCurrentMessage(messageId) {
 
 export function getInitialMessageLists() {
 
+    const request = getMessage('MSG_RECV', 0, 10).then(function(data) {
+         console.log(JSON.stringify(data));
+      });
+
     return {
         type: GET_INITIAL_MESSAGE_LISTS,
         payload: messageLists
     }
 }
 
-export function getMessage(messageId) {
+export function getMessageHo(messageId) {
     let request = messageLists.filter(msg => msg.id === messageId)
     return {
         type: GET_MESSAGE,
