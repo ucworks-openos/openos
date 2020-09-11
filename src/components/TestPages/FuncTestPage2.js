@@ -6,7 +6,7 @@ import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
 import {getConfig, login, searchUsers, searchOrgUsers} from '../ipcCommunication/ipcCommon'
-import {getMessage, getMessageDetail} from '../ipcCommunication/ipcMessage'
+import {getMessage, getMessageDetail, getChatRoomList} from '../ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")
 
@@ -114,11 +114,21 @@ function FuncTestPage2() {
     });
   }
 
+  // GetMessageDetail
   const handleGetMessageDetail = (e) => {
     appendLocalLog("handleGetMessageDetail:", msgKey);
 
     getMessageDetail(msgKey).then(function(data) {
       appendLocalLog('handleGetMessageDetail Result:' + JSON.stringify(data));
+    });
+  }
+
+  // GetChatRoomList
+  const handleGetChatRoomList = (e) => {
+    appendLocalLog("handleGetChatRoomList");
+
+    getChatRoomList().then(function(data) {
+      appendLocalLog('handleGetChatRoomList Result:' + JSON.stringify(data));
     });
   }
   
@@ -241,7 +251,16 @@ function FuncTestPage2() {
             </InputGroup>
           </Col>
         </Row>
-
+        <Row>
+          {/*  쪽지 이력 요청 */}
+          <Col>
+            <InputGroup >
+              <InputGroup.Append>
+                <Button variant="outline-secondary" onClick={handleGetChatRoomList}>대화방목록</Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+        </Row>
         <Row>
           <Col>
             <Button onClick={handleLogClear}>
