@@ -39,8 +39,12 @@ export default function FavoritePage() {
   // fetching root
   useEffect(() => {
     const getBuddy = async () => {
-      const { data: { contacts: { node: response } } } = await getBuddyList();
-      console.log(`buddy list: `, response);
+      let { data: { contacts: { node: response } } } = await getBuddyList();
+      console.log(`buddy list: `, typeof(response));
+      
+      if (response.node) {
+        response = response.node;
+      }
       const root = response.reduce((prev: any, cur: any, i: number) => {
         if (i === 0) {
           return {

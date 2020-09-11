@@ -6,7 +6,7 @@ import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
 import {getConfig, login, searchUsers, searchOrgUsers} from '../ipcCommunication/ipcCommon'
-import {getMessage} from '../ipcCommunication/ipcMessage'
+import {getMessage, getMessageDetail} from '../ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")
 
@@ -28,6 +28,7 @@ function FuncTestPage2() {
   const [searchMode, setSearchMode] = useState('ALL');
   const [searchText, setSearchText] = useState('이봉석');
   const [orgGroupCode, setOrgGroupCode] = useState("ORG001");
+  const [msgKey, setMsgKey] = useState("4a264afc26d9801584df97cccf4907ee");
   const netLogArea = useRef(null);
   const localLogArea = useRef(null);
   
@@ -110,6 +111,14 @@ function FuncTestPage2() {
 
     getMessage(e.target.value, 0, 10).then(function(data) {
       appendLocalLog('handleGetMessage Result:' + JSON.stringify(data));
+    });
+  }
+
+  const handleGetMessageDetail = (e) => {
+    appendLocalLog("handleGetMessageDetail:", msgKey);
+
+    getMessageDetail(msgKey).then(function(data) {
+      appendLocalLog('handleGetMessageDetail Result:' + JSON.stringify(data));
     });
   }
   
@@ -207,11 +216,27 @@ function FuncTestPage2() {
         </Row>
 
         <Row>
+          {/*  쪽지 이력 요청 */}
           <Col>
             <InputGroup >
               <InputGroup.Append>
                 <Button variant="outline-secondary" onClick={handleGetMessage} value='MSG_RECV'>받은쪽지</Button> &nbsp;
                 <Button variant="outline-secondary" onClick={handleGetMessage} value='MSG_SEND'> 보낸쪽지</Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+          {/*  쪽지 상세정보 요청 */}
+          <Col>
+            <InputGroup >
+              <FormControl
+                aria-label="Default"
+                aria-describedby="inputGroup-sizing-default"
+                placeholder={msgKey}
+                onChange={(e) => setMsgKey(e.target.value)}
+              />
+
+              <InputGroup.Append>
+                <Button variant="outline-secondary" onClick={handleGetMessageDetail}>쪽지 정보 요청</Button>
               </InputGroup.Append>
             </InputGroup>
           </Col>
