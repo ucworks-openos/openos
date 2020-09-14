@@ -101,10 +101,10 @@ function responseCmdProc(command) {
       }
       break;
     
-    case CmdCodes.PS_GET_CLASS_USER:
-      if (command.cmdCode == CmdCodes.PS_GET_CLASS_USER) { // ???  응답코드 무엇!!
+    case CmdCodes.PS_GET_CLASS_USER: // 조직도 검색
+      if (command.cmdCode == CmdCodes.PS_GET_CLASS_USER) { 
 
-        let xmlData = command.data.toString('utf-8', 0);
+        let xmlData = command.data.toString('utf-8', 0); 
         sendLog('PS_GET_CLASS_USER  xml:', xmlData);
         parseXmlToJSON(xmlData).then(function(jsonData) {
           callCallback(command.sendCmd, new ResData(true, jsonData));
