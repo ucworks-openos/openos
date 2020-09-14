@@ -61,5 +61,19 @@ ipcMain.on('getChatRoomList', async (event, msgKey) => {
 });
 
 
+// getChatRoomList
+ipcMain.on('getChatLineKey', async (event, msgKey) => {
+  
+  nsAPI.reqChatLineKey(msgKey).then(function(resData)
+  {
+    sendLog('[IPC] getChatLineKey res:', resData)
+    event.reply('res-getChatLineKey', resData);
+  }).catch(function(err) {
+    sendLog.log('[IPC] getChatLineKey res  Err:', err)
+    event.reply('res-getChatLineKey', new ResData(false, err));
+  });
+});
+
+
 
 

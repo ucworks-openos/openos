@@ -106,12 +106,13 @@ function reqChatRoomList( rowOffset = 0, rowLimit = 100) {
     
     let queryKey = 'GET_CHAT_COLLRECT_' + global.USER.userId + '_' + OsUtil.getDateString('YYYYMMDDHHmmssSSS');
     let query = SqlConst.SQL_select_tbl_chat_collect_server;
-    query = query.replace(':USER_ID:', msgKey);
+    query = query.replace(':USER_ID:', global.USER.userId);
     query = query.replace(':ROW_LIMIT:', rowLimit);
     query = query.replace(':ROW_OFFSET:', rowOffset);
     
     return selectToServer(query, queryKey)
 }
+
 
 /**
  * selectToServer

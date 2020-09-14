@@ -84,4 +84,11 @@ export const items = [
     key: 12,
     className: "menu-item favorite current-menu",
   },
+  {
+    path: "/chatTestPage",
+    name: "ChatTestPage",
+    css: "fas fa-hashtag",
+    key: 13,
+    className: "menu-item favorite current-menu",
+  },
 ];

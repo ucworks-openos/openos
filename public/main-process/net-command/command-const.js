@@ -74,6 +74,8 @@ module.exports = Object.freeze({
 
     BUF_LEN_TIME            : 14 + 1,
 
+    BUF_LEN_CHAT_ROOM_KEY          : 128 + 1,
+    
     BUF_LEN_SQL_KEY         : 128 + 1,
     BUF_LEN_SQL_NAME        : 100 + 1,
     BUF_LEN_SQL_DATA        : 512 + 1,

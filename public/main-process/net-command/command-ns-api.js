@@ -371,6 +371,34 @@ function reqSaveBuddyData(buddyData) {
     });
 }
 
+
+/**
+ * 메세지에 대한 lineKey를 요청합니다.
+ * @param {String} chatRoomKey 
+ */
+function reqChatLineKey(chatRoomKey) {
+    return new Promise(async function(resolve, reject) {
+
+        await fetchCore.connectFETCH(); // 무조건 새로 붙인다.
+
+        if (!global.SERVER_INFO.FETCH.isConnected) {
+            reject(new Error('FETCH IS NOT CONNECTED!'));
+            return;
+        }
+
+        let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
+        roomKeyBuf.write(chatRoomKey, global.ENC);
+
+        let lineKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY)
+
+        var dataBuf = Buffer.concat([roomKeyBuf, lineKeyBuf]);
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_CHAT, 0, function(resData){
+            resolve(resData);
+        }), dataBuf);
+    });
+}
+
+
 module.exports = {
     reqconnectNS: reqconnectNS,
     reqSendMessage: reqSendMessage,
@@ -378,5 +406,6 @@ module.exports = {
     reqGetStatus: reqGetStatus,
     reqSetStatusMonitor: reqSetStatusMonitor,
     reqSaveBuddyData: reqSaveBuddyData,
+    reqChatLineKey: reqChatLineKey,
     close: close
 }
