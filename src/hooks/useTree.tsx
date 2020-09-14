@@ -1,24 +1,61 @@
-import React, { useCallback } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from '../reducer';
-import { setTreeData as RsetTreeData, setExpandedKeys as RsetExpandedKeys, toggleAutoExpandParent as RtoggleAutoExpandParent } from '../reducer/tree'
+import React, { useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../reducer";
+import {
+  setTreeData as RsetTreeData,
+  setExpandedKeys as RsetExpandedKeys,
+  setSelectedNode as RsetSelectedNode,
+} from "../reducer/tree";
 
-type TuseTree = {
-    treeData: TTreeNode[];
-    expandedKeys: (string | number)[];
-    autoExpandParent: boolean;
-    setTreeData: (treeData: TTreeNode[]) => void;
-    setExpandedKeys: (expandedKeys: (string | number)[]) => void;
-    toggleAutoExpandParent: () => void;
-}
+type TuseTreeReturnTypes = {
+  treeData: TTreeNode[];
+  expandedKeys: (string | number)[];
+  selectedNode: TTreeNode;
+  setTreeData: (treeData: TTreeNode[]) => void;
+  setExpandedKeys: (expandedKeys: (string | number)[]) => void;
+  setSelectedNode: (node: TTreeNode) => void;
+};
 
-export default function useTree(): TuseTree {
-    const { treeData, expandedKeys, autoExpandParent } = useSelector((state: RootState) => state.tree)
-    const dispatch = useDispatch();
+type TuseTreeProps = {
+  type: `organization` | `favorite`;
+};
 
-    const setTreeData = useCallback((treeData: TTreeNode[]) => dispatch(RsetTreeData(treeData)), [dispatch]);
-    const setExpandedKeys = useCallback((expandedKeys: (string | number)[]) => dispatch(RsetExpandedKeys(expandedKeys)), [dispatch]);
-    const toggleAutoExpandParent = useCallback(() => dispatch(RtoggleAutoExpandParent()), [dispatch])
+export default function useTree(props: TuseTreeProps): TuseTreeReturnTypes {
+  const { type } = props;
+  const states: TOrganizationState & TFavoriteState = useSelector(
+    (state: RootState) => state.tree
+  );
+  const dispatch = useDispatch();
 
-    return { treeData, expandedKeys, autoExpandParent, setTreeData, setExpandedKeys, toggleAutoExpandParent };
+  const setTreeData = useCallback(
+    (treeData: TTreeNode[]) => dispatch(RsetTreeData(treeData, type)),
+    [dispatch]
+  );
+  const setExpandedKeys = useCallback(
+    (expandedKeys: (string | number)[]) =>
+      dispatch(RsetExpandedKeys(expandedKeys, type)),
+    [dispatch]
+  );
+  const setSelectedNode = useCallback(
+    (node: TTreeNode) => dispatch(RsetSelectedNode(node, type)),
+    [dispatch]
+  );
+
+  return {
+    treeData:
+      type === `organization`
+        ? states.organizationTreeData
+        : states.favoriteTreeData,
+    expandedKeys:
+      type === `organization`
+        ? states.organizationExpandedKeys
+        : states.favoriteExpandedKeys,
+    selectedNode:
+      type === `organization`
+        ? states.selectedOrganizationNode
+        : states.selectedFavoriteNode,
+    setTreeData,
+    setExpandedKeys,
+    setSelectedNode,
+  };
 }

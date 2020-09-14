@@ -6,139 +6,173 @@ import "../../assets/css/Tree.scss";
 import { useParams } from "react-router-dom";
 import Node from "./OrganizationNode";
 import { EventDataNode, DataNode } from "rc-tree/lib/interface";
-import { getBaseOrg, getChildOrg, setStatusMonitor } from "../ipcCommunication/ipcCommon";
+import {
+  getBaseOrg,
+  getChildOrg,
+  searchOrgUsers,
+  setStatusMonitor,
+} from "../ipcCommunication/ipcCommon";
 import { CLIENT_RENEG_WINDOW } from "tls";
 import useTree from "../../hooks/useTree";
 
+let _orgCode = ``;
+
 export default function OrganizationPage() {
-  // set initial tree
-  // const [treeData, setTreeData] = useState<TTreeNode[]>([
-  //   _defaultTreeNode,
-  // ]);
-
-  const [selectedNode, setSelectedNode] = useState<TTreeNode>(
-    _defaultTreeNode
-  );
-
-  // const [expandedKeys, setExpandedKeys] = useState<(string | number)[]>([``]);
-  // const [autoExpandParent, setAutoExpandParent] = useState<boolean>(false);
-
-  const { treeData, expandedKeys, autoExpandParent, setTreeData, setExpandedKeys, toggleAutoExpandParent } = useTree();
-  // fetching root
+  const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
+    type: `organization`,
+  });
+  const [selectedNode, setSelectedNode] = useState<TTreeNode | string[]>([]);
   useEffect(() => {
     const getRoot = async () => {
-      const { data: { root_node: { node_item: response } } } = await getBaseOrg();
-      const root = response.reduce((prev: any, cur: any, i: number) => {
-        if (i === 0) {
-          return {
-            title: cur.group_name.value,
-            key: cur.group_seq.value,
-            children: [],
-            groupCode: cur.group_code.value,
-            groupName: cur.group_name.value,
-            groupParentId: cur.group_parent_id.value,
-            groupSeq: cur.group_seq.value,
-            gubun: cur.gubun.value,
-            nodeEnd: cur.node_end.value,
-            nodeStart: cur.node_start.value,
-            orgCode: cur.org_code.value,
+      const {
+        data: {
+          root_node: { node_item: response },
+        },
+      } = await getBaseOrg();
+      const root: TTreeNode = response.reduce(
+        (prev: any, cur: any, i: number): TTreeNode => {
+          if (i === 0) {
+            return {
+              title: cur.group_name.value,
+              key: cur.group_seq.value,
+              children: [],
+              gubun: cur.gubun.value,
+              groupCode: cur.group_code.value,
+              groupName: cur.group_name.value,
+              groupParentId: cur.group_parent_id.value,
+              groupSeq: cur.group_seq.value,
+              nodeEnd: cur.node_end.value,
+              nodeStart: cur.node_start.value,
+              orgCode: cur.org_code.value,
+            };
+          } else {
+            return {
+              ...prev,
+              children: [
+                ...prev.children,
+                {
+                  title: cur.group_name.value,
+                  key: cur.group_seq.value,
+                  children: [],
+                  groupCode: cur.group_code.value,
+                  groupName: cur.group_name.value,
+                  groupParentId: cur.group_parent_id.value,
+                  groupSeq: cur.group_seq.value,
+                  gubun: cur.gubun.value,
+                  nodeEnd: cur.node_end.value,
+                  nodeStart: cur.node_start.value,
+                  orgCode: cur.org_code.value,
+                },
+              ],
+            };
           }
-        } else {
-          return {
-            ...prev,
-            children: [
-              ...prev.children,
-              {
-                title: cur.group_name.value,
-                key: cur.group_seq.value,
-                children: [],
-                groupCode: cur.group_code.value,
-                groupName: cur.group_name.value,
-                groupParentId: cur.group_parent_id.value,
-                groupSeq: cur.group_seq.value,
-                gubun: cur.gubun.value,
-                nodeEnd: cur.node_end.value,
-                nodeStart: cur.node_start.value,
-                orgCode: cur.org_code.value,
-              }
-            ]
-          }
-        }
-      }, {});
-      const monitorIds = response.filter((v: any) => v.gubun?.value === `P`).map((v: any) => v.user_id.value);
+        },
+        {}
+      );
+      const monitorIds = response
+        .filter((v: any) => v.gubun?.value === `P`)
+        .map((v: any) => v.user_id.value);
       setTreeData([root]);
       setExpandedKeys([root.key]);
       setStatusMonitor(monitorIds);
-      _orgCode = root.orgCode;
-    }
+      _orgCode = root.orgCode!;
+    };
     !treeData.length && getRoot();
-
   }, []);
 
-  const getChild = async (groupCode: string) => {
-    const { data: { root_node: { node_item: response } } } = await getChildOrg(_orgCode, groupCode, -1);
-    const children: TTreeNode[] = response?.filter((_: any, i: number) => i !== 0).map((v: any) => {
-      const defaultProps = {
-        key: v.group_seq.value,
-        gubun: v.gubun.value,
-        groupParentId: v.group_parent_id.value,
-        groupSeq: v.group_seq.value,
-        nodeEnd: v.node_end.value,
-        nodeStart: v.node_start.value,
-        orgCode: v.org_code.value,
-      };
+  useEffect(() => {
+    console.log(`treeData: `, treeData);
+    console.log(`expandedKeys: `, expandedKeys);
+  });
 
-      if (v.gubun.value === `P`) {
-        const userProps = {
-          title: v.user_name?.value,
-          classMaxCode: v.class_max_code?.value,
-          connectType: v.connect_type?.value,
-          pullClassId: v.pull_class_id?.value,
-          pullGroupName: v.pull_group_name?.value,
-          sipId: v.sip_id?.value,
-          smsUsed: v.sms_used?.value,
-          syncOpt: v.sync_opt?.value,
-          userAliasName: v.user_aliasname?.value,
-          userBirthGubun: v.user_birth_gubun?.value,
-          userBirthday: v.user_birthday?.value,
-          userCertify: v.user_certify?.value,
-          userEmail: v.user_email?.value,
-          userEtcState: v.user_etc_state?.value,
-          userExtState: v.user_extstate?.value,
-          userGroupCode: v.user_group_code?.value,
-          userGroupName: v.user_group_name?.value,
-          userGubun: v.user_gubun?.value,
-          userId: v.user_id?.value,
-          userIpphoneDbGroup: v.user_ipphone_dbgroup?.value,
-          userName: v.user_name?.value,
-          userPayclName: v.user_paycl_name?.value,
-          userPhoneState: v.user_phone_state?.value,
-          userPicturePos: v.user_picture_pos?.value,
-          userState: v.user_state?.value,
-          userTelCompany: v.user_tel_company?.value,
-          userTelFax: v.user_tel_fax?.value,
-          userTelIpphone: v.user_tel_ipphone?.value,
-          userTelMobile: v.user_tel_mobile?.value,
-          userTelOffice: v.user_tel_office?.value,
-          userViewOrgGroup: v.user_view_org_groups?.value,
-          userWorkName: v.user_work_name?.value,
-          userXmlPic: v.user_xml_pic?.value,
-          viewOpt: v.view_opt?.value,
+  const getChild = async (groupCode: string) => {
+    const {
+      data: {
+        root_node: { node_item: response },
+      },
+    } = await getChildOrg(_orgCode, groupCode, -1);
+    const children: TTreeNode[] = response
+      ?.filter((_: any, i: number) => i !== 0)
+      .map((v: any) => {
+        const defaultProps = {
+          key: v.group_seq.value,
+          gubun: v.gubun.value,
+          groupParentId: v.group_parent_id.value,
+          groupSeq: v.group_seq.value,
+          nodeEnd: v.node_end.value,
+          nodeStart: v.node_start.value,
+          orgCode: v.org_code.value,
+        };
+
+        if (v.gubun.value === `P`) {
+          const userProps = {
+            title: v.user_name?.value,
+            classMaxCode: v.class_max_code?.value,
+            connectType: v.connect_type?.value,
+            pullClassId: v.pull_class_id?.value,
+            pullGroupName: v.pull_group_name?.value,
+            sipId: v.sip_id?.value,
+            smsUsed: v.sms_used?.value,
+            syncOpt: v.sync_opt?.value,
+            userAliasName: v.user_aliasname?.value,
+            userBirthGubun: v.user_birth_gubun?.value,
+            userBirthday: v.user_birthday?.value,
+            userCertify: v.user_certify?.value,
+            userEmail: v.user_email?.value,
+            userEtcState: v.user_etc_state?.value,
+            userExtState: v.user_extstate?.value,
+            userGroupCode: v.user_group_code?.value,
+            userGroupName: v.user_group_name?.value,
+            userGubun: v.user_gubun?.value,
+            userId: v.user_id?.value,
+            userIpphoneDbGroup: v.user_ipphone_dbgroup?.value,
+            userName: v.user_name?.value,
+            userPayclName: v.user_paycl_name?.value,
+            userPhoneState: v.user_phone_state?.value,
+            userPicturePos: v.user_picture_pos?.value,
+            userState: v.user_state?.value,
+            userTelCompany: v.user_tel_company?.value,
+            userTelFax: v.user_tel_fax?.value,
+            userTelIpphone: v.user_tel_ipphone?.value,
+            userTelMobile: v.user_tel_mobile?.value,
+            userTelOffice: v.user_tel_office?.value,
+            userViewOrgGroup: v.user_view_org_groups?.value,
+            userWorkName: v.user_work_name?.value,
+            userXmlPic: v.user_xml_pic?.value,
+            viewOpt: v.view_opt?.value,
+          };
+          return Object.assign(defaultProps, userProps);
+        } else {
+          // 부서
+          const departmentProps = {
+            children: [],
+            title: v.group_name?.value,
+            groupCode: v.group_code.value,
+            groupName: v.group_name.value,
+          };
+          return Object.assign(defaultProps, departmentProps);
         }
-        return Object.assign(defaultProps, userProps);
-      } else {// 부서
-        const departmentProps = {
-          children: [],
-          title: v.group_name?.value,
-          groupCode: v.group_code.value,
-          groupName: v.group_name.value,
-        }
-        return Object.assign(defaultProps, departmentProps);
-      }
-    })
-    const monitorIds = response.filter((v: any) => v.gubun?.value === `P`).map((v: any) => v.user_id.value);
+      });
+    const monitorIds = response
+      .filter((v: any) => v.gubun?.value === `P`)
+      .map((v: any) => v.user_id.value);
     setStatusMonitor(monitorIds);
     return children;
+  };
+
+  const handleSearch = (e: any) => {
+    const which = e.which;
+    const keyword = e.target.value;
+
+    const getSearchResult = async () => {
+      const response = await searchOrgUsers(_orgCode, keyword);
+
+      console.log(`response: `, response);
+    };
+
+    if (which === 13) {
+      getSearchResult();
+    }
   };
 
   // attach children
@@ -219,11 +253,11 @@ export default function OrganizationPage() {
               style={{ minWidth: `20px`, height: `21px` }}
             />
           ) : (
-              <img
-                src="/images/icon_toggle_min.png"
-                style={{ minWidth: `20px`, height: `21px` }}
-              />
-            )}
+            <img
+              src="/images/icon_toggle_min.png"
+              style={{ minWidth: `20px`, height: `21px` }}
+            />
+          )}
         </Switcher>
       )}
     </>
@@ -231,22 +265,21 @@ export default function OrganizationPage() {
 
   // need to be memorized
   const renderTreeNodes = (data: TTreeNode[]) => {
-    return data.map((item) => {
+    return data.map((item, index) => {
       if (item.children) {
         return (
-          <TreeNode {...item} title={<Node data={item} />}>
+          <TreeNode {...item} title={<Node data={item} index={index} />}>
             {renderTreeNodes(item.children)}
           </TreeNode>
         );
       }
-      return <TreeNode {...item} title={<Node data={item} />} />;
+      return <TreeNode {...item} title={<Node data={item} index={index} />} />;
     });
   };
 
   const handleExpand = (expandedKeys: (string | number)[]): void => {
     setExpandedKeys(expandedKeys);
-    toggleAutoExpandParent();
-  }
+  };
 
   return (
     <div className="contents-wrap">
@@ -258,6 +291,7 @@ export default function OrganizationPage() {
             className="local-search"
             placeholder="멤버 검색"
             title="이하와 같은 정보로 멤버를 검색해주세요. 사용자ID, 사용자명, 부서명, 직위명, 직책명, 직급명, 전화번호"
+            onKeyDown={handleSearch}
           />
         </div>
       </div>
@@ -273,7 +307,6 @@ export default function OrganizationPage() {
               onExpand={handleExpand}
               switcherIcon={switcherGenerator}
               expandedKeys={expandedKeys}
-              autoExpandParent={autoExpandParent}
             >
               {renderTreeNodes(treeData)}
             </Tree>
@@ -283,22 +316,6 @@ export default function OrganizationPage() {
     </div>
   );
 }
-
-const _defaultTreeNode: TTreeNode = {
-  title: ``,
-  key: `0`,
-  children: [],
-  groupCode: ``,
-  groupName: ``,
-  groupParentId: ``,
-  groupSeq: ``,
-  gubun: `G`,
-  nodeEnd: ``,
-  nodeStart: ``,
-  orgCode: ``,
-}
-
-let _orgCode = ``;
 
 const Switcher = styled.div`
   background-color: #ebedf1;

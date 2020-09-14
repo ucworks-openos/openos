@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import userThumbnail from "../../assets/images/img_user-thumbnail.png";
-import imgHolder from "../../assets/images/img_imgHolder.png";
 import styled from "styled-components";
 import "./FavoritePage.css";
 import "../../assets/css/Tree.scss";
@@ -8,14 +6,19 @@ import SignitureCi from "../../common/components/SignitureCi";
 import AddGroupModal from "../../common/components/Modal/AddGroupModal";
 import Modal from "react-modal";
 import HamburgerButton from "../../common/components/HamburgerButton";
-import { useParams } from "react-router-dom";
-import axios from "axios";
 import Node from "./FavoriteNode";
 import Tree, { TreeNode } from "rc-tree";
-import { EventDataNode } from "rc-tree/lib/interface";
-import { getBuddyList, setStatusMonitor } from "../ipcCommunication/ipcCommon";
+import {
+  getBuddyList,
+  setStatusMonitor,
+  getUserInfos,
+  searchOrgUsers,
+} from "../ipcCommunication/ipcCommon";
+import useTree from "../../hooks/useTree";
+import useProfile from "../../hooks/useProfile";
 
 Modal.setAppElement("#root");
+let _orgCode = ``;
 
 export default function FavoritePage() {
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
@@ -23,14 +26,18 @@ export default function FavoritePage() {
   );
   const [isAddGroupModalOpen, setIsAddGroupModalOpen] = useState(false);
   const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState(false);
-  const [treeData, setTreeData] = useState<TFavoriteNode[]>([
-    _defaultFavoriteNode
-  ]);
-  const [selectedNode, setSelectedNode] = useState<TFavoriteNode>(
-    _defaultFavoriteNode
-  );
-  const [autoExpandParent, setAutoExpandParent] = useState<boolean>(false);
-  const [expandedKeys, setExpandedKeys] = useState<(string | number)[]>([``]);
+
+  const {
+    treeData,
+    expandedKeys,
+    selectedNode,
+    setTreeData,
+    setExpandedKeys,
+    setSelectedNode,
+  } = useTree({
+    type: `favorite`,
+  });
+  const { setMyInfo } = useProfile();
 
   useEffect(() => {
     console.log(`selected Node: `, selectedNode);
@@ -39,62 +46,221 @@ export default function FavoritePage() {
   // fetching root
   useEffect(() => {
     const getBuddy = async () => {
-      let { data: { contacts: { node: response } } } = await getBuddyList();
-      console.log(`buddy list: `, typeof(response));
-      
-      if (response.node) {
-        response = response.node;
-      }
-      const root = response.reduce((prev: any, cur: any, i: number) => {
-        if (i === 0) {
-          return {
-            title: cur.name,
-            key: cur.id,
-            gubun: cur.gubun,
-            id: cur.id,
-            name: cur.name,
-            children: []
-          }
-        } else {
-          return {
+      const {
+        data: {
+          contacts: { node: response },
+        },
+      } = await getBuddyList();
+      const loginId = sessionStorage.getItem(`loginId`);
+      const userIds = response
+        .filter((v: any) => v.gubun === `U`)
+        .map((v: any) => v.id);
+      const keyIds = response
+        .filter((v: any) => v.gubun === `G`)
+        .map((v: any) => v.id);
+      const {
+        data: {
+          items: { node_item: userSchema },
+        },
+      } = await getUserInfos([loginId, ...userIds]);
+      const result = userSchema?.find((v: any) => v.user_id.value === loginId);
+      const myInfo: TUser = {
+        classMaxCode: result.class_max_code?.value,
+        connectType: result.connect_type?.value,
+        expiredPwdYn: result.expired_pwd_yn?.value,
+        orgCode: result.org_code?.value,
+        sipId: result.sip_id?.value,
+        smsUsed: result.sms_used?.value,
+        syncOpt: result.sync_opt?.value,
+        userAliasName: result.user_aliasname?.value,
+        userBirthGubun: result.user_birth_gubun?.value,
+        userBirthday: result.user_birthday?.value,
+        userCertify: result.user_certify?.value,
+        userEmail: result.user_email?.value,
+        userExtState: result.user_extstate?.value,
+        userField1: result.user_field1?.value,
+        userField2: result.user_field2?.value,
+        userField3: result.user_field3?.value,
+        userField4: result.user_field4?.value,
+        userField5: result.user_field5?.value,
+        userGroupCode: result.user_group_code?.value,
+        userGroupName: result.user_group_name?.value,
+        userGubun: result.user_gubun?.value,
+        userId: result.user_id?.value,
+        userIpphoneDbGroup: result.user_ipphone_dbgroup?.value,
+        userName: result.user_name?.value,
+        userPass: result.user_pass?.value,
+        userPayclName: result.user_paycl_name?.value,
+        userPhoneState: result.user_phone_state?.value,
+        userPicturePos: result.user_picture_pos?.value,
+        userState: result.user_state?.value,
+        userTelCompany: result.user_tel_company?.value,
+        userTelFax: result.user_tel_fax?.value,
+        userTelIpphone: result.user_tel_ipphone?.value,
+        userTelMobile: result.user_tel_mobile?.value,
+        userTelOffice: result.user_tel_office?.value,
+        userViewOrgGroup: result.user_view_org_groups?.value,
+        userWorkName: result.user_work_name?.value,
+        userXmlPic: result.user_xml_pic?.value,
+        viewOpt: result.view_opt?.value,
+      };
+      const myProfile = [
+        {
+          gubun: `G`,
+          title: `내 프로필`,
+          key: `myProfile`,
+          children: [
+            { title: myInfo.userName, key: `me`, gubun: `U`, ...myInfo },
+          ],
+        },
+      ];
+      const root = response.reduce((prev: TTreeNode[], cur: any) => {
+        // 루트
+        if (!cur.pid) {
+          return [
             ...prev,
-            children: [
-              ...prev.children,
-              {
-                title: cur.name,
-                key: cur.id,
-                gubun: cur.gubun,
-                id: cur.id,
-                name: cur.name,
-              }
-            ]
-          }
+            {
+              gubun: cur.gubun,
+              title: cur.name,
+              key: cur.id,
+              pid: cur.pid,
+              children: [],
+            },
+          ];
+        } else {
+          return append(prev, cur, userSchema);
         }
-      }, {})
-
-      const monitorIds = response.filter((_: any, i: number) => i !== 0).map((v: TFavoriteNode, i: number) => v.id);
-      setTreeData([root]);
-      setExpandedKeys([root.id]);
-      setStatusMonitor(monitorIds)
-
-    }
-    getBuddy();
-
-
+      }, []);
+      setTreeData([...myProfile, ...root]);
+      setExpandedKeys([`myProfile`, ...keyIds]);
+      setStatusMonitor(userIds);
+      setMyInfo(myInfo);
+      _orgCode = myInfo.orgCode!;
+    };
+    !treeData.length && getBuddy();
   }, []);
 
+  // append children
+  const append = (
+    prev: TTreeNode[],
+    child: any,
+    userSchema: any
+  ): TTreeNode[] =>
+    prev.map((v: any) => {
+      if (v.key === child.pid) {
+        if (child.gubun === `G`) {
+          return {
+            ...v,
+            children: [
+              ...v.children,
+              {
+                title: child.name,
+                key: child.id,
+                gubun: child.gubun,
+                children: [],
+                pid: child.pid,
+              },
+            ],
+          };
+        } else {
+          const userV = userSchema?.find(
+            (v: any) => v.user_id.value === child.id
+          );
+          console.log(`userV: `, userV);
+          return {
+            ...v,
+            children: [
+              ...v.children,
+              {
+                title: child.name,
+                key: child.id,
+                gubun: child.gubun,
+                pid: child.pid,
+
+                classMaxCode: userV.class_max_code?.value,
+                connectType: userV.connect_type?.value,
+                expiredPwdYn: userV.expired_pwd_yn?.value,
+                nodeEnd: userV.node_end?.value,
+                nodeStart: userV.node_start?.value,
+                orgCode: userV.org_code?.value,
+                sipId: userV.sip_id?.value,
+                smsUsed: userV.sms_used?.value,
+                syncOpt: userV.sync_opt?.value,
+                userAliasName: userV.user_aliasname?.value,
+                userBirthGubun: userV.user_birth_gubun?.value,
+                userBirthday: userV.user_birthday?.value,
+                userCertify: userV.user_certify?.value,
+                userEmail: userV.user_email?.value,
+                userExtState: userV.user_extstate?.value,
+                userField1: userV.user_field1?.value,
+                userField2: userV.user_field2?.value,
+                userField3: userV.user_field3?.value,
+                userField4: userV.user_field4?.value,
+                userField5: userV.user_field5?.value,
+                userGroupCode: userV.user_group_code?.value,
+                userGroupName: userV.user_group_name?.value,
+                userGubun: userV.user_gubun?.value,
+                userId: userV.user_id?.value,
+                userIpphoneDbGroup: userV.user_ipphone_dbgroup?.value,
+                userName: userV.user_name?.value,
+                userPass: userV.user_pass?.value,
+                userPayclName: userV.user_paycl_name?.value,
+                userPhoneState: userV.user_phone_state?.value,
+                userPicturePos: userV.user_picture_pos?.value,
+                userState: userV.user_state?.value,
+                userTelCompany: userV.user_tel_company?.value,
+                userTelFax: userV.user_tel_fax?.value,
+                userTelIpphone: userV.user_tel_ipphone?.value,
+                userTelMobile: userV.user_tel_mobile?.value,
+                userTelOffice: userV.user_tel_office?.value,
+                userViewOrgGroup: userV.user_view_org_groups?.value,
+                userWorkName: userV.user_work_name?.value,
+                userXmlPic: userV.user_xml_pic?.value,
+                viewOpt: userV.view_opt?.value,
+              },
+            ],
+          };
+        }
+        // children searching
+      } else if (v.children) {
+        return {
+          ...v,
+          children: append(
+            // 부서 내 사용자 이름 순 정렬
+            // v.children.sort((a: any, b: any) => {
+            //   if (a.gubun === `G` || b.gubun === `G`) {
+            //     return 0;
+            //   }
+            //   const nameA = a.userName.toUpperCase(); // ignore upper and lowercase
+            //   const nameB = b.userName.toUpperCase(); // ignore upper and lowercase
+            //   if (nameA < nameB) {
+            //     return -1;
+            //   }
+            //   if (nameA > nameB) {
+            //     return 1;
+            //   }
+            // }),
+            v.children,
+            child,
+            userSchema
+          ),
+        };
+      }
+      return v;
+    });
+
   const handleSelect = async ([selectedKeys]: (string | number)[]) => {
-    const { v } = await find(treeData, Number(selectedKeys));
+    const { v } = await find(treeData, selectedKeys?.toString());
     setSelectedNode(v);
   };
 
   const find = (
-    list: TFavoriteNode[],
-    key: number
-  ): Promise<{ v: TFavoriteNode; i: number; list: TFavoriteNode[] }> =>
+    list: TTreeNode[],
+    key: string
+  ): Promise<{ v: TTreeNode; i: number; list: TTreeNode[] }> =>
     new Promise((resolve) => {
       for (let i = 0; i < list.length; i++) {
-        if (Number(list[i].key) === Number(key)) {
+        if (list[i].key === key) {
           resolve({ v: list[i], i: i, list: list });
         }
         if (list[i].children) {
@@ -105,139 +271,52 @@ export default function FavoritePage() {
       }
     });
 
-  // align list's order as 1 to n
-  // const align = (list: TFavoriteNode[]): TFavoriteNode[] =>
-  //   list.map((v, i) => ({
-  //     ...v,
-  //     classOrderNo: i,
-  //   }));
-
-  // syncronize order with database
-  // const syncronize = async (list: TFavoriteNode[]) => {
-  //   const classList = list.map((v) => ({
-  //     classId: v.classId,
-  //     classOrderNo: v.classOrderNo,
-  //   }));
-
-  //   await axios.put(`http://localhost:4000/v0/tree/order`, {
-  //     list: classList,
-  //   });
-  // };
-
-  // update child's class info moving into other parent
-  // const move = async (
-  //   parent: TFavoriteNode,
-  //   child: TFavoriteNode,
-  //   dropPosition: number
-  // ) => {
-  //   if (
-  //     parent.classUpperGroupCode === child.classUpperGroupCode &&
-  //     dropPosition !== 0
-  //   ) {
-  //     return false;
-  //   }
-  //   const data = {
-  //     classId: child.classId,
-  //     classUpperGroupCode:
-  //       dropPosition === 0 ? parent.classGroupCode : parent.classUpperGroupCode,
-  //     classUpperClassId:
-  //       dropPosition === 0 ? parent.classId : parent.classUpperClassId,
-  //     classGroupCode:
-  //       child.classKind === "2"
-  //         ? child.classGroupCode
-  //         : dropPosition === 0
-  //           ? parent.classGroupCode
-  //           : parent.classUpperGroupCode,
-  //     classGroupName:
-  //       child.classKind === "2"
-  //         ? child.classGroupName
-  //         : dropPosition === 0
-  //           ? parent.classGroupName
-  //           : parent.classGroupName,
-  //   };
-  //   await axios.patch(`http://localhost:4000/v0/tree/child`, data);
-  // };
-
-  // validation check if you drop something to user
-  // const validate = async (
-  //   replica: TFavoriteNode[],
-  //   dropKey: number,
-  //   dropPosition: number
-  // ) => {
-  //   const { v: dropV } = await find(replica, dropKey);
-  //   console.log(`dropV: `, dropV);
-  //   return dropV.classKind === "1" && dropPosition === 0 ? false : true;
-  // };
-
   // drop event
-  // const onDrop = async (info: any) => {
-  //   const {
-  //     dropToGap,
-  //     dragNode: {
-  //       props: { eventKey: dragKey },
-  //     },
-  //     node: {
-  //       props: { eventKey: dropKey, pos: dropPos },
-  //     },
-  //   } = info;
-  //   const dropPosArr = dropPos.split("-");
-  //   // drop position === -1 : drop to upper line
-  //   // drop position === 0 : drop to node
-  //   // drop position === 1 : drop to bottom line
-  //   const dropPosition =
-  //     info.dropPosition - Number(dropPosArr[dropPosArr.length - 1]);
-  //   const replica = [...treeData];
-  //   // validation check if you drop something to user
-  //   if (!(await validate(replica, dropKey, dropPosition))) {
-  //     //_set_has_dropped_to_user(true);
-  //     // alert("사용자 하위에 추가할 수 없습니다.");
-  //     return false;
-  //   }
-  //   const { v: dragV, i: dragI, list: dragList } = await find(replica, dragKey);
-  //   // delete drag node
-  //   dragList.splice(dragI, 1);
-  //   if (!dropToGap) {
-  //     const { v: dropV } = await find(replica, dropKey);
-  //     // if you drop something to node having children, push something to it's children
-  //     if (dropV.children) {
-  //       dropV.children.push(dragV);
-  //     } else {
-  //       // if you drop something to node not having children(or yet to have), execute axios call
-  //       let children = await getChild(dropV.classGroupCode);
-  //       dropV.children = [...children, dragV];
-  //     }
-  //     move(dropV, dropV.children[dropV.children.length - 1], dropPosition);
-  //     dropV.children = align(dropV.children);
-  //     syncronize(dropV.children);
-  //   } else {
-  //     if (dropPosition === -1) {
-  //       let { v: dropV, i: dropI, list: dropList } = await find(
-  //         replica,
-  //         dropKey
-  //       );
-  //       // splice i = arr[i-1]
-  //       dropList.splice(dropI, 0, dragV);
-  //       move(dropV, dragV, dropPosition);
-  //       dropList = align(dropList);
-  //       syncronize(dropList);
-  //     } else {
-  //       let { v: dropV, i: dropI, list: dropList } = await find(
-  //         replica,
-  //         dropKey
-  //       );
-  //       dropList.splice(dropI + 1, 0, dragV);
-  //       move(dropV, dragV, dropPosition);
-  //       dropList = align(dropList);
-  //       syncronize(dropList);
-  //     }
-  //   }
-  //   setTreeData(replica);
-  // };
+  const onDrop = async (info: any) => {
+    const {
+      dragNode: {
+        props: { eventKey: dragKey },
+      },
+      node: {
+        props: { eventKey: dropKey },
+      },
+    } = info;
+    const replica = [...treeData];
+    const { v: dragV, i: dragI, list: dragList } = await find(replica, dragKey);
+    const { v: dropV, i: dropI, list: dropList } = await find(replica, dropKey);
+
+    if (dragV.gubun === `G` && dropV.gubun === `U`) {
+      return false;
+    }
+
+    if (
+      dragV.key === `myProfile` ||
+      dragV.key === `me` ||
+      dropV.key === `myProfile` ||
+      dropV.key === `me`
+    ) {
+      return false;
+    }
+
+    if (dropV.gubun === `U`) {
+      dragList.splice(dragI, 1);
+      dropList.splice(dropI, 0, dragV);
+    } else {
+      dragList.splice(dragI, 1);
+
+      if (dragV.gubun === `G`) {
+        dropV.children?.push(dragV);
+      } else {
+        dropV.children?.unshift(dragV);
+      }
+    }
+    setTreeData(replica);
+  };
 
   const handleExpand = (expandedKeys: (string | number)[]): void => {
+    console.log(`expandedKes param: `, expandedKeys);
     setExpandedKeys(expandedKeys);
-    setAutoExpandParent(false);
-  }
+  };
 
   const switcherGenerator = (data: any) => (
     <>
@@ -249,27 +328,27 @@ export default function FavoritePage() {
               style={{ minWidth: `20px`, height: `21px` }}
             />
           ) : (
-              <img
-                src="/images/icon_toggle_min.png"
-                style={{ minWidth: `20px`, height: `21px` }}
-              />
-            )}
+            <img
+              src="/images/icon_toggle_min.png"
+              style={{ minWidth: `20px`, height: `21px` }}
+            />
+          )}
         </Switcher>
       )}
     </>
   );
 
   // need to be memorized
-  const renderTreeNodes = (data: TFavoriteNode[]) => {
-    return data.map((item) => {
+  const renderTreeNodes = (data: TTreeNode[]) => {
+    return data.map((item, i) => {
       if (item.children) {
         return (
-          <TreeNode {...item} title={<Node data={item} />}>
+          <TreeNode {...item} title={<Node data={item} index={i} />}>
             {renderTreeNodes(item.children)}
           </TreeNode>
         );
       }
-      return <TreeNode {...item} title={<Node data={item} />} />;
+      return <TreeNode {...item} title={<Node data={item} index={i} />} />;
     });
   };
 
@@ -517,9 +596,8 @@ export default function FavoritePage() {
           draggable
           showLine
           showIcon={false}
-          // onDrop={onDrop}
+          onDrop={onDrop}
           expandedKeys={expandedKeys}
-          autoExpandParent={autoExpandParent}
           onExpand={handleExpand}
           onSelect={handleSelect}
           switcherIcon={switcherGenerator}
@@ -541,17 +619,6 @@ export default function FavoritePage() {
       </Modal>
     </div>
   );
-}
-
-const _orgCode = ``;
-
-const _defaultFavoriteNode: TFavoriteNode = {
-  title: ``,
-  key: `0`,
-  gubun: `G`,
-  id: ``,
-  name: ``,
-  children: []
 }
 
 const addGroupModalCustomStyles = {
