@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import HamburgerButton from "../../../common/components/HamburgerButton";
-import MessageInput from "./MessageInput";
 import MessageContent from "./MessageContent";
 
 function RightPanel() {
@@ -32,11 +31,11 @@ function RightPanel() {
                     <div className="chat-action face-talk" title="페이스톡"></div>
                     <div className="chat-action chat-favorite-toggle" title="즐겨찾기">
                         <input type="checkbox" id="chat-favorite-toggle-check" />
-                        <label className="chat-favorite-toggle-inner" for="chat-favorite-toggle-check" title="즐겨찾기"></label>
+                        <label className="chat-favorite-toggle-inner" htmlFor="chat-favorite-toggle-check" title="즐겨찾기"></label>
                     </div>
                     <div className="chat-action chat-noti-toggle" title="대화방 알림">
                         <input type="checkbox" id="chat-noti-toggle-check" />
-                        <label className="chat-noti-toggle-inner" for="chat-noti-toggle-check" title="대화방 알림"></label>
+                        <label className="chat-noti-toggle-inner" htmlFor="chat-noti-toggle-check" title="대화방 알림"></label>
                     </div>
                 </div>
                 <div className="lnb" title="더보기">
@@ -56,7 +55,6 @@ function RightPanel() {
                 </div>
             </div>
             <MessageContent />
-            <MessageInput />
         </main>
     )
 }
