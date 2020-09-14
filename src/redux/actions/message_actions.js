@@ -1,54 +1,51 @@
 import axios from 'axios';
 import {
-    GET_INITIAL_CHAT_ROOMS,
-    GET_INITIAL_CHAT_MESSAGES,
-    SET_CURRENT_CHAT_ROOM,
+    GET_INITIAL_MESSAGE_LISTS,
+    GET_MESSAGE,
+    SET_CURRENT_MESSAGE,
     GET_MORE_CHATS_MESSAGES,
-    ADD_CHAT_MESSAGE,
+    ADD_MESSAGE,
     DELETE_CHAT_MESSAGE,
     GET_SEARCHED_CHAT_MESSAGES
 } from './types';
-import chatRooms from "../mock-datas/chat-rooms.json";
-import chatMessages from "../mock-datas/chat-messages.json";
+import { useDispatch, useSelector } from 'react-redux';
+import messageLists from "../mock-datas/messages.json";
+import { getMessage, getMessageDetail } from '../../components/ipcCommunication/ipcMessage'
 
-export function setCurrentChatRoom(roomId) {
-
+export function setCurrentMessage(messageKey) {
     return {
-        type: SET_CURRENT_CHAT_ROOM,
-        payload: roomId
+        type: SET_CURRENT_MESSAGE,
+        payload: messageKey
     }
 }
 
-export function getInitialChatRooms() {
-
+export async function getInitialMessageLists() {
+    const request = await getMessage('MSG_RECV', 0, 10)
     return {
-        type: GET_INITIAL_CHAT_ROOMS,
-        payload: chatRooms
+        type: GET_INITIAL_MESSAGE_LISTS,
+        payload: request.data.table.row
     }
 }
 
-export function getInitialChatMessages(roomId) {
+export async function getMessageHo(messageKey) {
+    console.log('getMessageHo messageKey', messageKey)
 
-    let request;
-    if (roomId) {
-        request = chatMessages.filter(msg => msg.roomId === roomId)
-    } else {
-        request = chatMessages
-    }
-
+    const request = await getMessageDetail(messageKey)
+    console.log('request', request)
+    // let request = messageLists.filter(msg => msg.msg_key === messageKey)
     return {
-        type: GET_INITIAL_CHAT_MESSAGES,
-        payload: request
+        type: GET_MESSAGE,
+        payload: request.data.table.row
     }
 }
 
-
-export function addChatMessage(newMessage) {
+export function addMessage(newMessage) {
     return {
-        type: ADD_CHAT_MESSAGE,
+        type: ADD_MESSAGE,
         payload: newMessage
     }
 }
+
 // export function getMoreChatMessages(bandId, page = 1) {
 //     const request = axios.get(`${SERVER_URI}:5000/api/talk?bandId=${bandId}&page=${page}`)
 //         .then(response => response.data);

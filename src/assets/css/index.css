@@ -40,7 +40,6 @@ cite,
 code,
 del,
 dfn,
-em,
 img,
 ins,
 kbd,
@@ -189,6 +188,13 @@ td {
 body {
   background-color: #f5f6f8;
 }
+strong {
+  font-weight: bold !important;
+}
+
+em {
+  font-style: italic !important;
+}
 /***************************************************************************
                             2. typo
 ***************************************************************************/
@@ -273,8 +279,7 @@ input,
 textarea {
   font-size: 1rem;
   line-height: 1.5;
-  font-family: "Noto Sans KR", "Segoe UI", "Roboto", arial, "맑은 고딕",
-    "Malgun Gothic", "돋움", sans-serif;
+  font-family: "Noto Sans KR", "Segoe UI", "Roboto", arial, "맑은 고딕", "Malgun Gothic", "돋움", sans-serif;
   font-weight: 400;
   letter-spacing: 0.4px;
   color: #555;
@@ -513,10 +518,12 @@ a:hover,
   background-image: url("../images/icon_device.png");
   background-repeat: no-repeat;
 }
-.user-login-device.android, .user-login-device.iphone{
+.user-login-device.android,
+.user-login-device.iphone {
   background-position: 0px center;
 }
-.user-login-device.windows, .user-login-device.mac {
+.user-login-device.windows,
+.user-login-device.mac {
   background-position: -17px center;
 }
 .user-login-device.android.windows {
@@ -606,8 +613,6 @@ a:hover,
   padding: 8px 0px;
   border-bottom: 1px solid #dfe2e8;
 }
-
-
 
 .user-info-container .user-info-wrap * {
   text-overflow: initial;

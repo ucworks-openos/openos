@@ -49,13 +49,13 @@ export const items = [
     key: 7,
     className: "menu-item team",
   },
-  {
-    path: "/notification",
-    name: "알림피드",
-    css: "fa fa-fw fa-clock",
-    key: 8,
-    className: "menu-item feed",
-  },
+  // {
+  //   path: "/notification",
+  //   name: "알림피드",
+  //   css: "fa fa-fw fa-clock",
+  //   key: 8,
+  //   className: "menu-item feed",
+  // },
   {
     path: "/site-config",
     name: "SiteConfig",
@@ -82,6 +82,13 @@ export const items = [
     name: "FuncTestPage2",
     css: "fas fa-hashtag",
     key: 12,
+    className: "menu-item favorite current-menu",
+  },
+  {
+    path: "/chatTestPage",
+    name: "ChatTestPage",
+    css: "fas fa-hashtag",
+    key: 13,
     className: "menu-item favorite current-menu",
   },
 ];

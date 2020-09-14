@@ -8,16 +8,19 @@ import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
 const Sidebar = React.lazy(() => import("./__Navigation/SideNavi/SideNavi"));
 const NavigationBar = React.lazy(() => import("./__Navigation/HeaderNavi/HeaderNavi"));
-const FavoritePage = React.lazy(() => import("./FavoritePage/FavoritePage"));
+
 const LoginPage = React.lazy(() => import("./LoginPage/LoginPage"));
+const FavoritePage = React.lazy(() => import("./FavoritePage/FavoritePage"));
+const OrganizationPage = React.lazy(() => import("./OrganizationPage/OrganizationPage"));
+const MessagePage = React.lazy(() => import("./MessagePage/MessagePage"));
+const ChatPage = React.lazy(() => import("./ChatPage/ChatPage"));
+const SiteConfigPage = React.lazy(() => import("./SiteConfigPage/SiteConfigPage"));
 const AboutPage = React.lazy(() => import("./AboutPage/AboutPage"));
 const NoMatchPage = React.lazy(() => import("./NoMatchPage/NoMatchPage"));
-const OrganizationPage = React.lazy(() => import("./OrganizationPage/OrganizationPage"));
-const SiteConfigPage = React.lazy(() => import("./SiteConfigPage/SiteConfigPage"));
 const NetTestPage = React.lazy(() => import("./TestPages/NetTestPage"));
 const FuncTestPage = React.lazy(() => import("./TestPages/FuncTestPage"));
 const FuncTestPage2 = React.lazy(() => import("./TestPages/FuncTestPage2"));
-const ChatPage = React.lazy(() => import("./ChatPage/ChatPage"));
+const chatTestPage = React.lazy(() => import("./TestPages/ChatTestPage"));
 
 function RouterPage() {
   return (
@@ -31,11 +34,13 @@ function RouterPage() {
           <Route exact path="/organization" component={OrganizationPage} />
           <Route exact path="/login" component={LoginPage} />
           <Route exact path="/about" component={AboutPage} />
+          <Route exact path="/message" component={MessagePage} />
           <Route exact path="/chat" component={ChatPage} />
           <Route exact path="/site-config" component={SiteConfigPage} />
           <Route exact path="/netTest" component={NetTestPage} />
           <Route exact path="/funcTest" component={FuncTestPage} />
           <Route exact path="/funcTest2" component={FuncTestPage2} />
+          <Route exact path="/chatTestPage" component={chatTestPage} />
           <Route component={NoMatchPage} />
         </Switch>
       </Suspense>

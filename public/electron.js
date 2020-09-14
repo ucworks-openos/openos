@@ -145,8 +145,13 @@ global.SERVER_INFO = {
     "port": '',
     "isConnected": false
   },
-
   SMS: {
+    "pubip": '',
+    "ip": '',
+    "port": '',
+    "isConnected": false
+  },
+  FETCH: {
     "pubip": '',
     "ip": '',
     "port": '',
@@ -160,6 +165,15 @@ global.ORG = {
   orgGroupCode: 'ORG001',
   groupCode: '',
   selectedOrg: ''
+}
+
+/**
+ * RULE - FUNC_COMP_39-서버보관
+ */
+global.FUNC_COMP_39 = {
+  DB_KIND: 0,
+  PER_MEM_TABLE: false,
+  PER_DISK_TABLE: false,
 }
 /**
  * ENCODING 정보
@@ -217,9 +231,9 @@ app.on("ready", () => { //app.whenReady().then(() => { });
   tray.setToolTip('uc Messenger Application ')
   tray.setContextMenu(trayContextMenu)
 
-  tray.on('click', () => {
-    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
-  })
+  // tray.on('click', () => {
+  //   mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
+  // })
 
   // config file load
   readConfig();
@@ -267,7 +281,7 @@ app.on('second-instance', (event, commandLine, workingDirectory) => {
  */
 app.on("activate", () => {
   if (mainWindow === null) {
-    createWindow();
+    // createWindow();
   }
 });
 

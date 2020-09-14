@@ -1,12 +1,11 @@
 import React from 'react'
-import ChatRoomLists from './ChatRooms';
+import MessageLists from './MessageLists';
 
 function LeftPanel() {
-
     return (
         <div className="list-area">
             <div className="chat-page-title-wrap">
-                <h4 className="page-title">대화</h4>
+                <h4 className="page-title">쪽지</h4>
                 <div className="chat-list-action-wrap">
                     <div className="chat-list-action add" title="대화 추가"></div>
                     <div className="chat-list-action search" title="대화방 검색">
@@ -21,7 +20,7 @@ function LeftPanel() {
 
             <div className="chat-list-wrap">
                 <ul>
-                    <ChatRoomLists />
+                    <MessageLists />
                 </ul>
             </div>
         </div>

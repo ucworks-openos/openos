@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from 'react'
 import HamburgerButton from "../../../common/components/HamburgerButton";
-import ChatInput from "./ChatInput";
-import ChatPanel from "./ChatPanel";
-function RightPanel() {
+import MessageInput from "./MessageInput";
+import MessageContent from "./MessageContent";
 
+function RightPanel() {
     const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(false);
     const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState(false);
 
@@ -21,7 +21,7 @@ function RightPanel() {
             <div className="chat-title-wrap">
                 <div className="btn-chat-ppl-info">
                     5
-                </div>
+            </div>
                 <h4 className="chat-name">tf팀</h4>
                 <div className="chat-local-search-wrap">
                     <input type="text" className="chat-local-search" placeholder="대화 검색" />
@@ -55,8 +55,8 @@ function RightPanel() {
                     </ul>
                 </div>
             </div>
-            <ChatPanel />
-            <ChatInput />
+            <MessageContent />
+            <MessageInput />
         </main>
     )
 }

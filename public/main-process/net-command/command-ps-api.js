@@ -5,7 +5,6 @@ const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
 const psCore = require('../net-core/network-ps-core');
 
-
 /**
  * 서버로 접속요청 합니다.
  */
@@ -29,6 +28,7 @@ function close() {
  * @param {*} userId 
  */
 function reqGetCondition(userId) {
+
     return new Promise(async function(resolve, reject) {
 
         if (!global.SERVER_INFO.PS.isConnected) {
