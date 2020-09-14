@@ -31,5 +31,22 @@ export const getMessageDetail = async (msgKey) => {
 }
 
 
+/** getChatRoomList */
+export const getChatRoomList = async (rowOffset = 0, rowLimit = 100) => {
+  return new Promise(function(resolve, reject) {
+      electron.ipcRenderer.on('res-getChatRoomList', (event, arg) => {
+          resolve(arg);
+        })
+        electron.ipcRenderer.send('getChatRoomList', rowOffset, rowLimit)
+    });
+}
 
-
+/** getChatRoomList */
+export const getChatLineKey = async (rowOffset = 0, rowLimit = 100) => {
+  return new Promise(function(resolve, reject) {
+      electron.ipcRenderer.on('res-getChatLineKey', (event, arg) => {
+          resolve(arg);
+        })
+        electron.ipcRenderer.send('getChatLineKey', rowOffset, rowLimit)
+    });
+}

@@ -9,14 +9,14 @@ import { createStore, applyMiddleware } from 'redux';
 import promiseMiddleware from 'redux-promise';
 import ReduxThunk from 'redux-thunk';
 
-// const { remote } = window.require("electron")
+const { remote } = window.require("electron")
 const createStoreWithMiddleware = applyMiddleware(promiseMiddleware, ReduxThunk)(createStore);
 
 
 // Dev Mode
-// if (remote.getGlobal('IS_DEV')) {
-//     sessionStorage.setItem('isLoginElectronApp', true)
-// }
+if (remote.getGlobal('IS_DEV')) {
+    sessionStorage.setItem('isLoginElectronApp', true)
+}
 
 ReactDOM.render(
     <Provider

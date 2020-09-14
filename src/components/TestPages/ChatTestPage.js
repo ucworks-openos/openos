@@ -25,10 +25,11 @@ function FuncTestPage2() {
   const [localLog, setLocalLog] = useState("");
   const [loginId, setloginId] = useState("bslee");
   const [loginPwd, setloginPwd] = useState("1111");
-  const [searchMode, setSearchMode] = useState('ALL');
-  const [searchText, setSearchText] = useState('이봉석');
-  const [orgGroupCode, setOrgGroupCode] = useState("ORG001");
-  const [msgKey, setMsgKey] = useState("4a264afc26d9801584df97cccf4907ee");
+
+  const [targetUserIds, setTargetUserIds] = useState("proju,bucky2,smileajw1004");
+  const [chatRoomId, setChatRoomId] = useState("1111");
+  const [chatMessage, setChatMessage] = useState("Hello Chat");
+
   const netLogArea = useRef(null);
   const localLogArea = useRef(null);
   
@@ -64,7 +65,6 @@ function FuncTestPage2() {
       localLogArea.current.scrollTop = localLogArea.current.scrollHeight;
     }
   }
-
   const clearLog = () => {
     setNetLog('');
     setLocalLog('');
@@ -86,52 +86,36 @@ function FuncTestPage2() {
       appendLocalLog('Login fail! ', JSON.stringify(err))
     });;
   }
- 
-  // SearchUser
-  const handleSearchUser = (e) => {
-    appendLocalLog("handleSearchUser:", searchMode, searchText);
-
-    searchUsers(searchMode, searchText).then(function(data) {
-      appendLocalLog('handleSearchUser Result:' + JSON.stringify(data));
-    });
-  }
-
-  // SearOrgUser
-  const handleSearchOrgUser = (e) => {
-    appendLocalLog("handleSearchOrgUser:", orgGroupCode, searchText);
-
-    searchOrgUsers(orgGroupCode, searchText).then(function(data) {
-      appendLocalLog('handleSearchOrgUser Result:' + JSON.stringify(data));
-    });
-  }
-
-  // GetMessage
-  const handleGetMessage = (e) => {
-    appendLocalLog("handleGetMessage:", e.target.value);
-    console.log('e', e.target.value)
-    getMessage(e.target.value, 0, 10).then(function(data) {
-      appendLocalLog('handleGetMessage Result:' + JSON.stringify(data));
-    });
-  }
-
-  // GetMessageDetail
-  const handleGetMessageDetail = (e) => {
-    appendLocalLog("handleGetMessageDetail:", msgKey);
-
-    getMessageDetail(msgKey).then(function(data) {
-      appendLocalLog('handleGetMessageDetail Result:' + JSON.stringify(data));
-    });
-  }
 
   // GetChatRoomList
   const handleGetChatRoomList = (e) => {
-    appendLocalLog("handleGetChatRoomList");
+    
+    appendLocalLog("getChatRoomList" );
 
-    getChatRoomList().then(function(data) {
-      appendLocalLog('handleGetChatRoomList Result:' + JSON.stringify(data));
-    });
+    getChatRoomList(0, 100).then(function(resData){
+      console.log('Promiss getChatRoomList res', resData);
+      if (resData.resCode) {
+        appendLocalLog('getChatRoomList Success! ', JSON.stringify(resData))
+      } else {
+        appendLocalLog('getChatRoomList fail! ', JSON.stringify(resData))
+      }
+    }).catch(function(err){
+      appendLocalLog('getChatRoomList fail! ', JSON.stringify(err))
+    });;
   }
-  
+
+  const handleCreateChat = (e) => {
+
+  }
+
+  const handleJoinChat = (e) => {
+
+  }
+
+  const handleSendChatMessage = (e) => {
+    
+  }
+
   // LogClear
   const handleLogClear = (e) => {
     clearLog();
@@ -174,94 +158,72 @@ function FuncTestPage2() {
           </Col>
         </Row>
 
+        {/* 대화요청  */}
         <Row>
-          {/* 사용자 통합검색 요청 */}
           <Col>
             <InputGroup >
-              <DropdownButton
-                  as={InputGroup.Prepend}
-                  variant="outline-secondary"
-                  title={searchMode}
-                  id="input-group-dropdown-1"
-                  onSelect={setSearchMode}
-                >
-                <Dropdown.Item eventKey="ALL" active >ALL</Dropdown.Item>
-                <Dropdown.Item eventKey="PHONE">PHONE</Dropdown.Item>
-                <Dropdown.Item eventKey="IPPHONE">IPPHONE</Dropdown.Item>
-                <Dropdown.Item eventKey="MOBILE">MOBILE</Dropdown.Item>
-                <Dropdown.Divider />
-              </DropdownButton>
+            <InputGroup.Prepend>
+                <InputGroup.Text id="userIds">대상IDs</InputGroup.Text>
+              </InputGroup.Prepend>
               <FormControl
                 aria-label="Default"
                 aria-describedby="inputGroup-sizing-default"
-                placeholder={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
+                placeholder={targetUserIds}
+                onChange={(e) => setTargetUserIds(e.target.value)}
               />
               <InputGroup.Append>
-                <Button variant="outline-secondary" onClick={handleSearchUser}>통합검색</Button>
-              </InputGroup.Append>
-            </InputGroup>
-          </Col>
-          {/* 조직도 검색 요청 */}
-          <Col>
-            <InputGroup >
-            <FormControl
-                aria-label="Default"
-                aria-describedby="inputGroup-sizing-default"
-                placeholder={orgGroupCode}
-                onChange={(e) => setOrgGroupCode(e.target.value)}
-              />
-              <FormControl
-                aria-label="Default"
-                aria-describedby="inputGroup-sizing-default"
-                placeholder={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-
-              <InputGroup.Append>
-                <Button variant="outline-secondary" onClick={handleSearchOrgUser}>조직도검색</Button>
+                <Button variant="outline-secondary" onClick={handleCreateChat}>대화요청</Button>
               </InputGroup.Append>
             </InputGroup>
           </Col>
         </Row>
 
+        {/* 대화참여하기  */}
         <Row>
-          {/*  쪽지 이력 요청 */}
+          
           <Col>
             <InputGroup >
+              <InputGroup.Prepend>
+                <InputGroup.Text id="chatRoomId">대화방ID</InputGroup.Text>
+              </InputGroup.Prepend>
+              <FormControl
+                aria-label="Default"
+                aria-describedby="inputGroup-sizing-default"
+                placeholder={chatRoomId}
+                onChange={(e) => setChatRoomId(e.target.value)}
+              />
               <InputGroup.Append>
-                <Button variant="outline-secondary" onClick={handleGetMessage} value='MSG_RECV'>받은쪽지</Button> &nbsp;
-                <Button variant="outline-secondary" onClick={handleGetMessage} value='MSG_SEND'> 보낸쪽지</Button>
+                <Button variant="outline-secondary" onClick={handleJoinChat}>대화참여</Button>
               </InputGroup.Append>
             </InputGroup>
           </Col>
-          {/*  쪽지 상세정보 요청 */}
+        </Row>
+
+        {/* 대화 메세지  */}
+        <Row>
+          {/*   */}
           <Col>
             <InputGroup >
               <FormControl
                 aria-label="Default"
                 aria-describedby="inputGroup-sizing-default"
-                placeholder={msgKey}
-                onChange={(e) => setMsgKey(e.target.value)}
+                placeholder={chatMessage}
+                onChange={(e) => setChatMessage(e.target.value)}
               />
+              <InputGroup.Append>
+                <Button variant="outline-secondary" onClick={handleSendChatMessage}>대화참여</Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+        </Row>
 
-              <InputGroup.Append>
-                <Button variant="outline-secondary" onClick={handleGetMessageDetail}>쪽지 정보 요청</Button>
-              </InputGroup.Append>
-            </InputGroup>
-          </Col>
-        </Row>
+        {/* BUTTONS */}
         <Row>
-          {/*  쪽지 이력 요청 */}
           <Col>
-            <InputGroup >
-              <InputGroup.Append>
-                <Button variant="outline-secondary" onClick={handleGetChatRoomList}>대화방목록</Button>
-              </InputGroup.Append>
-            </InputGroup>
+            <Button onClick={handleGetChatRoomList}>
+              대화방목록
+            </Button>
           </Col>
-        </Row>
-        <Row>
           <Col>
             <Button onClick={handleLogClear}>
               Clear

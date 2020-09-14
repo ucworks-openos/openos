@@ -19,7 +19,7 @@ ipcMain.on('testAction', async (event, ...args) => {
   var resData = new ResData(true, '');
 
 
-  FetchAPI.reqMessageHistory('MSG_RECV')
+  FetchAPI.reqMessageList('MSG_RECV')
 
   return;
 

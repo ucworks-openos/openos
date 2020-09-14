@@ -54,6 +54,7 @@ function responseCmdProc(recvCmd) {
         let result = recvCmd.data.toString(global.ENC, sInx); // 그냥 남은거 다 받는다.
         sInx += resultSize;
 
+        console.log('FETCH_SQL_REQUEST  xml ', result)
         parseXmlToJSON(result).then(function(jsonData) {
           callCallback(recvCmd.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {

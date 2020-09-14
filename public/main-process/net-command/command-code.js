@@ -94,6 +94,7 @@ module.exports = Object.freeze({
     NS_GET_STATE                 : NS_BASE + 96,
     NS_STATE_LIST                : NS_BASE + 110,
     NS_UNREADALL_COUNT           : NS_BASE + 262,
+    NS_CHAT_LINEKEY              : NS_BASE + 640,
     NS_SERVER_BUSY               : NS_BASE + 999,
     NS_SERVER_CLOSE              : NS_BASE + 998,
     //#endregion NS COMMAND

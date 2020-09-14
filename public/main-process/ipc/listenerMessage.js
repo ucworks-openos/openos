@@ -24,7 +24,7 @@ ipcMain.on('sendMessage', async (event, recvIds, recvNames, subject, message) =>
 // getMessage
 ipcMain.on('getMessage', async (event, msgType, rowOffset = 0, rowLimit = 100) => {
   
-  fetchAPI.reqMessageHistory(msgType, rowOffset, rowLimit).then(function(resData)
+  fetchAPI.reqMessageList(msgType, rowOffset, rowLimit).then(function(resData)
   {
     sendLog('[IPC] getMessage res:', resData)
     event.reply('res-getMessage', resData);
@@ -46,6 +46,34 @@ ipcMain.on('getMessageDetail', async (event, msgKey) => {
     event.reply('res-getMessageDetail', new ResData(false, err));
   });
 });
+
+// getChatRoomList
+ipcMain.on('getChatRoomList', async (event, msgKey) => {
+  
+  fetchAPI.reqChatRoomList(msgKey).then(function(resData)
+  {
+    sendLog('[IPC] getChatRoomList res:', resData)
+    event.reply('res-getChatRoomList', resData);
+  }).catch(function(err) {
+    sendLog.log('[IPC] getChatRoomList res  Err:', err)
+    event.reply('res-getChatRoomList', new ResData(false, err));
+  });
+});
+
+
+// getChatRoomList
+ipcMain.on('getChatLineKey', async (event, msgKey) => {
+  
+  nsAPI.reqChatLineKey(msgKey).then(function(resData)
+  {
+    sendLog('[IPC] getChatLineKey res:', resData)
+    event.reply('res-getChatLineKey', resData);
+  }).catch(function(err) {
+    sendLog.log('[IPC] getChatLineKey res  Err:', err)
+    event.reply('res-getChatLineKey', new ResData(false, err));
+  });
+});
+
 
 
 

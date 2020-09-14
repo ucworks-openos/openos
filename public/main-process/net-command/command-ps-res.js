@@ -100,6 +100,27 @@ function responseCmdProc(command) {
         sendLog('PS_GET_CONDICTION - Unknown Response Command Receive!!! : ' + command.cmdCode + ' Data:' + dataStr);  
       }
       break;
+    
+    case CmdCodes.PS_GET_CLASS_USER:
+      if (command.cmdCode == CmdCodes.PS_GET_CLASS_USER) { // ???  응답코드 무엇!!
+
+        let xmlData = command.data.toString('utf-8', 0);
+        sendLog('PS_GET_CLASS_USER  xml:', xmlData);
+        parseXmlToJSON(xmlData).then(function(jsonData) {
+          callCallback(command.sendCmd, new ResData(true, jsonData));
+        }).catch(function(err) {
+          console.log('PS_GET_CLASS_USER  xml parse Error! ', err)
+          callCallback(command.sendCmd, new ResData(false, 'PS_GET_CLASS_USER  xml parse Error! ex:' + JSON.stringify(err)));
+        });
+      } else {
+        let rcvBuf = Buffer.from(command.data);
+        let dataStr = rcvBuf.toString('utf-8', 0);
+        
+        sendLog('PS_GET_CLASS_USER - Unknown Response Command Receive!!! : ' + command.cmdCode + ' Data:' + dataStr);  
+      }
+      break;
+      break;
+    
     default :
     {
       let rcvBuf = Buffer.from(command.data);
