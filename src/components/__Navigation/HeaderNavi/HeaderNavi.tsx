@@ -6,11 +6,16 @@ import {
   changeStatus,
   getUserInfos,
 } from "../../ipcCommunication/ipcCommon";
+import useProfile from "../../../hooks/useProfile";
 
 export default function HeaderNavi() {
-  const [myInfo, setMyInfo] = useState<TTreeNode>();
   const [avatarDropDownIsOpen, setAvatarDropDownIsOpen] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(`online`);
+  const { myInfo } = useProfile();
+
+  useEffect(() => {
+    console.log(`myInfo: `, myInfo);
+  });
 
   const onAvatarClick = () => {
     setAvatarDropDownIsOpen(!avatarDropDownIsOpen);

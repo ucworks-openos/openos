@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import userThumbnail from "../../assets/images/img_user-thumbnail.png";
-import imgHolder from "../../assets/images/img_imgHolder.png";
 import styled from "styled-components";
 import "./FavoritePage.css";
 import "../../assets/css/Tree.scss";
@@ -8,20 +6,19 @@ import SignitureCi from "../../common/components/SignitureCi";
 import AddGroupModal from "../../common/components/Modal/AddGroupModal";
 import Modal from "react-modal";
 import HamburgerButton from "../../common/components/HamburgerButton";
-import { useParams } from "react-router-dom";
-import axios from "axios";
 import Node from "./FavoriteNode";
 import Tree, { TreeNode } from "rc-tree";
-import { EventDataNode } from "rc-tree/lib/interface";
 import {
   getBuddyList,
   setStatusMonitor,
   getUserInfos,
+  searchOrgUsers,
 } from "../ipcCommunication/ipcCommon";
 import useTree from "../../hooks/useTree";
+import useProfile from "../../hooks/useProfile";
 
 Modal.setAppElement("#root");
-const _orgCode = ``;
+let _orgCode = ``;
 
 export default function FavoritePage() {
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
@@ -29,10 +26,19 @@ export default function FavoritePage() {
   );
   const [isAddGroupModalOpen, setIsAddGroupModalOpen] = useState(false);
   const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState(false);
-  const [selectedNode, setSelectedNode] = useState<TTreeNode | string[]>([]);
-  const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
+
+  const {
+    treeData,
+    expandedKeys,
+    selectedNode,
+    setTreeData,
+    setExpandedKeys,
+    setSelectedNode,
+  } = useTree({
     type: `favorite`,
   });
+  const { setMyInfo } = useProfile();
+
   useEffect(() => {
     console.log(`selected Node: `, selectedNode);
   }, [selectedNode]);
@@ -57,58 +63,54 @@ export default function FavoritePage() {
           items: { node_item: userSchema },
         },
       } = await getUserInfos([loginId, ...userIds]);
-      const myInfo = userSchema?.find((v: any) => v.user_id.value === loginId);
+      const result = userSchema?.find((v: any) => v.user_id.value === loginId);
+      const myInfo: TUser = {
+        classMaxCode: result.class_max_code?.value,
+        connectType: result.connect_type?.value,
+        expiredPwdYn: result.expired_pwd_yn?.value,
+        orgCode: result.org_code?.value,
+        sipId: result.sip_id?.value,
+        smsUsed: result.sms_used?.value,
+        syncOpt: result.sync_opt?.value,
+        userAliasName: result.user_aliasname?.value,
+        userBirthGubun: result.user_birth_gubun?.value,
+        userBirthday: result.user_birthday?.value,
+        userCertify: result.user_certify?.value,
+        userEmail: result.user_email?.value,
+        userExtState: result.user_extstate?.value,
+        userField1: result.user_field1?.value,
+        userField2: result.user_field2?.value,
+        userField3: result.user_field3?.value,
+        userField4: result.user_field4?.value,
+        userField5: result.user_field5?.value,
+        userGroupCode: result.user_group_code?.value,
+        userGroupName: result.user_group_name?.value,
+        userGubun: result.user_gubun?.value,
+        userId: result.user_id?.value,
+        userIpphoneDbGroup: result.user_ipphone_dbgroup?.value,
+        userName: result.user_name?.value,
+        userPass: result.user_pass?.value,
+        userPayclName: result.user_paycl_name?.value,
+        userPhoneState: result.user_phone_state?.value,
+        userPicturePos: result.user_picture_pos?.value,
+        userState: result.user_state?.value,
+        userTelCompany: result.user_tel_company?.value,
+        userTelFax: result.user_tel_fax?.value,
+        userTelIpphone: result.user_tel_ipphone?.value,
+        userTelMobile: result.user_tel_mobile?.value,
+        userTelOffice: result.user_tel_office?.value,
+        userViewOrgGroup: result.user_view_org_groups?.value,
+        userWorkName: result.user_work_name?.value,
+        userXmlPic: result.user_xml_pic?.value,
+        viewOpt: result.view_opt?.value,
+      };
       const myProfile = [
         {
           gubun: `G`,
           title: `내 프로필`,
           key: `myProfile`,
           children: [
-            {
-              title: myInfo.user_name?.value,
-              key: `me`,
-              gubun: `U`,
-              classMaxCode: myInfo.class_max_code?.value,
-              connectType: myInfo.connect_type?.value,
-              expiredPwdYn: myInfo.expired_pwd_yn?.value,
-              nodeEnd: myInfo.node_end?.value,
-              nodeStart: myInfo.node_start?.value,
-              orgCode: myInfo.org_code?.value,
-              sipId: myInfo.sip_id?.value,
-              smsUsed: myInfo.sms_used?.value,
-              syncOpt: myInfo.sync_opt?.value,
-              userAliasName: myInfo.user_aliasname?.value,
-              userBirthGubun: myInfo.user_birth_gubun?.value,
-              userBirthday: myInfo.user_birthday?.value,
-              userCertify: myInfo.user_certify?.value,
-              userEmail: myInfo.user_email?.value,
-              userExtState: myInfo.user_extstate?.value,
-              userField1: myInfo.user_field1?.value,
-              userField2: myInfo.user_field2?.value,
-              userField3: myInfo.user_field3?.value,
-              userField4: myInfo.user_field4?.value,
-              userField5: myInfo.user_field5?.value,
-              userGroupCode: myInfo.user_group_code?.value,
-              userGroupName: myInfo.user_group_name?.value,
-              userGubun: myInfo.user_gubun?.value,
-              userId: myInfo.user_id?.value,
-              userIpphoneDbGroup: myInfo.user_ipphone_dbgroup?.value,
-              userName: myInfo.user_name?.value,
-              userPass: myInfo.user_pass?.value,
-              userPayclName: myInfo.user_paycl_name?.value,
-              userPhoneState: myInfo.user_phone_state?.value,
-              userPicturePos: myInfo.user_picture_pos?.value,
-              userState: myInfo.user_state?.value,
-              userTelCompany: myInfo.user_tel_company?.value,
-              userTelFax: myInfo.user_tel_fax?.value,
-              userTelIpphone: myInfo.user_tel_ipphone?.value,
-              userTelMobile: myInfo.user_tel_mobile?.value,
-              userTelOffice: myInfo.user_tel_office?.value,
-              userViewOrgGroup: myInfo.user_view_org_groups?.value,
-              userWorkName: myInfo.user_work_name?.value,
-              userXmlPic: myInfo.user_xml_pic?.value,
-              viewOpt: myInfo.view_opt?.value,
-            },
+            { title: myInfo.userName, key: `me`, gubun: `U`, ...myInfo },
           ],
         },
       ];
@@ -132,6 +134,8 @@ export default function FavoritePage() {
       setTreeData([...myProfile, ...root]);
       setExpandedKeys([`myProfile`, ...keyIds]);
       setStatusMonitor(userIds);
+      setMyInfo(myInfo);
+      _orgCode = myInfo.orgCode!;
     };
     !treeData.length && getBuddy();
   }, []);
@@ -222,19 +226,21 @@ export default function FavoritePage() {
         return {
           ...v,
           children: append(
-            v.children.sort((a: any, b: any) => {
-              if (a.gubun === `G` || b.gubun === `G`) {
-                return 0;
-              }
-              const nameA = a.userName.toUpperCase(); // ignore upper and lowercase
-              const nameB = b.userName.toUpperCase(); // ignore upper and lowercase
-              if (nameA < nameB) {
-                return -1;
-              }
-              if (nameA > nameB) {
-                return 1;
-              }
-            }),
+            // 부서 내 사용자 이름 순 정렬
+            // v.children.sort((a: any, b: any) => {
+            //   if (a.gubun === `G` || b.gubun === `G`) {
+            //     return 0;
+            //   }
+            //   const nameA = a.userName.toUpperCase(); // ignore upper and lowercase
+            //   const nameB = b.userName.toUpperCase(); // ignore upper and lowercase
+            //   if (nameA < nameB) {
+            //     return -1;
+            //   }
+            //   if (nameA > nameB) {
+            //     return 1;
+            //   }
+            // }),
+            v.children,
             child,
             userSchema
           ),
@@ -334,15 +340,15 @@ export default function FavoritePage() {
 
   // need to be memorized
   const renderTreeNodes = (data: TTreeNode[]) => {
-    return data.map((item) => {
+    return data.map((item, i) => {
       if (item.children) {
         return (
-          <TreeNode {...item} title={<Node data={item} />}>
+          <TreeNode {...item} title={<Node data={item} index={i} />}>
             {renderTreeNodes(item.children)}
           </TreeNode>
         );
       }
-      return <TreeNode {...item} title={<Node data={item} />} />;
+      return <TreeNode {...item} title={<Node data={item} index={i} />} />;
     });
   };
 

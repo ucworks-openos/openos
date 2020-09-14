@@ -1,7 +1,9 @@
 import { Interface } from "readline";
 
 declare global {
-  type TTreeNode = {
+  type TTreeNode = TTreeDefault & TUser;
+
+  type TTreeDefault = {
     // 부서, 유저 공통
     title: string;
     key: string;
@@ -10,7 +12,6 @@ declare global {
     // 미분류
     nodeEnd?: string;
     nodeStart?: string;
-    orgCode?: string;
     groupParentId?: string;
     groupSeq?: string;
     pid?: string;
@@ -19,7 +20,9 @@ declare global {
     children?: TTreeNode[];
     groupCode?: string;
     groupName?: string;
+  };
 
+  type TUser = {
     // 유저
     classMaxCode?: string;
     // 사용자접속위치
@@ -32,6 +35,7 @@ declare global {
     // CONNECT_TYPE_MOBILE_IOS         = 6, 아이폰
     // CONNECT_TYPE_MOBILE_IOS_PAD     = 7, 아이폰 PAD
     // CONNECT_TYPE_APP_MAC            = 10, 맥버전
+    orgCode?: string;
     connectType?: string;
     pullClassId?: string;
     pullGroupName?: string;
@@ -79,10 +83,16 @@ declare global {
   type TOrganizationState = {
     organizationTreeData: TTreeNode[];
     organizationExpandedKeys: string[];
+    selectedOrganizationNode: TTreeNode;
   };
 
   type TFavoriteState = {
     favoriteTreeData: TTreeNode[];
     favoriteExpandedKeys: string[];
+    selectedFavoriteNode: TTreeNode;
+  };
+
+  type TProfileState = {
+    myInfo: TUser;
   };
 }

@@ -9,6 +9,7 @@ import { EventDataNode, DataNode } from "rc-tree/lib/interface";
 import {
   getBaseOrg,
   getChildOrg,
+  searchOrgUsers,
   setStatusMonitor,
 } from "../ipcCommunication/ipcCommon";
 import { CLIENT_RENEG_WINDOW } from "tls";
@@ -159,6 +160,21 @@ export default function OrganizationPage() {
     return children;
   };
 
+  const handleSearch = (e: any) => {
+    const which = e.which;
+    const keyword = e.target.value;
+
+    const getSearchResult = async () => {
+      const response = await searchOrgUsers(_orgCode, keyword);
+
+      console.log(`response: `, response);
+    };
+
+    if (which === 13) {
+      getSearchResult();
+    }
+  };
+
   // attach children
   const attach = (
     prev: TTreeNode[],
@@ -249,15 +265,15 @@ export default function OrganizationPage() {
 
   // need to be memorized
   const renderTreeNodes = (data: TTreeNode[]) => {
-    return data.map((item) => {
+    return data.map((item, index) => {
       if (item.children) {
         return (
-          <TreeNode {...item} title={<Node data={item} />}>
+          <TreeNode {...item} title={<Node data={item} index={index} />}>
             {renderTreeNodes(item.children)}
           </TreeNode>
         );
       }
-      return <TreeNode {...item} title={<Node data={item} />} />;
+      return <TreeNode {...item} title={<Node data={item} index={index} />} />;
     });
   };
 
@@ -275,6 +291,7 @@ export default function OrganizationPage() {
             className="local-search"
             placeholder="멤버 검색"
             title="이하와 같은 정보로 멤버를 검색해주세요. 사용자ID, 사용자명, 부서명, 직위명, 직책명, 직급명, 전화번호"
+            onKeyDown={handleSearch}
           />
         </div>
       </div>

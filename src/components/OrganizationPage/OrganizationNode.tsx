@@ -3,13 +3,22 @@ import styled from "styled-components";
 import Modal from "react-modal";
 import MessageModal from "../../common/components/Modal/MessageModal";
 
-export default function OrganizationNode(props: any) {
-  const data: TTreeNode = props.data;
+type TOrganizationNodeProps = {
+  data: TTreeNode;
+  index: number;
+};
+
+export default function OrganizationNode(props: TOrganizationNodeProps) {
+  const { data, index } = props;
   const [visible, setVisible] = useState<boolean>(false);
   const [messageModalVisible, setMessageModalVisible] = useState(false);
 
-  const handleToggle = () => {
-    setVisible((prev) => !prev);
+  const handleViewDetail = () => {
+    setVisible(true);
+  };
+
+  const handleCloseDetail = () => {
+    setVisible(false);
   };
 
   const handleImageError = (image: any) => {
@@ -64,12 +73,14 @@ export default function OrganizationNode(props: any) {
                 }
                 style={{ width: `48px`, height: `48px` }}
                 alt="user-profile-picture"
-                onClick={handleToggle}
+                onClick={handleViewDetail}
+                onBlur={handleCloseDetail}
+                tabIndex={index}
                 onError={handleImageError}
               />
               {visible && (
                 <div className="user-info-container">
-                  <div className="btn-close" onClick={handleToggle}></div>
+                  <div className="btn-close" onClick={handleViewDetail}></div>
                   <div className="user-profile-state-wrap">
                     <div className="user-pic-wrap">
                       <img

@@ -5,15 +5,20 @@ import MessageModal from "../../common/components/Modal/MessageModal";
 
 type TFavoriteNodeProps = {
   data: TTreeNode;
+  index: number;
 };
 
 export default function FavoriteNode(props: TFavoriteNodeProps) {
-  const { data } = props;
+  const { data, index } = props;
   const [visible, setVisible] = useState<boolean>(false);
   const [messageModalVisible, setMessageModalVisible] = useState(false);
 
-  const handleToggle = () => {
-    setVisible((prev) => !prev);
+  const handleViewDetail = () => {
+    setVisible(true);
+  };
+
+  const handleCloseDetail = () => {
+    setVisible(false);
   };
 
   const handleImageError = (image: any) => {
@@ -68,12 +73,14 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
                 }
                 style={{ width: `48px`, height: `48px` }}
                 alt="user-profile-picture"
-                onClick={handleToggle}
+                onClick={handleViewDetail}
+                onBlur={handleCloseDetail}
+                tabIndex={index}
                 onError={handleImageError}
               />
               {visible && (
                 <div className="user-info-container">
-                  <div className="btn-close" onClick={handleToggle}></div>
+                  <div className="btn-close" onClick={handleViewDetail}></div>
                   <div className="user-profile-state-wrap">
                     <div className="user-pic-wrap">
                       <img
@@ -85,7 +92,6 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
                         }
                         style={{ width: `48px`, height: `48px` }}
                         alt="user-profile-picture"
-                        onClick={handleToggle}
                         onError={handleImageError}
                       />
                     </div>
