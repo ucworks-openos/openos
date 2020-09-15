@@ -287,6 +287,10 @@ export default function FavoritePage() {
       return v;
     });
 
+  const handleKeywordChange = (e: any) => {
+    setSearchKeyword(e.target.value);
+  };
+
   const handleSearch = (e: any) => {
     const which = e.which;
     const keyword = e.target.value;
@@ -501,7 +505,9 @@ export default function FavoritePage() {
             className="local-search"
             placeholder="멤버 검색"
             title="이하와 같은 정보로 멤버를 검색해주세요. 사용자ID, 사용자명, 부서명, 직위명, 직책명, 직급명, 전화번호"
+            value={searchKeyword}
             onKeyDown={handleSearch}
+            onChange={handleKeywordChange}
           />
         </div>
         {isEditGroupTabOpen && (
