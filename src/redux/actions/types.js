@@ -11,4 +11,7 @@ export const GET_INITIAL_MESSAGE_LISTS = 'get_initial_message_lists';
 export const GET_MESSAGE = 'get_message';
 export const SET_CURRENT_MESSAGE = 'set_current_message';
 export const ADD_MESSAGE = 'add_message';
+export const GET_MORE_MESSAGES = 'get_more_messages';
+export const SET_CURRENT_MESSAGE_LISTS_TYPE = 'set_current_message_lists_type';
+
 

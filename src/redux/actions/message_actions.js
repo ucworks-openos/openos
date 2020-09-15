@@ -3,8 +3,9 @@ import {
     GET_INITIAL_MESSAGE_LISTS,
     GET_MESSAGE,
     SET_CURRENT_MESSAGE,
-    GET_MORE_CHATS_MESSAGES,
+    GET_MORE_MESSAGES,
     ADD_MESSAGE,
+    SET_CURRENT_MESSAGE_LISTS_TYPE,
     DELETE_CHAT_MESSAGE,
     GET_SEARCHED_CHAT_MESSAGES
 } from './types';
@@ -19,13 +20,15 @@ export function setCurrentMessage(messageKey) {
     }
 }
 
-export async function getInitialMessageLists() {
-    const request = await getMessage('MSG_RECV', 0, 10)
+export async function getInitialMessageLists(messageType) {
+    console.log('messageTypemessageTypemessageTypemessageType', messageType)
+    const request = await getMessage(messageType, 0, 10)
     return {
         type: GET_INITIAL_MESSAGE_LISTS,
         payload: request.data.table.row
     }
 }
+
 
 export async function getMessageHo(messageKey) {
     console.log('getMessageHo messageKey', messageKey)
@@ -46,15 +49,21 @@ export function addMessage(newMessage) {
     }
 }
 
-// export function getMoreChatMessages(bandId, page = 1) {
-//     const request = axios.get(`${SERVER_URI}:5000/api/talk?bandId=${bandId}&page=${page}`)
-//         .then(response => response.data);
+export function setCurrentMessageListsType(messageListsType) {
+    return {
+        type: SET_CURRENT_MESSAGE_LISTS_TYPE,
+        payload: messageListsType
+    }
+}
 
-//     return {
-//         type: GET_MORE_CHATS_MESSAGES,
-//         payload: request
-//     }
-// }
+export async function getMoreMessages(messageType, page = 1, messageDefaultCounts = 10) {
+    const request = await getMessage(messageType, page * messageDefaultCounts, messageDefaultCounts)
+    console.log('request requestrequestrequest', request)
+    return {
+        type: GET_MORE_MESSAGES,
+        payload: request.data.table.row
+    }
+}
 
 // export function deleteChatMessage(item) {
 //     const request = axios.delete(`${SERVER_URI}:5000/api/talk?talkId=${item.id}`)

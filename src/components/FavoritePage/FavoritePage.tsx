@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import userThumbnail from "../../assets/images/img_user-thumbnail.png";
-import imgHolder from "../../assets/images/img_imgHolder.png";
 import styled from "styled-components";
 import "./FavoritePage.css";
 import "../../assets/css/Tree.scss";
@@ -8,14 +6,21 @@ import SignitureCi from "../../common/components/SignitureCi";
 import AddGroupModal from "../../common/components/Modal/AddGroupModal";
 import Modal from "react-modal";
 import HamburgerButton from "../../common/components/HamburgerButton";
-import { useParams } from "react-router-dom";
-import axios from "axios";
 import Node from "./FavoriteNode";
 import Tree, { TreeNode } from "rc-tree";
-import { EventDataNode } from "rc-tree/lib/interface";
-import { getBuddyList, setStatusMonitor } from "../ipcCommunication/ipcCommon";
+import {
+  getBuddyList,
+  setStatusMonitor,
+  getUserInfos,
+  searchOrgUsers,
+} from "../ipcCommunication/ipcCommon";
+import useTree from "../../hooks/useTree";
+import useProfile from "../../hooks/useProfile";
+import useSearch from "../../hooks/useSearch";
 
 Modal.setAppElement("#root");
+let _orgCode: string = ``;
+let _userSchema: TUser[] = [];
 
 export default function FavoritePage() {
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
@@ -23,78 +28,360 @@ export default function FavoritePage() {
   );
   const [isAddGroupModalOpen, setIsAddGroupModalOpen] = useState(false);
   const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState(false);
-  const [treeData, setTreeData] = useState<TFavoriteNode[]>([
-    _defaultFavoriteNode
-  ]);
-  const [selectedNode, setSelectedNode] = useState<TFavoriteNode>(
-    _defaultFavoriteNode
-  );
-  const [autoExpandParent, setAutoExpandParent] = useState<boolean>(false);
-  const [expandedKeys, setExpandedKeys] = useState<(string | number)[]>([``]);
+  const {
+    searchMode,
+    searchKeyword,
+    searchResult,
+    setSearchMode,
+    setSearchKeyword,
+    setSearchResult,
+  } = useSearch({ type: `favorite` });
+  const {
+    treeData,
+    expandedKeys,
+    selectedNode,
+    setTreeData,
+    setExpandedKeys,
+    setSelectedNode,
+  } = useTree({
+    type: `favorite`,
+  });
+  const { setMyInfo } = useProfile();
 
   useEffect(() => {
     console.log(`selected Node: `, selectedNode);
   }, [selectedNode]);
 
-  // fetching root
   useEffect(() => {
+    // 친구 + 개인 그룹 1deps로 가져오기.
     const getBuddy = async () => {
-      let { data: { contacts: { node: response } } } = await getBuddyList();
-      console.log(`buddy list: `, typeof(response));
-      
-      if (response.node) {
-        response = response.node;
-      }
-      const root = response.reduce((prev: any, cur: any, i: number) => {
-        if (i === 0) {
-          return {
-            title: cur.name,
-            key: cur.id,
-            gubun: cur.gubun,
-            id: cur.id,
-            name: cur.name,
-            children: []
-          }
-        } else {
-          return {
+      const {
+        data: {
+          contacts: { node: response },
+        },
+      } = await getBuddyList();
+
+      // 로그인한 아이디 가져오기
+      const loginId = sessionStorage.getItem(`loginId`);
+
+      // 친구 id만 추출
+      const userIds = response
+        .filter((v: any) => v.gubun === `U`)
+        .map((v: any) => v.id);
+
+      // 개인 그룹만 추출
+      const keyIds = response
+        .filter((v: any) => v.gubun === `G`)
+        .map((v: any) => v.id);
+
+      // 로그인 id + 추출한 친구 id로 사용자 상세 정보 가져오기
+      const {
+        data: {
+          items: { node_item: userSchemaMaybeArr },
+        },
+      } = await getUserInfos([loginId, ...userIds]);
+
+      // 사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
+      const userSchema = Array.isArray(userSchemaMaybeArr)
+        ? userSchemaMaybeArr
+        : [userSchemaMaybeArr];
+
+      // 프로필 상세 정보 추출
+      const result = userSchema?.find((v: any) => v.user_id.value === loginId);
+
+      // 검색을 위해 userSchema 저장
+      _userSchema = userSchema;
+
+      // 프로필 상세 정보 myInfo에 매핑.
+      const myInfo: TUser = {
+        classMaxCode: result.class_max_code?.value,
+        connectType: result.connect_type?.value,
+        expiredPwdYn: result.expired_pwd_yn?.value,
+        orgCode: result.org_code?.value,
+        sipId: result.sip_id?.value,
+        smsUsed: result.sms_used?.value,
+        syncOpt: result.sync_opt?.value,
+        userAliasName: result.user_aliasname?.value,
+        userBirthGubun: result.user_birth_gubun?.value,
+        userBirthday: result.user_birthday?.value,
+        userCertify: result.user_certify?.value,
+        userEmail: result.user_email?.value,
+        userExtState: result.user_extstate?.value,
+        userField1: result.user_field1?.value,
+        userField2: result.user_field2?.value,
+        userField3: result.user_field3?.value,
+        userField4: result.user_field4?.value,
+        userField5: result.user_field5?.value,
+        userGroupCode: result.user_group_code?.value,
+        userGroupName: result.user_group_name?.value,
+        userGubun: result.user_gubun?.value,
+        userId: result.user_id?.value,
+        userIpphoneDbGroup: result.user_ipphone_dbgroup?.value,
+        userName: result.user_name?.value,
+        userPass: result.user_pass?.value,
+        userPayclName: result.user_paycl_name?.value,
+        userPhoneState: result.user_phone_state?.value,
+        userPicturePos: result.user_picture_pos?.value,
+        userState: result.user_state?.value,
+        userTelCompany: result.user_tel_company?.value,
+        userTelFax: result.user_tel_fax?.value,
+        userTelIpphone: result.user_tel_ipphone?.value,
+        userTelMobile: result.user_tel_mobile?.value,
+        userTelOffice: result.user_tel_office?.value,
+        userViewOrgGroup: result.user_view_org_groups?.value,
+        userWorkName: result.user_work_name?.value,
+        userXmlPic: result.user_xml_pic?.value,
+        viewOpt: result.view_opt?.value,
+      };
+      // 프로필 상세 정보를 트리 형태로 저장.
+      const myProfile = [
+        {
+          gubun: `G`,
+          title: `내 프로필`,
+          key: `myProfile`,
+          children: [
+            { title: myInfo.userName, key: `me`, gubun: `U`, ...myInfo },
+          ],
+        },
+      ];
+      // 즐겨찾기 트리 생성
+      const root = response.reduce((prev: TTreeNode[], cur: any) => {
+        // pid (parent id)가 없을 경우 루트 노드(그룹)로 간주
+        if (!cur.pid) {
+          return [
             ...prev,
-            children: [
-              ...prev.children,
-              {
-                title: cur.name,
-                key: cur.id,
-                gubun: cur.gubun,
-                id: cur.id,
-                name: cur.name,
-              }
-            ]
-          }
+            {
+              gubun: cur.gubun,
+              title: cur.name,
+              key: cur.id,
+              pid: cur.pid,
+              children: [],
+            },
+          ];
+        } else {
+          // 재귀함수 (children에 하위 노드 삽입)
+          return append(prev, cur, userSchema);
         }
-      }, {})
-
-      const monitorIds = response.filter((_: any, i: number) => i !== 0).map((v: TFavoriteNode, i: number) => v.id);
-      setTreeData([root]);
-      setExpandedKeys([root.id]);
-      setStatusMonitor(monitorIds)
-
-    }
-    getBuddy();
-
-
+      }, []);
+      setTreeData([...myProfile, ...root]);
+      // 페이지 진입 시 내 프로필 그룹 + 개인 그룹은 펼침
+      setExpandedKeys([`myProfile`, ...keyIds]);
+      // 상태 바뀔 시 푸시 알림 요청
+      setStatusMonitor(userIds);
+      setMyInfo(myInfo);
+      _orgCode = myInfo.orgCode!;
+    };
+    !treeData.length && getBuddy();
   }, []);
 
+  // 재귀함수 (children에 하위 노드 삽입)
+  const append = (
+    prev: TTreeNode[],
+    child: any,
+    userSchema: any
+  ): TTreeNode[] =>
+    prev.map((v: any) => {
+      // 즐겨찾기 밑에 a부서가 있다면, 아래 분기문에 잡힌다.
+      if (v.key === child.pid) {
+        // gubun: G (Group)
+        if (child.gubun === `G`) {
+          return {
+            ...v,
+            children: [
+              ...v.children,
+              {
+                title: child.name,
+                key: child.id,
+                gubun: child.gubun,
+                children: [],
+                pid: child.pid,
+              },
+            ],
+          };
+        } else {
+          // gubun: U (User)
+          // userSchema에서 검색하여 상세 정보를 userV에 담는다.
+          const userV = userSchema?.find(
+            (v: any) => v.user_id.value === child.id
+          );
+          console.log(`userV: `, userV);
+          return {
+            ...v,
+            children: [
+              ...v.children,
+              {
+                title: child.name,
+                key: child.id,
+                gubun: child.gubun,
+                pid: child.pid,
+
+                classMaxCode: userV.class_max_code?.value,
+                connectType: userV.connect_type?.value,
+                expiredPwdYn: userV.expired_pwd_yn?.value,
+                nodeEnd: userV.node_end?.value,
+                nodeStart: userV.node_start?.value,
+                orgCode: userV.org_code?.value,
+                sipId: userV.sip_id?.value,
+                smsUsed: userV.sms_used?.value,
+                syncOpt: userV.sync_opt?.value,
+                userAliasName: userV.user_aliasname?.value,
+                userBirthGubun: userV.user_birth_gubun?.value,
+                userBirthday: userV.user_birthday?.value,
+                userCertify: userV.user_certify?.value,
+                userEmail: userV.user_email?.value,
+                userExtState: userV.user_extstate?.value,
+                userField1: userV.user_field1?.value,
+                userField2: userV.user_field2?.value,
+                userField3: userV.user_field3?.value,
+                userField4: userV.user_field4?.value,
+                userField5: userV.user_field5?.value,
+                userGroupCode: userV.user_group_code?.value,
+                userGroupName: userV.user_group_name?.value,
+                userGubun: userV.user_gubun?.value,
+                userId: userV.user_id?.value,
+                userIpphoneDbGroup: userV.user_ipphone_dbgroup?.value,
+                userName: userV.user_name?.value,
+                userPass: userV.user_pass?.value,
+                userPayclName: userV.user_paycl_name?.value,
+                userPhoneState: userV.user_phone_state?.value,
+                userPicturePos: userV.user_picture_pos?.value,
+                userState: userV.user_state?.value,
+                userTelCompany: userV.user_tel_company?.value,
+                userTelFax: userV.user_tel_fax?.value,
+                userTelIpphone: userV.user_tel_ipphone?.value,
+                userTelMobile: userV.user_tel_mobile?.value,
+                userTelOffice: userV.user_tel_office?.value,
+                userViewOrgGroup: userV.user_view_org_groups?.value,
+                userWorkName: userV.user_work_name?.value,
+                userXmlPic: userV.user_xml_pic?.value,
+                viewOpt: userV.view_opt?.value,
+              },
+            ],
+          };
+        }
+        //
+      } else if (v.children) {
+        return {
+          ...v,
+          children: append(
+            // 부서 내 사용자 이름 순 정렬
+            // v.children.sort((a: any, b: any) => {
+            //   if (a.gubun === `G` || b.gubun === `G`) {
+            //     return 0;
+            //   }
+            //   const nameA = a.userName.toUpperCase(); // ignore upper and lowercase
+            //   const nameB = b.userName.toUpperCase(); // ignore upper and lowercase
+            //   if (nameA < nameB) {
+            //     return -1;
+            //   }
+            //   if (nameA > nameB) {
+            //     return 1;
+            //   }
+            // }),
+            v.children,
+            child,
+            userSchema
+          ),
+        };
+      }
+      return v;
+    });
+
+  const handleKeywordChange = (e: any) => {
+    setSearchKeyword(e.target.value);
+  };
+
+  const handleSearch = (e: any) => {
+    const which = e.which;
+    const keyword = e.target.value;
+
+    const getSearchResult = () => {
+      // 사용자명, 사용자 id, 부서명, 직위, 직책, 직급, 핸드폰 번호로 검색 가능
+      // user_name, user_id, user_group_name, user_paycl_name, _, _, user_tel_mobile
+      const reg = new RegExp(keyword, `g`);
+      const searchResult = _userSchema.filter(
+        (v: any) =>
+          reg.test(v.user_name.value) ||
+          reg.test(v.user_id.value) ||
+          reg.test(v.user_group_name.value) ||
+          reg.test(v.user_paycl_name.value) ||
+          reg.test(v.user_tel_mobile.value)
+      );
+
+      const userSchema = searchResult.map((v: any) => ({
+        title: v.user_name?.value,
+        key: v.user_id.value,
+        gubun: v.gubun.value,
+        orgCode: v.org_code.value,
+        classMaxCode: v.class_max_code?.value,
+        connectType: v.connect_type?.value,
+        pullClassId: v.pull_class_id?.value,
+        pullGroupName: v.pull_group_name?.value,
+        sipId: v.sip_id?.value,
+        smsUsed: v.sms_used?.value,
+        syncOpt: v.sync_opt?.value,
+        userAliasName: v.user_aliasname?.value,
+        userBirthGubun: v.user_birth_gubun?.value,
+        userBirthday: v.user_birthday?.value,
+        userCertify: v.user_certify?.value,
+        userEmail: v.user_email?.value,
+        userEtcState: v.user_etc_state?.value,
+        userExtState: v.user_extstate?.value,
+        userGroupCode: v.user_group_code?.value,
+        userGroupName: v.user_group_name?.value,
+        userGubun: v.user_gubun?.value,
+        userId: v.user_id?.value,
+        userIpphoneDbGroup: v.user_ipphone_dbgroup?.value,
+        userName: v.user_name?.value,
+        userPayclName: v.user_paycl_name?.value,
+        userPhoneState: v.user_phone_state?.value,
+        userPicturePos: v.user_picture_pos?.value,
+        userState: v.user_state?.value,
+        userTelCompany: v.user_tel_company?.value,
+        userTelFax: v.user_tel_fax?.value,
+        userTelIpphone: v.user_tel_ipphone?.value,
+        userTelMobile: v.user_tel_mobile?.value,
+        userTelOffice: v.user_tel_office?.value,
+        userViewOrgGroup: v.user_view_org_groups?.value,
+        userWorkName: v.user_work_name?.value,
+        userXmlPic: v.user_xml_pic?.value,
+        viewOpt: v.view_opt?.value,
+      }));
+
+      const searchRoot: TTreeNode[] = [
+        {
+          title: `검색 결과`,
+          key: `searchResult`,
+          children: userSchema,
+          gubun: `G`,
+        },
+      ];
+
+      setSearchMode(true);
+      setSearchKeyword(keyword);
+      setSearchResult(searchRoot);
+    };
+    if (which === 13) {
+      if (keyword) {
+        getSearchResult();
+      } else {
+        setSearchMode(false);
+      }
+    }
+  };
+
   const handleSelect = async ([selectedKeys]: (string | number)[]) => {
-    const { v } = await find(treeData, Number(selectedKeys));
+    const { v } = await find(treeData, selectedKeys?.toString());
     setSelectedNode(v);
   };
 
   const find = (
-    list: TFavoriteNode[],
-    key: number
-  ): Promise<{ v: TFavoriteNode; i: number; list: TFavoriteNode[] }> =>
+    list: TTreeNode[],
+    key: string
+  ): Promise<{ v: TTreeNode; i: number; list: TTreeNode[] }> =>
     new Promise((resolve) => {
       for (let i = 0; i < list.length; i++) {
-        if (Number(list[i].key) === Number(key)) {
+        if (list[i].key === key) {
           resolve({ v: list[i], i: i, list: list });
         }
         if (list[i].children) {
@@ -105,139 +392,52 @@ export default function FavoritePage() {
       }
     });
 
-  // align list's order as 1 to n
-  // const align = (list: TFavoriteNode[]): TFavoriteNode[] =>
-  //   list.map((v, i) => ({
-  //     ...v,
-  //     classOrderNo: i,
-  //   }));
-
-  // syncronize order with database
-  // const syncronize = async (list: TFavoriteNode[]) => {
-  //   const classList = list.map((v) => ({
-  //     classId: v.classId,
-  //     classOrderNo: v.classOrderNo,
-  //   }));
-
-  //   await axios.put(`http://localhost:4000/v0/tree/order`, {
-  //     list: classList,
-  //   });
-  // };
-
-  // update child's class info moving into other parent
-  // const move = async (
-  //   parent: TFavoriteNode,
-  //   child: TFavoriteNode,
-  //   dropPosition: number
-  // ) => {
-  //   if (
-  //     parent.classUpperGroupCode === child.classUpperGroupCode &&
-  //     dropPosition !== 0
-  //   ) {
-  //     return false;
-  //   }
-  //   const data = {
-  //     classId: child.classId,
-  //     classUpperGroupCode:
-  //       dropPosition === 0 ? parent.classGroupCode : parent.classUpperGroupCode,
-  //     classUpperClassId:
-  //       dropPosition === 0 ? parent.classId : parent.classUpperClassId,
-  //     classGroupCode:
-  //       child.classKind === "2"
-  //         ? child.classGroupCode
-  //         : dropPosition === 0
-  //           ? parent.classGroupCode
-  //           : parent.classUpperGroupCode,
-  //     classGroupName:
-  //       child.classKind === "2"
-  //         ? child.classGroupName
-  //         : dropPosition === 0
-  //           ? parent.classGroupName
-  //           : parent.classGroupName,
-  //   };
-  //   await axios.patch(`http://localhost:4000/v0/tree/child`, data);
-  // };
-
-  // validation check if you drop something to user
-  // const validate = async (
-  //   replica: TFavoriteNode[],
-  //   dropKey: number,
-  //   dropPosition: number
-  // ) => {
-  //   const { v: dropV } = await find(replica, dropKey);
-  //   console.log(`dropV: `, dropV);
-  //   return dropV.classKind === "1" && dropPosition === 0 ? false : true;
-  // };
-
   // drop event
-  // const onDrop = async (info: any) => {
-  //   const {
-  //     dropToGap,
-  //     dragNode: {
-  //       props: { eventKey: dragKey },
-  //     },
-  //     node: {
-  //       props: { eventKey: dropKey, pos: dropPos },
-  //     },
-  //   } = info;
-  //   const dropPosArr = dropPos.split("-");
-  //   // drop position === -1 : drop to upper line
-  //   // drop position === 0 : drop to node
-  //   // drop position === 1 : drop to bottom line
-  //   const dropPosition =
-  //     info.dropPosition - Number(dropPosArr[dropPosArr.length - 1]);
-  //   const replica = [...treeData];
-  //   // validation check if you drop something to user
-  //   if (!(await validate(replica, dropKey, dropPosition))) {
-  //     //_set_has_dropped_to_user(true);
-  //     // alert("사용자 하위에 추가할 수 없습니다.");
-  //     return false;
-  //   }
-  //   const { v: dragV, i: dragI, list: dragList } = await find(replica, dragKey);
-  //   // delete drag node
-  //   dragList.splice(dragI, 1);
-  //   if (!dropToGap) {
-  //     const { v: dropV } = await find(replica, dropKey);
-  //     // if you drop something to node having children, push something to it's children
-  //     if (dropV.children) {
-  //       dropV.children.push(dragV);
-  //     } else {
-  //       // if you drop something to node not having children(or yet to have), execute axios call
-  //       let children = await getChild(dropV.classGroupCode);
-  //       dropV.children = [...children, dragV];
-  //     }
-  //     move(dropV, dropV.children[dropV.children.length - 1], dropPosition);
-  //     dropV.children = align(dropV.children);
-  //     syncronize(dropV.children);
-  //   } else {
-  //     if (dropPosition === -1) {
-  //       let { v: dropV, i: dropI, list: dropList } = await find(
-  //         replica,
-  //         dropKey
-  //       );
-  //       // splice i = arr[i-1]
-  //       dropList.splice(dropI, 0, dragV);
-  //       move(dropV, dragV, dropPosition);
-  //       dropList = align(dropList);
-  //       syncronize(dropList);
-  //     } else {
-  //       let { v: dropV, i: dropI, list: dropList } = await find(
-  //         replica,
-  //         dropKey
-  //       );
-  //       dropList.splice(dropI + 1, 0, dragV);
-  //       move(dropV, dragV, dropPosition);
-  //       dropList = align(dropList);
-  //       syncronize(dropList);
-  //     }
-  //   }
-  //   setTreeData(replica);
-  // };
+  const onDrop = async (info: any) => {
+    const {
+      dragNode: {
+        props: { eventKey: dragKey },
+      },
+      node: {
+        props: { eventKey: dropKey },
+      },
+    } = info;
+    const replica = [...treeData];
+    const { v: dragV, i: dragI, list: dragList } = await find(replica, dragKey);
+    const { v: dropV, i: dropI, list: dropList } = await find(replica, dropKey);
+
+    if (dragV.gubun === `G` && dropV.gubun === `U`) {
+      return false;
+    }
+
+    if (
+      dragV.key === `myProfile` ||
+      dragV.key === `me` ||
+      dropV.key === `myProfile` ||
+      dropV.key === `me`
+    ) {
+      return false;
+    }
+
+    if (dropV.gubun === `U`) {
+      dragList.splice(dragI, 1);
+      dropList.splice(dropI, 0, dragV);
+    } else {
+      dragList.splice(dragI, 1);
+
+      if (dragV.gubun === `G`) {
+        dropV.children?.push(dragV);
+      } else {
+        dropV.children?.unshift(dragV);
+      }
+    }
+    setTreeData(replica);
+  };
 
   const handleExpand = (expandedKeys: (string | number)[]): void => {
+    console.log(`expandedKes param: `, expandedKeys);
     setExpandedKeys(expandedKeys);
-    setAutoExpandParent(false);
-  }
+  };
 
   const switcherGenerator = (data: any) => (
     <>
@@ -249,27 +449,27 @@ export default function FavoritePage() {
               style={{ minWidth: `20px`, height: `21px` }}
             />
           ) : (
-              <img
-                src="/images/icon_toggle_min.png"
-                style={{ minWidth: `20px`, height: `21px` }}
-              />
-            )}
+            <img
+              src="/images/icon_toggle_min.png"
+              style={{ minWidth: `20px`, height: `21px` }}
+            />
+          )}
         </Switcher>
       )}
     </>
   );
 
   // need to be memorized
-  const renderTreeNodes = (data: TFavoriteNode[]) => {
-    return data.map((item) => {
+  const renderTreeNodes = (data: TTreeNode[]) => {
+    return data.map((item, i) => {
       if (item.children) {
         return (
-          <TreeNode {...item} title={<Node data={item} />}>
+          <TreeNode {...item} title={<Node data={item} index={i} />}>
             {renderTreeNodes(item.children)}
           </TreeNode>
         );
       }
-      return <TreeNode {...item} title={<Node data={item} />} />;
+      return <TreeNode {...item} title={<Node data={item} index={i} />} />;
     });
   };
 
@@ -305,6 +505,9 @@ export default function FavoritePage() {
             className="local-search"
             placeholder="멤버 검색"
             title="이하와 같은 정보로 멤버를 검색해주세요. 사용자ID, 사용자명, 부서명, 직위명, 직책명, 직급명, 전화번호"
+            value={searchKeyword}
+            onKeyDown={handleSearch}
+            onChange={handleKeywordChange}
           />
         </div>
         {isEditGroupTabOpen && (
@@ -513,19 +716,31 @@ export default function FavoritePage() {
         </div>
       </div>
       <main className="main-wrap">
-        <Tree
-          draggable
-          showLine
-          showIcon={false}
-          // onDrop={onDrop}
-          expandedKeys={expandedKeys}
-          autoExpandParent={autoExpandParent}
-          onExpand={handleExpand}
-          onSelect={handleSelect}
-          switcherIcon={switcherGenerator}
-        >
-          {renderTreeNodes(treeData)}
-        </Tree>
+        {treeData.length && !searchMode ? (
+          <Tree
+            draggable
+            showLine
+            showIcon={false}
+            onDrop={onDrop}
+            expandedKeys={expandedKeys}
+            onExpand={handleExpand}
+            onSelect={handleSelect}
+            switcherIcon={switcherGenerator}
+          >
+            {renderTreeNodes(treeData)}
+          </Tree>
+        ) : (
+          <Tree
+            showLine
+            showIcon={false}
+            onSelect={handleSelect}
+            onExpand={handleExpand}
+            switcherIcon={switcherGenerator}
+            expandedKeys={[`searchResult`]}
+          >
+            {renderTreeNodes(searchResult)}
+          </Tree>
+        )}
       </main>
       <SignitureCi />
 
@@ -541,17 +756,6 @@ export default function FavoritePage() {
       </Modal>
     </div>
   );
-}
-
-const _orgCode = ``;
-
-const _defaultFavoriteNode: TFavoriteNode = {
-  title: ``,
-  key: `0`,
-  gubun: `G`,
-  id: ``,
-  name: ``,
-  children: []
 }
 
 const addGroupModalCustomStyles = {

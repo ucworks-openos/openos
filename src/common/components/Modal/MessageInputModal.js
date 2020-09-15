@@ -6,9 +6,9 @@ import {
 } from '../../../redux/actions/message_actions';
 import ReactSelect from '../../../common/components/Select/ReactSelect';
 import { userLists } from '../../../redux/mock-datas/user-lists';
+import { Button, InputGroup, FormControl } from 'react-bootstrap';
 
-
-function MessageInput() {
+function MessageInputModal(props) {
     const dispatch = useDispatch();
     const [title, setTitle] = useState("")
     const [content, setContent] = useState("")
@@ -61,25 +61,38 @@ function MessageInput() {
 
     return (
         <>
-            <div className="chat-select-area">
+            <div >
                 <ReactSelect selectValue={selectedUsers} selectLists={userLists} onChange={onSendToChange} value={title} />
             </div>
+            <br />
             <div>
-                <input className="chat-title-area"
-                    onChange={onTitleChange} value={title} placeholder="쪽지의 이름을 입력해주세요." />
+                <InputGroup className="mb-3">
+                    <InputGroup.Prepend>
+                        <InputGroup.Text onChange={onTitleChange} value={title} placeholder="쪽지의 이름을 입력해주세요."
+                            id="inputGroup-sizing-default">이름</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl
+                        aria-label="Default"
+                        aria-describedby="inputGroup-sizing-default"
+                    />
+                </InputGroup>
+                {/* <input
+                    onChange={onTitleChange} value={title} placeholder="쪽지의 이름을 입력해주세요." /> */}
             </div>
-            <div className="chat-input-area">
-                <div className="chat-input-wrap">
+            <div >
+                <div >
                     <QuillEditor
                         placeholder={"쪽지를 입력해주세요."}
                         onEditorChange={onEditorChange}
                         onFilesChange={onFilesChange}
                     />
-                    <button onClick={onSubmit} type="submit" className="btn-ghost-m" >전송</button>
+                    <br />
+                    <Button variant="outline-primary" type="submit" onClick={onSubmit}>전송</Button>{" "}
+                    <Button variant="outline-danger" onClick={props.closeModalFunction}>닫기</Button>
                 </div>
             </div>
         </>
     )
 }
 
-export default MessageInput
+export default MessageInputModal

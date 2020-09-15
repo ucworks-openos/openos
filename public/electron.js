@@ -226,9 +226,10 @@ app.on("ready", () => { //app.whenReady().then(() => { });
   Menu.setApplicationMenu(mainContextMenu);
 
   // Tray Context Menu
-  // tray = new Tray(path.join(__dirname, 'icon.ico'))
-  // tray.setToolTip('uc Messenger Application ')
-  // tray.setContextMenu(trayContextMenu)
+  const iconPath = isMac ? path.join(__dirname, 'icon.png') : path.join(__dirname, 'icon.ico');
+  tray = new Tray(iconPath)
+  tray.setToolTip('uc Messenger Application ')
+  tray.setContextMenu(trayContextMenu)
 
   // tray.on('click', () => {
   //   mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
@@ -246,6 +247,7 @@ app.on("ready", () => { //app.whenReady().then(() => { });
   });
 
   mainWindow.loadURL(
+
     isDev
       ? "http://localhost:3000"
       : `file://${path.join(__dirname, "/../build/index.html")}`

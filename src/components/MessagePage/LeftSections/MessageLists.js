@@ -2,19 +2,28 @@ import React from 'react'
 import userThumbnail from "../../../assets/images/img_user-thumbnail.png";
 import {
     getMessageHo,
-    setCurrentMessage
+    setCurrentMessage,
+    getMoreMessages
 } from "../../../redux/actions/message_actions";
 import { useDispatch, useSelector } from 'react-redux';
+import moment from 'moment';
 
 function MessagesLists() {
     const dispatch = useDispatch();
+    const page = useSelector(state => state.messages.page)
+    const messageCounts = useSelector(state => state.messages.messageCounts)
+    const messageDefaultCounts = useSelector(state => state.messages.messageDefaultCounts)
     const messageLists = useSelector(state => state.messages.messageLists)
     const currentMessage = useSelector(state => state.messages.currentMessage)
-    console.log('messageLists', messageLists)
+    const currentMessageListType = useSelector(state => state.messages.currentMessageListType)
+
     const onMessageClick = (messageId) => {
-        console.log('messageId', messageId)
         dispatch(getMessageHo(messageId))
         dispatch(setCurrentMessage(messageId))
+    }
+
+    const onLoadMoreClick = () => {
+        dispatch(getMoreMessages(currentMessageListType, page, messageDefaultCounts))
     }
 
     const renderMessageLists = () => (
@@ -23,14 +32,11 @@ function MessagesLists() {
             let receieveNames = message.msg_recv_name.split(',')
 
             const renderSendTo = receieveNames.map(user => {
-                return <span>{user}{" "}</span>
+                return <span key={user}>{user}{" "}</span>
             })
             return (
-                <li className={`chat-list-single  ppl-1x2 ${isCurrentMessage} `} key={message.msg_key} onClick={() => onMessageClick(message.msg_key)}>
+                <li className={`chat-list-single  ppl-1x1 ${isCurrentMessage} `} key={message.msg_key} onClick={() => onMessageClick(message.msg_key)}>
                     <div className="list-thumb-area">
-                        <div className="user-pic-wrap">
-                            <img src={userThumbnail} alt="user-profile-picture" />
-                        </div>
                         <div className="user-pic-wrap">
                             <img src={userThumbnail} alt="user-profile-picture" />
                         </div>
@@ -55,7 +61,7 @@ function MessagesLists() {
                                 {" "}{message.msg_send_name}
                             </div>
                             <div className="last-chat-time sub1">
-                                {message.msg_send_date}
+                                {moment(message.msg_send_date, "YYYYMMDDHHmm").format("YYYY년 M월 D일 H시 m분")}
                             </div>
                         </div>
                     </div>
@@ -67,6 +73,12 @@ function MessagesLists() {
     return (
         <div>
             {renderMessageLists()}
+            {
+                page * messageDefaultCounts <= messageCounts &&
+                <div style={{ textAlign: 'center' }}>
+                    <button onClick={onLoadMoreClick} style={{ border: '1px solid black', padding: '1rem' }} >더보기</button>
+                </div>
+            }
         </div>
     )
 }
