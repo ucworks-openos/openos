@@ -207,7 +207,7 @@ var tray = null;
  */
 app.on("ready", () => { //app.whenReady().then(() => { });
 
-  global.IS_DEV = isDev;
+  global.IS_DEV = false;//isDev;
 
   // Single Instance
   let gotTheLock = app.requestSingleInstanceLock()
