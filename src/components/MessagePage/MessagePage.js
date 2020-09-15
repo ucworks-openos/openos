@@ -2,17 +2,21 @@ import React, { useEffect } from "react";
 import "./MessagePage.css";
 import LeftPanel from "./LeftSections/LeftPanel";
 import RightPanel from "./RightSections/RightPanel";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
     getInitialMessageLists,
+    setCurrentMessageListsType
 } from "../../redux/actions/message_actions";
 
 function MessagePage() {
     const dispatch = useDispatch();
-
+    const currentMessageListType = useSelector(state => state.messages.currentMessageListType)
     useEffect(() => {
-        dispatch(getInitialMessageLists())
+        dispatch(setCurrentMessageListsType('MSG_RECV'))        
     }, [])
+    useEffect(() => {
+        dispatch(getInitialMessageLists(currentMessageListType ? currentMessageListType : 'MSG_RECV'))
+    }, [currentMessageListType])
 
     return (
         <div className="contents-wrap-chat">
