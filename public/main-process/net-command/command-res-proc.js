@@ -39,7 +39,7 @@ function receive_command(command) {
       //
       // 요청없이 받은 데이터
       //#region 
-      switch( command.sendCmd.cmdCode ) {
+      switch( command.cmdCode ) {
       
         default :
           {

@@ -16,9 +16,11 @@ import {
 } from "../ipcCommunication/ipcCommon";
 import useTree from "../../hooks/useTree";
 import useProfile from "../../hooks/useProfile";
+import useSearch from "../../hooks/useSearch";
 
 Modal.setAppElement("#root");
-let _orgCode = ``;
+let _orgCode: string = ``;
+let _userSchema: TUser[] = [];
 
 export default function FavoritePage() {
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
@@ -26,7 +28,14 @@ export default function FavoritePage() {
   );
   const [isAddGroupModalOpen, setIsAddGroupModalOpen] = useState(false);
   const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState(false);
-
+  const {
+    searchMode,
+    searchKeyword,
+    searchResult,
+    setSearchMode,
+    setSearchKeyword,
+    setSearchResult,
+  } = useSearch({ type: `favorite` });
   const {
     treeData,
     expandedKeys,
@@ -43,27 +52,47 @@ export default function FavoritePage() {
     console.log(`selected Node: `, selectedNode);
   }, [selectedNode]);
 
-  // fetching root
   useEffect(() => {
+    // 친구 + 개인 그룹 1deps로 가져오기.
     const getBuddy = async () => {
       const {
         data: {
           contacts: { node: response },
         },
       } = await getBuddyList();
+
+      // 로그인한 아이디 가져오기
       const loginId = sessionStorage.getItem(`loginId`);
+
+      // 친구 id만 추출
       const userIds = response
         .filter((v: any) => v.gubun === `U`)
         .map((v: any) => v.id);
+
+      // 개인 그룹만 추출
       const keyIds = response
         .filter((v: any) => v.gubun === `G`)
         .map((v: any) => v.id);
+
+      // 로그인 id + 추출한 친구 id로 사용자 상세 정보 가져오기
       const {
         data: {
-          items: { node_item: userSchema },
+          items: { node_item: userSchemaMaybeArr },
         },
       } = await getUserInfos([loginId, ...userIds]);
+
+      // 사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
+      const userSchema = Array.isArray(userSchemaMaybeArr)
+        ? userSchemaMaybeArr
+        : [userSchemaMaybeArr];
+
+      // 프로필 상세 정보 추출
       const result = userSchema?.find((v: any) => v.user_id.value === loginId);
+
+      // 검색을 위해 userSchema 저장
+      _userSchema = userSchema;
+
+      // 프로필 상세 정보 myInfo에 매핑.
       const myInfo: TUser = {
         classMaxCode: result.class_max_code?.value,
         connectType: result.connect_type?.value,
@@ -104,6 +133,7 @@ export default function FavoritePage() {
         userXmlPic: result.user_xml_pic?.value,
         viewOpt: result.view_opt?.value,
       };
+      // 프로필 상세 정보를 트리 형태로 저장.
       const myProfile = [
         {
           gubun: `G`,
@@ -114,8 +144,9 @@ export default function FavoritePage() {
           ],
         },
       ];
+      // 즐겨찾기 트리 생성
       const root = response.reduce((prev: TTreeNode[], cur: any) => {
-        // 루트
+        // pid (parent id)가 없을 경우 루트 노드(그룹)로 간주
         if (!cur.pid) {
           return [
             ...prev,
@@ -128,11 +159,14 @@ export default function FavoritePage() {
             },
           ];
         } else {
+          // 재귀함수 (children에 하위 노드 삽입)
           return append(prev, cur, userSchema);
         }
       }, []);
       setTreeData([...myProfile, ...root]);
+      // 페이지 진입 시 내 프로필 그룹 + 개인 그룹은 펼침
       setExpandedKeys([`myProfile`, ...keyIds]);
+      // 상태 바뀔 시 푸시 알림 요청
       setStatusMonitor(userIds);
       setMyInfo(myInfo);
       _orgCode = myInfo.orgCode!;
@@ -140,14 +174,16 @@ export default function FavoritePage() {
     !treeData.length && getBuddy();
   }, []);
 
-  // append children
+  // 재귀함수 (children에 하위 노드 삽입)
   const append = (
     prev: TTreeNode[],
     child: any,
     userSchema: any
   ): TTreeNode[] =>
     prev.map((v: any) => {
+      // 즐겨찾기 밑에 a부서가 있다면, 아래 분기문에 잡힌다.
       if (v.key === child.pid) {
+        // gubun: G (Group)
         if (child.gubun === `G`) {
           return {
             ...v,
@@ -163,6 +199,8 @@ export default function FavoritePage() {
             ],
           };
         } else {
+          // gubun: U (User)
+          // userSchema에서 검색하여 상세 정보를 userV에 담는다.
           const userV = userSchema?.find(
             (v: any) => v.user_id.value === child.id
           );
@@ -221,7 +259,7 @@ export default function FavoritePage() {
             ],
           };
         }
-        // children searching
+        //
       } else if (v.children) {
         return {
           ...v,
@@ -248,6 +286,89 @@ export default function FavoritePage() {
       }
       return v;
     });
+
+  const handleKeywordChange = (e: any) => {
+    setSearchKeyword(e.target.value);
+  };
+
+  const handleSearch = (e: any) => {
+    const which = e.which;
+    const keyword = e.target.value;
+
+    const getSearchResult = () => {
+      // 사용자명, 사용자 id, 부서명, 직위, 직책, 직급, 핸드폰 번호로 검색 가능
+      // user_name, user_id, user_group_name, user_paycl_name, _, _, user_tel_mobile
+      const reg = new RegExp(keyword, `g`);
+      const searchResult = _userSchema.filter(
+        (v: any) =>
+          reg.test(v.user_name.value) ||
+          reg.test(v.user_id.value) ||
+          reg.test(v.user_group_name.value) ||
+          reg.test(v.user_paycl_name.value) ||
+          reg.test(v.user_tel_mobile.value)
+      );
+
+      const userSchema = searchResult.map((v: any) => ({
+        title: v.user_name?.value,
+        key: v.user_id.value,
+        gubun: v.gubun.value,
+        orgCode: v.org_code.value,
+        classMaxCode: v.class_max_code?.value,
+        connectType: v.connect_type?.value,
+        pullClassId: v.pull_class_id?.value,
+        pullGroupName: v.pull_group_name?.value,
+        sipId: v.sip_id?.value,
+        smsUsed: v.sms_used?.value,
+        syncOpt: v.sync_opt?.value,
+        userAliasName: v.user_aliasname?.value,
+        userBirthGubun: v.user_birth_gubun?.value,
+        userBirthday: v.user_birthday?.value,
+        userCertify: v.user_certify?.value,
+        userEmail: v.user_email?.value,
+        userEtcState: v.user_etc_state?.value,
+        userExtState: v.user_extstate?.value,
+        userGroupCode: v.user_group_code?.value,
+        userGroupName: v.user_group_name?.value,
+        userGubun: v.user_gubun?.value,
+        userId: v.user_id?.value,
+        userIpphoneDbGroup: v.user_ipphone_dbgroup?.value,
+        userName: v.user_name?.value,
+        userPayclName: v.user_paycl_name?.value,
+        userPhoneState: v.user_phone_state?.value,
+        userPicturePos: v.user_picture_pos?.value,
+        userState: v.user_state?.value,
+        userTelCompany: v.user_tel_company?.value,
+        userTelFax: v.user_tel_fax?.value,
+        userTelIpphone: v.user_tel_ipphone?.value,
+        userTelMobile: v.user_tel_mobile?.value,
+        userTelOffice: v.user_tel_office?.value,
+        userViewOrgGroup: v.user_view_org_groups?.value,
+        userWorkName: v.user_work_name?.value,
+        userXmlPic: v.user_xml_pic?.value,
+        viewOpt: v.view_opt?.value,
+      }));
+
+      const searchRoot: TTreeNode[] = [
+        {
+          title: `검색 결과`,
+          key: `searchResult`,
+          children: userSchema,
+          gubun: `G`,
+        },
+      ];
+
+      setSearchMode(true);
+      setSearchKeyword(keyword);
+      setSearchResult(searchRoot);
+    };
+    if (which === 13) {
+      if (keyword) {
+        getSearchResult();
+      } else {
+        setSearchMode(false);
+      }
+    }
+  };
 
   const handleSelect = async ([selectedKeys]: (string | number)[]) => {
     const { v } = await find(treeData, selectedKeys?.toString());
@@ -384,6 +505,9 @@ export default function FavoritePage() {
             className="local-search"
             placeholder="멤버 검색"
             title="이하와 같은 정보로 멤버를 검색해주세요. 사용자ID, 사용자명, 부서명, 직위명, 직책명, 직급명, 전화번호"
+            value={searchKeyword}
+            onKeyDown={handleSearch}
+            onChange={handleKeywordChange}
           />
         </div>
         {isEditGroupTabOpen && (
@@ -592,18 +716,31 @@ export default function FavoritePage() {
         </div>
       </div>
       <main className="main-wrap">
-        <Tree
-          draggable
-          showLine
-          showIcon={false}
-          onDrop={onDrop}
-          expandedKeys={expandedKeys}
-          onExpand={handleExpand}
-          onSelect={handleSelect}
-          switcherIcon={switcherGenerator}
-        >
-          {renderTreeNodes(treeData)}
-        </Tree>
+        {treeData.length && !searchMode ? (
+          <Tree
+            draggable
+            showLine
+            showIcon={false}
+            onDrop={onDrop}
+            expandedKeys={expandedKeys}
+            onExpand={handleExpand}
+            onSelect={handleSelect}
+            switcherIcon={switcherGenerator}
+          >
+            {renderTreeNodes(treeData)}
+          </Tree>
+        ) : (
+          <Tree
+            showLine
+            showIcon={false}
+            onSelect={handleSelect}
+            onExpand={handleExpand}
+            switcherIcon={switcherGenerator}
+            expandedKeys={[`searchResult`]}
+          >
+            {renderTreeNodes(searchResult)}
+          </Tree>
+        )}
       </main>
       <SignitureCi />
 
