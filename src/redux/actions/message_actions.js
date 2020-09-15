@@ -12,6 +12,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import messageLists from "../mock-datas/messages.json";
 import { getMessage, getMessageDetail } from '../../components/ipcCommunication/ipcMessage'
+import { sendMessage } from '../../components/ipcCommunication/ipcMessage'
 
 export function setCurrentMessage(messageKey) {
     return {
@@ -42,10 +43,11 @@ export async function getMessageHo(messageKey) {
     }
 }
 
-export function addMessage(newMessage) {
+export async function addMessage(recvIds, recvNames, title, content) {
+    const request = await sendMessage(recvIds, recvNames, title, content)
     return {
         type: ADD_MESSAGE,
-        payload: newMessage
+        // payload: request
     }
 }
 
