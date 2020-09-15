@@ -5,6 +5,7 @@ const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
 const CmdConst = require('../net-command/command-const');
 const CmdCodes = require('../net-command/command-code');
+const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
 var nsSock;
 var rcvCommand;
@@ -176,15 +177,8 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
 
         // Full Data Buffer
         var cmdBuf = Buffer.concat([codeBuf, sizeBuf, dataBuf]);
-
-        // Create Dummy Buffer. Set the length to a multiple of 4.
-        var dummyLength = Math.ceil(cmdBuf.length/4)*4;
-        if (dummyLength != cmdBuf.length) {
-            //console.log("cmdBuf Diff size:" + (dummyLength-cmdBuf.length) + ", DummySize:" + dummyLength + ", BufferSize:" + cmdBuf.length);
-            var dummyBuf = Buffer.alloc(dummyLength-cmdBuf.length);
-            cmdBuf = Buffer.concat([cmdBuf, dummyBuf]);
-        }
-
+        cmdBuf = adjustBufferMultiple4(cmdBuf);
+        
         // Command Code
         codeBuf.writeInt32LE(cmdHeader.cmdCode);
         codeBuf.copy(cmdBuf);
@@ -200,7 +194,7 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
         if (resetConnCheck) startConnectionCheck();
         
         //console.log('\r\n-------------------------- ');
-        sendLog("\r\nwrite NS Command ------ CMD: " + JSON.stringify(global.NS_SEND_COMMAND.cmdCode));
+        sendLog("\r\nwrite NS Command ------ CMD: " + JSON.stringify(global.NS_SEND_COMMAND));
         //console.log("write NS Command : ", global.NS_SEND_COMMAND);
     // } catch (exception) {
     //     sendLog("write NS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);

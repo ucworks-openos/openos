@@ -13,6 +13,7 @@ const OsUtil = require('../utils/utils-os');
 const notifier = require('node-notifier');
 
 const nsAPI = require('../net-command/command-ns-api');
+const commandConst = require('../net-command/command-const');
 
 // testAction
 ipcMain.on('testAction', async (event, ...args) => {
@@ -34,7 +35,7 @@ ipcMain.on('testAction', async (event, ...args) => {
    top.loadURL("http://localhost:3000/funcTest2");
   return;
 
-  sendLog('DATE>>', OsUtil.getDateString('YYYYMMDDHHmmssSSS'));
+  sendLog('DATE>>', OsUtil.getDateString(commandConst.DATE_FORMAT_YYYYMMDDHHmmssSSS));
 
   //nsAPI.reqGetStatus(1, 'bslee');
   //return;

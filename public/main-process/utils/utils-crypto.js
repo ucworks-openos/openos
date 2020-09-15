@@ -1,4 +1,7 @@
+
 var crypto = require('crypto');
+
+const CmdConst = require('../net-command/command-const');
 const { sendLog } = require('../ipc/ipc-cmd-sender');
 
 /**
@@ -106,6 +109,83 @@ function decryptAES256(key, ciphertext) {
 }
 //#endregion AES256
     
+/**
+ * 메세지 Enc 알고이즘에 따라 암호화 합니다.
+ * @param {String} message 
+ * @returns {Object} {cipherContent:cipherContent, encKey:encKey}
+ */
+function encryptMessage(message) {
+    
+    let tmpPwd = '';
+    let cipherPwd = '';
+    let cipherContent = '';
+    let encKey = '';
+
+    switch(global.ENCRYPT.msgAlgorithm) {
+        case CmdConst.ENCODE_TYPE_OTS:
+            tmpPwd = randomPassword(4);
+            cipherPwd = encryptRC4(CmdConst.SESSION_KEY, tmpPwd);
+            
+            // Message Content
+            cipherContent = encryptRC4(tmpPwd, message);
+            // Message Enctypt Info
+            encKey = CmdConst.ENCODE_TYPE_OTS + CmdConst.SEP_PIPE + cipherPwd
+            break;
+
+        case CmdConst.ENCODE_TYPE_OTS_AES256:
+            
+            tmpPwd = randomPassword(32);
+            cipherPwd = encryptAES256(CmdConst.SESSION_KEY_AES256, tmpPwd);
+           
+            // Message Content
+            cipherContent = encryptAES256(tmpPwd, message)
+            // Message Enctypt Info
+            encKey = CmdConst.ENCODE_TYPE_OTS_AES256 + CmdConst.SEP_PIPE + cipherPwd
+            break;
+
+        case CmdConst.ENCODE_TYPE_NO:
+        default:
+            cipherContent = message;
+            // Message Enctypt Info
+            encKey = CmdConst.ENCODE_TYPE_NO + CmdConst.SEP_PIPE;
+            break;
+    }
+
+    return {cipherContent:cipherContent, encKey:encKey};
+}
+
+/**
+ * encryptKey 정보로 해당 메세지를 Decrypt 합니다.
+ * @param {String} encryptKey 
+ * @param {String} cipherContent 
+ * @returns {String} decrypt message
+ */
+function decryptMessage(encryptKey, cipherContent) {
+
+    let encArr = encryptKey.split(CmdConst.SEP_PIPE);
+    let encMode = encArr[0];
+    let encKey = encArr[1];
+    let message = '';
+
+    switch(encMode) {
+      case CmdConst.ENCODE_TYPE_OTS:
+        encKey = decryptRC4(CmdConst.SESSION_KEY, encKey);
+        message = decryptRC4(encKey, cipherContent);
+        break;
+      case CmdConst.ENCODE_TYPE_OTS_AES256:
+        encKey = decryptAES256(CmdConst.SESSION_KEY_AES256, encKey);
+        message = decryptAES256(encKey, cipherContent);
+        break;
+
+      default:
+        message = cipherContent;
+        break;
+    }
+
+    return 
+}
+
+
 //
 // exports
 module.exports = {
@@ -113,5 +193,7 @@ module.exports = {
     encryptRC4: encryptRC4,
     decryptRC4: decryptRC4,
     encryptAES256: encryptAES256,
-    decryptAES256: decryptAES256
+    decryptAES256: decryptAES256,
+    encryptMessage: encryptMessage,
+    decryptMessage: decryptMessage,
 }

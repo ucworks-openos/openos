@@ -45,7 +45,7 @@ function reqGetCondition(userId) {
             return;
         }
 
-        let idData = 'ID' + CmdConst.PIPE_SEP + userId;
+        let idData = 'ID' + CmdConst.SEP_PIPE + userId;
         var dataBuf = Buffer.from(idData, global.ENC);
 
         console.log('PS_GET_CONDICTION ------  ', idData)
@@ -134,7 +134,7 @@ function reqGetUserInfos(userIds) {
 
         let idDatas = '';
         userIds.forEach(function(userId){
-            idDatas += idDatas?CmdConst.CR_SEP+userId:userId;
+            idDatas += idDatas?CmdConst.SEP_CR+userId:userId;
           });
 
         console.log('reqUserInfos ----' , idDatas);
@@ -163,7 +163,7 @@ function reqSearchUsers(searchMode, searchText) {
             return;
         }
 
-        let data = searchMode + CmdConst.PIPE_SEP + searchText;
+        let data = searchMode + CmdConst.SEP_PIPE + searchText;
         console.log('reqSearchUsers ----' , data);
         var dataBuf = Buffer.from(data, global.ENC);
         psCore.writeCommandPS(new CommandHeader(CmdCodes.PS_GET_CONDICTION, 0, function(resData){

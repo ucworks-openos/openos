@@ -1,3 +1,6 @@
+
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Button, Container, Row, Col, DropdownButton, Dropdown } from 'react-bootstrap';
@@ -5,10 +8,14 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
-import {getConfig, login, searchUsers, searchOrgUsers} from '../ipcCommunication/ipcCommon'
-import {getMessage, getMessageDetail, getChatRoomList} from '../ipcCommunication/ipcMessage'
+import {getConfig, login} from '../ipcCommunication/ipcCommon'
+import {getChatRoomList, sendChatMessage} from '../ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")
+const { remote } = window.require("electron")
+
+// Dev Mode
+var loginUser = remote.getGlobal('USER')
 
 const GridWrapper = styled.div`
   display: grid;
@@ -27,12 +34,14 @@ function FuncTestPage2() {
   const [loginPwd, setloginPwd] = useState("1111");
 
   const [targetUserIds, setTargetUserIds] = useState("proju,bucky2,smileajw1004");
-  const [chatRoomId, setChatRoomId] = useState("1111");
+  const [chatRoomId, setChatRoomId] = useState("1EF03A0AB71526BC54D0C0A002CF7A0610F6C0A0");
   const [chatMessage, setChatMessage] = useState("Hello Chat");
+
+  const [isNewChat, setIsNewChat] = useState(true);
 
   const netLogArea = useRef(null);
   const localLogArea = useRef(null);
-  
+
 
   //initialize
   useEffect(() => {
@@ -49,7 +58,7 @@ function FuncTestPage2() {
 
   //#region WriteLog ...
   const appendNetLog = (msg, ...args) => {
-    msg = moment().format("hh:mm:ss.SSS >") + msg + ':' + args
+    msg = moment().format("hh:mm:ss.SSS >") + msg + ':' + JSON.stringify(args);
     setNetLog(prev => prev + (prev ? "\r\n" : "") + msg);
 
     if (netLogArea.current) {
@@ -58,7 +67,7 @@ function FuncTestPage2() {
   }
 
   const appendLocalLog = (msg, ...args) => {
-    msg = moment().format("hh:mm:ss.SSS >") + msg + ':' + args;
+    msg = moment().format("hh:mm:ss.SSS >") + msg + ':' + JSON.stringify(args);
     setLocalLog(prev => prev + (prev ? "\r\n" : "") + msg);
 
     if (localLogArea.current) {
@@ -105,15 +114,18 @@ function FuncTestPage2() {
   }
 
   const handleCreateChat = (e) => {
-
+    setIsNewChat(true);
   }
 
   const handleJoinChat = (e) => {
-
+    setIsNewChat(false);
   }
 
   const handleSendChatMessage = (e) => {
-    
+
+    let chatUserIdStr = loginUser.userId + "," + targetUserIds
+
+    sendChatMessage(chatUserIdStr.split(','), chatMessage, isNewChat?null:chatRoomId);
   }
 
   // LogClear
@@ -127,6 +139,7 @@ function FuncTestPage2() {
         <Row  xs={2} md={3} lg={5}>
           <Col>Server IP : {serverIp}</Col>
           <Col>Server PORT : {serverPort}</Col>
+          <Col>CreateNew : {isNewChat.toString()}</Col>
         </Row>
         
         {/* 로그인 */}
@@ -211,7 +224,7 @@ function FuncTestPage2() {
                 onChange={(e) => setChatMessage(e.target.value)}
               />
               <InputGroup.Append>
-                <Button variant="outline-secondary" onClick={handleSendChatMessage}>대화참여</Button>
+                <Button variant="outline-secondary" onClick={handleSendChatMessage}>보내기</Button>
               </InputGroup.Append>
             </InputGroup>
           </Col>

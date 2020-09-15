@@ -48,11 +48,29 @@ function receiveCmdProc(recvCmd) {
       }
      
       break;
+
+    case CmdCodes.NS_CHAT_LINEKEY:
+      switch (recvCmd.cmdCode) {
+        case CmdCodes.NS_CHAT_LINEKEY:
+          let roomKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, 0, CmdConst.BUF_LEN_CHAT_ROOM_KEY, global.ENC);
+          let lineKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, CmdConst.BUF_LEN_CHAT_ROOM_KEY, recvCmd.data.length, global.ENC);
+          callCallback(recvCmd.sendCmd, new ResData(true, {roomKey:roomKey, lineKey,lineKey}));
+
+          break;
+        default :
+        {
+          let rcvBuf = Buffer.from(recvCmd.data);
+          let dataStr = rcvBuf.toString(global.ENC, 0);
+          callCallback(recvCmd.sendCmd, new ResData(false, 'Response Command Receive Fail! : ' + recvCmd.cmdCode));
+          return false;
+        }
+      }
+      break;
     default :
     {
       let rcvBuf = Buffer.from(recvCmd.data);
       let dataStr = rcvBuf.toString(global.ENC, 0);
-      sendLog('Unknown Send Command Receive!!! : ' + recvCmd.cmdCode + ' Data:' + dataStr);
+      callCallback(recvCmd.sendCmd, new ResData(false, 'Unknown Send Command Receive!!! SendCmd: ' + recvCmd.sendCmd.cmdCode +  ' RecvCmd:' + recvCmd.cmdCode + ' Data:' + dataStr));
       return false;
     }
   }
@@ -131,11 +149,10 @@ function notifyCmdProc(recvCmd) {
           sInx += resSize;
         }
 
-        let cipherContents = '';
+        let message = '';
         if (cipherContentSize > 0) {
-          cipherContents = recvCmd.data.toString(global.ENC, sInx, sInx + cipherContentSize).trim();
-          console.log('[MSG CONTENT] cipherContentSize ', cipherContentSize);
-          console.log('[MSG CONTENT] ', cipherContents);
+          let cipherContents = recvCmd.data.toString(global.ENC, sInx, sInx + cipherContentSize).trim();
+          message = EncUtil.decryptMessage(encryptKey, cipherContents)
           sInx += cipherContentSize;
         }
 
@@ -161,27 +178,6 @@ function notifyCmdProc(recvCmd) {
         if (destIdSize > 0) {
           destIds = recvCmd.data.toString(global.ENC, sInx, sInx + destIdSize).trim();
           sInx += destIdSize;
-        }
-
-        
-        let encArr = encryptKey.split(CmdConst.PIPE_SEP);
-        let encMode = encArr[0];
-        let encKey = encArr[1];
-        let message = '';
-
-        switch(encMode) {
-          case CmdConst.ENCODE_TYPE_OTS:
-            encKey = EncUtil.decryptRC4(CmdConst.SESSION_KEY, encKey);
-            message = EncUtil.decryptRC4(encKey, cipherContents);
-            break;
-          case CmdConst.ENCODE_TYPE_OTS_AES256:
-            encKey = EncUtil.decryptAES256(CmdConst.SESSION_KEY_AES256, encKey);
-            message = EncUtil.decryptAES256(encKey, cipherContents);
-            break;
-
-          default:
-            message = cipherContents;
-            break;
         }
         
 
@@ -272,10 +268,10 @@ function notifyCmdProc(recvCmd) {
         let sInx = 0;
 
         let statusListStr = recvCmd.data.toString(global.ENC).trim();
-        let statusList = statusListStr.split(CmdConst.CR_SEP);
+        let statusList = statusListStr.split(CmdConst.SEP_CR);
 
         statusList.forEach(status => {
-          statusInfos = status.split(CmdConst.PT_SET);
+          statusInfos = status.split(CmdConst.SEP_PT);
           userStatusChanged(statusInfos[0],statusInfos[1], statusInfos[2])
         });
       } else {

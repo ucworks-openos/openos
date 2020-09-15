@@ -125,7 +125,7 @@ function reqHandshackDS (userId) {
         }
 
         // 2.세션정보 저장요청을 한다.
-        let localInfo = OsUtil.getIpAddress() + CmdConst.PIPE_SEP + OsUtil.getMacAddress();
+        let localInfo = OsUtil.getIpAddress() + CmdConst.SEP_PIPE + OsUtil.getMacAddress();
         var localInfoBuf = Buffer.alloc(localInfo.length);
         localInfoBuf.write(localInfo, global.ENC);
 
@@ -168,7 +168,7 @@ async function reqGetUserRules(userId, userPwd) {
         idBuf.write(userId, global.ENC);
         passBuf.write(userPwd, global.ENC);
 
-        let localInfo = OsUtil.getIpAddress() + CmdConst.PIPE_SEP + OsUtil.getMacAddress();
+        let localInfo = OsUtil.getIpAddress() + CmdConst.SEP_PIPE + OsUtil.getMacAddress();
         console.log('-------  MAC ADDRESS', localInfo)
 
         //FC_local_ip + SEP + FC_local_mac_addr
@@ -225,7 +225,7 @@ async function reqUpgradeCheckDS (callback) {
 
     var serverSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT); // ?
 
-    var versionStr = global.SITE_CONFIG.version + CmdConst.PIPE_SEP + global.SITE_CONFIG.server_ip;
+    var versionStr = global.SITE_CONFIG.version + CmdConst.SEP_PIPE + global.SITE_CONFIG.server_ip;
     var dataBuf = Buffer.concat([serverSizeBuf, Buffer.from(versionStr, "utf-8")]);
     
     dsCore.writeCommandDS(new CommandHeader(CmdCodes.DS_UPGRADE_CHECK, 0, callback), dataBuf);
