@@ -58,8 +58,11 @@ function MessageInputModal(props) {
             if (isAlreadySelectedUser) {
                 return alert('이미 체크 된 유저 입니다.')
             } else {
+                setSearchText('')
                 setSelectedUsers([...selectedUsers, result.data.root_node.node_item])
             }
+        } else {
+            alert('검색어에 맞는 분이 없습니다.')
         }
     }
 
@@ -84,7 +87,7 @@ function MessageInputModal(props) {
     const renderCheckedMember = () =>
         selectedUsers && selectedUsers.map((user) => (
             <CheckedMember key={user.user_id.value} onClick={() => onDeleteCheckedMemberClick(user.user_id.value)}>
-                {user.user_name.value}
+                {user.user_name.value} x
             </CheckedMember>
         ));
 

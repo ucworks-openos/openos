@@ -14,9 +14,9 @@ function MessagePage() {
     useEffect(() => {
         dispatch(setCurrentMessageListsType('MSG_RECV'))        
     }, [])
-    useEffect(() => {
-        dispatch(getInitialMessageLists(currentMessageListType ? currentMessageListType : 'MSG_RECV'))
-    }, [currentMessageListType])
+    // useEffect(() => {
+    //     dispatch(getInitialMessageLists(currentMessageListType ? currentMessageListType : 'MSG_RECV'))
+    // }, [currentMessageListType])
 
     return (
         <div className="contents-wrap-chat">

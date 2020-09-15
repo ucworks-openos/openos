@@ -44,12 +44,10 @@ export async function getMessageHo(messageKey) {
 }
 
 export async function addMessage(recvIds, recvNames, title, content) {
-    // sendMessage(msgRecvIds, '이봉석,주병철', '메세지 테스트', msgText).then(function(data) {
     const request = await sendMessage(recvIds, recvNames, title, content)
-
     return {
         type: ADD_MESSAGE,
-        payload: request
+        // payload: request
     }
 }
 
