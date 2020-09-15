@@ -95,4 +95,16 @@ declare global {
   type TProfileState = {
     myInfo: TUser;
   };
+
+  type TOrganizationSearchState = {
+    organizationSearchMode: boolean;
+    organizationSearchKeyword: string;
+    organizationSearchResult: TTreeNode[];
+  };
+
+  type TFavoriteSearchState = {
+    favoriteSearchMode: boolean;
+    favoriteSearchKeyword: string;
+    favoriteSearchResult: TTreeNode[];
+  };
 }
