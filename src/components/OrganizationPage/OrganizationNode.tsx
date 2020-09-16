@@ -2,6 +2,8 @@ import React, { useEffect, useState, ImgHTMLAttributes, useMemo } from "react";
 import styled from "styled-components";
 import Modal from "react-modal";
 import MessageModal from "../../common/components/Modal/MessageModal";
+import { arrayLike } from "../../common/util";
+import { Egubun } from "../../common/enum";
 
 type TOrganizationNodeProps = {
   data: TTreeNode;
@@ -42,24 +44,19 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
   }
 
   const connectTypeConverter = () => {
-    const maybeConnectTypeArr: string | string[] = data?.connectType
+    const connectTypeMaybeArr: string | string[] = data?.connectType
       ? data?.connectType.split(`|`)
       : ``;
 
-    if (Array.isArray(maybeConnectTypeArr)) {
-      return maybeConnectTypeArr
-        .map((v: string) => EconnectType[Number(v)])
-        .join(` `);
-    } else {
-      return EconnectType[Number(maybeConnectTypeArr)];
-    }
+    const connectType = arrayLike(connectTypeMaybeArr);
+    return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
   };
 
   const connectType = useMemo(connectTypeConverter, []);
 
   return (
     <>
-      {data?.gubun === `G` || data?.gubun === `T` ? (
+      {data?.gubun === Egubun.GROUP || data?.gubun === Egubun.DUMMY ? (
         <StyledDepartment>{data?.title}</StyledDepartment>
       ) : (
         <li className="user-row">

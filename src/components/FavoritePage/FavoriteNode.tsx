@@ -2,6 +2,8 @@ import React, { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
 import Modal from "react-modal";
 import MessageModal from "../../common/components/Modal/MessageModal";
+import { arrayLike } from "../../common/util";
+import { EconnectType, Egubun } from "../../common/enum";
 
 type TFavoriteNodeProps = {
   data: TTreeNode;
@@ -34,32 +36,20 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
     setMessageModalVisible(false);
   };
 
-  enum EconnectType {
-    windows = 1,
-    android = 4,
-    iphone = 6,
-    mac = 10,
-  }
-
   const connectTypeConverter = () => {
-    const maybeConnectTypeArr: string | string[] = data?.connectType
+    const connectTypeMaybeArr = data?.connectType
       ? data?.connectType.split(`|`)
       : ``;
 
-    if (Array.isArray(maybeConnectTypeArr)) {
-      return maybeConnectTypeArr
-        .map((v: string) => EconnectType[Number(v)])
-        .join(` `);
-    } else {
-      return EconnectType[Number(maybeConnectTypeArr)];
-    }
+    const connectType = arrayLike(connectTypeMaybeArr);
+    return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
   };
 
   const connectType = useMemo(connectTypeConverter, []);
 
   return (
     <>
-      {data?.gubun === `G` ? (
+      {data?.gubun === Egubun.GROUP ? (
         <Department>{data?.title}</Department>
       ) : (
         <li className="user-row">

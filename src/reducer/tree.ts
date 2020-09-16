@@ -1,10 +1,12 @@
+import { Egubun } from "../common/enum";
+
 const initialState: TOrganizationState & TFavoriteState = {
   organizationTreeData: [],
   organizationExpandedKeys: [],
-  selectedOrganizationNode: { title: ``, key: ``, gubun: `U` },
+  selectedOrganizationNode: { title: ``, key: ``, gubun: Egubun.GROUP },
   favoriteTreeData: [],
   favoriteExpandedKeys: [],
-  selectedFavoriteNode: { title: ``, key: ``, gubun: `U` },
+  selectedFavoriteNode: { title: ``, key: ``, gubun: Egubun.GROUP },
 };
 
 export const SET_ORGANIZATION_TREE_DATA = `tree/SET_ORGANIZATION_TREE_DATA` as const;
