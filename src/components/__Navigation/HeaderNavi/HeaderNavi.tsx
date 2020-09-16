@@ -103,6 +103,7 @@ export default function HeaderNavi() {
                   ? myInfo?.userPicturePos
                   : `/images/img_imgHolder.png`
               }
+              style={{ width: `40px`, height: `40px` }}
               alt="user-profile-picture"
               onClick={onAvatarClick}
               onError={handleImageError}
@@ -121,6 +122,7 @@ export default function HeaderNavi() {
                       ? myInfo?.userPicturePos
                       : `/images/img_imgHolder.png`
                   }
+                  style={{ width: `40px`, height: `40px` }}
                   alt="user-profile-picture"
                   onClick={onAvatarClick}
                   onError={handleImageError}

@@ -16,6 +16,8 @@ import {
 import { CLIENT_RENEG_WINDOW } from "tls";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
+import { arrayLike, convertToUser } from "../../common/util";
+import { Efavorite, Egubun } from "../../common/enum";
 
 const electron = window.require("electron")
 
@@ -49,15 +51,12 @@ export default function OrganizationPage() {
       } = await getBaseOrg();
 
       // root_node가 하나일 경우에 배열에 담아준다. ( filter, map, reduce등을 분기문 없이 쓰기 위함)
-      const response = Array.isArray(responseMaybeArr)
-        ? responseMaybeArr
-        : [responseMaybeArr];
-
+      const response = arrayLike(responseMaybeArr);
       // 전체 root_node에서 사용자 id만 뽑아온다.
       const monitorIds = response
         .map((v: any) =>
           v.node_item
-            .filter((v: any) => v.gubun?.value === `P`)
+            .filter((v: any) => v.gubun?.value === Egubun.ORGANIZATION_USER)
             .map((v: any) => v.user_id.value)
         )
         .reduce((prev: any, cur: any) => [...prev, ...cur], []);
@@ -76,13 +75,11 @@ export default function OrganizationPage() {
               groupName: cur.group_name?.value,
               groupParentId: cur.group_parent_id?.value,
               groupSeq: cur.group_seq?.value,
-              nodeEnd: cur.node_end?.value,
-              nodeStart: cur.node_start?.value,
               orgCode: cur.org_code?.value,
             };
           } else {
             // 루트 바로 아래에 사용자가 있음을 가정한다.
-            if (cur.gubun.value === `P`) {
+            if (cur.gubun.value === Egubun.ORGANIZATION_USER) {
               return {
                 ...prev,
                 children: [
@@ -90,39 +87,7 @@ export default function OrganizationPage() {
                   {
                     title: cur.user_name?.value,
                     key: cur.user_id?.value,
-                    classMaxCode: cur.class_max_code?.value,
-                    connectType: cur.connect_type?.value,
-                    pullClassId: cur.pull_class_id?.value,
-                    pullGroupName: cur.pull_group_name?.value,
-                    sipId: cur.sip_id?.value,
-                    smsUsed: cur.sms_used?.value,
-                    syncOpt: cur.sync_opt?.value,
-                    userAliasName: cur.user_aliasname?.value,
-                    userBirthGubun: cur.user_birth_gubun?.value,
-                    userBirthday: cur.user_birthday?.value,
-                    userCertify: cur.user_certify?.value,
-                    userEmail: cur.user_email?.value,
-                    userEtcState: cur.user_etc_state?.value,
-                    userExtState: cur.user_extstate?.value,
-                    userGroupCode: cur.user_group_code?.value,
-                    userGroupName: cur.user_group_name?.value,
-                    userGubun: cur.user_gubun?.value,
-                    userId: cur.user_id?.value,
-                    userIpphoneDbGroup: cur.user_ipphone_dbgroup?.value,
-                    userName: cur.user_name?.value,
-                    userPayclName: cur.user_paycl_name?.value,
-                    userPhoneState: cur.user_phone_state?.value,
-                    userPicturePos: cur.user_picture_pos?.value,
-                    userState: cur.user_state?.value,
-                    userTelCompany: cur.user_tel_company?.value,
-                    userTelFax: cur.user_tel_fax?.value,
-                    userTelIpphone: cur.user_tel_ipphone?.value,
-                    userTelMobile: cur.user_tel_mobile?.value,
-                    userTelOffice: cur.user_tel_office?.value,
-                    userViewOrgGroup: cur.user_view_org_groups?.value,
-                    userWorkName: cur.user_work_name?.value,
-                    userXmlPic: cur.user_xml_pic?.value,
-                    viewOpt: cur.view_opt?.value,
+                    ...convertToUser(cur),
                   },
                 ],
               };
@@ -141,8 +106,6 @@ export default function OrganizationPage() {
                     groupParentId: cur.group_parent_id.value,
                     groupSeq: cur.group_seq.value,
                     gubun: cur.gubun.value,
-                    nodeEnd: cur.node_end.value,
-                    nodeStart: cur.node_start.value,
                     orgCode: cur.org_code.value,
                   },
                 ],
@@ -164,11 +127,6 @@ export default function OrganizationPage() {
     !treeData.length && getRoot();
   }, []);
 
-  useEffect(() => {
-    console.log(`treeData: `, treeData);
-    console.log(`expandedKeys: `, expandedKeys);
-  });
-
   const getChild = async (groupCode: string) => {
     const {
       data: {
@@ -177,10 +135,7 @@ export default function OrganizationPage() {
     } = await getChildOrg(_orgCode, groupCode, -1);
 
     // 자식이 하나일 경우를 가정하여 배열로 감싼다.
-    const response = Array.isArray(responseMaybeArr)
-      ? responseMaybeArr
-      : [responseMaybeArr];
-
+    const response = arrayLike(responseMaybeArr);
     const children: TTreeNode[] = response
       ?.filter((_: any, i: number) => i !== 0)
       .map((v: any) => {
@@ -189,47 +144,13 @@ export default function OrganizationPage() {
           gubun: v.gubun.value,
           groupParentId: v.group_parent_id.value,
           groupSeq: v.group_seq.value,
-          nodeEnd: v.node_end.value,
-          nodeStart: v.node_start.value,
           orgCode: v.org_code.value,
         };
 
-        if (v.gubun.value === `P`) {
+        if (v.gubun.value === Egubun.ORGANIZATION_USER) {
           const userProps = {
             title: v.user_name?.value,
-            classMaxCode: v.class_max_code?.value,
-            connectType: v.connect_type?.value,
-            pullClassId: v.pull_class_id?.value,
-            pullGroupName: v.pull_group_name?.value,
-            sipId: v.sip_id?.value,
-            smsUsed: v.sms_used?.value,
-            syncOpt: v.sync_opt?.value,
-            userAliasName: v.user_aliasname?.value,
-            userBirthGubun: v.user_birth_gubun?.value,
-            userBirthday: v.user_birthday?.value,
-            userCertify: v.user_certify?.value,
-            userEmail: v.user_email?.value,
-            userEtcState: v.user_etc_state?.value,
-            userExtState: v.user_extstate?.value,
-            userGroupCode: v.user_group_code?.value,
-            userGroupName: v.user_group_name?.value,
-            userGubun: v.user_gubun?.value,
-            userId: v.user_id?.value,
-            userIpphoneDbGroup: v.user_ipphone_dbgroup?.value,
-            userName: v.user_name?.value,
-            userPayclName: v.user_paycl_name?.value,
-            userPhoneState: v.user_phone_state?.value,
-            userPicturePos: v.user_picture_pos?.value,
-            userState: v.user_state?.value,
-            userTelCompany: v.user_tel_company?.value,
-            userTelFax: v.user_tel_fax?.value,
-            userTelIpphone: v.user_tel_ipphone?.value,
-            userTelMobile: v.user_tel_mobile?.value,
-            userTelOffice: v.user_tel_office?.value,
-            userViewOrgGroup: v.user_view_org_groups?.value,
-            userWorkName: v.user_work_name?.value,
-            userXmlPic: v.user_xml_pic?.value,
-            viewOpt: v.view_opt?.value,
+            ...convertToUser(v),
           };
           return Object.assign(defaultProps, userProps);
         } else {
@@ -244,7 +165,7 @@ export default function OrganizationPage() {
         }
       });
     const monitorIds = response
-      .filter((v: any) => v.gubun?.value === `P`)
+      .filter((v: any) => v.gubun?.value === Egubun.ORGANIZATION_USER)
       .map((v: any) => v.user_id.value);
     setStatusMonitor(monitorIds);
     return children;
@@ -269,10 +190,10 @@ export default function OrganizationPage() {
       if (!responseMaybeArr) {
         const searchRoot: TTreeNode[] = [
           {
-            title: `검색 결과`,
-            key: `searchResult`,
+            title: Efavorite.SEARCH_RESULT,
+            key: Efavorite.SEARCH_RESULT,
             children: [],
-            gubun: `G`,
+            gubun: Egubun.GROUP,
           },
         ];
         setSearchMode(true);
@@ -282,10 +203,7 @@ export default function OrganizationPage() {
       }
 
       // 결과값이 하나일 경우를 가정하여 배열로 감쌈.
-      const response = Array.isArray(responseMaybeArr)
-        ? responseMaybeArr
-        : [responseMaybeArr];
-
+      const response = arrayLike(responseMaybeArr);
       // 유저 id만 추출한 후
       const userIdsMaybeDuplicated: string[] = response.map(
         (v: any) => v.user_id.value
@@ -302,57 +220,21 @@ export default function OrganizationPage() {
       } = await getUserInfos(userIds);
 
       // 결과값이 하나일 경우를 가정하여 배열로 감쌈.
-      const secondResponse = Array.isArray(secondResponseMaybeArr)
-        ? secondResponseMaybeArr
-        : [secondResponseMaybeArr];
-
+      const secondResponse = arrayLike(secondResponseMaybeArr);
       // 상세정보 useSchema에 매핑.
       const userSchema = secondResponse.map((v: any) => ({
         title: v.user_name?.value,
         key: v.user_id.value,
         gubun: v.gubun.value,
-        orgCode: v.org_code.value,
-        classMaxCode: v.class_max_code?.value,
-        connectType: v.connect_type?.value,
-        pullClassId: v.pull_class_id?.value,
-        pullGroupName: v.pull_group_name?.value,
-        sipId: v.sip_id?.value,
-        smsUsed: v.sms_used?.value,
-        syncOpt: v.sync_opt?.value,
-        userAliasName: v.user_aliasname?.value,
-        userBirthGubun: v.user_birth_gubun?.value,
-        userBirthday: v.user_birthday?.value,
-        userCertify: v.user_certify?.value,
-        userEmail: v.user_email?.value,
-        userEtcState: v.user_etc_state?.value,
-        userExtState: v.user_extstate?.value,
-        userGroupCode: v.user_group_code?.value,
-        userGroupName: v.user_group_name?.value,
-        userGubun: v.user_gubun?.value,
-        userId: v.user_id?.value,
-        userIpphoneDbGroup: v.user_ipphone_dbgroup?.value,
-        userName: v.user_name?.value,
-        userPayclName: v.user_paycl_name?.value,
-        userPhoneState: v.user_phone_state?.value,
-        userPicturePos: v.user_picture_pos?.value,
-        userState: v.user_state?.value,
-        userTelCompany: v.user_tel_company?.value,
-        userTelFax: v.user_tel_fax?.value,
-        userTelIpphone: v.user_tel_ipphone?.value,
-        userTelMobile: v.user_tel_mobile?.value,
-        userTelOffice: v.user_tel_office?.value,
-        userViewOrgGroup: v.user_view_org_groups?.value,
-        userWorkName: v.user_work_name?.value,
-        userXmlPic: v.user_xml_pic?.value,
-        viewOpt: v.view_opt?.value,
+        ...convertToUser(v),
       }));
 
       const searchRoot: TTreeNode[] = [
         {
-          title: `검색 결과`,
-          key: `searchResult`,
+          title: Efavorite.SEARCH_RESULT,
+          key: Efavorite.SEARCH_RESULT,
           children: userSchema,
-          gubun: `G`,
+          gubun: Egubun.GROUP,
         },
       ];
 
@@ -444,7 +326,7 @@ export default function OrganizationPage() {
 
   const switcherGenerator = (data: any) => (
     <>
-      {(data?.gubun === `G` || data?.gubun === `T`) && (
+      {(data?.gubun === Egubun.GROUP || data?.gubun === Egubun.DUMMY) && (
         <Switcher>
           {!data?.expanded ? (
             <img
@@ -517,7 +399,7 @@ export default function OrganizationPage() {
               onSelect={handleSelect}
               onExpand={handleExpand}
               switcherIcon={switcherGenerator}
-              expandedKeys={[`searchResult`]}
+              expandedKeys={[Efavorite.SEARCH_RESULT]}
             >
               {renderTreeNodes(searchResult)}
             </Tree>

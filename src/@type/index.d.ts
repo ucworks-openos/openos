@@ -1,20 +1,18 @@
 import { Interface } from "readline";
+import { favorite, gubun } from "../common/enum";
 
 declare global {
   type TTreeNode = TTreeDefault & TUser;
 
   type TTreeDefault = {
     // 부서, 유저 공통
-    title: string;
-    key: string;
-    gubun: `G` | `T` | `P` | `U`;
+    title: string | favorite;
+    key: string | favorite;
+    gubun: gubun;
+    pid?: string;
 
-    // 미분류
-    nodeEnd?: string;
-    nodeStart?: string;
     groupParentId?: string;
     groupSeq?: string;
-    pid?: string;
 
     // 부서
     children?: TTreeNode[];
@@ -37,8 +35,6 @@ declare global {
     // CONNECT_TYPE_APP_MAC            = 10, 맥버전
     orgCode?: string;
     connectType?: string;
-    pullClassId?: string;
-    pullGroupName?: string;
     sipId?: string;
     smsUsed?: string;
     syncOpt?: string;
@@ -68,8 +64,8 @@ declare global {
     userWorkName?: string;
     userXmlPic?: string;
     viewOpt?: string;
-
-    // 9.8 추가
+    pullClassId?: string;
+    pullGroupName?: string;
     expiredPwdYn?: string;
     userField1?: string;
     userField2?: string;

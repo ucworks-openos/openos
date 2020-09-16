@@ -17,10 +17,11 @@ import {
 import useTree from "../../hooks/useTree";
 import useProfile from "../../hooks/useProfile";
 import useSearch from "../../hooks/useSearch";
+import { arrayLike, convertToUser } from "../../common/util";
+import { Efavorite, Egubun } from "../../common/enum";
 
 Modal.setAppElement("#root");
 let _orgCode: string = ``;
-let _userSchema: TUser[] = [];
 
 export default function FavoritePage() {
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
@@ -46,114 +47,84 @@ export default function FavoritePage() {
   } = useTree({
     type: `favorite`,
   });
-  const { setMyInfo } = useProfile();
+  const [userIds, setUserIds] = useState<string[]>([]);
+  const { myInfo, setMyInfo } = useProfile();
+
+  useEffect(() => {}, [selectedNode]);
 
   useEffect(() => {
-    console.log(`selected Node: `, selectedNode);
-  }, [selectedNode]);
+    setStatusMonitor(userIds);
+  }, [userIds]);
 
   useEffect(() => {
-    // 친구 + 개인 그룹 1deps로 가져오기.
-    const getBuddy = async () => {
-      const {
-        data: {
-          contacts: { node: response },
-        },
-      } = await getBuddyList();
-
+    const getProfileTree = async (): Promise<TTreeNode[]> => {
       // 로그인한 아이디 가져오기
       const loginId = sessionStorage.getItem(`loginId`);
+      const {
+        data: {
+          items: { node_item: profileSchema },
+        },
+      } = await getUserInfos([loginId]);
+      const myInfo: TUser = convertToUser(profileSchema);
+      // 프로필 상세 정보를 트리 형태로 저장.
+      const profileTree: TTreeNode[] = [
+        {
+          gubun: Egubun.GROUP,
+          title: Efavorite.MY_PROFILE,
+          key: Efavorite.MY_PROFILE,
+          children: [
+            {
+              title: myInfo.userName!,
+              key: Efavorite.MY_KEY,
+              gubun: Egubun.FAVORITE_USER,
+              ...myInfo,
+            },
+          ],
+        },
+      ];
+      return profileTree;
+    };
 
+    type TBuddyTreeInfo = {
+      buddyTree: TTreeNode[];
+      keyIds: string[];
+      userIds: string[];
+    };
+
+    // 친구 + 개인 그룹 1deps로 가져오기.
+    const getBuddyTree = async (): Promise<TBuddyTreeInfo> => {
+      const {
+        data: {
+          contacts: { node: responseMaybeArr },
+        },
+      } = await getBuddyList();
+      const response = arrayLike(responseMaybeArr);
       // 친구 id만 추출
       const userIds = response
-        .filter((v: any) => v.gubun === `U`)
+        .filter((v: any) => v.gubun === Egubun.FAVORITE_USER)
         .map((v: any) => v.id);
-
-      // 개인 그룹만 추출
+      // 개인 그룹만 추출 (id 없을 시 name으로 추출)
       const keyIds = response
-        .filter((v: any) => v.gubun === `G`)
-        .map((v: any) => v.id);
-
+        .filter((v: any) => v.gubun === Egubun.GROUP)
+        .map((v: any) => (v.id ? v.id : v.name));
       // 로그인 id + 추출한 친구 id로 사용자 상세 정보 가져오기
       const {
         data: {
           items: { node_item: userSchemaMaybeArr },
         },
-      } = await getUserInfos([loginId, ...userIds]);
-
+      } = await getUserInfos(userIds);
       // 사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
-      const userSchema = Array.isArray(userSchemaMaybeArr)
-        ? userSchemaMaybeArr
-        : [userSchemaMaybeArr];
-
-      // 프로필 상세 정보 추출
-      const result = userSchema?.find((v: any) => v.user_id.value === loginId);
-
-      // 검색을 위해 userSchema 저장
-      _userSchema = userSchema;
-
-      // 프로필 상세 정보 myInfo에 매핑.
-      const myInfo: TUser = {
-        classMaxCode: result.class_max_code?.value,
-        connectType: result.connect_type?.value,
-        expiredPwdYn: result.expired_pwd_yn?.value,
-        orgCode: result.org_code?.value,
-        sipId: result.sip_id?.value,
-        smsUsed: result.sms_used?.value,
-        syncOpt: result.sync_opt?.value,
-        userAliasName: result.user_aliasname?.value,
-        userBirthGubun: result.user_birth_gubun?.value,
-        userBirthday: result.user_birthday?.value,
-        userCertify: result.user_certify?.value,
-        userEmail: result.user_email?.value,
-        userExtState: result.user_extstate?.value,
-        userField1: result.user_field1?.value,
-        userField2: result.user_field2?.value,
-        userField3: result.user_field3?.value,
-        userField4: result.user_field4?.value,
-        userField5: result.user_field5?.value,
-        userGroupCode: result.user_group_code?.value,
-        userGroupName: result.user_group_name?.value,
-        userGubun: result.user_gubun?.value,
-        userId: result.user_id?.value,
-        userIpphoneDbGroup: result.user_ipphone_dbgroup?.value,
-        userName: result.user_name?.value,
-        userPass: result.user_pass?.value,
-        userPayclName: result.user_paycl_name?.value,
-        userPhoneState: result.user_phone_state?.value,
-        userPicturePos: result.user_picture_pos?.value,
-        userState: result.user_state?.value,
-        userTelCompany: result.user_tel_company?.value,
-        userTelFax: result.user_tel_fax?.value,
-        userTelIpphone: result.user_tel_ipphone?.value,
-        userTelMobile: result.user_tel_mobile?.value,
-        userTelOffice: result.user_tel_office?.value,
-        userViewOrgGroup: result.user_view_org_groups?.value,
-        userWorkName: result.user_work_name?.value,
-        userXmlPic: result.user_xml_pic?.value,
-        viewOpt: result.view_opt?.value,
-      };
-      // 프로필 상세 정보를 트리 형태로 저장.
-      const myProfile = [
-        {
-          gubun: `G`,
-          title: `내 프로필`,
-          key: `myProfile`,
-          children: [
-            { title: myInfo.userName, key: `me`, gubun: `U`, ...myInfo },
-          ],
-        },
-      ];
+      const userSchema = arrayLike(userSchemaMaybeArr);
       // 즐겨찾기 트리 생성
-      const root = response.reduce((prev: TTreeNode[], cur: any) => {
-        // pid (parent id)가 없을 경우 루트 노드(그룹)로 간주
+      const root = response.reduce((prev: TTreeNode[], cur: any, i: number) => {
+        // pid (parent id)가 없을 경우 최상위 노드의 자식에 삽입
         if (!cur.pid) {
           return [
             ...prev,
             {
               gubun: cur.gubun,
               title: cur.name,
-              key: cur.id,
+              key: cur.id ? cur.id : cur.name,
               pid: cur.pid,
               children: [],
             },
@@ -163,15 +134,37 @@ export default function FavoritePage() {
           return append(prev, cur, userSchema);
         }
       }, []);
-      setTreeData([...myProfile, ...root]);
-      // 페이지 진입 시 내 프로필 그룹 + 개인 그룹은 펼침
-      setExpandedKeys([`myProfile`, ...keyIds]);
-      // 상태 바뀔 시 푸시 알림 요청
-      setStatusMonitor(userIds);
-      setMyInfo(myInfo);
-      _orgCode = myInfo.orgCode!;
+
+      // 즐겨찾기 없을 경우 생성.
+      const spareRoot: TTreeNode[] = [
+        {
+          gubun: Egubun.GROUP,
+          title: Efavorite.FAVORITE,
+          key: Efavorite.FAVORITE,
+          pid: undefined,
+          children: [],
+        },
+      ];
+
+      return {
+        buddyTree: root.length ? root : spareRoot,
+        keyIds: [
+          Efavorite.MY_PROFILE,
+          ...(keyIds.length ? keyIds : [Efavorite.FAVORITE]),
+        ],
+        userIds,
+      };
     };
-    !treeData.length && getBuddy();
+
+    const initiate = async () => {
+      const profileTree = await getProfileTree();
+      const { buddyTree, keyIds, userIds } = await getBuddyTree();
+
+      setTreeData([...profileTree, ...buddyTree]);
+      setExpandedKeys(keyIds);
+      setUserIds(userIds);
+    };
+    !treeData.length && initiate();
   }, []);
 
   // 재귀함수 (children에 하위 노드 삽입)
@@ -184,7 +177,7 @@ export default function FavoritePage() {
       // 즐겨찾기 밑에 a부서가 있다면, 아래 분기문에 잡힌다.
       if (v.key === child.pid) {
         // gubun: G (Group)
-        if (child.gubun === `G`) {
+        if (child.gubun === Egubun.GROUP) {
           return {
             ...v,
             children: [
@@ -204,7 +197,6 @@ export default function FavoritePage() {
           const userV = userSchema?.find(
             (v: any) => v.user_id.value === child.id
           );
-          console.log(`userV: `, userV);
           return {
             ...v,
             children: [
@@ -214,47 +206,7 @@ export default function FavoritePage() {
                 key: child.id,
                 gubun: child.gubun,
                 pid: child.pid,
-
-                classMaxCode: userV.class_max_code?.value,
-                connectType: userV.connect_type?.value,
-                expiredPwdYn: userV.expired_pwd_yn?.value,
-                nodeEnd: userV.node_end?.value,
-                nodeStart: userV.node_start?.value,
-                orgCode: userV.org_code?.value,
-                sipId: userV.sip_id?.value,
-                smsUsed: userV.sms_used?.value,
-                syncOpt: userV.sync_opt?.value,
-                userAliasName: userV.user_aliasname?.value,
-                userBirthGubun: userV.user_birth_gubun?.value,
-                userBirthday: userV.user_birthday?.value,
-                userCertify: userV.user_certify?.value,
-                userEmail: userV.user_email?.value,
-                userExtState: userV.user_extstate?.value,
-                userField1: userV.user_field1?.value,
-                userField2: userV.user_field2?.value,
-                userField3: userV.user_field3?.value,
-                userField4: userV.user_field4?.value,
-                userField5: userV.user_field5?.value,
-                userGroupCode: userV.user_group_code?.value,
-                userGroupName: userV.user_group_name?.value,
-                userGubun: userV.user_gubun?.value,
-                userId: userV.user_id?.value,
-                userIpphoneDbGroup: userV.user_ipphone_dbgroup?.value,
-                userName: userV.user_name?.value,
-                userPass: userV.user_pass?.value,
-                userPayclName: userV.user_paycl_name?.value,
-                userPhoneState: userV.user_phone_state?.value,
-                userPicturePos: userV.user_picture_pos?.value,
-                userState: userV.user_state?.value,
-                userTelCompany: userV.user_tel_company?.value,
-                userTelFax: userV.user_tel_fax?.value,
-                userTelIpphone: userV.user_tel_ipphone?.value,
-                userTelMobile: userV.user_tel_mobile?.value,
-                userTelOffice: userV.user_tel_office?.value,
-                userViewOrgGroup: userV.user_view_org_groups?.value,
-                userWorkName: userV.user_work_name?.value,
-                userXmlPic: userV.user_xml_pic?.value,
-                viewOpt: userV.view_opt?.value,
+                ...convertToUser(userV),
               },
             ],
           };
@@ -295,65 +247,42 @@ export default function FavoritePage() {
     const which = e.which;
     const keyword = e.target.value;
 
-    const getSearchResult = () => {
+    console.log(treeData);
+
+    const getSearchResult = async () => {
       // 사용자명, 사용자 id, 부서명, 직위, 직책, 직급, 핸드폰 번호로 검색 가능
       // user_name, user_id, user_group_name, user_paycl_name, _, _, user_tel_mobile
-      const reg = new RegExp(keyword, `g`);
-      const searchResult = _userSchema.filter(
+      const {
+        data: {
+          items: { node_item: userSchemaMaybeArr },
+        },
+      } = await getUserInfos(userIds);
+      // 사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
+      const userSchema = arrayLike(userSchemaMaybeArr);
+
+      const reg = new RegExp(keyword, Egubun.GROUP);
+      const searchResult = userSchema.filter(
         (v: any) =>
-          reg.test(v.user_name.value) ||
-          reg.test(v.user_id.value) ||
-          reg.test(v.user_group_name.value) ||
-          reg.test(v.user_paycl_name.value) ||
-          reg.test(v.user_tel_mobile.value)
+          reg.test(v.user_name?.value) ||
+          reg.test(v.user_id?.value) ||
+          reg.test(v.user_group_name?.value) ||
+          reg.test(v.user_paycl_name?.value) ||
+          reg.test(v.user_tel_mobile?.value)
       );
 
-      const userSchema = searchResult.map((v: any) => ({
+      const children = searchResult.map((v: any) => ({
         title: v.user_name?.value,
         key: v.user_id.value,
         gubun: v.gubun.value,
-        orgCode: v.org_code.value,
-        classMaxCode: v.class_max_code?.value,
-        connectType: v.connect_type?.value,
-        pullClassId: v.pull_class_id?.value,
-        pullGroupName: v.pull_group_name?.value,
-        sipId: v.sip_id?.value,
-        smsUsed: v.sms_used?.value,
-        syncOpt: v.sync_opt?.value,
-        userAliasName: v.user_aliasname?.value,
-        userBirthGubun: v.user_birth_gubun?.value,
-        userBirthday: v.user_birthday?.value,
-        userCertify: v.user_certify?.value,
-        userEmail: v.user_email?.value,
-        userEtcState: v.user_etc_state?.value,
-        userExtState: v.user_extstate?.value,
-        userGroupCode: v.user_group_code?.value,
-        userGroupName: v.user_group_name?.value,
-        userGubun: v.user_gubun?.value,
-        userId: v.user_id?.value,
-        userIpphoneDbGroup: v.user_ipphone_dbgroup?.value,
-        userName: v.user_name?.value,
-        userPayclName: v.user_paycl_name?.value,
-        userPhoneState: v.user_phone_state?.value,
-        userPicturePos: v.user_picture_pos?.value,
-        userState: v.user_state?.value,
-        userTelCompany: v.user_tel_company?.value,
-        userTelFax: v.user_tel_fax?.value,
-        userTelIpphone: v.user_tel_ipphone?.value,
-        userTelMobile: v.user_tel_mobile?.value,
-        userTelOffice: v.user_tel_office?.value,
-        userViewOrgGroup: v.user_view_org_groups?.value,
-        userWorkName: v.user_work_name?.value,
-        userXmlPic: v.user_xml_pic?.value,
-        viewOpt: v.view_opt?.value,
+        ...convertToUser(v),
       }));
 
       const searchRoot: TTreeNode[] = [
         {
-          title: `검색 결과`,
-          key: `searchResult`,
-          children: userSchema,
-          gubun: `G`,
+          title: Efavorite.SEARCH_RESULT,
+          key: Efavorite.SEARCH_RESULT,
+          children,
+          gubun: Egubun.GROUP,
         },
       ];
 
@@ -406,28 +335,32 @@ export default function FavoritePage() {
     const { v: dragV, i: dragI, list: dragList } = await find(replica, dragKey);
     const { v: dropV, i: dropI, list: dropList } = await find(replica, dropKey);
 
-    if (dragV.gubun === `G` && dropV.gubun === `U`) {
+    // 그룹 -> 유저 드래그
+    if (dragV.gubun === Egubun.GROUP && dropV.gubun === Egubun.FAVORITE_USER) {
       return false;
     }
 
+    // 프로필 조작 시
     if (
-      dragV.key === `myProfile` ||
-      dragV.key === `me` ||
-      dropV.key === `myProfile` ||
-      dropV.key === `me`
+      dragV.key === Efavorite.MY_PROFILE ||
+      dragV.key === Efavorite.MY_KEY ||
+      dropV.key === Efavorite.MY_PROFILE ||
+      dropV.key === Efavorite.MY_KEY
     ) {
       return false;
     }
 
-    if (dropV.gubun === `U`) {
+    // 유저 -> 유저 드래그
+    if (dropV.gubun === Egubun.FAVORITE_USER) {
       dragList.splice(dragI, 1);
       dropList.splice(dropI, 0, dragV);
     } else {
       dragList.splice(dragI, 1);
-
-      if (dragV.gubun === `G`) {
+      // 그룹 -> 그룹 드래그 시 최하위로 삽입
+      if (dragV.gubun === Egubun.GROUP) {
         dropV.children?.push(dragV);
       } else {
+        // 유저 -> 그룹 드래그 시 최상위로 삽입
         dropV.children?.unshift(dragV);
       }
     }
@@ -435,13 +368,12 @@ export default function FavoritePage() {
   };
 
   const handleExpand = (expandedKeys: (string | number)[]): void => {
-    console.log(`expandedKes param: `, expandedKeys);
     setExpandedKeys(expandedKeys);
   };
 
   const switcherGenerator = (data: any) => (
     <>
-      {data?.gubun === `G` && (
+      {data?.gubun === Egubun.GROUP && (
         <Switcher>
           {!data?.expanded ? (
             <img
@@ -736,7 +668,7 @@ export default function FavoritePage() {
             onSelect={handleSelect}
             onExpand={handleExpand}
             switcherIcon={switcherGenerator}
-            expandedKeys={[`searchResult`]}
+            expandedKeys={[Efavorite.SEARCH_RESULT]}
           >
             {renderTreeNodes(searchResult)}
           </Tree>
