@@ -29,7 +29,7 @@ function FuncTestPage2() {
   const [serverIp, setServerIp] = useState("");
   const [serverPort, setServerPort] = useState(0);
   const [netLog, setNetLog] = useState("");
-  const [localLog, setLocalLog] = useState("");
+  const [chatMessages, setChatMessages] = useState("");
   const [loginId, setloginId] = useState("bslee");
   const [loginPwd, setloginPwd] = useState("1111");
 
@@ -38,9 +38,10 @@ function FuncTestPage2() {
   const [chatMessage, setChatMessage] = useState("Hello Chat");
 
   const [isNewChat, setIsNewChat] = useState(true);
+  const chatArea = useRef(null);
 
   const netLogArea = useRef(null);
-  const localLogArea = useRef(null);
+
 
 
   //initialize
@@ -49,6 +50,11 @@ function FuncTestPage2() {
 
     electron.ipcRenderer.on('net-log', (event, msg, ...args) => {
       appendNetLog(msg, args);
+    });
+
+    electron.ipcRenderer.on('chatReceived', (event, chatMsg) => {
+      console.log(chatMsg[0]);
+      appendChatMessage(chatMsg[0].sendName, chatMsg[0].chatData);
     });
 
     let config = getConfig();
@@ -66,50 +72,35 @@ function FuncTestPage2() {
     }
   }
 
-  const appendLocalLog = (msg, ...args) => {
-    msg = moment().format("hh:mm:ss.SSS >") + msg + ':' + JSON.stringify(args);
-    setLocalLog(prev => prev + (prev ? "\r\n" : "") + msg);
+  // Chat Container
+  const appendChatMessage = (sender, chatMsg) => {
+    let msg = moment().format("hh:mm:ss.SSS >") + sender + ':' + chatMsg;
+    setChatMessages(prev => prev + (prev ? "\r\n" : "") + msg);
 
-    if (localLogArea.current) {
-      localLogArea.current.scrollTop = localLogArea.current.scrollHeight;
+    if (chatArea.current) {
+      chatArea.current.scrollTop = chatArea.current.scrollHeight;
     }
   }
   const clearLog = () => {
     setNetLog('');
-    setLocalLog('');
   }
   //#endregion WriteLog ...
 
   // Login
   const handleLogin = (e) => {
-    appendLocalLog("Login1" , loginId, loginPwd);
 
     login(loginId, loginPwd).then(function(resData){
-      console.log('Promiss login res', resData);
-      if (resData.resCode) {
-        appendLocalLog('Login Success! ', JSON.stringify(resData))
-      } else {
-        appendLocalLog('Login fail! ', JSON.stringify(resData))
-      }
+      
     }).catch(function(err){
-      appendLocalLog('Login fail! ', JSON.stringify(err))
     });;
   }
 
   // GetChatRoomList
   const handleGetChatRoomList = (e) => {
-    
-    appendLocalLog("getChatRoomList" );
-
     getChatRoomList(0, 100).then(function(resData){
       console.log('Promiss getChatRoomList res', resData);
-      if (resData.resCode) {
-        appendLocalLog('getChatRoomList Success! ', JSON.stringify(resData))
-      } else {
-        appendLocalLog('getChatRoomList fail! ', JSON.stringify(resData))
-      }
+      
     }).catch(function(err){
-      appendLocalLog('getChatRoomList fail! ', JSON.stringify(err))
     });;
   }
 
@@ -125,6 +116,7 @@ function FuncTestPage2() {
 
     let chatUserIdStr = loginUser.userId + "," + targetUserIds
 
+    appendChatMessage(loginUser.userName, chatMessage);
     sendChatMessage(chatUserIdStr.split(','), chatMessage, isNewChat?null:chatRoomId);
   }
 
@@ -245,7 +237,7 @@ function FuncTestPage2() {
         </Row>
 
         <Row xs={1} className='mt-1' >
-          <textarea ref={localLogArea} rows={10} value={localLog} className='mt-1' />
+          <textarea ref={chatArea} rows={10} value={chatMessages} className='mt-1' />
         </Row>
         <Row xs={1} className='mt-1'>
           <textarea ref={netLogArea} rows={10} value={netLog} className='mt-1'/>

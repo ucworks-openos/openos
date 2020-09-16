@@ -3,7 +3,14 @@
 /**
  * 문자열 끝 코드를 제외하고 문자열을 가져옵니다. 
  */
-function getStringWithoutEndOfString(strBuf, sInx, eInx, encoding = global.ENC) {
+function getStringWithoutEndOfString(strBuf, sInx, readLength = -1, encoding = global.ENC) {
+    if (!strBuf) return '';
+
+    let eInx = strBuf.length;
+
+    // readLength가 있다면 해당 길이만큼만 읽는다.
+    if (readLength > 0) eInx = sInx+readLength;
+
     let tempBuf = strBuf.slice(sInx, eInx);
     let endOfStrInx = tempBuf.indexOf(0x00);  
     tempBuf = tempBuf.slice(0, endOfStrInx);

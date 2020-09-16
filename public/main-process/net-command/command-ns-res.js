@@ -53,8 +53,8 @@ function receiveCmdProc(recvCmd) {
     case CmdCodes.NS_CHAT_LINEKEY:
       switch (recvCmd.cmdCode) {
         case CmdCodes.NS_CHAT_LINEKEY:
-          let roomKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, 0, CmdConst.BUF_LEN_CHAT_ROOM_KEY, global.ENC);
-          let lineKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, CmdConst.BUF_LEN_CHAT_ROOM_KEY, recvCmd.data.length, global.ENC);
+          let roomKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, 0, CmdConst.BUF_LEN_CHAT_ROOM_KEY);
+          let lineKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, CmdConst.BUF_LEN_CHAT_ROOM_KEY);
           callCallback(recvCmd.sendCmd, new ResData(true, {roomKey:roomKey, lineKey,lineKey}));
 
           break;
@@ -96,7 +96,7 @@ function notifyCmdProc(recvCmd) {
         // tempBuf = tempBuf.slice(0, endOfStrInx);
 
         //let encryptKey = tempBuf.toString(global.ENC);
-        let encryptKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, sInx + CmdConst.BUF_LEN_ENCRYPT);
+        let encryptKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_ENCRYPT);
         sInx += CmdConst.BUF_LEN_ENCRYPT;
 
         let key = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_KEY).trim();               // 메세지 키 (전송시 키를 발생하여 수신시 해당 키로 데이터베이스에 저장한다.)
@@ -109,7 +109,7 @@ function notifyCmdProc(recvCmd) {
         sInx += CmdConst.BUF_LEN_SUBJECT;
 
         //let sendId = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_USERID).trim();            // 보낸사람 ID
-        let sendId = BufUtil.getStringWithoutEndOfString(recvCmd.data,  sInx, sInx + CmdConst.BUF_LEN_USERID);            // 보낸사람 ID
+        let sendId = BufUtil.getStringWithoutEndOfString(recvCmd.data,  sInx, CmdConst.BUF_LEN_USERID);            // 보낸사람 ID
         sInx += CmdConst.BUF_LEN_USERID;
 
         let sendName = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_USERNAME).trim();          // 보낸사람 이름
@@ -285,14 +285,14 @@ function notifyCmdProc(recvCmd) {
     case CmdCodes.SB_CHAT_DATA :
       let sInx = 0;
 
-      let roomKey = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_CHAT_ROOM_KEY).trim();
+      let roomKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_CHAT_ROOM_KEY);
       sInx += CmdConst.BUF_LEN_CHAT_ROOM_KEY;
-      sInx = getMultiple4Size(sInx);
+      sInx += getMultiple4DiffSize(sInx);
 
       let roomType = recvCmd.data.readInt32LE(sInx);
       sInx += CmdConst.BUF_LEN_INT;
 
-      let lineKey = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_CHAT_ROOM_KEY).trim();
+      let lineKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_CHAT_ROOM_KEY);
       sInx += CmdConst.BUF_LEN_CHAT_ROOM_KEY;
       sInx += getMultiple4DiffSize(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
 
@@ -302,10 +302,11 @@ function notifyCmdProc(recvCmd) {
       let unreadCount = recvCmd.data.readInt32LE(sInx);
       sInx += CmdConst.BUF_LEN_INT;
       
-      let sendDate = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_DATE).trim();
+      let sendDate = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_DATE);
+      console.log('>>>>>>>>>>>>>>>>>>>>>> sendDate ',sInx, sendDate)
       sInx += CmdConst.BUF_LEN_DATE;
 
-      let ip = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_IP).trim();
+      let ip = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_IP).trim();
       sInx += CmdConst.BUF_LEN_IP;
       sInx += getMultiple4DiffSize(CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP);
 
@@ -321,16 +322,16 @@ function notifyCmdProc(recvCmd) {
       let fontColor = recvCmd.data.readInt32LE(sInx);
       sInx += CmdConst.BUF_LEN_INT;      // TColor; ??
 
-      let fontName = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_FONTNAME).trim();
+      let fontName = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_FONTNAME);
       sInx += CmdConst.BUF_LEN_FONTNAME;
       sInx += getMultiple4DiffSize(CmdConst.BUF_LEN_FONTNAME);
 
 
-      let sendId = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_USERID).trim();
+      let sendId = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_USERID);
       sInx += CmdConst.BUF_LEN_USERID;
-      let sendName = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_USERNAME).trim();
+      let sendName = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_USERNAME);
       sInx += CmdConst.BUF_LEN_USERNAME;
-      let encryptKey = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_ENCRYPT).trim();
+      let encryptKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_ENCRYPT);
       sInx += CmdConst.BUF_LEN_ENCRYPT;
       sInx += getMultiple4DiffSize(CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERNAME + CmdConst.BUF_LEN_ENCRYPT);
 
@@ -346,16 +347,14 @@ function notifyCmdProc(recvCmd) {
       let destIdSize = recvCmd.data.readInt32LE(sInx);
       sInx += CmdConst.BUF_LEN_INT;
 
-
-      let chatKey = recvCmd.data.toString(global.ENC, sInx, chatKeySize).trim();
+      let chatKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, chatKeySize+ 1);
       sInx += chatKeySize;
 
-      let chatData = recvCmd.data.toString(global.ENC, sInx, chatDataSize).trim();
-      chatData = EncUtil.decryptMessage(encryptKey, chatData);
-
+      let chatData = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, chatDataSize + 1);
+      chatData = EncUtil.decryptMessage(encryptKey, chatData, true);
       sInx += chatDataSize;
 
-      let destId = recvCmd.data.toString(global.ENC, sInx, destIdSize).trim();
+      let destId = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx);
       sInx += destIdSize;
 
       sendLog('roomKey:' + roomKey

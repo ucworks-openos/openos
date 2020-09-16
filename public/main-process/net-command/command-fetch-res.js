@@ -29,10 +29,10 @@ function responseCmdProc(recvCmd) {
       if (recvCmd.cmdCode == CmdCodes.FETCH_SELECT_SUCCESS) {
 
         let sInx = 0;
-        let userId = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, sInx + CmdConst.BUF_LEN_USERID);
+        let userId = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_USERID);
         sInx += CmdConst.BUF_LEN_USERID;
 
-        let key = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, sInx + CmdConst.BUF_LEN_SQL_KEY);
+        let key = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_SQL_KEY);
         sInx += CmdConst.BUF_LEN_SQL_KEY;
 
         let dbKind = recvCmd.data.readInt32LE(sInx);
@@ -50,8 +50,8 @@ function responseCmdProc(recvCmd) {
         let resultSize = recvCmd.data.readInt32LE(sInx);
         sInx += CmdConst.BUF_LEN_INT;
 
-        //let result = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, sInx + resultSize); // 남은 데이터와 사이즈가 맞지 않는 경우 있음
-        let result = recvCmd.data.toString(global.ENC, sInx); // 그냥 남은거 다 받는다.
+        //let result = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, resultSize); // 남은 데이터와 사이즈가 맞지 않는 경우 있음
+        let result = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx); // 그냥 남은거 다 받는다.
         sInx += resultSize;
 
         console.log('FETCH_SQL_REQUEST  xml ', result)

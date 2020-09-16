@@ -114,7 +114,7 @@ function decryptAES256(key, ciphertext) {
  * @param {String} message 
  * @returns {Object} {cipherContent:cipherContent, encKey:encKey}
  */
-function encryptMessage(message) {
+function encryptMessage(message, isLogging = false) {
     
     let tmpPwd = '';
     let cipherPwd = '';
@@ -151,6 +151,8 @@ function encryptMessage(message) {
             break;
     }
 
+    if (isLogging) console.log('encryptMessage', encKey, cipherContent)
+
     return {cipherContent:cipherContent, encKey:encKey};
 }
 
@@ -160,7 +162,8 @@ function encryptMessage(message) {
  * @param {String} cipherContent 
  * @returns {String} decrypt message
  */
-function decryptMessage(encryptKey, cipherContent) {
+function decryptMessage(encryptKey, cipherContent, isLogging = false) {
+    if (isLogging) console.log('decryptMessage', encryptKey, cipherContent)
 
     let encArr = encryptKey.split(CmdConst.SEP_PIPE);
     let encMode = encArr[0];
@@ -170,11 +173,16 @@ function decryptMessage(encryptKey, cipherContent) {
     switch(encMode) {
       case CmdConst.ENCODE_TYPE_OTS:
         encKey = decryptRC4(CmdConst.SESSION_KEY, encKey);
+        if (isLogging) console.log('decryptMessage decKey', encMode, encKey, cipherContent)
+
         message = decryptRC4(encKey, cipherContent);
+        if (isLogging) console.log('decryptMessage decMsg', encMode, cipherContent, message)
         break;
       case CmdConst.ENCODE_TYPE_OTS_AES256:
         encKey = decryptAES256(CmdConst.SESSION_KEY_AES256, encKey);
+        if (isLogging) console.log('decryptMessage decKey', encMode, encKey, cipherContent)
         message = decryptAES256(encKey, cipherContent);
+        if (isLogging) console.log('decryptMessage decMsg', encMode, cipherContent, message)
         break;
 
       default:
@@ -182,7 +190,7 @@ function decryptMessage(encryptKey, cipherContent) {
         break;
     }
 
-    return 
+    return message;
 }
 
 
