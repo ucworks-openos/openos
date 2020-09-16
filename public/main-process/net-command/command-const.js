@@ -8,10 +8,11 @@ module.exports = Object.freeze({
     ENCODE_TYPE_OTS_AES256  : 'OTS_AES256',  // 4=OTP+세션키(AES256) 으로 암호화됨
     ENCODE_TYPE_NO          : 'NO',   // 암호화 하지 않음
 
-    PIPE_SEP                : '|',
-    CR_SEP                  : String.fromCharCode(13),
-    PT_SET                  : String.fromCharCode(7),
-    COMMA_SEP               : ',',
+    SEP_PIPE                : '|',
+    SEP_CR                  : String.fromCharCode(13),
+    SEP_PT                  : String.fromCharCode(7),
+    SEP_DC4                 : String.fromCharCode(20),
+    SEP_COMMA               : ',',
 
     MSG_COMMON_DATA         : 'COMMON',
     MSG_CONFIRM_DATA        : 'CONFIRM',
@@ -27,11 +28,15 @@ module.exports = Object.freeze({
     ICON_STATE_DELETED      : -9,  //삭제된 사용자
 
     STATE_ONLINE            : 0,     // 온라인
-    STATE_OFFLINE           : 0,     // 오프라인
-    STATE_DISP_OFFLINE      : 8,     // 오프라인
     STATE_ABSENT            : 1,     // 자리비움
+    STATE_WORK              : 2,      // 다른 용무중
+    STATE_OUTSIDE           : 3,      // 외근
     STATE_CALLING           : 4,     // 통화중
+    STATE_EAT				: 5, 	//식사중
     STATE_CONFERENCE        : 6,     // 회의중
+    STATE_OFFLINE			: 7,	
+    STATE_DISP_OFFLINE      : 8,     // 오프라인
+
 
     CONNECT_TYPE_OUT                : 0,  // 접속안함
     CONNECT_TYPE_APP                : 1,  // 윈도우즈 메신저
@@ -42,6 +47,9 @@ module.exports = Object.freeze({
     CONNECT_TYPE_MOBILE_IOS         : 6,  // 아이폰
     CONNECT_TYPE_MOBILE_IOS_PAD     : 7,  // 아이폰 PAD
     CONNECT_TYPE_APP_MAC            : 10, // 맥버전
+
+    DATE_FORMAT_YYYYMMDDHHmmssSSS   : 'YYYYMMDDHHmmssSSS',
+    DATE_FORMAT_YYYYMMDDHHmmss      : 'YYYYMMDDHHmmss',
 
 
 
@@ -54,7 +62,7 @@ module.exports = Object.freeze({
     BUF_LEN_PUKCERTKEY      : 512 + 1,
     BUF_LEN_CHALLENGE       : 32 + 1,
     BUF_LEN_SESSION         : 32 + 1,
-    BUF_LEN_IP              : 50 + 1 + 1, // 1바이트 더 들어온다.
+    BUF_LEN_IP              : 50 + 1, // 1바이트 더 들어온다.
     BUF_LEN_USERID          : 50 + 1,
     BUF_LEN_USERNAME        : 100 + 1,
     BUF_LEN_USERPWD         : 100 + 1,
@@ -73,13 +81,16 @@ module.exports = Object.freeze({
     BUF_LEN_RECV_NAME       : 150 + 1,
 
     BUF_LEN_TIME            : 14 + 1,
+    BUF_LEN_DATE            : 20 + 1,
 
-    BUF_LEN_CHAT_ROOM_KEY          : 128 + 1,
+    BUF_LEN_CHAT_ROOM_KEY   : 128 + 1,
     
     BUF_LEN_SQL_KEY         : 128 + 1,
     BUF_LEN_SQL_NAME        : 100 + 1,
     BUF_LEN_SQL_DATA        : 512 + 1,
     BUF_LEN_SQL_FIELD       : 50 + 1,
+
+    BUF_LEN_FONTNAME       : 100 + 1,
 
     //#endregion COMMAND LENGTH
     

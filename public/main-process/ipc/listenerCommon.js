@@ -6,6 +6,7 @@ const nsAPI = require('../net-command/command-ns-api');
 
 
 const ResData = require('../ResData');
+const commandConst = require('../net-command/command-const');
 
 
 /** login */ 
@@ -36,6 +37,9 @@ ipcMain.on('login', async (event, loginData) => {
       resData = await nsAPI.reqconnectNS(loginData.loginId)
     }
     else throw new Error('reqGetCondition fail!');
+
+    // 내상태를 Online으로 처리합니다.
+    nsAPI.reqChangeStatus(commandConst.STATE_ONLINE);
 
     // 로그인에 성공하면 내 상태 변경알림 요청을 합니다.
     nsAPI.reqSetStatusMonitor([loginData.loginId]);

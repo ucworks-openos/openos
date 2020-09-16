@@ -1,3 +1,6 @@
+
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Button, Container, Row, Col, DropdownButton, Dropdown } from 'react-bootstrap';
@@ -5,10 +8,14 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
-import {getConfig, login, searchUsers, searchOrgUsers} from '../ipcCommunication/ipcCommon'
-import {getMessage, getMessageDetail, getChatRoomList} from '../ipcCommunication/ipcMessage'
+import {getConfig, login} from '../ipcCommunication/ipcCommon'
+import {getChatRoomList, sendChatMessage} from '../ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")
+const { remote } = window.require("electron")
+
+// Dev Mode
+var loginUser = remote.getGlobal('USER')
 
 const GridWrapper = styled.div`
   display: grid;
@@ -22,17 +29,20 @@ function FuncTestPage2() {
   const [serverIp, setServerIp] = useState("");
   const [serverPort, setServerPort] = useState(0);
   const [netLog, setNetLog] = useState("");
-  const [localLog, setLocalLog] = useState("");
+  const [chatMessages, setChatMessages] = useState("");
   const [loginId, setloginId] = useState("bslee");
   const [loginPwd, setloginPwd] = useState("1111");
 
   const [targetUserIds, setTargetUserIds] = useState("proju,bucky2,smileajw1004");
-  const [chatRoomId, setChatRoomId] = useState("1111");
+  const [chatRoomId, setChatRoomId] = useState("bslee_40b431b5fea09b109bb25e57379646fe");
   const [chatMessage, setChatMessage] = useState("Hello Chat");
 
+  const [isNewChat, setIsNewChat] = useState(true);
+  const chatArea = useRef(null);
+
   const netLogArea = useRef(null);
-  const localLogArea = useRef(null);
-  
+
+
 
   //initialize
   useEffect(() => {
@@ -42,6 +52,11 @@ function FuncTestPage2() {
       appendNetLog(msg, args);
     });
 
+    electron.ipcRenderer.on('chatReceived', (event, chatMsg) => {
+      console.log(chatMsg[0]);
+      appendChatMessage(chatMsg[0].sendName, chatMsg[0].chatData);
+    });
+
     let config = getConfig();
     setServerIp(config.server_ip);
     setServerPort(config.server_port);
@@ -49,7 +64,7 @@ function FuncTestPage2() {
 
   //#region WriteLog ...
   const appendNetLog = (msg, ...args) => {
-    msg = moment().format("hh:mm:ss.SSS >") + msg + ':' + args
+    msg = moment().format("hh:mm:ss.SSS >") + msg + ':' + JSON.stringify(args);
     setNetLog(prev => prev + (prev ? "\r\n" : "") + msg);
 
     if (netLogArea.current) {
@@ -57,63 +72,52 @@ function FuncTestPage2() {
     }
   }
 
-  const appendLocalLog = (msg, ...args) => {
-    msg = moment().format("hh:mm:ss.SSS >") + msg + ':' + args;
-    setLocalLog(prev => prev + (prev ? "\r\n" : "") + msg);
+  // Chat Container
+  const appendChatMessage = (sender, chatMsg) => {
+    let msg = moment().format("hh:mm:ss.SSS >") + sender + ':' + chatMsg;
+    setChatMessages(prev => prev + (prev ? "\r\n" : "") + msg);
 
-    if (localLogArea.current) {
-      localLogArea.current.scrollTop = localLogArea.current.scrollHeight;
+    if (chatArea.current) {
+      chatArea.current.scrollTop = chatArea.current.scrollHeight;
     }
   }
   const clearLog = () => {
     setNetLog('');
-    setLocalLog('');
   }
   //#endregion WriteLog ...
 
   // Login
   const handleLogin = (e) => {
-    appendLocalLog("Login1" , loginId, loginPwd);
 
     login(loginId, loginPwd).then(function(resData){
-      console.log('Promiss login res', resData);
-      if (resData.resCode) {
-        appendLocalLog('Login Success! ', JSON.stringify(resData))
-      } else {
-        appendLocalLog('Login fail! ', JSON.stringify(resData))
-      }
+      
     }).catch(function(err){
-      appendLocalLog('Login fail! ', JSON.stringify(err))
     });;
   }
 
   // GetChatRoomList
   const handleGetChatRoomList = (e) => {
-    
-    appendLocalLog("getChatRoomList" );
-
     getChatRoomList(0, 100).then(function(resData){
       console.log('Promiss getChatRoomList res', resData);
-      if (resData.resCode) {
-        appendLocalLog('getChatRoomList Success! ', JSON.stringify(resData))
-      } else {
-        appendLocalLog('getChatRoomList fail! ', JSON.stringify(resData))
-      }
+      
     }).catch(function(err){
-      appendLocalLog('getChatRoomList fail! ', JSON.stringify(err))
     });;
   }
 
   const handleCreateChat = (e) => {
-
+    setIsNewChat(true);
   }
 
   const handleJoinChat = (e) => {
-
+    setIsNewChat(false);
   }
 
   const handleSendChatMessage = (e) => {
-    
+
+    let chatUserIdStr = loginUser.userId + "," + targetUserIds
+
+    appendChatMessage(loginUser.userName, chatMessage);
+    sendChatMessage(chatUserIdStr.split(','), chatMessage, isNewChat?null:chatRoomId);
   }
 
   // LogClear
@@ -127,6 +131,7 @@ function FuncTestPage2() {
         <Row  xs={2} md={3} lg={5}>
           <Col>Server IP : {serverIp}</Col>
           <Col>Server PORT : {serverPort}</Col>
+          <Col>CreateNew : {isNewChat.toString()}</Col>
         </Row>
         
         {/* 로그인 */}
@@ -211,7 +216,7 @@ function FuncTestPage2() {
                 onChange={(e) => setChatMessage(e.target.value)}
               />
               <InputGroup.Append>
-                <Button variant="outline-secondary" onClick={handleSendChatMessage}>대화참여</Button>
+                <Button variant="outline-secondary" onClick={handleSendChatMessage}>보내기</Button>
               </InputGroup.Append>
             </InputGroup>
           </Col>
@@ -232,7 +237,7 @@ function FuncTestPage2() {
         </Row>
 
         <Row xs={1} className='mt-1' >
-          <textarea ref={localLogArea} rows={10} value={localLog} className='mt-1' />
+          <textarea ref={chatArea} rows={10} value={chatMessages} className='mt-1' />
         </Row>
         <Row xs={1} className='mt-1'>
           <textarea ref={netLogArea} rows={10} value={netLog} className='mt-1'/>

@@ -42,11 +42,11 @@ export const getChatRoomList = async (rowOffset = 0, rowLimit = 100) => {
 }
 
 /** getChatRoomList */
-export const getChatLineKey = async (rowOffset = 0, rowLimit = 100) => {
+export const sendChatMessage = async (chatUserIds, chatMessage, roomKey = null) => {
   return new Promise(function(resolve, reject) {
-      electron.ipcRenderer.on('res-getChatLineKey', (event, arg) => {
+      electron.ipcRenderer.on('res-sendChatMessage', (event, arg) => {
           resolve(arg);
         })
-        electron.ipcRenderer.send('getChatLineKey', rowOffset, rowLimit)
+        electron.ipcRenderer.send('sendChatMessage', chatUserIds, chatMessage, roomKey)
     });
 }

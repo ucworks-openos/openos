@@ -19,9 +19,15 @@ import useSearch from "../../hooks/useSearch";
 import { arrayLike, convertToUser } from "../../common/util";
 import { Efavorite, Egubun } from "../../common/enum";
 
+const electron = window.require("electron")
+
 let _orgCode = ``;
 
 export default function OrganizationPage() {
+  //electron.ipcRenderer.on('userStatusChanged', (event, userId, status, connType) => {
+    
+  //});
+
   const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
     type: `organization`,
   });
