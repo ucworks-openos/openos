@@ -34,7 +34,7 @@ function FuncTestPage2() {
   const [loginPwd, setloginPwd] = useState("1111");
 
   const [targetUserIds, setTargetUserIds] = useState("proju,bucky2,smileajw1004");
-  const [chatRoomId, setChatRoomId] = useState("1EF03A0AB71526BC54D0C0A002CF7A0610F6C0A0");
+  const [chatRoomId, setChatRoomId] = useState("bslee_40b431b5fea09b109bb25e57379646fe");
   const [chatMessage, setChatMessage] = useState("Hello Chat");
 
   const [isNewChat, setIsNewChat] = useState(true);

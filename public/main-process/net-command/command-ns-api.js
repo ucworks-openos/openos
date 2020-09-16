@@ -117,6 +117,9 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
             return;
         }
 
+        let destNamesBuf = Buffer.from(recvNames, global.ENC)
+        let destIdsBuf = Buffer.from(recvIds, global.ENC)
+
         // 순서 지키기
         var encryptKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_ENCRYPT);
         var keyBuf = Buffer.alloc(CmdConst.BUF_LEN_KEY);                  // 메세지 키 (전송시 키를 발생하여 수신시 해당 키로 데이터베이스에 저장한다.)
@@ -176,7 +179,7 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
             , destIdsBuf]);
 
 
-        console.log('[SEND MESSAGE] -------  encryptKey,  cipherContent', encKey, cipherContent);
+        console.log('[SEND MESSAGE] -------  encryptKey,  cipherContent', cipherData);
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_SEND_MSG, 0), dataBuf);
     });
 }
@@ -341,10 +344,13 @@ function reqChatLineKey(chatRoomKey) {
 
         let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         roomKeyBuf.write(chatRoomKey, global.ENC);
-
+        
+        // 빈 LineKey
         let lineKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY)
 
         var dataBuf = Buffer.concat([roomKeyBuf, lineKeyBuf]);
+        dataBuf = adjustBufferMultiple4(dataBuf);
+
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_CHAT_LINEKEY, 0, function(resData){
             resolve(resData);
         }), dataBuf);
@@ -408,11 +414,8 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message) {
 
         //font_info
         let fontSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);       // fontsize
-        fontSizeBuf.writeInt32LE(Number(7));
         let fontStyleBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);      // TFontStyles; ??
-        fontStyleBuf.writeInt32LE(Number(8));
         let fontColorBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);      // TColor; ??
-        fontColorBuf.writeInt32LE(Number(9));
 
         let fontName = '맑은고딕';
         let fontNameBuf = Buffer.alloc(CmdConst.BUF_LEN_FONTNAME); //fontName
@@ -447,9 +450,9 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message) {
         console.log("chatDataBuf.length", chatDataBuf.length)
 
         let destIdSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);     // destid_size
-        let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_CR + 'ChattingRoom');
+        let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_PIPE + 'TestChattingRoom');
         destIdSizeBuf.writeInt32LE(destIdBuf.length);
-        console.log("destIdBuf.length", destIdBuf.length)
+        console.log("destIdBuf", idDatas, destIdBuf.length)
 
         var dataBuf = Buffer.concat([roomKeyBuf,roomTypeBuf,lineKeyBuf,lineNumberBuf,lineNumberBuf,sendDateBuf,ipBuf,portBuf,
                     fontSizeBuf,fontStyleBuf,fontColorBuf,fontNameBuf,

@@ -175,9 +175,11 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
         if (!dataBuf)
             dataBuf = Buffer.alloc(0);
 
+        //dataBuf = adjustBufferMultiple4(dataBuf);
+
         // Full Data Buffer
         var cmdBuf = Buffer.concat([codeBuf, sizeBuf, dataBuf]);
-        cmdBuf = adjustBufferMultiple4(cmdBuf);
+        
         
         // Command Code
         codeBuf.writeInt32LE(cmdHeader.cmdCode);
@@ -190,12 +192,11 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
 
         nsSock.write(cmdBuf);
         global.NS_SEND_COMMAND = cmdHeader
-
+        cmdHeader = null;
         if (resetConnCheck) startConnectionCheck();
         
         //console.log('\r\n-------------------------- ');
-        sendLog("\r\nwrite NS Command ------ CMD: " + JSON.stringify(global.NS_SEND_COMMAND));
-        //console.log("write NS Command : ", global.NS_SEND_COMMAND);
+        sendLog("\r\nwrite NS Command ------ CMD ", JSON.stringify(global.NS_SEND_COMMAND));
     // } catch (exception) {
     //     sendLog("write NS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }

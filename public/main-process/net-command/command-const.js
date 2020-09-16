@@ -28,11 +28,15 @@ module.exports = Object.freeze({
     ICON_STATE_DELETED      : -9,  //삭제된 사용자
 
     STATE_ONLINE            : 0,     // 온라인
-    STATE_OFFLINE           : 0,     // 오프라인
-    STATE_DISP_OFFLINE      : 8,     // 오프라인
     STATE_ABSENT            : 1,     // 자리비움
+    STATE_WORK              : 2,      // 다른 용무중
+    STATE_OUTSIDE           : 3,      // 외근
     STATE_CALLING           : 4,     // 통화중
+    STATE_EAT				: 5, 	//식사중
     STATE_CONFERENCE        : 6,     // 회의중
+    STATE_OFFLINE			: 7,	
+    STATE_DISP_OFFLINE      : 8,     // 오프라인
+
 
     CONNECT_TYPE_OUT                : 0,  // 접속안함
     CONNECT_TYPE_APP                : 1,  // 윈도우즈 메신저

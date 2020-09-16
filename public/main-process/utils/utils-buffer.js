@@ -35,9 +35,18 @@ function getMultiple4Size (size) {
     return Math.ceil(size/4)*4;
 }
 
+/**
+ * 해당 사이즈를 4의 배수 차이를 가져옵니다.
+ * @param {int} size 
+ */
+function getMultiple4DiffSize (size) {
+    return (Math.ceil(size/4)*4) - size;
+}
+
     
 module.exports = {
     getStringWithoutEndOfString: getStringWithoutEndOfString,
     adjustBufferMultiple4: adjustBufferMultiple4,
-    getMultiple4Size: getMultiple4Size
+    getMultiple4Size: getMultiple4Size,
+    getMultiple4DiffSize: getMultiple4DiffSize,
 }

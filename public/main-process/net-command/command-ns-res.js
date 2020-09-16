@@ -1,13 +1,14 @@
 
 const { sendLog } = require('../ipc/ipc-cmd-sender');
 const { callCallback } = require('./command-utils');
-const { messageReceived, unreadCountReceived, userStatusChanged } = require('../notification/messageNoti');
+const MsgNoti = require('../notification/messageNoti');
 const EncUtil = require('../utils/utils-crypto')
 const BufUtil = require('../utils/utils-buffer')
 
 const ResData = require('../ResData');
 const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
+const { getMultiple4Size, getMultiple4DiffSize } = require('../utils/utils-buffer');
 
 /**
  * 수신한 Command를 처리합니다. 
@@ -181,7 +182,7 @@ function notifyCmdProc(recvCmd) {
         }
         
 
-        messageReceived({
+        MsgNoti.messageReceived({
           encryptKey: encryptKey,
           key: key,
           gubun: gubun,
@@ -239,7 +240,7 @@ function notifyCmdProc(recvCmd) {
         sInx += CmdConst.BUF_LEN_INT;
 
 
-        unreadCountReceived({
+        MsgNoti.unreadCountReceived({
           userId: userId,
           msgCnt: msgCnt,
           chatCnt: chatCnt,
@@ -272,7 +273,7 @@ function notifyCmdProc(recvCmd) {
 
         statusList.forEach(status => {
           statusInfos = status.split(CmdConst.SEP_PT);
-          userStatusChanged(statusInfos[0],statusInfos[1], statusInfos[2])
+          MsgNoti.userStatusChanged(statusInfos[0],statusInfos[1], statusInfos[2])
         });
       } else {
         let rcvBuf = Buffer.from(recvCmd.data);
@@ -280,6 +281,135 @@ function notifyCmdProc(recvCmd) {
         sendLog('NS_STATE_LIST Fail!! Data:' + dataStr);
       }
       break;
+    
+    case CmdCodes.SB_CHAT_DATA :
+      let sInx = 0;
+
+      let roomKey = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_CHAT_ROOM_KEY).trim();
+      sInx += CmdConst.BUF_LEN_CHAT_ROOM_KEY;
+      sInx = getMultiple4Size(sInx);
+
+      let roomType = recvCmd.data.readInt32LE(sInx);
+      sInx += CmdConst.BUF_LEN_INT;
+
+      let lineKey = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_CHAT_ROOM_KEY).trim();
+      sInx += CmdConst.BUF_LEN_CHAT_ROOM_KEY;
+      sInx += getMultiple4DiffSize(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
+
+      let lineNumber = recvCmd.data.readInt32LE(sInx);
+      sInx += CmdConst.BUF_LEN_INT;
+
+      let unreadCount = recvCmd.data.readInt32LE(sInx);
+      sInx += CmdConst.BUF_LEN_INT;
+      
+      let sendDate = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_DATE).trim();
+      sInx += CmdConst.BUF_LEN_DATE;
+
+      let ip = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_IP).trim();
+      sInx += CmdConst.BUF_LEN_IP;
+      sInx += getMultiple4DiffSize(CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP);
+
+      let port = recvCmd.data.readInt32LE(sInx);
+      sInx += CmdConst.BUF_LEN_INT;
+
+
+      // font
+      let fontSize = recvCmd.data.readInt32LE(sInx);
+      sInx += CmdConst.BUF_LEN_INT;       // fontsize
+      let fontStyle = recvCmd.data.readInt32LE(sInx);
+      sInx += CmdConst.BUF_LEN_INT;      // TFontStyles; ??
+      let fontColor = recvCmd.data.readInt32LE(sInx);
+      sInx += CmdConst.BUF_LEN_INT;      // TColor; ??
+
+      let fontName = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_FONTNAME).trim();
+      sInx += CmdConst.BUF_LEN_FONTNAME;
+      sInx += getMultiple4DiffSize(CmdConst.BUF_LEN_FONTNAME);
+
+
+      let sendId = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_USERID).trim();
+      sInx += CmdConst.BUF_LEN_USERID;
+      let sendName = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_USERNAME).trim();
+      sInx += CmdConst.BUF_LEN_USERNAME;
+      let encryptKey = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_ENCRYPT).trim();
+      sInx += CmdConst.BUF_LEN_ENCRYPT;
+      sInx += getMultiple4DiffSize(CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERNAME + CmdConst.BUF_LEN_ENCRYPT);
+
+      let chatCmd = recvCmd.data.readInt32LE(sInx);
+      sInx += CmdConst.BUF_LEN_INT;
+
+      let chatKeySize = recvCmd.data.readInt32LE(sInx);
+      sInx += CmdConst.BUF_LEN_INT;
+
+      let chatDataSize = recvCmd.data.readInt32LE(sInx);
+      sInx += CmdConst.BUF_LEN_INT;
+
+      let destIdSize = recvCmd.data.readInt32LE(sInx);
+      sInx += CmdConst.BUF_LEN_INT;
+
+
+      let chatKey = recvCmd.data.toString(global.ENC, sInx, chatKeySize).trim();
+      sInx += chatKeySize;
+
+      let chatData = recvCmd.data.toString(global.ENC, sInx, chatDataSize).trim();
+      chatData = EncUtil.decryptMessage(encryptKey, chatData);
+
+      sInx += chatDataSize;
+
+      let destId = recvCmd.data.toString(global.ENC, sInx, destIdSize).trim();
+      sInx += destIdSize;
+
+      sendLog('roomKey:' + roomKey
+            + ', roomType:' + roomType
+            + ', lineKey:' + lineKey
+            + ', lineNumber:' + lineNumber
+            + ', unreadCount:' + unreadCount
+            + ', sendDate:' + sendDate
+            + ', ip:' + ip
+            + ', port:' + port
+            + ', fontSize:' + fontSize
+            + ', fontStyle:' + fontStyle
+            + ', fontColor:' + fontColor
+            + ', fontName:' + fontName
+            + ', sendId:' + sendId
+            + ', sendName:' + sendName
+            + ', encryptKey:' + encryptKey
+            + ', chatCmd:' + chatCmd
+            + ', chatKeySize:' + chatKeySize
+            + ', chatDataSize:' + chatDataSize
+            + ', destIdSize:' + destIdSize
+            + ', chatKey:' + chatKey
+            + ', chatData:' + chatData
+            + ', destId:' + destId)
+
+      MsgNoti.chatReceived({
+        roomKey:roomKey,
+        roomType:roomType,
+        lineKey:lineKey,
+        lineNumber:lineNumber,
+        unreadCount:unreadCount,
+        sendDate:sendDate,
+        fontSize:fontSize,
+        fontStyle:fontStyle,
+        fontColor:fontColor,
+        fontName:fontName,
+        sendId:sendId,
+        sendName:sendName,
+        chatCmd:chatCmd,
+        chatKey:chatKey,
+        chatData:chatData,
+        destId:destId
+      })
+
+      break;
+
+    case CmdCodes.NS_CHATLINE_UNREAD_CNT :
+      let rcvBuf = Buffer.from(recvCmd.data);
+      let dataStr = rcvBuf.toString(global.ENC, 0);
+      sendLog('NS_CHATLINE_UNREAD_CNT Receive' + dataStr);
+      break;
+
+    
+
     default :
     {
       let rcvBuf = Buffer.from(recvCmd.data);
