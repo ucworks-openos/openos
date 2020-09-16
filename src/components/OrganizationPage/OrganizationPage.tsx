@@ -17,9 +17,15 @@ import { CLIENT_RENEG_WINDOW } from "tls";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 
+const electron = window.require("electron")
+
 let _orgCode = ``;
 
 export default function OrganizationPage() {
+  //electron.ipcRenderer.on('userStatusChanged', (event, userId, status, connType) => {
+    
+  //});
+
   const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
     type: `organization`,
   });
