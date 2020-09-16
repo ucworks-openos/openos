@@ -1,59 +1,27 @@
 import React, { useState } from 'react'
-import HamburgerButton from "../../../common/components/HamburgerButton";
 import MessageContent from "./MessageContent";
+import { useDispatch, useSelector } from 'react-redux';
 
 function RightPanel() {
-    const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(false);
-    const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState(false);
 
-    const clickHamburgerButton = () => {
-        setIsHamburgerButtonClicked(!isHamburgerButtonClicked);
-    };
-
-    const EditGroupTabOpen = () => {
-        setIsHamburgerButtonClicked(false);
-        setIsEditGroupTabOpen(true);
-    };
+    const message = useSelector(state => state.messages.message)
 
     return (
-        <main className="chat-main-wrap">
-            <div className="chat-title-wrap">
-                <div className="btn-chat-ppl-info">
-                    5
-            </div>
-                <h4 className="chat-name">tf팀</h4>
-                <div className="chat-local-search-wrap">
-                    <input type="text" className="chat-local-search" placeholder="대화 검색" />
-                </div>
-                <div className="chat-action-wrap">
-                    <div className="chat-action drawer" title="모아보기"></div>
-                    <div className="chat-action voice-talk" title="보이스톡"></div>
-                    <div className="chat-action face-talk" title="페이스톡"></div>
-                    <div className="chat-action chat-favorite-toggle" title="즐겨찾기">
-                        <input type="checkbox" id="chat-favorite-toggle-check" />
-                        <label className="chat-favorite-toggle-inner" htmlFor="chat-favorite-toggle-check" title="즐겨찾기"></label>
-                    </div>
-                    <div className="chat-action chat-noti-toggle" title="대화방 알림">
-                        <input type="checkbox" id="chat-noti-toggle-check" />
-                        <label className="chat-noti-toggle-inner" htmlFor="chat-noti-toggle-check" title="대화방 알림"></label>
-                    </div>
-                </div>
-                <div className="lnb" title="더보기">
-                    <HamburgerButton
-                        active={isHamburgerButtonClicked}
-                        clicked={isHamburgerButtonClicked}
-                        propsFunction={clickHamburgerButton}
-                    />
-                    <ul className={isHamburgerButtonClicked ? "lnb-menu-wrap" : "lnb-menu-wrap-hide"}>
-                        <li className="lnb-menu-item"><h6>대화상대 초대</h6></li>
-                        <li className="lnb-menu-item"><h6>대화방 설정</h6></li>
-                        <li className="lnb-menu-item"><h6>현재 대화 화면 캡처</h6></li>
-                        <li className="lnb-menu-item"><h6>대화 저장</h6></li>
-                        <li className="lnb-menu-item"><h6>대화내용 모두 삭제</h6></li>
-                        <li className="lnb-menu-item"><h6>대화방 삭제</h6></li>
-                    </ul>
+        <main className="main-wrap">
+            <div class="message-title-wrap">
+                <h4 class="message-title-single">{message && message.msg_subject}</h4>
+                <div class="message-action-wrap">
+                    <div class="message-action reply" title="답장"></div>
+                    <div class="message-action reply-all" title="전체답장"></div>
+                    <div class="message-action foward" title="전달"></div>
+                    <div class="message-action write-new" title="새쪽지쓰기"></div>
+                    <div class="message-action go-to-chat" title="채팅"></div>
+                    <div class="message-action download" title="다운로드"></div>
+                    <div class="message-action print" title="인쇄"></div>
+                    <div class="message-action remove" title="삭제"></div>
                 </div>
             </div>
+
             <MessageContent />
         </main>
     )

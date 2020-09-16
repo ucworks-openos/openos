@@ -7,6 +7,7 @@ import {
 } from "../../../redux/actions/message_actions";
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
+import { v4 as uuidv4 } from 'uuid';
 
 function MessagesLists() {
     const dispatch = useDispatch();
@@ -27,40 +28,39 @@ function MessagesLists() {
     }
 
     const renderMessageLists = () => (
-        messageLists && messageLists.map(message => {
-            const isCurrentMessage = message.msg_key === currentMessage ? "current-chat" : "";
-            let receieveNames = message.msg_recv_name.split(',')
-
+        messageLists && messageLists.map((message, index) => {
+            const isCurrentMessage = message.msg_key === currentMessage ? "current" : "";
+            let receieveNames = message.msg_recv_name.split('|')
+            console.log('message', message)
             const renderSendTo = receieveNames.map(user => {
-                return <span key={user}>{user}{" "}</span>
+                return <span key={uuidv4()}>{user}{" "}</span>
             })
             return (
-                <li className={`chat-list-single  ppl-1x1 ${isCurrentMessage} `} key={message.msg_key} onClick={() => onMessageClick(message.msg_key)}>
-                    <div className="list-thumb-area">
-                        <div className="user-pic-wrap">
-                            <img src={userThumbnail} alt="user-profile-picture" />
-                        </div>
-                    </div>
-
+                <li className={`message-list-single  ${isCurrentMessage}`} key={uuidv4()} onClick={() => onMessageClick(message.msg_key)}>
                     <div className="list-info-area">
                         <div className="list-row 1">
-                            <div className="chat-ppl-num">
+                            <div className="message-title">
+                                To : {renderSendTo}
                             </div>
-                            <div className="chat-room-name">
-                                {renderSendTo}
+                            <div className="message-counter unread">
+                                new
                             </div>
                         </div>
                         <div className="list-row 2">
-                            <div className="last-chat">
+                            <div className="message-summary">
                                 {message.msg_subject}
                             </div>
-                            <div className="icon-chat-noti on"></div>
                         </div>
                         <div className="list-row 3">
-                            <div className="last-chat-from sub1">
-                                {" "}{message.msg_send_name}
+                            <div className="message-from-wrap">
+                                <div className="user-pic-wrap">
+                                    <img src={userThumbnail} alt="user-profile-picture" />
+                                </div>
+                                <div className="message-from sub1">
+                                    {message.msg_send_name}</div>
+                                <div className="ppl-position sub1"></div>
                             </div>
-                            <div className="last-chat-time sub1">
+                            <div className="receive-time sub1">
                                 {moment(message.msg_send_date, "YYYYMMDDHHmm").format("YYYY년 M월 D일 H시 m분")}
                             </div>
                         </div>
