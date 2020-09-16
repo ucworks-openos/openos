@@ -12,8 +12,10 @@ function getStringWithoutEndOfString(strBuf, sInx, readLength = -1, encoding = g
     if (readLength > 0) eInx = sInx+readLength;
 
     let tempBuf = strBuf.slice(sInx, eInx);
-    let endOfStrInx = tempBuf.indexOf(0x00);  
-    tempBuf = tempBuf.slice(0, endOfStrInx);
+    let endOfStrInx = tempBuf.indexOf(0x00);
+    
+    if (endOfStrInx > 0) tempBuf = tempBuf.slice(0, endOfStrInx);
+
     return tempBuf.toString(encoding);
 }
 
