@@ -1,10 +1,14 @@
 const CommandHeader = require("./command-header");
 
-const DS_BASE = 3000;
-const NS_BASE = 4000;
-const PS_BASE = 6000;
-const CS_BASE = 13000;
-const FETCH_BASE = 25000;
+const DS_BASE           = 3000;
+const NS_BASE           = 4000;
+const SB_BASE           = 5000;
+const PS_BASE           = 6000;
+const CS_BASE           = 13000;
+const CHAT_DATA_BASE    = 15000;
+const FETCH_BASE        = 25000;
+
+
 
 module.exports = Object.freeze({
     CONNECTION_CHECK            : 99999,
@@ -93,6 +97,7 @@ module.exports = Object.freeze({
     NS_CHECK_SEND                : NS_BASE + 90,
     NS_GET_STATE                 : NS_BASE + 96,
     NS_STATE_LIST                : NS_BASE + 110,
+    NS_CHATLINE_UNREAD_CNT       : NS_BASE + 250,
     NS_UNREADALL_COUNT           : NS_BASE + 262,
     NS_CHAT_LINEKEY              : NS_BASE + 640,
     NS_SERVER_BUSY               : NS_BASE + 999,
@@ -122,4 +127,23 @@ module.exports = Object.freeze({
     FETCH_SQL_RESPONSE           : FETCH_BASE + 15,
     FETCH_NO_DATA                : FETCH_BASE + 16,
     //#endregion FETCH COMMAND
+
+
+    SB_BASE                      : SB_BASE,
+    SB_CHAT_DATA                 : SB_BASE + 3,
+    SB_CHAT_INPUT_CHANGE         : SB_BASE + 5,
+    SB_CHAT_OUT                  : SB_BASE + 6,
+    SB_CHAT_LIST                 : SB_BASE + 7,
+    SB_CHAT_NOLIST               : SB_BASE + 8,
+    SB_CHAT_USER_CHANGE          : SB_BASE + 10,
+    SB_NO_CHATTING               : SB_BASE + 11,
+
+    // 채팅구분
+    CHAT_DATA_BASE               : CHAT_DATA_BASE,
+    CHAT_DATA_LINE               : 0,
+    CHAT_DATA_READ_OK            : CHAT_DATA_BASE + 31,
+    CHAT_DATA_INVITE_OK          : CHAT_DATA_BASE + 32,
+    CHAT_RECV_FILE               : CHAT_DATA_BASE + 35,
+    CHAT_SEND_FILE               : CHAT_DATA_BASE + 36,
+
 });

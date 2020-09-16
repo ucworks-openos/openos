@@ -5,6 +5,7 @@ const ResData = require('../ResData');
 
 var CmdCodes = require('./command-code');
 var CmdConst = require('./command-const');
+const { getMultiple4Size } = require('../utils/utils-buffer');
 
 
 /**
@@ -62,17 +63,29 @@ function responseCmdProc(resCmd) {
         case CmdCodes.DS_SUCCESS:
           const rcvBuf = Buffer.from(resCmd.data);
 
-          var userId = rcvBuf.toString(global.ENC, 0, CmdConst.BUF_LEN_USERID);
-          let userPwd = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID, CmdConst.BUF_LEN_USERPWD);
-          let connIp = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD, CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP);
-          let svrSize = rcvBuf.readInt32LE(CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP);
-          let ruleSize = rcvBuf.readInt32LE(CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP + CmdConst.BUF_LEN_INT);
+          let sInx = 0;
+          let userId = rcvBuf.toString(global.ENC, sInx, CmdConst.BUF_LEN_USERID);
+          sInx += CmdConst.BUF_LEN_USERID;
+          
+          let userPwd = rcvBuf.toString(global.ENC, sInx, CmdConst.BUF_LEN_USERPWD);
+          sInx += CmdConst.BUF_LEN_USERPWD;
 
-          let ruleStartInx = CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP + (CmdConst.BUF_LEN_INT * 2);
-          let ruleEndInx = ruleStartInx + ruleSize;
-          let ruleXml = rcvBuf.toString(global.ENC, ruleStartInx).trim();
+          let connIp = rcvBuf.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_IP);
+          sInx += CmdConst.BUF_LEN_IP;
+
+          // 문자열 다음에는 4의 배수로 스킵한다.
+          sInx = getMultiple4Size(sInx);
+
+          let svrSize = rcvBuf.readInt32LE(sInx);
+          sInx += CmdConst.BUF_LEN_INT;
+
+          let ruleSize = rcvBuf.readInt32LE(CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_USERPWD + CmdConst.BUF_LEN_IP + CmdConst.BUF_LEN_INT);
+          sInx += CmdConst.BUF_LEN_INT;
+
+          let ruleXml = rcvBuf.toString(global.ENC, sInx).trim();
 
           /*
+          let ruleEndInx = sInx + ruleSize;
           let rcvRuleBuf = Buffer.alloc(ruleSize);
           let rcvlastRuleBuf = Buffer.alloc(ruleSize);
           rcvBuf.copy(rcvRuleBuf, 0, ruleStartInx - 10, ruleEndInx);

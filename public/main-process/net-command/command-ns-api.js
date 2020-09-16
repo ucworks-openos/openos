@@ -6,6 +6,7 @@ const CmdConst = require('./command-const');
 const OsUtil = require('../utils/utils-os');
 const CryptoUtil = require('../utils/utils-crypto');
 const nsCore = require('../net-core/network-ns-core');
+const { adjustBufferMultiple4, getMultiple4Size } = require('../utils/utils-buffer');
 
 /**
  * 연결을 종료합니다.
@@ -116,6 +117,9 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
             return;
         }
 
+        let destNamesBuf = Buffer.from(recvNames, global.ENC)
+        let destIdsBuf = Buffer.from(recvIds, global.ENC)
+
         // 순서 지키기
         var encryptKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_ENCRYPT);
         var keyBuf = Buffer.alloc(CmdConst.BUF_LEN_KEY);                  // 메세지 키 (전송시 키를 발생하여 수신시 해당 키로 데이터베이스에 저장한다.)
@@ -133,68 +137,22 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
         var allDestIdSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);        // 전체 답장 및 수신 사용자정보용 수신자ID 사이즈
         var destIdSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);           // 수신자 ID 사이즈
 
-        let tmpPwd = '';
-        let cipherPwd = '';
-        let cipherContent = '';
-        let cipherContentBuf = Buffer.alloc(0);
-        let encKey = '';
 
-        switch(global.ENCRYPT.msgAlgorithm) {
-            case CmdConst.ENCODE_TYPE_OTS:
-                tmpPwd = CryptoUtil.randomPassword(4);
-                cipherPwd = CryptoUtil.encryptRC4(CmdConst.SESSION_KEY, tmpPwd);
-                
-                // Message Content
-                cipherContent = CryptoUtil.encryptRC4(tmpPwd, message);
-                cipherContentBuf = Buffer.from(cipherContent, global.ENC);
-                cipherContentSizeBuf.writeInt32LE(cipherContentBuf.length);
-
-                // Message Enctypt Info
-                encKey = CmdConst.ENCODE_TYPE_OTS + CmdConst.PIPE_SEP + cipherPwd
-                encryptKeyBuf.write(encKey, global.ENC);
-                break;
-
-            case CmdConst.ENCODE_TYPE_OTS_AES256:
-                
-                tmpPwd = CryptoUtil.randomPassword(32);
-                cipherPwd = CryptoUtil.encryptAES256(CmdConst.SESSION_KEY_AES256, tmpPwd);
-               
-                // Message Content
-                cipherContent = CryptoUtil.encryptAES256(tmpPwd, message)
-                cipherContentBuf = Buffer.from(cipherContent, global.ENC);
-                cipherContentSizeBuf.writeInt32LE(cipherContentBuf.length);
-
-                // Message Enctypt Info
-                encKey = CmdConst.ENCODE_TYPE_OTS_AES256 + CmdConst.PIPE_SEP + cipherPwd
-                encryptKeyBuf.write(encKey, global.ENC);
-                break;
-
-            case CmdConst.ENCODE_TYPE_NO:
-            default:
-                cipherContent = message;
-                cipherContentBuf = Buffer.from(message, global.ENC);
-                cipherContentSizeBuf.writeInt32LE(cipherContentBuf.length);
-
-                // Message Enctypt Info
-                encKey = CmdConst.ENCODE_TYPE_NO + CmdConst.PIPE_SEP;
-                break;
-        }
-
-        let destIdsBuf = Buffer.from(recvIds, global.ENC);
-        let destNamesBuf = Buffer.from(recvNames, global.ENC);
-
-        // 순서 지키기
-        encryptKeyBuf.write(encKey, global.ENC);
         keyBuf.write(OsUtil.getUUID(), global.ENC);
         gubunBuf.write(CmdConst.MSG_COMMON_DATA, global.ENC);
         subjectBuf.write(subject, global.ENC);
         sendIdBuf.write(global.USER.userId, global.ENC);
         sendNameBuf.write(global.USER.userName, global.ENC);
-        sendDateBuf.write(OsUtil.getDateString('YYYYMMDDHHmmssSSS'), global.ENC)  //yyyymmddhhnnsszzz
+        sendDateBuf.write(OsUtil.getDateString(CmdConst.DATE_FORMAT_YYYYMMDDHHmmssSSS), global.ENC)  //yyyymmddhhnnsszzz
         resGubunBuf.writeInt32LE(CmdConst.MSG_ALERT);
         destNameSizeBuf.writeInt32LE(destNamesBuf.length)
         destIdSizeBuf.writeInt32LE(destIdsBuf.length);
 
+        // Message Data
+        let cipherData = CryptoUtil.encryptMessage(message);
+        cipherContentBuf = Buffer.from(cipherData.cipherContent, global.ENC);
+        cipherContentSizeBuf.writeInt32LE(cipherContentBuf.length);
+        encryptKeyBuf.write(cipherData.encKey, global.ENC);
 
         // default Header
         let dataBuf = Buffer.concat([
@@ -221,7 +179,7 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
             , destIdsBuf]);
 
 
-        console.log('[SEND MESSAGE] -------  encryptKey,  cipherContent', encKey, cipherContent);
+        console.log('[SEND MESSAGE] -------  encryptKey,  cipherContent', cipherData);
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_SEND_MSG, 0), dataBuf);
     });
 }
@@ -332,7 +290,7 @@ function reqSetStatusMonitor(userIds) {
 
         console.log('[NOTIFY_USERS] userIds:', userIds)
 
-        var data = userIds.join(CmdConst.PIPE_SEP);
+        var data = userIds.join(CmdConst.SEP_PIPE);
         var dataBuf = Buffer.from(data, global.ENC);
 
         console.log('[NOTIFY_USERS] ', data)
@@ -379,22 +337,130 @@ function reqSaveBuddyData(buddyData) {
 function reqChatLineKey(chatRoomKey) {
     return new Promise(async function(resolve, reject) {
 
-        await fetchCore.connectFETCH(); // 무조건 새로 붙인다.
-
-        if (!global.SERVER_INFO.FETCH.isConnected) {
-            reject(new Error('FETCH IS NOT CONNECTED!'));
+        if (!global.SERVER_INFO.NS.isConnected) {
+            reject(new Error('NS IS NOT CONNECTED!'));
             return;
         }
 
         let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         roomKeyBuf.write(chatRoomKey, global.ENC);
-
+        
+        // 빈 LineKey
         let lineKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY)
 
         var dataBuf = Buffer.concat([roomKeyBuf, lineKeyBuf]);
-        nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_CHAT, 0, function(resData){
+        dataBuf = adjustBufferMultiple4(dataBuf);
+
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_CHAT_LINEKEY, 0, function(resData){
             resolve(resData);
         }), dataBuf);
+    });
+}
+
+
+function reqSendChatMessage(roomKey, lineKey, userIds, message) {
+    return new Promise(async function(resolve, reject) {
+
+        if (!global.SERVER_INFO.NS.isConnected) {
+            reject(new Error('NS IS NOT CONNECTED!'));
+            return;
+        }
+
+        // dest userInfos
+        // let idDatas = '';
+        // destIds.forEach(function(userId){
+        //     idDatas += idDatas?CmdConst.SEP_CR+userId:userId;
+        //   });
+        let idDatas = userIds.join(CmdConst.SEP_PIPE);
+        // encrypt Message
+        let encData = CryptoUtil.encryptMessage(message);
+        sendLog('Chat Enc Data', encData);
+
+        /*********************** */
+
+        // roomKey
+        let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
+        roomKeyBuf.write(roomKey, global.ENC);
+        roomKeyBuf = adjustBufferMultiple4(roomKeyBuf);
+        sendLog('roomKey', roomKey , roomKeyBuf.length);
+
+        // roomType
+        let roomTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        roomTypeBuf.writeInt32LE(userIds.length>1?2:1);
+
+        let lineKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
+        lineKeyBuf.write(lineKey, global.ENC);
+        lineKeyBuf = adjustBufferMultiple4(lineKeyBuf);
+        sendLog('lineKey', lineKey, lineKeyBuf.length)
+
+        let lineNumberBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        lineNumberBuf.writeInt32LE(1);
+
+        let unreadCountBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        unreadCountBuf.writeInt32LE(1);
+
+        let sendDate = OsUtil.getDateString(CmdConst.DATE_FORMAT_YYYYMMDDHHmmssSSS);
+        let sendDateBuf = Buffer.alloc(CmdConst.BUF_LEN_DATE);
+        sendDateBuf.write(sendDate, global.ENC);
+        let ipBuf = Buffer.alloc(CmdConst.BUF_LEN_IP);
+
+        // Multiple4Size
+        let multiple4Length = getMultiple4Size(CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP);
+        let bufLen = CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP;
+        ipBuf = Buffer.concat([ipBuf, Buffer.alloc(multiple4Length - bufLen)])
+        sendLog('sendDate + IP', sendDate, ipBuf.length-CmdConst.BUF_LEN_IP)
+
+        let portBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+
+        //font_info
+        let fontSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);       // fontsize
+        let fontStyleBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);      // TFontStyles; ??
+        let fontColorBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);      // TColor; ??
+
+        let fontName = '맑은고딕';
+        let fontNameBuf = Buffer.alloc(CmdConst.BUF_LEN_FONTNAME); //fontName
+        fontNameBuf.write(fontName, global.ENC);
+        fontNameBuf = adjustBufferMultiple4(fontNameBuf)
+        sendLog('fontName', fontName, fontNameBuf.length)
+
+
+        let sendIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        sendIdBuf.write(global.USER.userId, global.ENC);
+
+        let sendNameBuf = Buffer.alloc(CmdConst.BUF_LEN_USERNAME);
+        sendNameBuf.write(global.USER.userName, global.ENC);
+
+        let encryptKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_ENCRYPT);
+        encryptKeyBuf.write(encData.encKey, global.ENC);
+        
+        let concatBuf = Buffer.concat([sendIdBuf, sendNameBuf, encryptKeyBuf])
+        let tmpBuf1 = adjustBufferMultiple4(concatBuf);
+
+        let chatCmdBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);        // chat_cmd
+        chatCmdBuf.writeInt32LE(CmdCodes.CHAT_DATA_LINE)
+
+        let chatKeySizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);    // chatkey_size
+        let chatKeyBuf = Buffer.from(roomKey + CmdConst.SEP_PIPE + idDatas);
+        chatKeySizeBuf.writeInt32LE(chatKeyBuf.length);
+        console.log("chatKeyBuf.length", chatKeyBuf.length)
+
+        let chatDataSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);   // chatdata_size
+        let chatDataBuf = Buffer.from(encData.cipherContent);
+        chatDataSizeBuf.writeInt32LE(chatDataBuf.length);
+        console.log("chatDataBuf.length", chatDataBuf.length)
+
+        let destIdSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);     // destid_size
+        let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_PIPE + 'TestChattingRoom');
+        destIdSizeBuf.writeInt32LE(destIdBuf.length);
+        console.log("destIdBuf", idDatas, destIdBuf.length)
+
+        var dataBuf = Buffer.concat([roomKeyBuf,roomTypeBuf,lineKeyBuf,lineNumberBuf,lineNumberBuf,sendDateBuf,ipBuf,portBuf,
+                    fontSizeBuf,fontStyleBuf,fontColorBuf,fontNameBuf,
+                    tmpBuf1, //sendIdBuf,sendNameBuf,encryptKeyBuf,
+                    chatCmdBuf, chatKeySizeBuf,chatDataSizeBuf,destIdSizeBuf, 
+                    chatKeyBuf,chatDataBuf,destIdBuf]);
+
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.SB_CHAT_DATA, 0), dataBuf);
     });
 }
 
@@ -407,5 +473,6 @@ module.exports = {
     reqSetStatusMonitor: reqSetStatusMonitor,
     reqSaveBuddyData: reqSaveBuddyData,
     reqChatLineKey: reqChatLineKey,
-    close: close
+    reqSendChatMessage: reqSendChatMessage,
+    close: close,
 }

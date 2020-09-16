@@ -17,6 +17,8 @@ function messageReceived(msgData) {
         wait: true // Wait with callback, until user action is taken against notification, does not apply to Windows Toasters as they always wait or notify-send as it does not support the wait option
       }
 
+
+      new notifier.WindowsBalloon(options).notify(options);   // WIN O
       notifier.notify(options, function (err, response) {
             console.log('Notification Click!', err, response );
         }
@@ -59,8 +61,29 @@ function userStatusChanged(userId, status, connType) {
   );
 }
 
+function chatReceived(chatData) {
+
+  let options = {
+      title: 'Chat Received',
+      message: chatData.chatData,
+      sound: true, // Only Notification Center or Windows Toasters
+      wait: true // Wait with callback, until user action is taken against notification, does not apply to Windows Toasters as they always wait or notify-send as it does not support the wait option
+    }
+
+
+    // new notifier.WindowsBalloon(options).notify(options);   // WIN O
+    // notifier.notify(options, function (err, response) {
+    //       console.log('Notification Click!', err, response );
+    //   }
+    // );
+
+  sendLog('Chat Received! ', JSON.stringify(chatData));
+}
+
+
 module.exports = {
     messageReceived: messageReceived,
     unreadCountReceived: unreadCountReceived,
-    userStatusChanged: userStatusChanged
+    userStatusChanged: userStatusChanged,
+    chatReceived: chatReceived
   }

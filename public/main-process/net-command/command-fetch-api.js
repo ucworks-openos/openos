@@ -9,6 +9,7 @@ const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
 const SqlConst = require('./command-const-sql');
 const fetchCore = require('../net-core/network-fetch-core');
+const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
 /**
  * 서버로 접속요청 합니다.
@@ -32,7 +33,7 @@ function close() {
  * 쪽지목록 조회
  */
 function reqMessageList(msgType, rowOffset = 0, rowLimit = 100) {
-    let queryKey = 'GET_MSG_LIST_' + msgType + '_' + global.USER.userId + '_' + OsUtil.getDateString('YYYYMMDDHHmmssSSS');
+    let queryKey = 'GET_MSG_LIST_' + msgType + '_' + global.USER.userId + '_' + OsUtil.getDateString(CmdConst.DATE_FORMAT_YYYYMMDDHHmmssSSS);
 
     let query = ''
     switch(msgType) {
@@ -66,7 +67,7 @@ function reqMessageList(msgType, rowOffset = 0, rowLimit = 100) {
 function reqGetMessageDetail(msgKey) {
     return new Promise(async function(resolve, reject) {
             
-        let queryKey = 'GET_MSG_LIST_MSG_ALL_' + global.USER.userId + '_' + OsUtil.getDateString('YYYYMMDDHHmmssSSS');
+        let queryKey = 'GET_MSG_LIST_MSG_ALL_' + global.USER.userId + '_' + OsUtil.getDateString(CmdConst.DATE_FORMAT_YYYYMMDDHHmmssSSS);
         let query = SqlConst.SQL_select_tbl_message_msg_key_from_server;
         query = query.replace(':MSG_KEY:', msgKey);
         
@@ -74,7 +75,7 @@ function reqGetMessageDetail(msgKey) {
 
         if (resData.resCode) {
             let encryptKey = resData.data.table.row.encrypt_key
-            let encArr = encryptKey.split(CmdConst.PIPE_SEP);
+            let encArr = encryptKey.split(CmdConst.SEP_PIPE);
             let encMode = encArr[0];
             let encKey = encArr[1];
 
@@ -104,7 +105,7 @@ function reqGetMessageDetail(msgKey) {
  */
 function reqChatRoomList( rowOffset = 0, rowLimit = 100) {
     
-    let queryKey = 'GET_CHAT_COLLRECT_' + global.USER.userId + '_' + OsUtil.getDateString('YYYYMMDDHHmmssSSS');
+    let queryKey = 'GET_CHAT_COLLRECT_' + global.USER.userId + '_' + OsUtil.getDateString(CmdConst.DATE_FORMAT_YYYYMMDDHHmmssSSS);
     let query = SqlConst.SQL_select_tbl_chat_collect_server;
     query = query.replace(':USER_ID:', global.USER.userId);
     query = query.replace(':ROW_LIMIT:', rowLimit);
@@ -157,12 +158,7 @@ function selectToServer(query, queryKey) {
         sendLog('QUERY ', queryBuf.length, query);
 
         var stringBuf = Buffer.concat([userIdBuf, keyBuf, nameBuf, whereBuf, whereKindBuf]);
-        var dummyLength = Math.ceil(stringBuf.length/4)*4;
-        if (dummyLength != stringBuf.length) {
-            //console.log("cmdBuf Diff size:" + (dummyLength-cmdBuf.length) + ", DummySize:" + dummyLength + ", BufferSize:" + cmdBuf.length);
-            var dummyBuf = Buffer.alloc(dummyLength-stringBuf.length);
-            stringBuf = Buffer.concat([stringBuf, dummyBuf]);
-        }
+        stringBuf = adjustBufferMultiple4(stringBuf);
 
         var dataBuf = Buffer.concat([stringBuf, dbKindBuf, rowCountBuf, rowOrPageBuf, dmlBuf, querySizeBuf, queryBuf]);
         fetchCore.writeCommandFETCH(new CommandHeader(CmdCodes.FETCH_SQL_REQUEST, 0, function(resData){
