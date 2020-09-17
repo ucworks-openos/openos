@@ -1,46 +1,18 @@
 import React, { useState, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
-import QuillEditor from '../../../common/components/Editor/QuillEditor';
+import { useDispatch } from 'react-redux';
 import {
-    addMessage
-} from '../../../redux/actions/message_actions';
-// import ReactSelect from '../../../common/components/Select/ReactSelect';
-// import { userLists } from '../../../redux/mock-datas/user-lists';
+    addChatMessage
+} from '../../../redux/actions/chat_actions';
 import { Button, InputGroup, FormControl, Col, DropdownButton, Dropdown } from 'react-bootstrap';
 import { searchUsers } from '../../../components/ipcCommunication/ipcCommon'
 import styled from 'styled-components';
 
-function MessageInputModal(props) {
+function ChatInputModal(props) {
     const dispatch = useDispatch();
-    const [title, setTitle] = useState("")
-    const [content, setContent] = useState("")
-    const [files, setFiles] = useState([])
-    // const [sendTo, setSendTo] = useState([])
     const [selectedUsers, setSelectedUsers] = useState([])
     const [searchMode, setSearchMode] = useState('ALL');
     const [searchText, setSearchText] = useState('');
 
-    const onEditorChange = (value) => {
-        setContent(value)
-        console.log(content)
-    }
-
-    const onFilesChange = (files) => {
-        setFiles(files)
-    }
-
-    const onTitleChange = (event) => {
-        setTitle(event.currentTarget.value)
-    }
-
-    // const onSendToChange = (selectedItems) => {
-    //     let newSendTo = [];
-    //     selectedItems && selectedItems.map(item => {
-    //         newSendTo.push(item.label)
-    //     })
-    //     setSelectedUsers(selectedItems)
-    //     setSendTo(newSendTo)
-    // }
 
     // SearchUser
     const handleSearchUser = async (e) => {
@@ -61,13 +33,10 @@ function MessageInputModal(props) {
 
     const onSubmit = (event) => {
         event.preventDefault();
-        if (title.trim().length === 0) { return alert("먼저 쪽지 이름을 입력해 주세요.") }
-        if (content.trim().length === 0) { return alert("먼저 쪽지를 입력해 주세요.") }
-        let recvIds = selectedUsers.map(user => user.user_id.value).join('|')
-        let recvNames = selectedUsers.map(user => user.user_name.value).join(',')
-        dispatch(addMessage(recvIds, recvNames, title, content))
-        setContent("")
-        setTitle("")
+        let chatUsersId = selectedUsers.map(user => user.user_id.value).join('|')
+
+        dispatch(addChatMessage(chatUsersId, null, true))
+
         setSelectedUsers([])
         props.closeModalFunction();
     }
@@ -83,7 +52,6 @@ function MessageInputModal(props) {
                 {user.user_name.value} x
             </CheckedMember>
         ));
-
 
     return (
         <>
@@ -112,8 +80,6 @@ function MessageInputModal(props) {
                         <Button variant="outline-secondary" onClick={handleSearchUser}>추가</Button>
                     </InputGroup.Append>
                 </InputGroup>
-
-                {/* <ReactSelect selectValue={selectedUsers} selectLists={userLists} onChange={onSendToChange} value={title} /> */}
             </div>
             <br />
             {selectedUsers.length > 0 &&
@@ -125,26 +91,9 @@ function MessageInputModal(props) {
                 </>
             }
             <div>
-                <InputGroup className="mb-3">
-                    <InputGroup.Prepend>
-                        <InputGroup.Text placeholder="쪽지의 이름을 입력해주세요."
-                            id="inputGroup-sizing-default">이름</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl
-                        onChange={onTitleChange} value={title}
-                        aria-label="Default"
-                        aria-describedby="inputGroup-sizing-default"
-                    />
-                </InputGroup>
             </div>
-            <div >
-                <div >
-                    <QuillEditor
-                        placeholder={"쪽지를 입력해주세요."}
-                        onEditorChange={onEditorChange}
-                        onFilesChange={onFilesChange}
-                    />
-                    <br />
+            <div>
+                <div>
                     <Button variant="outline-primary" type="submit" onClick={onSubmit}>전송</Button>{" "}
                     <Button variant="outline-danger" onClick={props.closeModalFunction}>닫기</Button>
                 </div>
@@ -153,7 +102,7 @@ function MessageInputModal(props) {
     )
 }
 
-export default MessageInputModal
+export default ChatInputModal
 
 const CheckedMemberWrapper = styled.div`
     display: flex;

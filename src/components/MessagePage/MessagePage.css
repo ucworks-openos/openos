@@ -841,3 +841,433 @@
 .lnb-menu-wrap-hide {
     display: none;
 }
+
+
+
+
+/*쪽지리스트*/
+.list-area {
+    width: 360px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    border-right: 1px solid #DFE2E8;
+    background-color: #f8f9fa;
+}
+.page-title-wrap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right:0;
+    display: flex;
+    width: 100%;
+    height: 52px;
+    padding: 10px 16px;
+    border-bottom: 1px solid #DFE2E8;
+    align-items: center;
+    background-color: #f8f9fa;
+}
+.message-tab {
+    margin-left: 6px;
+    font-weight: 500;
+    color: #b4b5b8;
+    cursor: pointer;
+}
+.message-tab:hover {
+    color: #2F59B7;
+}
+.message-tab.receive {
+    margin-left: 12px;
+}
+.message-tab.current {
+    color: #11378D;
+}
+.message-list-action-wrap {font-size: 0;margin-left: auto;}
+.message-list-action {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 16px;
+    background-image: url(../../assets/images/btn_chat_list.png);
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+.message-list-action:last-child{margin-right: 0;}
+.message-list-action.add {background-position: 0px 0px;}
+.message-list-action.add:hover {background-position: -18px 0px;}
+.message-list-action.search {background-image: none;}
+.message-list-action.search input[type="checkbox"]{display: none;font-size: none;}
+.message-list-action.search input[type="checkbox"] + .message-list-search-toggle{
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 16px;
+    background-image: url(../../assets/images/btn_chat_list.png);
+    background-position: 0px -18px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+.message-list-action.search input[type="checkbox"]:checked + .message-list-search-toggle{background-position: -36px -18px;}
+.message-list-action.search input[type="checkbox"] + .message-list-search-toggle:hover{background-position: -18px -18px;}
+.message-list-action.search input[type="checkbox"] ~ .message-list-search-wrap {
+    display: none;
+    position: absolute;
+    top: 0px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 52px;
+    padding: 12px 16px;
+    background-color: #f8f9fa;
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.15);
+    z-index: 1002;
+}
+.message-list-action.search input[type="checkbox"]:checked ~ .message-list-search-wrap {
+    display: block;
+    top: 52px;
+}
+.message-list-search{
+    width: 100%;
+    height: 28px;
+    padding: 4px 4px 4px 36px;
+    border: 1px solid #DFE2E8;
+    border-radius: 15px;
+    background-color: #fff;
+    background-image: url(../../assets/images/icon_search.png);
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    box-sizing: border-box;
+}
+.message-tab-wrap {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    top: 52px;
+    left: 0;
+    padding: 4px 16px;
+    border-bottom: 1px solid #DFE2E8;
+}
+.message-list-wrap {
+    display: inline-block;
+    position: absolute;
+    width: 100%;
+    top: 52px;
+    left: 0;
+    bottom: 0;
+    overflow-y: scroll;
+}
+.message-list-wrap::-webkit-scrollbar {display: none;}
+.message-list-single {
+    display: flex;
+    width: 100%;
+    padding: 16px;
+    align-items: center;
+    cursor: pointer;
+    background-color: #f8f9fa;
+}
+.message-list-single:hover,.message-list-single.current{
+    background-color:#fff;
+}
+.list-info-area {width:100%;}
+.list-info-area .list-row{
+    display: flex;
+    width: 100%;
+    align-items: center;
+}
+.message-title,.message-summary {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: normal;
+    overflow: hidden;
+}
+.message-title,.message-from{font-weight: 500;}
+.icon-attatched-file {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    background-image: url(../../assets/images/icon_attatched_file.png);
+    background-repeat: no-repeat;
+    background-position: center center;
+    vertical-align: -3px;
+}
+.message-counter, .receive-time {
+    margin-left: auto;
+}
+.message-counter.unread {
+    display: block;
+}
+.message-counter {
+    display: none;
+    min-width: 20px;
+    height: 20px;
+    padding: 0px 6px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    line-height: 20px;
+    text-align: center;
+    color: #fff;
+    background-color: #F26F6F;
+    flex-shrink: 0;
+}
+.message-from-wrap{font-size: 0;}
+.message-from-wrap:before {
+    content: "From";
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.35px;
+    color: #b4b5b8;
+}
+.message-from-wrap .user-pic-wrap{
+    width: 18px;
+    margin-left: 4px;
+    vertical-align: -5px;
+}
+.message-from,.ppl-position {
+    display: inline-block;margin-left: 4px;
+}
+/*쪽지영역*/
+.main-wrap {
+    position: absolute;
+    top: 0;
+    left: 360px;
+    right: 0;
+    bottom: 0;
+}
+.message-title-wrap{
+    position: relative;
+    display: flex;
+    width:100%;
+    height: 52px;
+    padding: 10px 16px;
+    border-bottom: 1px solid #DFE2E8;
+    align-items: center;
+}
+.message-action-wrap {
+    font-size: 0;
+    margin-left: auto;
+}
+.message-action{
+    display: inline-block;
+    width: 26px;
+    height: 22px;
+    margin-right:12px;
+    background-image: url(../../assets/images/btn_message_action.png);
+    background-repeat: no-repeat;
+    cursor: pointer;
+    vertical-align: middle;
+    font-size: 0;
+}
+.message-action:last-child{margin-right: 0;}
+.message-action.reply{background-position:0px 0px;}
+.message-action.reply-all{background-position:0px -22px;}
+.message-action.foward{background-position:0px -44px;}
+.message-action.write-new{background-position:0px -66px;}
+.message-action.go-to-chat{background-position:0px -88px;}
+.message-action.download{background-position:0px -110px;}
+.message-action.print{background-position:0px -132px;}
+.message-action.remove{background-position:0px -154px;}
+.message-action.reply:hover{background-position:-26px 0px;}
+.message-action.reply-all:hover{background-position:-26px -22px;}
+.message-action.foward:hover{background-position:-26px -44px;}
+.message-action.write-new:hover{background-position:-26px -66px;}
+.message-action.go-to-chat:hover{background-position:-26px -88px;}
+.message-action.download:hover{background-position:-26px -110px;}
+.message-action.print:hover{background-position:-26px -132px;}
+.message-action.remove:hover{background-position:-26px -154px;}
+.message-info-area {
+    display: flex;
+    padding: 4px 16px;
+    border-bottom: 1px solid #DFE2E8;
+}
+.message-info {
+    font-size: 0.875rem;
+    letter-spacing: 0.35px;
+    color: #9D9EA2;
+}
+.message-info.label {
+    margin-right: 8px;
+    margin-left: 24px;
+    font-weight: 500;
+}
+.message-info.label:first-child {
+    margin-left: 0;
+}
+.message-info.to-ppl-name, .message-info.reference-ppl-name {
+    cursor: pointer;
+}
+.message-info.to-ppl-name:hover, .message-info.reference-ppl-name:hover {
+    color:#2F59B7;
+}
+.list-dropdown {
+    position: fixed;
+    top: 136px;
+    padding: 12px 16px 16px;
+    box-shadow: 0px 0px 4px #dfe2e8;
+    border-radius: 8px;
+    background-color: #fff;
+    z-index: 9999;
+}
+.list-dropdown:after {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 8px;
+    width: 0;
+    height: 0;
+    font-size: 0;
+    border-right: 6px solid transparent;
+    border-bottom: 8px solid #fff;
+    border-left: 6px solid transparent;
+}
+.list-dropdown-label{margin-bottom:12px;}
+.user-single {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.user-single:last-child {
+    margin-bottom: 0;
+}
+.list-dropdown .user-profile-state-wrap {
+    margin-right: 12px;
+}
+.list-dropdown h6 {
+    display: inline-block;
+}
+.list-dropdown .user-department:before {
+    content: "|";
+    color: #D5D7DC;
+    font-size: 0.7rem;
+    vertical-align: 2px;
+    margin: 0px 8px;
+}
+.user-single .row2 span {
+    font-size: 0.875rem;
+    letter-spacing: 0.35px;
+}
+.read-info-state {
+    color: #F26F6F;
+    font-weight: 500;
+}
+.read-info-date.unread{display: none;}
+.read-info-state.unread{color:#11378D;}
+.message-area {
+    position: absolute;
+    padding: 16px;
+    top: 82px;
+    left: 0;
+    right: 0;
+    bottom: 200px;
+    overflow-y: scroll;
+}
+.message-area::-webkit-scrollbar {
+    width: 8px;
+}
+.message-area::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+.message-area::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 4px;
+    cursor: default;
+}
+.orginal-message {
+    margin-top: 16px;
+}
+/*첨부파일영역*/
+.attatched-file-area {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 200px;
+    padding: 16px;
+    border-top: 1px solid #DFE2E8;
+    overflow-y: scroll;
+}
+.attatched-file-area::-webkit-scrollbar {
+    width: 8px;
+}
+.attatched-file-area::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+.attatched-file-area::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 4px;
+    cursor: default;
+}
+.attatched-file-header-wrap {
+    display: flex;
+    align-items: center;
+    margin-bottom:12px;
+}
+.attatched-file-title {
+    font-weight: 500;
+}
+.attatched-file-action.open-folder {
+    margin-left: auto;
+}
+.attatched-file-action{
+    color: #b4b5b8;
+    cursor: pointer;
+}
+.attatched-file-action:hover{
+    color: #2F59B7;
+}
+.attatched-file-action.open-folder:after,.btn-attatched-file-save-other-name:after {
+    content: "|";
+    margin: 0 8px;
+    color: #9D9EA2;
+    font-size: 0.875rem;
+    vertical-align: text-bottom;
+}
+.attatched-file-action.open-folder input{
+    display: none;
+}
+.attatched-file-action.open-folder label {
+    cursor: pointer;
+    padding-left: 24px;
+}
+.attatched-file-action.open-folder input[type="checkbox"] + label {
+    background-image: url(../../assets/images/icon_checkbox_default.svg);
+    background-repeat: no-repeat;
+    background-position: left center;
+    color: #b4b5b8;
+}
+.attatched-file-action.open-folder input[type="checkbox"]:checked + label {
+    background-image: url(../../assets/images/icon_checkbox_checked.svg);
+    background-repeat: no-repeat;
+    background-position: left center;
+    color: #11378D;
+}
+.attatched-file-action.open-folder input[type="checkbox"]:hover + label {
+    background-image: url(../../assets/images/icon_checkbox_hover.svg);
+    background-repeat: no-repeat;
+    background-position: left center;
+    color: #2F59B7;
+}
+.attatched-file-row {
+    display: flex;
+    margin-bottom: 8px;
+    padding: 6px 12px;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #DFE2E8;
+}
+.attatched-file-row:hover {
+    background-color: #F5F6F8;
+}
+.btn-attatched-file-name-save,.btn-attatched-file-save-other-name {
+    margin-left: auto;
+}
+.btn-attatched-file-name-save,.btn-attatched-file-save-other-name,.btn-attatched-file-open {
+    color:#11378D;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.btn-attatched-file-name-save:hover{
+    color: #2F59B7;
+}

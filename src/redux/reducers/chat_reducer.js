@@ -11,17 +11,18 @@ import {
 export default function (state = {}, action) {
     switch (action.type) {
         case GET_INITIAL_CHAT_ROOMS:
-            return { ...state, chatRooms: action.payload, currentChatRoom: action.payload[0].id }
-        case GET_INITIAL_CHAT_MESSAGES:
-            return { ...state, chatMessages: action.payload }
+            return {
+                ...state, chatRooms: action.payload,
+                currentChatRoom: action.payload && action.payload[0]
+            }
         case SET_CURRENT_CHAT_ROOM:
-            return { ...state, currentChatRoom: action.payload }
+            return { ...state, currentChatRoom: action.payload[0] }
         // case GET_MORE_CHATS_MESSAGES:
         //     return { ...state, chats: [...action.payload, ...state.chats], chatLength: action.payload.length, type: "normal" }
         case ADD_CHAT_MESSAGE:
             return {
                 ...state,
-                chatMessages: state.chatMessages.concat(action.payload)
+                // chatMessages: state.chatMessages.concat(action.payload)
             };
         // case DELETE_CHAT_MESSAGE:
         //     let deletedMessage = action.payload

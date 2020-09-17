@@ -8,24 +8,47 @@ import {
     DELETE_CHAT_MESSAGE,
     GET_SEARCHED_CHAT_MESSAGES
 } from './types';
-import chatRooms from "../mock-datas/chat-rooms.json";
 import chatMessages from "../mock-datas/chat-messages.json";
+import { getChatRoomList, sendChatMessage } from '../../components/ipcCommunication/ipcMessage'
 
-export function setCurrentChatRoom(roomId) {
+export function setCurrentChatRoom(roomKey, chatRooms) {
+    const request = chatRooms.filter(c => c.room_key === roomKey)
+    console.log(' setCurrentChatRoom request', request)
 
     return {
         type: SET_CURRENT_CHAT_ROOM,
-        payload: roomId
+        payload: request
     }
 }
 
-export function getInitialChatRooms() {
-
+export async function getInitialChatRooms() {
+    const request = await getChatRoomList(0, 100)
+    console.log('Array.isArray(request.data.table.row)', Array.isArray(request.data.table.row))
+    const realRequest = Array.isArray(request.data.table.row) ? request.data.table.row : [request.data.table.row]
+    console.log('realRequest', realRequest)
     return {
         type: GET_INITIAL_CHAT_ROOMS,
-        payload: chatRooms
+        payload: realRequest
     }
 }
+
+// export async function getInitialChatRooms() {
+//     const getChatRoomListResponse = await getChatRoomList(0, 100)
+//     let chatRoomWithMembers = []
+//     getChatRoomListResponse.data.table.row.forEach(async chatRoomItem => {
+//         let convertedIds = chatRoomItem.chat_entry_ids.split('|')
+//         const getUserInfosResponse = await getUserInfos(convertedIds)
+//         chatRoomItem.userInfos = Array.isArray(getUserInfosResponse.data.items.node_item) ? getUserInfosResponse.data.items.node_item : [getUserInfosResponse.data.items.node_item]
+//         chatRoomWithMembers.push(chatRoomItem)
+//     })
+
+//     console.log('chatRoomWithMembers request: ', chatRoomWithMembers)
+
+//     return {
+//         type: GET_INITIAL_CHAT_ROOMS,
+//         payload: chatRoomWithMembers
+//     }
+// }
 
 export function getInitialChatMessages(roomId) {
 
@@ -43,10 +66,14 @@ export function getInitialChatMessages(roomId) {
 }
 
 
-export function addChatMessage(newMessage) {
+export function addChatMessage(chatUsersId, chatMessage, isNewChat, chatRoomId = null) {
+
+    let userIds = chatUsersId.split('|')
+    sendChatMessage(userIds, chatMessage, isNewChat ? null : chatRoomId);
+
     return {
         type: ADD_CHAT_MESSAGE,
-        payload: newMessage
+        // payload: newMessage
     }
 }
 // export function getMoreChatMessages(bandId, page = 1) {
