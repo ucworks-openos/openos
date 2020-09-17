@@ -306,7 +306,7 @@ function notifyCmdProc(recvCmd) {
       console.log('>>>>>>>>>>>>>>>>>>>>>> sendDate ',sInx, sendDate)
       sInx += CmdConst.BUF_LEN_DATE;
 
-      let ip = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_IP).trim();
+      let ip = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_IP);
       sInx += CmdConst.BUF_LEN_IP;
       sInx += getMultiple4DiffSize(CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP);
 
@@ -347,10 +347,10 @@ function notifyCmdProc(recvCmd) {
       let destIdSize = recvCmd.data.readInt32LE(sInx);
       sInx += CmdConst.BUF_LEN_INT;
 
-      let chatKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, chatKeySize+ 1);
+      let chatKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, chatKeySize);
       sInx += chatKeySize;
 
-      let chatData = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, chatDataSize + 1);
+      let chatData = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, chatDataSize);
       chatData = EncUtil.decryptMessage(encryptKey, chatData, true);
       sInx += chatDataSize;
 

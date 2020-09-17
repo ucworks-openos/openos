@@ -26,7 +26,7 @@ function connect () {
         fetchSock.destroy();
     }
     
-    sendLog("Conncect FETCH to " + JSON.stringify(global.SITE_CONFIG, null, 0))
+    sendLog("Conncect FETCH to " + JSON.stringify(global.SITE_CONFIG.FETCH, null, 0))
 
     return new Promise(function(resolve, reject){
         var tcpSock = require('net');  
