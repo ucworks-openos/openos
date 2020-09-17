@@ -66,11 +66,22 @@ function NetTestPage() {
 
 
   const handleTestFunction = (e) => {
+    // renderer process (mainWindow)
+    
+
     testAction().then(function(resData){
       appendLocalLog('logging test res ', resData);
     }).catch(function(err){
       appendLocalLog('logging test Err', err)
     });
+
+    // let modal = window.open('', 'modal')
+    // modal.addEventListener('DOMContentLoaded', () => {
+    //   modal.document.write('<h1>Hello</h1>')
+    // })
+    // console.log('modal.document', modal.document)
+    
+    
   }
   
   // 연결

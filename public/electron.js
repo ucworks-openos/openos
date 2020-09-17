@@ -77,6 +77,10 @@ const trayContextMenu = Menu.buildFromTemplate([
  * GLOBAL 정보는 선언을 하고 사용한다. (중앙관리)
  */
 //#region GLOBAL 설정 정보
+global.MAIN_WINDOW = null;
+
+global.ROOT_PATH = '';
+
 /**
  * 사용자 정보
  */
@@ -201,6 +205,8 @@ global.TEMP = {
 var mainWindow = null;
 var tray = null;
 
+global.ROOT_PATH = __dirname;
+
 
 /**
  * ready
@@ -240,17 +246,25 @@ app.on("ready", () => { //app.whenReady().then(() => { });
 
   // Create Main Window
   mainWindow = new BrowserWindow({
+    show: false,
     width: 800,
     height: 750,
     webPreferences: { nodeIntegration: true },
     ...(isMac ? {} : { icon: path.join(__dirname, 'icon.ico') }),
   });
 
+  // 로딩표시 없이 바로 띄우기 위해
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
+
+  const options = { extraHeaders: 'pragma: no-cache\n' }
   mainWindow.loadURL(
 
     isDev
       ? "http://localhost:3000"
-      : `file://${path.join(__dirname, "/../build/index.html")}`
+      : `file://${path.join(__dirname, "/../build/index.html")}`,
+      options
   );
 
   //mainWindow.on("closed", () => (mainWindow = null));
@@ -258,6 +272,20 @@ app.on("ready", () => { //app.whenReady().then(() => { });
     event.preventDefault();
     mainWindow.hide();
   });
+
+  // mainWindow.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures) => {
+  //   if (frameName === 'modal') {
+  //     // modal로 창을 염
+  //     event.preventDefault()
+  //     Object.assign(options, {
+  //       //modal: true,
+  //       parent: mainWindow,
+  //       width: 500,
+  //       height: 200
+  //     })
+  //     event.newGuest = new BrowserWindow(options)
+  //   }
+  // })
 
   global.MAIN_WINDOW = mainWindow;
 });
