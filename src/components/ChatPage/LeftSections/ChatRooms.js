@@ -1,28 +1,36 @@
 import React from 'react'
 import userThumbnail from "../../../assets/images/img_user-thumbnail.png";
 import {
-    getInitialChatMessages,
-    setCurrentChatRoom
+    setCurrentChatRoom,
 } from "../../../redux/actions/chat_actions";
 import { useDispatch, useSelector } from 'react-redux';
+import { v4 as uuidv4 } from 'uuid';
 
 function ChatRooms() {
     const dispatch = useDispatch();
     const chatRooms = useSelector(state => state.chats.chatRooms)
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
-
-    const onChatRoomClick = (roomId) => {
-        dispatch(getInitialChatMessages(roomId))
-        dispatch(setCurrentChatRoom(roomId))
+    console.log('chatRooms', chatRooms)
+    console.log('currentChatRoom', currentChatRoom)
+    const onChatRoomClick = (roomKey) => {
+        dispatch(setCurrentChatRoom(roomKey, chatRooms))
     }
 
     const renderChatRoom = () => (
         chatRooms && chatRooms.map(room => {
 
-            const isCurrentChatRoom = room.id === Number(currentChatRoom) ? "current-chat" : "";
+            let receieveIds = room.chat_entry_ids.split('|')
+            let receievePeopleCounts = receieveIds.length
+
+            const renderSendTo = receieveIds.map(user => {
+                return <span key={uuidv4()}>{user}{" "}</span>
+            })
+            const isCurrentChatRoom = room.room_key === currentChatRoom.room_key ? "current-chat" : "";
 
             return (
-                <li className={`chat-list-single  ppl-1x2 ${isCurrentChatRoom}`} key={room.id} onClick={() => onChatRoomClick(room.id)}>
+                <li className={`chat-list-single  ppl-1x${receievePeopleCounts >= 4 ? "n" : receievePeopleCounts} ${isCurrentChatRoom}`}
+                    key={room.room_key}
+                    onClick={() => onChatRoomClick(room.room_key)}>
                     <div className="list-thumb-area">
                         <div className="user-pic-wrap">
                             <img src={userThumbnail} alt="user-profile-picture" />
@@ -37,25 +45,27 @@ function ChatRooms() {
                                 {room.peopleCount}
                             </div>
                             <div className="chat-room-name">
-                                {room.mainPerson}<span className="ppl-position">과장 (개발팀)</span>,
-                                김하나<span className="ppl-position">과장 (개발팀)</span>
+                                {renderSendTo}
                             </div>
-                            <div className="chat-counter unread">
-                                {room.unread}
-                            </div>
+                            {room.unread_count !== "0"
+                                &&
+                                <div className="chat-counter unread">
+                                    {room.unread_count}
+                                </div>
+                            }
                         </div>
                         <div className="list-row 2">
                             <div className="last-chat">
-                                {room.content}
+                                {room.chat_contents}
                             </div>
                             <div className="icon-chat-noti on"></div>
                         </div>
                         <div className="list-row 3">
                             <div className="last-chat-from sub1">
-                                {room.mainPerson}
+                                {" "}{room.chat_send_name}
                             </div>
                             <div className="last-chat-time sub1">
-                                {room.createdAt}
+                                {room.create_room_date}
                             </div>
                         </div>
                     </div>

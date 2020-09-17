@@ -31,7 +31,6 @@ function MessagesLists() {
         messageLists && messageLists.map((message, index) => {
             const isCurrentMessage = message.msg_key === currentMessage ? "current" : "";
             let receieveNames = message.msg_recv_name.split('|')
-            console.log('message', message)
             const renderSendTo = receieveNames.map(user => {
                 return <span key={uuidv4()}>{user}{" "}</span>
             })

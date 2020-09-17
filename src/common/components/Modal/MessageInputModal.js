@@ -4,8 +4,8 @@ import QuillEditor from '../../../common/components/Editor/QuillEditor';
 import {
     addMessage
 } from '../../../redux/actions/message_actions';
-import ReactSelect from '../../../common/components/Select/ReactSelect';
-import { userLists } from '../../../redux/mock-datas/user-lists';
+// import ReactSelect from '../../../common/components/Select/ReactSelect';
+// import { userLists } from '../../../redux/mock-datas/user-lists';
 import { Button, InputGroup, FormControl, Col, DropdownButton, Dropdown } from 'react-bootstrap';
 import { searchUsers } from '../../../components/ipcCommunication/ipcCommon'
 import styled from 'styled-components';
@@ -15,17 +15,10 @@ function MessageInputModal(props) {
     const [title, setTitle] = useState("")
     const [content, setContent] = useState("")
     const [files, setFiles] = useState([])
-    const [sendTo, setSendTo] = useState([])
+    // const [sendTo, setSendTo] = useState([])
     const [selectedUsers, setSelectedUsers] = useState([])
-
-
     const [searchMode, setSearchMode] = useState('ALL');
     const [searchText, setSearchText] = useState('');
-
-
-    useEffect(() => {
-        console.log('selectedUsers', selectedUsers)
-    }, [selectedUsers])
 
     const onEditorChange = (value) => {
         setContent(value)
@@ -143,8 +136,6 @@ function MessageInputModal(props) {
                         aria-describedby="inputGroup-sizing-default"
                     />
                 </InputGroup>
-                {/* <input
-                    onChange={onTitleChange} value={title} placeholder="쪽지의 이름을 입력해주세요." /> */}
             </div>
             <div >
                 <div >

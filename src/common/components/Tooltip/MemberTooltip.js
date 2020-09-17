@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import userThumbnail from "../../../assets/images/img_user-thumbnail.png";
 import { getUserInfos } from '../../../components/ipcCommunication/ipcCommon';
 import { useDispatch, useSelector } from 'react-redux';
 
 function MemberTooltip({ userIds, RecvCounts }) {
-    console.log('userIds userIdsuserIds', userIds)
     const [userInfos, setUserInfos] = useState([])
 
     useEffect(() => {
         let convertedUserIds = userIds.split('|')
         if (convertedUserIds.length < 50) {
             getUserInfos(convertedUserIds).then(function (results) {
-                console.log('convertedUserIds results', results)
-                console.log('results.data.items.node_item', Array.isArray(results.data.items.node_item))
                 if (results.data.items && results.data.items.node_item !== "") {
                     setUserInfos(Array.isArray(results.data.items.node_item) ? results.data.items.node_item : [results.data.items.node_item])
                 }

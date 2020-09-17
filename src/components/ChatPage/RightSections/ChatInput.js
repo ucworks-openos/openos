@@ -7,28 +7,22 @@ import {
 function ChatInput() {
     const dispatch = useDispatch();
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
+    const chatRooms = useSelector(state => state.chats.chatRooms)
     const [inputValue, setInputValue] = useState("")
 
     const onInputValueChange = (e) => {
         setInputValue(e.currentTarget.value)
     }
 
-
     const onSubmit = (e) => {
         e.preventDefault();
-        if(inputValue.trim().length === 0) {
+        if (inputValue.trim().length === 0) {
             alert("먼저 글자를 입력하세요 ~~")
             return;
         }
-        const body = {
-            "id": 5,
-            "roomId": currentChatRoom,
-            "person": "누구임?",
-            "content": inputValue,
-            "unread": 3,
-            "createdAt": "202012120313"
-        }
-        dispatch(addChatMessage(body))
+
+        dispatch(addChatMessage(currentChatRoom.chat_entry_ids, inputValue, false, currentChatRoom.room_key))
+
         setInputValue("")
     }
 
