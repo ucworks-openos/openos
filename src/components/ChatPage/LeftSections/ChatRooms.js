@@ -5,6 +5,7 @@ import {
 } from "../../../redux/actions/chat_actions";
 import { useDispatch, useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
+import moment from 'moment';
 
 function ChatRooms() {
     const dispatch = useDispatch();
@@ -26,18 +27,18 @@ function ChatRooms() {
                 return <span key={uuidv4()}>{user}{" "}</span>
             })
             const isCurrentChatRoom = room.room_key === currentChatRoom.room_key ? "current-chat" : "";
+            // ${receievePeopleCounts >= 4 ? "n" : receievePeopleCounts} 
 
             return (
-                <li className={`chat-list-single  ppl-1x${receievePeopleCounts >= 4 ? "n" : receievePeopleCounts} ${isCurrentChatRoom}`}
+                <li className={`chat-list-single  ppl-1
+                ${isCurrentChatRoom}`}
                     key={room.room_key}
                     onClick={() => onChatRoomClick(room.room_key)}>
                     <div className="list-thumb-area">
                         <div className="user-pic-wrap">
                             <img src={userThumbnail} alt="user-profile-picture" />
                         </div>
-                        <div className="user-pic-wrap">
-                            <img src={userThumbnail} alt="user-profile-picture" />
-                        </div>
+
                     </div>
                     <div className="list-info-area">
                         <div className="list-row 1">
@@ -65,7 +66,7 @@ function ChatRooms() {
                                 {" "}{room.chat_send_name}
                             </div>
                             <div className="last-chat-time sub1">
-                                {room.create_room_date}
+                                {moment(room.create_room_date, "YYYYMMDDHHmm").format("YYYY년 M월 D일 H시 m분")}
                             </div>
                         </div>
                     </div>

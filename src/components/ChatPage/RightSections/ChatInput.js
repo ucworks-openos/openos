@@ -30,7 +30,7 @@ function ChatInput() {
         <div className="chat-input-area">
             <div className="chat-input-wrap">
                 <textarea className="chat-input" value={inputValue} onChange={onInputValueChange} placeholder="채팅 내용을 입력해주세요."></textarea>
-                <button onClick={onSubmit} type="submit" className="btn-ghost-m" />
+                <button onClick={onSubmit} type="submit" style={{ background: "blue", color: 'white' }} className="btn-ghost-m" >전송</button>
             </div>
             <div className="input-action-wrap">
                 <div className="input-action btn-txt" title="텍스트 (글꼴, 크기, 색상,표)"></div>

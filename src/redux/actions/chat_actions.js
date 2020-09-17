@@ -66,7 +66,7 @@ export function getInitialChatMessages(roomId) {
 }
 
 
-export function addChatMessage(chatUsersId, chatMessage, isNewChat, chatRoomId) {
+export function addChatMessage(chatUsersId, chatMessage, isNewChat, chatRoomId = null) {
 
     let userIds = chatUsersId.split('|')
     sendChatMessage(userIds, chatMessage, isNewChat ? null : chatRoomId);
