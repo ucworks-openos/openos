@@ -101,5 +101,10 @@ ipcMain.on('sendChatMessage', async (event, chatUserIds, chatMessage, roomKey = 
 });
 
 
+// getChatRoomList
+ipcMain.on('notiTitleClick', async (event, notiType, notiId) => {
+  console.log('notiTitleClick!', notiType, notiId)
+});
+
 
 

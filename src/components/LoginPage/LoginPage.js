@@ -9,26 +9,25 @@ const electron = window.require("electron");
 
 function Home(props) {
   const { register, errors, handleSubmit } = useForm({ mode: "onChange" });
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     console.log("LOGIN REQUEST:", event);
 
-    login(event.loginId, event.loginPwd)
-      .then(function (resData) {
-        console.log("Promiss login res", resData);
+    try {
+      const resData = await login(event.loginId, event.loginPwd);
 
-        if (resData.resCode) {
-          console.log("Login Success! ", resData);
-          sessionStorage.setItem("isLoginElectronApp", true);
-          sessionStorage.setItem(`loginId`, event.loginId);
-          window.location.hash = "#/favorite";
-          window.location.reload();
-        } else {
-          console.log("Login fail! Res:", resData);
-        }
-      })
-      .catch(function (err) {
-        console.log("Login fail! Ex: ", err);
-      });
+      console.log("Promiss login res", resData);
+      if (resData.resCode) {
+        console.log("Login Success! ", resData);
+        sessionStorage.setItem("isLoginElectronApp", true);
+        sessionStorage.setItem(`loginId`, event.loginId);
+        window.location.hash = "#/favorite";
+        window.location.reload();
+      } else {
+        console.log("Login fail! Res:", resData);
+      }
+    } catch (error) {
+      console.log("Login fail! Ex: ", error);
+    }
   };
 
   // electron.ipcRenderer.on('res-login', (event, data) => {

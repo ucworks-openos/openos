@@ -10,16 +10,18 @@
     });
 
     function titleClick() {
-      ipcRenderer.send('notiTitleClick', data);
+      ipcRenderer.send('notiTitleClick',
+       document.getElementById("notiType").value,
+       document.getElementById("notiId").value);
     }
-
-
  </script>
   
 <body>
-  <h2><div id='title' onclick='titleClick()'></h2>
+  <input type="hidden" id='notiType'/>
+  <input type="hidden" id='notiId'/>
+  <h2><div id='title' onclick='titleClick();'></h2> 
   <p><div id='msg'></p>
-    <br>
-    <button onclick="window.top.close(); return false">Close</button> 
+  <button onclick="window.top.close(); return false">X</button> 
+    
 </body>
 </html>

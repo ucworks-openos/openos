@@ -279,7 +279,8 @@ input,
 textarea {
   font-size: 1rem;
   line-height: 1.5;
-  font-family: "Noto Sans KR", "Segoe UI", "Roboto", arial, "맑은 고딕", "Malgun Gothic", "돋움", sans-serif;
+  font-family: "Noto Sans KR", "Segoe UI", "Roboto", arial, "맑은 고딕",
+    "Malgun Gothic", "돋움", sans-serif;
   font-weight: 400;
   letter-spacing: 0.4px;
   color: #555;
@@ -497,6 +498,31 @@ a:hover,
 .user-row .user-state {
   right: -4px;
 }
+.user-state.online {
+  background-color: #04de71;
+}
+.user-state.absence {
+  background-color: #ff3b30;
+}
+.user-state.otherWork {
+  background-color: #ff9500;
+}
+.user-state.workingOutside {
+  background-color: #2094fa;
+}
+.user-state.onCall {
+  background-color: #ffe620;
+}
+.user-state.atTable {
+  background-color: #f26f6f;
+}
+.user-state.inMeeting {
+  background-color: #787aff;
+}
+.user-state.offline {
+  background-color: #333;
+}
+
 .user-name {
   width: auto;
   display: inline-block;

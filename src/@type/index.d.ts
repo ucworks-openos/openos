@@ -1,14 +1,13 @@
 import { Interface } from "readline";
-import { favorite, gubun } from "../common/enum";
 
 declare global {
   type TTreeNode = TTreeDefault & TUser;
 
   type TTreeDefault = {
     // 부서, 유저 공통
-    title: string | favorite;
-    key: string | favorite;
-    gubun: gubun;
+    title: string | Efavorite;
+    key: string | Efavorite;
+    gubun: EnodeGubun;
     pid?: string;
 
     groupParentId?: string;
@@ -54,7 +53,7 @@ declare global {
     userPayclName?: string;
     userPhoneState?: string;
     userPicturePos?: string;
-    userState?: string;
+    userState?: EuserState;
     userTelCompany?: string;
     userTelFax?: string;
     userTelIpphone?: string;
