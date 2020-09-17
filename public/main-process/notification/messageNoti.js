@@ -3,6 +3,8 @@ const { BrowserWindow, screen, app } = require('electron');
 const { send, sendLog } = require('../ipc/ipc-cmd-sender');
 //const notifier = require('node-notifier'); //https://github.com/mikaelbr/node-notifier
 
+var notiWin;
+
 /**
  * 쪽지 수신 알림을 처리합니다.
  * @param {MessageData} msgData 
@@ -54,17 +56,6 @@ function userStatusChanged(userId, status, connType) {
   sendLog('userStatusChanged! ', userId, status, connType);
   send('userStatusChanged', userId, status, connType)
 
-  let options = {
-    title: 'STATUS CHANGED',
-    message: userId + ' Status:' + status + ' Conn:' + connType,
-    sound: true, // Only Notification Center or Windows Toasters
-    wait: true // Wait with callback, until user action is taken against notification, does not apply to Windows Toasters as they always wait or notify-send as it does not support the wait option
-  }
-
-  notifier.notify(options, function (err, response) {
-        console.log('Notification Click!', err, response );
-    }
-  );
 }
 
 /**
@@ -83,6 +74,9 @@ function chatReceived(chatData) {
 
 async function showAlert(title, message) {
 
+  if (notiWin) {
+    notiWin.destroy();
+  }
   
   await app.whenReady();
   let displays = screen.getAllDisplays()
@@ -110,32 +104,35 @@ async function showAlert(title, message) {
 
   console.log('x y', x, y)
 
-  let win = new BrowserWindow({
+  notiWin = new BrowserWindow({
     //title: '알림테스트',
     x: x - 300, y: y - 200,
     width: 300, height: 200,
     //backgroundColor: '#2e2029',
     modal: true,
-    resizable: true,
+    resizable: false,
     //focusable: false, // 포커스를 가져가 버리는데..  포커스를 뺴면 알림창이 안닫힌다.
     fullscreenable: false,
-    frame: true,     // 프레임 없어짐, 타이틀바 포함  titleBarStyle: hidden
+    frame: false,     // 프레임 없어짐, 타이틀바 포함  titleBarStyle: hidden
     thickFrame: true, // 그림자와 창 애니메이션
-    
+    // webPreferences: {
+    //   nodeIntegration: true, // is default value after Electron v5
+    // }
   })
-  //win.webContents.openDevTools();
+  //notiWin.webContents.openDevTools();
+  win.menuBarVisible = false;
+
 
   let notifyFile = `file://${global.ROOT_PATH}/notify.html`;
   console.log(`>>>>>>>>>>>  `, notifyFile);
-  win.webContents.on('did-finish-load', () => {
+  notiWin.webContents.on('did-finish-load', () => {
     console.log(`>>>>>>>>>>>   LOAD COMPLETED!`);
-    win.webContents.executeJavaScript(`
+    notiWin.webContents.executeJavaScript(`
         document.getElementById("title").innerHTML += '${title}';
         document.getElementById("msg").innerHTML += '${message}'
-      `)
+    `);
   })
-  win.loadURL(notifyFile)
-  
+  notiWin.loadURL(notifyFile)
 }
 
 module.exports = {

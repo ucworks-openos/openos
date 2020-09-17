@@ -1,6 +1,25 @@
 <html>
+  <script>
+    const {
+      contextBridge,
+      ipcRenderer
+    } = require("electron");
+
+    ipcRenderer.on('notify', (event, message) => {
+      alert(`Received ${message} from main process`);
+    });
+
+    function titleClick() {
+      ipcRenderer.send('notiTitleClick', data);
+    }
+
+
+ </script>
+  
 <body>
-  <h2><div id='title'></h2>
+  <h2><div id='title' onclick='titleClick()'></h2>
   <p><div id='msg'></p>
+    <br>
+    <button onclick="window.top.close(); return false">Close</button> 
 </body>
 </html>
