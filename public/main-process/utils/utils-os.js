@@ -3,6 +3,7 @@ const macaddress = require('macaddress');
 const uuid = require('uuid');
 const moment = require('moment')
 const os = require('os')
+const { screen, app } = require('electron');
 
 /**
  * 32자리 UUID를 반환합니다 
@@ -43,6 +44,32 @@ function getOsInfo() {
 function getOsHostName() {
     return os.hostname();
 }
+
+async function getDispSize() {
+    
+    await app.whenReady();
+    let displays = screen.getAllDisplays()
+
+    let x = 0;
+    let y = 0;
+    displays.forEach((disp) => {
+        if (disp.bounds.x === 0 && disp.bounds.y === 0) {
+            // main disp
+            x += disp.workArea.width;
+            y += disp.workArea.height;
+        } else {
+            // external disp
+            if (disp.bounds.x > 0) {
+                x += disp.workArea.width;
+            }
+            if (disp.bounds.y > 0) {
+                y += disp.workArea.height;
+            }
+        }
+    })
+
+    return {width:x, height:y}
+}
     
 module.exports = {
     getUUID: getUUID,
@@ -52,5 +79,6 @@ module.exports = {
     getOsRelease: getOsRelease,
     getOsPlatForm: getOsPlatForm,
     getOsInfo: getOsInfo,
-    getOsHostName: getOsHostName
+    getOsHostName: getOsHostName,
+    getDispSize: getDispSize
 }

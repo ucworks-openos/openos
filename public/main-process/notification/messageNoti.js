@@ -1,7 +1,11 @@
-const { BrowserWindow, screen, app } = require('electron');
+const { BrowserWindow} = require('electron');
 
 const { send, sendLog } = require('../ipc/ipc-cmd-sender');
+const { getDispSize } = require('../utils/utils-os');
+const notiType = require('../common/noti-type');
 //const notifier = require('node-notifier'); //https://github.com/mikaelbr/node-notifier
+
+var notiWin;
 
 /**
  * 쪽지 수신 알림을 처리합니다.
@@ -12,9 +16,9 @@ function messageReceived(msgData) {
   console.log('--------------- Received Message', msgData)
   if (msgData.sendId != global.USER.userId) {
     
-   
+    
 
-      showAlert('쪽지수신', msgData.subject);
+      showAlert(notiType.NOTI_MESSAGE, msgData.key, '쪽지수신', msgData.subject);
 
       /*
       let options = {
@@ -54,17 +58,6 @@ function userStatusChanged(userId, status, connType) {
   sendLog('userStatusChanged! ', userId, status, connType);
   send('userStatusChanged', userId, status, connType)
 
-  // let options = {
-  //   title: 'STATUS CHANGED',
-  //   message: userId + ' Status:' + status + ' Conn:' + connType,
-  //   sound: true, // Only Notification Center or Windows Toasters
-  //   wait: true // Wait with callback, until user action is taken against notification, does not apply to Windows Toasters as they always wait or notify-send as it does not support the wait option
-  // }
-
-  // notifier.notify(options, function (err, response) {
-  //       console.log('Notification Click!', err, response );
-  //   }
-  // );
 }
 
 /**
@@ -75,67 +68,56 @@ function chatReceived(chatData) {
   let chatMessage = chatData.chatData;
   if (chatMessage.length > 10) chatMessage = chatMessage.substring(0, 10);
 
-  showAlert('대화메세지', chatMessage);
+  showAlert(notiType.NOTI_CHAT, chatData.roomKey, '대화메세지', chatMessage);
   send('chatReceived', chatData)
   sendLog('Chat Received! ', JSON.stringify(chatData));
 }
 
+/**
+ * 우측하단에 알림창을 띄웁니다.
+ * @param {String} notiType 
+ * @param {String} notiId 
+ * @param {String} title 
+ * @param {String} message 
+ */
+async function showAlert(notiType, notiId, title, message) {
 
-async function showAlert(title, message) {
+  if (notiWin) {
+    notiWin.destroy();
+  }
+   
+  // 확장 포함한 전제 스크린사이즈
+  let dispSize = await getDispSize();
 
-  
-  await app.whenReady();
-  let displays = screen.getAllDisplays()
-
-  let x = 0;
-  let y = 0;
-  displays.forEach((disp) => {
-    if (disp.bounds.x === 0 && disp.bounds.y === 0) {
-      // main disp
-      x += disp.workArea.width;
-      y += disp.workArea.height;
-    } else {
-      // external disp
-      if (disp.bounds.x > 0) {
-        x += disp.workArea.width;
-      }
-      if (disp.bounds.y > 0) {
-        y += disp.workArea.height;
-      }
-    }
-
-    console.log('disp', disp)
-    console.log('x y ++', x, y)
-  })
-
-  console.log('x y', x, y)
-
-  let win = new BrowserWindow({
-    //title: '알림테스트',
-    x: x - 300, y: y - 200,
+  notiWin = new BrowserWindow({
+    x: dispSize.width - 300, y: dispSize.height - 200,
     width: 300, height: 200,
     //backgroundColor: '#2e2029',
     modal: true,
-    resizable: true,
-    //focusable: false, // 포커스를 가져가 버리는데..  포커스를 뺴면 알림창이 안닫힌다.
+    resizable: false,
+    focusable: false, // 포커스를 가져가 버리는데
     fullscreenable: false,
-    frame: true,     // 프레임 없어짐, 타이틀바 포함  titleBarStyle: hidden
+    frame: false,     // 프레임 없어짐, 타이틀바 포함  titleBarStyle: hidden
     thickFrame: true, // 그림자와 창 애니메이션
-    
+    webPreferences: {
+      nodeIntegration: true, // is default value after Electron v5
+    }
   })
-  //win.webContents.openDevTools();
+  //notiWin.webContents.openDevTools();
+  notiWin.menuBarVisible = false;
 
   let notifyFile = `file://${global.ROOT_PATH}/notify.html`;
   console.log(`>>>>>>>>>>>  `, notifyFile);
-  win.webContents.on('did-finish-load', () => {
+  notiWin.webContents.on('did-finish-load', () => {
     console.log(`>>>>>>>>>>>   LOAD COMPLETED!`);
-    win.webContents.executeJavaScript(`
+    notiWin.webContents.executeJavaScript(`
+        document.getElementById("notiType").value = '${notiType}';
+        document.getElementById("notiId").value = '${notiId}';
         document.getElementById("title").innerHTML += '${title}';
         document.getElementById("msg").innerHTML += '${message}'
-      `)
+    `);
   })
-  win.loadURL(notifyFile)
-  
+  notiWin.loadURL(notifyFile)
 }
 
 module.exports = {
