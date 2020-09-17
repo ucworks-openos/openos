@@ -7,10 +7,10 @@ import {
   getUserInfos,
 } from "../../ipcCommunication/ipcCommon";
 import { convertToUser } from "../../../common/util";
+import { EuserState } from "../../../enum";
 
 export default function HeaderNavi() {
   const [avatarDropDownIsOpen, setAvatarDropDownIsOpen] = useState(false);
-  const [currentStatus, setCurrentStatus] = useState(`online`);
   const [myInfo, setMyInfo] = useState<TUser>({});
 
   const getProfile = async (id: string) => {
@@ -25,6 +25,7 @@ export default function HeaderNavi() {
   useEffect(() => {
     const initiate = async () => {
       const profile = await getProfile(sessionStorage.getItem(`loginId`)!);
+      console.log(`my profile: `, profile);
       setMyInfo(profile);
     };
     initiate();
@@ -42,9 +43,11 @@ export default function HeaderNavi() {
 
   const handleStatusChange = (e: any) => {
     const { code, name } = e.target.dataset;
-    console.log(`code: `, code);
+    setMyInfo((prev) => ({
+      ...prev,
+      userState: code,
+    }));
     changeStatus(code, true);
-    setCurrentStatus(name);
   };
 
   const handleImageError = (image: any) => {
@@ -121,7 +124,7 @@ export default function HeaderNavi() {
               onError={handleImageError}
             />
           </div>
-          <div className={`user-state ${currentStatus}`}></div>
+          <div className={`user-state ${EuserState[myInfo.userState]}`}></div>
         </div>
         {avatarDropDownIsOpen && (
           <div className="user-profile-dropdown-wrap">
@@ -140,7 +143,9 @@ export default function HeaderNavi() {
                   onError={handleImageError}
                 />
               </div>
-              <div className={`user-state ${currentStatus}`}></div>
+              <div
+                className={`user-state ${EuserState[myInfo.userState]}`}
+              ></div>
             </div>
             <div className="user-owner sub1">MY</div>
             <div className="user-info-wrap">

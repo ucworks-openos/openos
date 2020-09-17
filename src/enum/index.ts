@@ -10,7 +10,7 @@ export enum EnodeGubun {
   ORGANIZATION_USER = `P`,
 }
 
-export enum EuserStatus {
+export enum EuserState {
   online,
   absence,
   otherWork,

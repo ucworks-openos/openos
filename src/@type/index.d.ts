@@ -53,7 +53,7 @@ declare global {
     userPayclName?: string;
     userPhoneState?: string;
     userPicturePos?: string;
-    userState?: EuserStatus;
+    userState?: EuserState;
     userTelCompany?: string;
     userTelFax?: string;
     userTelIpphone?: string;

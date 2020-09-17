@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Modal from "react-modal";
 import MessageModal from "../../common/components/Modal/MessageModal";
 import { arrayLike } from "../../common/util";
-import { EconnectType, EnodeGubun } from "../../enum";
+import { EconnectType, EnodeGubun, EuserState } from "../../enum";
 
 type TOrganizationNodeProps = {
   data: TTreeNode;
@@ -68,6 +68,9 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
                 tabIndex={index}
                 onError={handleImageError}
               />
+              <div
+                className={`user-state ${EuserState[data?.userState]}`}
+              ></div>
               {visible && (
                 <div className="user-info-container">
                   <div className="btn-close" onClick={handleViewDetail}></div>
@@ -85,7 +88,9 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
                         onError={handleImageError}
                       />
                     </div>
-                    <div className="user-state online"></div>
+                    <div
+                      className={`user-state ${EuserState[data?.userState]}`}
+                    ></div>
                   </div>
                   <div className="user-info-wrap">
                     <div className="user-info-wrap-inner">
@@ -143,7 +148,6 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
                 </div>
               )}
             </div>
-            <div className="user-state online"></div>
           </div>
           <div className="user-info-wrap">
             <div className="user-info-wrap-inner">
