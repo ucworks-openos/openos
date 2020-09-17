@@ -18,6 +18,7 @@ import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 import { arrayLike, convertToUser } from "../../common/util";
 import { Efavorite, EnodeGubun } from "../../enum";
+import useStatusListener from "../../hooks/useStatusListener";
 
 export default function FavoritePage() {
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
@@ -43,6 +44,7 @@ export default function FavoritePage() {
   } = useTree({
     type: `favorite`,
   });
+  useStatusListener();
 
   type TgetBuddyTreeReturnTypes = {
     buddyTree: TTreeNode[];

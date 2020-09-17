@@ -18,16 +18,11 @@ import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 import { arrayLike, convertToUser } from "../../common/util";
 import { Efavorite, EnodeGubun } from "../../enum";
-
-const electron = window.require("electron");
+import useStatusListener from "../../hooks/useStatusListener";
 
 let _orgCode = ``;
 
 export default function OrganizationPage() {
-  //electron.ipcRenderer.on('userStatusChanged', (event, userId, status, connType) => {
-
-  //});
-
   const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
     type: `organization`,
   });
@@ -40,7 +35,7 @@ export default function OrganizationPage() {
     setSearchResult,
   } = useSearch({ type: `organization` });
   const [selectedNode, setSelectedNode] = useState<TTreeNode | string[]>([]);
-
+  useStatusListener();
   useEffect(() => {
     const getRoot = async () => {
       const {
