@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Modal from "react-modal";
 import MessageModal from "../../common/components/Modal/MessageModal";
 import { arrayLike } from "../../common/util";
-import { Egubun } from "../../common/enum";
+import { EconnectType, EnodeGubun } from "../../enum";
 
 type TOrganizationNodeProps = {
   data: TTreeNode;
@@ -36,13 +36,6 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
     setMessageModalVisible(false);
   };
 
-  enum EconnectType {
-    windows = 1,
-    android = 4,
-    iphone = 6,
-    mac = 10,
-  }
-
   const connectTypeConverter = () => {
     const connectTypeMaybeArr: string | string[] = data?.connectType
       ? data?.connectType.split(`|`)
@@ -56,7 +49,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
 
   return (
     <>
-      {data?.gubun === Egubun.GROUP || data?.gubun === Egubun.DUMMY ? (
+      {data?.gubun === EnodeGubun.GROUP || data?.gubun === EnodeGubun.DUMMY ? (
         <StyledDepartment>{data?.title}</StyledDepartment>
       ) : (
         <li className="user-row">

@@ -17,15 +17,15 @@ import { CLIENT_RENEG_WINDOW } from "tls";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 import { arrayLike, convertToUser } from "../../common/util";
-import { Efavorite, Egubun } from "../../common/enum";
+import { Efavorite, EnodeGubun } from "../../enum";
 
-const electron = window.require("electron")
+const electron = window.require("electron");
 
 let _orgCode = ``;
 
 export default function OrganizationPage() {
   //electron.ipcRenderer.on('userStatusChanged', (event, userId, status, connType) => {
-    
+
   //});
 
   const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
@@ -56,7 +56,7 @@ export default function OrganizationPage() {
       const monitorIds = response
         .map((v: any) =>
           v.node_item
-            .filter((v: any) => v.gubun?.value === Egubun.ORGANIZATION_USER)
+            .filter((v: any) => v.gubun?.value === EnodeGubun.ORGANIZATION_USER)
             .map((v: any) => v.user_id.value)
         )
         .reduce((prev: any, cur: any) => [...prev, ...cur], []);
@@ -79,7 +79,7 @@ export default function OrganizationPage() {
             };
           } else {
             // 루트 바로 아래에 사용자가 있음을 가정한다.
-            if (cur.gubun.value === Egubun.ORGANIZATION_USER) {
+            if (cur.gubun.value === EnodeGubun.ORGANIZATION_USER) {
               return {
                 ...prev,
                 children: [
@@ -147,7 +147,7 @@ export default function OrganizationPage() {
           orgCode: v.org_code.value,
         };
 
-        if (v.gubun.value === Egubun.ORGANIZATION_USER) {
+        if (v.gubun.value === EnodeGubun.ORGANIZATION_USER) {
           const userProps = {
             title: v.user_name?.value,
             ...convertToUser(v),
@@ -165,7 +165,7 @@ export default function OrganizationPage() {
         }
       });
     const monitorIds = response
-      .filter((v: any) => v.gubun?.value === Egubun.ORGANIZATION_USER)
+      .filter((v: any) => v.gubun?.value === EnodeGubun.ORGANIZATION_USER)
       .map((v: any) => v.user_id.value);
     setStatusMonitor(monitorIds);
     return children;
@@ -193,7 +193,7 @@ export default function OrganizationPage() {
             title: Efavorite.SEARCH_RESULT,
             key: Efavorite.SEARCH_RESULT,
             children: [],
-            gubun: Egubun.GROUP,
+            gubun: EnodeGubun.GROUP,
           },
         ];
         setSearchMode(true);
@@ -234,7 +234,7 @@ export default function OrganizationPage() {
           title: Efavorite.SEARCH_RESULT,
           key: Efavorite.SEARCH_RESULT,
           children: userSchema,
-          gubun: Egubun.GROUP,
+          gubun: EnodeGubun.GROUP,
         },
       ];
 
@@ -326,7 +326,8 @@ export default function OrganizationPage() {
 
   const switcherGenerator = (data: any) => (
     <>
-      {(data?.gubun === Egubun.GROUP || data?.gubun === Egubun.DUMMY) && (
+      {(data?.gubun === EnodeGubun.GROUP ||
+        data?.gubun === EnodeGubun.DUMMY) && (
         <Switcher>
           {!data?.expanded ? (
             <img

@@ -1,15 +1,24 @@
 export enum Efavorite {
   SEARCH_RESULT = `검색 결과`,
   FAVORITE = `즐겨찾기`,
-  MY_PROFILE = `내 프로필`,
-  MY_KEY = `MY_KEY`,
 }
 
-export enum Egubun {
+export enum EnodeGubun {
   DUMMY = `T`,
   GROUP = `G`,
   FAVORITE_USER = `U`,
   ORGANIZATION_USER = `P`,
+}
+
+export enum EuserStatus {
+  online,
+  absence,
+  otherWork,
+  workingOutside,
+  onCall,
+  atTable,
+  inMeeting,
+  offline,
 }
 
 export enum EconnectType {

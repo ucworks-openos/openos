@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Modal from "react-modal";
 import MessageModal from "../../common/components/Modal/MessageModal";
 import { arrayLike } from "../../common/util";
-import { EconnectType, Egubun } from "../../common/enum";
+import { EconnectType, EnodeGubun } from "../../enum";
 
 type TFavoriteNodeProps = {
   data: TTreeNode;
@@ -49,7 +49,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
 
   return (
     <>
-      {data?.gubun === Egubun.GROUP ? (
+      {data?.gubun === EnodeGubun.GROUP ? (
         <Department>{data?.title}</Department>
       ) : (
         <li className="user-row">

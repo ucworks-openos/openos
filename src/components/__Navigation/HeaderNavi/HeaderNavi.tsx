@@ -6,21 +6,33 @@ import {
   changeStatus,
   getUserInfos,
 } from "../../ipcCommunication/ipcCommon";
-import useProfile from "../../../hooks/useProfile";
+import { convertToUser } from "../../../common/util";
 
 export default function HeaderNavi() {
   const [avatarDropDownIsOpen, setAvatarDropDownIsOpen] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(`online`);
-  const { myInfo } = useProfile();
+  const [myInfo, setMyInfo] = useState<TUser>({});
+
+  const getProfile = async (id: string) => {
+    const {
+      data: {
+        items: { node_item: profileSchema },
+      },
+    } = await getUserInfos([id]);
+    return convertToUser(profileSchema);
+  };
 
   useEffect(() => {
-    console.log(`myInfo: `, myInfo);
-  });
+    const initiate = async () => {
+      const profile = await getProfile(sessionStorage.getItem(`loginId`)!);
+      setMyInfo(profile);
+    };
+    initiate();
+  }, []);
 
   const onAvatarClick = () => {
     setAvatarDropDownIsOpen(!avatarDropDownIsOpen);
   };
-
   const handleLogout = () => {
     logout();
     sessionStorage.removeItem("isLoginElectronApp");
