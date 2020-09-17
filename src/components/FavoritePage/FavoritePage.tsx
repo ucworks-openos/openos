@@ -15,13 +15,10 @@ import {
   searchOrgUsers,
 } from "../ipcCommunication/ipcCommon";
 import useTree from "../../hooks/useTree";
-import useProfile from "../../hooks/useProfile";
 import useSearch from "../../hooks/useSearch";
 import { arrayLike, convertToUser } from "../../common/util";
-import { Efavorite, Egubun } from "../../common/enum";
-
-Modal.setAppElement("#root");
-let _orgCode: string = ``;
+import { Efavorite, EnodeGubun } from "../../enum";
+import useStatusListener from "../../hooks/useStatusListener";
 
 export default function FavoritePage() {
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
@@ -47,52 +44,17 @@ export default function FavoritePage() {
   } = useTree({
     type: `favorite`,
   });
-  const [userIds, setUserIds] = useState<string[]>([]);
-  const { myInfo, setMyInfo } = useProfile();
+  useStatusListener();
 
-  useEffect(() => {}, [selectedNode]);
+  type TgetBuddyTreeReturnTypes = {
+    buddyTree: TTreeNode[];
+    keyIds: string[];
+    userIds: string[];
+  };
 
   useEffect(() => {
-    setStatusMonitor(userIds);
-  }, [userIds]);
-
-  useEffect(() => {
-    const getProfileTree = async (): Promise<TTreeNode[]> => {
-      // 로그인한 아이디 가져오기
-      const loginId = sessionStorage.getItem(`loginId`);
-      const {
-        data: {
-          items: { node_item: profileSchema },
-        },
-      } = await getUserInfos([loginId]);
-      const myInfo: TUser = convertToUser(profileSchema);
-      // 프로필 상세 정보를 트리 형태로 저장.
-      const profileTree: TTreeNode[] = [
-        {
-          gubun: Egubun.GROUP,
-          title: Efavorite.MY_PROFILE,
-          key: Efavorite.MY_PROFILE,
-          children: [
-            {
-              title: myInfo.userName!,
-              key: Efavorite.MY_KEY,
-              gubun: Egubun.FAVORITE_USER,
-              ...myInfo,
-            },
-          ],
-        },
-      ];
-      return profileTree;
-    };
-
-    type TBuddyTreeInfo = {
-      buddyTree: TTreeNode[];
-      keyIds: string[];
-      userIds: string[];
-    };
-
     // 친구 + 개인 그룹 1deps로 가져오기.
-    const getBuddyTree = async (): Promise<TBuddyTreeInfo> => {
+    const getBuddyTree = async (): Promise<TgetBuddyTreeReturnTypes> => {
       const {
         data: {
           contacts: { node: responseMaybeArr },
@@ -101,11 +63,11 @@ export default function FavoritePage() {
       const response = arrayLike(responseMaybeArr);
       // 친구 id만 추출
       const userIds = response
-        .filter((v: any) => v.gubun === Egubun.FAVORITE_USER)
+        .filter((v: any) => v.gubun === EnodeGubun.FAVORITE_USER)
         .map((v: any) => v.id);
       // 개인 그룹만 추출 (id 없을 시 name으로 추출)
       const keyIds = response
-        .filter((v: any) => v.gubun === Egubun.GROUP)
+        .filter((v: any) => v.gubun === EnodeGubun.GROUP)
         .map((v: any) => (v.id ? v.id : v.name));
       // 로그인 id + 추출한 친구 id로 사용자 상세 정보 가져오기
       const {
@@ -115,6 +77,7 @@ export default function FavoritePage() {
       } = await getUserInfos(userIds);
       // 사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
       const userSchema = arrayLike(userSchemaMaybeArr);
+      console.log(`userSchema: `, userSchema);
       // 즐겨찾기 트리 생성
       const root = response.reduce((prev: TTreeNode[], cur: any, i: number) => {
         // pid (parent id)가 없을 경우 최상위 노드의 자식에 삽입
@@ -138,7 +101,7 @@ export default function FavoritePage() {
       // 즐겨찾기 없을 경우 생성.
       const spareRoot: TTreeNode[] = [
         {
-          gubun: Egubun.GROUP,
+          gubun: EnodeGubun.GROUP,
           title: Efavorite.FAVORITE,
           key: Efavorite.FAVORITE,
           pid: undefined,
@@ -148,24 +111,24 @@ export default function FavoritePage() {
 
       return {
         buddyTree: root.length ? root : spareRoot,
-        keyIds: [
-          Efavorite.MY_PROFILE,
-          ...(keyIds.length ? keyIds : [Efavorite.FAVORITE]),
-        ],
+        keyIds: keyIds.length ? keyIds : [Efavorite.FAVORITE],
         userIds,
       };
     };
 
     const initiate = async () => {
-      const profileTree = await getProfileTree();
       const { buddyTree, keyIds, userIds } = await getBuddyTree();
 
-      setTreeData([...profileTree, ...buddyTree]);
+      setTreeData(buddyTree);
       setExpandedKeys(keyIds);
-      setUserIds(userIds);
+      setStatusMonitor(userIds);
     };
     !treeData.length && initiate();
   }, []);
+
+  useEffect(() => {
+    console.log(`treeData: `, treeData);
+  });
 
   // 재귀함수 (children에 하위 노드 삽입)
   const append = (
@@ -177,7 +140,7 @@ export default function FavoritePage() {
       // 즐겨찾기 밑에 a부서가 있다면, 아래 분기문에 잡힌다.
       if (v.key === child.pid) {
         // gubun: G (Group)
-        if (child.gubun === Egubun.GROUP) {
+        if (child.gubun === EnodeGubun.GROUP) {
           return {
             ...v,
             children: [
@@ -243,46 +206,40 @@ export default function FavoritePage() {
     setSearchKeyword(e.target.value);
   };
 
+  // 트리 펼침
+  const spread = (tree: TTreeNode[], list: TTreeNode[]) => {
+    tree.forEach((v: any) => {
+      list.push(v);
+      if (v.children) {
+        spread(v.children, list);
+      }
+    });
+
+    return list;
+  };
+
   const handleSearch = (e: any) => {
     const which = e.which;
     const keyword = e.target.value;
-
-    console.log(treeData);
-
     const getSearchResult = async () => {
+      const flatten = spread(treeData, []);
       // 사용자명, 사용자 id, 부서명, 직위, 직책, 직급, 핸드폰 번호로 검색 가능
       // user_name, user_id, user_group_name, user_paycl_name, _, _, user_tel_mobile
-      const {
-        data: {
-          items: { node_item: userSchemaMaybeArr },
-        },
-      } = await getUserInfos(userIds);
-      // 사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
-      const userSchema = arrayLike(userSchemaMaybeArr);
-
-      const reg = new RegExp(keyword, Egubun.GROUP);
-      const searchResult = userSchema.filter(
+      const reg = new RegExp(keyword, `g`);
+      const searchResult = flatten.filter(
         (v: any) =>
-          reg.test(v.user_name?.value) ||
-          reg.test(v.user_id?.value) ||
-          reg.test(v.user_group_name?.value) ||
-          reg.test(v.user_paycl_name?.value) ||
-          reg.test(v.user_tel_mobile?.value)
+          reg.test(v.userName) ||
+          reg.test(v.userId) ||
+          reg.test(v.userGroupName) ||
+          reg.test(v.userPayclName) ||
+          reg.test(v.userTelMobile)
       );
-
-      const children = searchResult.map((v: any) => ({
-        title: v.user_name?.value,
-        key: v.user_id.value,
-        gubun: v.gubun.value,
-        ...convertToUser(v),
-      }));
-
       const searchRoot: TTreeNode[] = [
         {
           title: Efavorite.SEARCH_RESULT,
           key: Efavorite.SEARCH_RESULT,
-          children,
-          gubun: Egubun.GROUP,
+          children: searchResult,
+          gubun: EnodeGubun.GROUP,
         },
       ];
 
@@ -323,6 +280,7 @@ export default function FavoritePage() {
 
   // drop event
   const onDrop = async (info: any) => {
+    if (!info.dragNode || !info.node) return false;
     const {
       dragNode: {
         props: { eventKey: dragKey },
@@ -336,28 +294,20 @@ export default function FavoritePage() {
     const { v: dropV, i: dropI, list: dropList } = await find(replica, dropKey);
 
     // 그룹 -> 유저 드래그
-    if (dragV.gubun === Egubun.GROUP && dropV.gubun === Egubun.FAVORITE_USER) {
-      return false;
-    }
-
-    // 프로필 조작 시
     if (
-      dragV.key === Efavorite.MY_PROFILE ||
-      dragV.key === Efavorite.MY_KEY ||
-      dropV.key === Efavorite.MY_PROFILE ||
-      dropV.key === Efavorite.MY_KEY
+      dragV.gubun === EnodeGubun.GROUP &&
+      dropV.gubun === EnodeGubun.FAVORITE_USER
     ) {
       return false;
     }
-
     // 유저 -> 유저 드래그
-    if (dropV.gubun === Egubun.FAVORITE_USER) {
+    if (dropV.gubun === EnodeGubun.FAVORITE_USER) {
       dragList.splice(dragI, 1);
       dropList.splice(dropI, 0, dragV);
     } else {
       dragList.splice(dragI, 1);
       // 그룹 -> 그룹 드래그 시 최하위로 삽입
-      if (dragV.gubun === Egubun.GROUP) {
+      if (dragV.gubun === EnodeGubun.GROUP) {
         dropV.children?.push(dragV);
       } else {
         // 유저 -> 그룹 드래그 시 최상위로 삽입
@@ -373,7 +323,7 @@ export default function FavoritePage() {
 
   const switcherGenerator = (data: any) => (
     <>
-      {data?.gubun === Egubun.GROUP && (
+      {data?.gubun === EnodeGubun.GROUP && (
         <Switcher>
           {!data?.expanded ? (
             <img
@@ -689,6 +639,8 @@ export default function FavoritePage() {
     </div>
   );
 }
+
+Modal.setAppElement("#root");
 
 const addGroupModalCustomStyles = {
   content: {

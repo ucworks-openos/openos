@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Modal from "react-modal";
 import MessageModal from "../../common/components/Modal/MessageModal";
 import { arrayLike } from "../../common/util";
-import { EconnectType, Egubun } from "../../common/enum";
+import { EconnectType, EnodeGubun, EuserState } from "../../enum";
 
 type TFavoriteNodeProps = {
   data: TTreeNode;
@@ -49,7 +49,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
 
   return (
     <>
-      {data?.gubun === Egubun.GROUP ? (
+      {data?.gubun === EnodeGubun.GROUP ? (
         <Department>{data?.title}</Department>
       ) : (
         <li className="user-row">
@@ -68,6 +68,9 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
                 tabIndex={index}
                 onError={handleImageError}
               />
+              <div
+                className={`user-state ${EuserState[data?.userState]}`}
+              ></div>
               {visible && (
                 <div className="user-info-container">
                   <div className="btn-close" onClick={handleViewDetail}></div>
@@ -85,7 +88,9 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
                         onError={handleImageError}
                       />
                     </div>
-                    <div className="user-state online"></div>
+                    <div
+                      className={`user-state ${EuserState[data?.userState]}`}
+                    ></div>
                   </div>
                   <div className="user-info-wrap">
                     <div className="user-info-wrap-inner">
@@ -143,7 +148,6 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
                 </div>
               )}
             </div>
-            <div className="user-state online"></div>
           </div>
           <div className="user-info-wrap">
             <div className="user-info-wrap-inner">

@@ -179,30 +179,7 @@
   border: 2px solid #fff;
   border-radius: 50%;
 }
-.user-state.online {
-  background-color: #04de71;
-}
-.user-state.absence {
-  background-color: #ff3b30;
-}
-.user-state.otherWork {
-  background-color: #ff9500;
-}
-.user-state.workingOutside {
-  background-color: #2094fa;
-}
-.user-state.onCall {
-  background-color: #ffe620;
-}
-.user-state.atTable {
-  background-color: #f26f6f;
-}
-.user-state.inMeeting {
-  background-color: #787aff;
-}
-.user-state.offline {
-  background-color: #333;
-}
+
 /*헤더-유저-드롭다운*/
 .user-profile-dropdown-wrap {
   display: block;

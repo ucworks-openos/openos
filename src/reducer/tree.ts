@@ -1,12 +1,12 @@
-import { Egubun } from "../common/enum";
+import { EnodeGubun } from "../enum";
 
 const initialState: TOrganizationState & TFavoriteState = {
   organizationTreeData: [],
   organizationExpandedKeys: [],
-  selectedOrganizationNode: { title: ``, key: ``, gubun: Egubun.GROUP },
+  selectedOrganizationNode: { title: ``, key: ``, gubun: EnodeGubun.GROUP },
   favoriteTreeData: [],
   favoriteExpandedKeys: [],
-  selectedFavoriteNode: { title: ``, key: ``, gubun: Egubun.GROUP },
+  selectedFavoriteNode: { title: ``, key: ``, gubun: EnodeGubun.GROUP },
 };
 
 export const SET_ORGANIZATION_TREE_DATA = `tree/SET_ORGANIZATION_TREE_DATA` as const;

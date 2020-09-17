@@ -54,17 +54,17 @@ function userStatusChanged(userId, status, connType) {
   sendLog('userStatusChanged! ', userId, status, connType);
   send('userStatusChanged', userId, status, connType)
 
-  let options = {
-    title: 'STATUS CHANGED',
-    message: userId + ' Status:' + status + ' Conn:' + connType,
-    sound: true, // Only Notification Center or Windows Toasters
-    wait: true // Wait with callback, until user action is taken against notification, does not apply to Windows Toasters as they always wait or notify-send as it does not support the wait option
-  }
+  // let options = {
+  //   title: 'STATUS CHANGED',
+  //   message: userId + ' Status:' + status + ' Conn:' + connType,
+  //   sound: true, // Only Notification Center or Windows Toasters
+  //   wait: true // Wait with callback, until user action is taken against notification, does not apply to Windows Toasters as they always wait or notify-send as it does not support the wait option
+  // }
 
-  notifier.notify(options, function (err, response) {
-        console.log('Notification Click!', err, response );
-    }
-  );
+  // notifier.notify(options, function (err, response) {
+  //       console.log('Notification Click!', err, response );
+  //   }
+  // );
 }
 
 /**
