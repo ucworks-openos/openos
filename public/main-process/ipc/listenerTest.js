@@ -1,5 +1,5 @@
 
-const { ipcMain, BrowserWindow } = require('electron');
+const { ipcMain, BrowserWindow, dialog, screen, app } = require('electron');
 
 const { reqConnectDS, reqUpgradeCheckDS, } = require('../net-command/command-ds-api');
 const { reqGetCondition } = require('../net-command/command-ps-api');
@@ -14,25 +14,82 @@ const notifier = require('node-notifier');
 
 const nsAPI = require('../net-command/command-ns-api');
 const commandConst = require('../net-command/command-const');
+const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require('constants');
 
 // testAction
 ipcMain.on('testAction', async (event, ...args) => {
   var resData = new ResData(true, '');
+  sendLog('testAction');
 
+  /*
+  const choice = dialog.showMessageBoxSync(global.MAIN_WINDOW, {
+    type: 'question',
+    buttons: ['Leave', 'Stay', 'IdontKnow'],
+    title: 'Do you want to leave this site?',
+    message: 'Changes you made may not be saved.',
+    defaultId: 0,
+    cancelId: 1
+  })
+  console.log('question', choice)
+  */
 
-  FetchAPI.reqMessageList('MSG_RECV')
+  await app.whenReady();
+  let displays = screen.getAllDisplays()
 
-  return;
+  let x = 0;
+  let y = 0;
+  displays.forEach((disp) => {
+    if (disp.bounds.x === 0 && disp.bounds.y === 0) {
+      // main disp
+      x += disp.bounds.width;
+      y += disp.bounds.height;
+    } else {
+      // external disp
+      if (disp.bounds.x > 0) {
+        x += disp.bounds.width;
+      }
+      if (disp.bounds.y > 0) {
+        y += disp.bounds.height;
+      }
+    }
 
-  let top = new BrowserWindow()
-  top = new BrowserWindow({
-    width: 800,
-    height: 750,
-    webPreferences: { nodeIntegration: true },
-    //icon: require("path").join(__dirname, 'icon.ico'),
-   });
+    console.log('disp', disp)
+    console.log('x y ++', x, y)
+  })
 
-   top.loadURL("http://localhost:3000/funcTest2");
+  console.log('x y', x, y)
+
+  let win = new BrowserWindow({
+    //title: '알림테스트',
+    x: x - 500, y: y - 300,
+    width: 500, height: 300,
+    //backgroundColor: '#2e2029',
+    modal: true,
+    resizable: true,
+    //focusable: false, // 포커스를 가져가 버리는데..  포커스를 뺴면 알림창이 안닫힌다.
+    fullscreenable: false,
+    frame: true,     // 프레임 없어짐, 타이틀바 포함  titleBarStyle: hidden
+    thickFrame: true, // 그림자와 창 애니메이션
+    
+  })
+  win.webContents.openDevTools();
+
+  let notifyFile = `file://${global.ROOT_PATH}/notify.html`;
+  console.log(`>>>>>>>>>>>  `, notifyFile);
+  win.webContents.on('did-finish-load', () => {
+    //win.webContents.send('notify', "Hellow")
+    console.log(`>>>>>>>>>>>   LOAD COMPLETED!`);
+    win.webContents.executeJavaScript(`
+        document.getElementById("msg").innerHTML += 'HELLO<br>FIGHTING!'
+      `)
+  })
+  win.loadURL(notifyFile)
+  
+
+  
+  
+  
+  
   return;
 
   sendLog('DATE>>', OsUtil.getDateString(commandConst.DATE_FORMAT_YYYYMMDDHHmmssSSS));
