@@ -35,7 +35,7 @@ function MessageInputModal(props) {
             }
             setSelectedUsers([extracted]);
         }
-        initiate();
+        props.selectedNode && initiate();
     }, [props.selectedNode])
 
     const onEditorChange = (value) => {
