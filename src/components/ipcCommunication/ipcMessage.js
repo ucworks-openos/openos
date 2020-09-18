@@ -30,6 +30,16 @@ export const getMessageDetail = async (msgKey) => {
     });
 }
 
+/** deleteMessage */
+export const deleteMessage = async (msgBubun, msgKeys) => {
+  return new Promise(function(resolve, reject) {
+      electron.ipcRenderer.on('res-deleteMessage', (event, arg) => {
+          resolve(arg);
+        })
+        electron.ipcRenderer.send('deleteMessage', msgBubun, msgKeys)
+    });
+}
+
 
 /** getChatRoomList */
 export const getChatRoomList = async (rowOffset = 0, rowLimit = 100) => {
@@ -50,3 +60,16 @@ export const sendChatMessage = async (chatUserIds, chatMessage, roomKey = null) 
         electron.ipcRenderer.send('sendChatMessage', chatUserIds, chatMessage, roomKey)
     });
 }
+
+
+/** getChatList */
+export const getChatList = async (roomId, rowOffset = 0, rowLimit = 100) => {
+  return new Promise(function(resolve, reject) {
+      electron.ipcRenderer.on('res-getChatList', (event, arg) => {
+          resolve(arg);
+        })
+        electron.ipcRenderer.send('getChatList', roomId, rowOffset, rowLimit)
+    });
+}
+
+

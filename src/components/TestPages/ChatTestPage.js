@@ -9,7 +9,7 @@ import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
 import { getConfig, login } from '../ipcCommunication/ipcCommon'
-import { getChatRoomList, sendChatMessage } from '../ipcCommunication/ipcMessage'
+import { getChatRoomList, sendChatMessage, getChatList } from '../ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")
 const { remote } = window.require("electron")
@@ -112,6 +112,14 @@ function FuncTestPage2() {
     setIsNewChat(false);
   }
 
+  const handleGetChatList = (e) => {
+    getChatList(chatRoomId, 0, 100).then(function (resData) {
+      console.log('Promiss getChatRoomList res', resData);
+
+    }).catch(function (err) {
+    });;
+  }
+
   const handleSendChatMessage = (e) => {
 
     let chatUserIdStr = loginUser.userId + "," + targetUserIds
@@ -199,6 +207,9 @@ function FuncTestPage2() {
               />
               <InputGroup.Append>
                 <Button variant="outline-secondary" onClick={handleJoinChat}>대화참여</Button>
+              </InputGroup.Append>
+              <InputGroup.Append>
+                <Button variant="outline-secondary" onClick={handleGetChatList}>대화리스트</Button>
               </InputGroup.Append>
             </InputGroup>
           </Col>

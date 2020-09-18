@@ -50,6 +50,19 @@ ipcMain.on('getMessageDetail', async (event, msgKey) => {
   });
 });
 
+// deleteMessage
+ipcMain.on('deleteMessage', async (event, msgGubun, msgKeys) => {
+  
+  nsAPI.reqDeleteMessage(msgGubun, msgKeys).then(function(resData)
+  {
+    sendLog('[IPC] deleteMessage res:', resData)
+    event.reply('res-deleteMessage', resData);
+  }).catch(function(err) {
+    sendLog('[IPC] deleteMessage res  Err:', err)
+    event.reply('res-deleteMessage', new ResData(false, err));
+  });
+});
+
 // getChatRoomList
 ipcMain.on('getChatRoomList', async (event, msgKey) => {
   
@@ -100,11 +113,23 @@ ipcMain.on('sendChatMessage', async (event, chatUserIds, chatMessage, roomKey = 
   });
 });
 
-
 // getChatRoomList
 ipcMain.on('notiTitleClick', async (event, notiType, notiId) => {
   console.log('notiTitleClick!', notiType, notiId)
 });
 
+
+// getChatList
+ipcMain.on('getChatList', async (event, msgKey) => {
+  
+  // fetchAPI.getChatList(msgKey).then(function(resData)
+  // {
+  //   sendLog('[IPC] getChatList res:', resData)
+  //   event.reply('res-getChatList', resData);
+  // }).catch(function(err) {
+  //   sendLog('[IPC] getChatList res  Err:', err)
+  //   event.reply('res-getChatList', new ResData(false, err));
+  // });
+});
 
 
