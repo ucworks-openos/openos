@@ -4,9 +4,11 @@ const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
 const OsUtil = require('../utils/utils-os');
+const BufferUtil = require('../utils/utils-buffer');
 const CryptoUtil = require('../utils/utils-crypto');
 const nsCore = require('../net-core/network-ns-core');
 const { adjustBufferMultiple4, getMultiple4Size } = require('../utils/utils-buffer');
+const { MSG_GUBUN } = require('../common/common-const');
 
 /**
  * 연결을 종료합니다.
@@ -185,6 +187,49 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
 }
 
 /**
+ * 쪽지 삭제 요청
+ * @param {MSG_GUBUN} msgGubun 
+ * @param {Array} msgKeys 
+ */
+function reqDeleteMessage(msgGubun, msgKeys) {
+    return new Promise(async function(resolve, reject) {
+        console.log('----------- msgKeys', msgKeys)
+
+        if (!global.SERVER_INFO.NS.isConnected) {
+            reject(new Error('NS IS NOT CONNECTED!'));
+            return;
+        }
+
+        var userIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        userIdBuf.write(global.USER.userId, global.ENC);
+
+        var gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_GUBUN);
+        gubunBuf.write(msgGubun);
+
+        var skipBuf = Buffer.alloc(BufferUtil.getMultiple4DiffSize(CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_GUBUN))
+
+        var periodBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        periodBuf.writeInt32LE(0); // default : 0, 전체삭제 : -1 , not used 나중에 씀. ~일 지난거 삭제 추가할때 씀.
+
+        var keyBuf = Buffer.from(msgKeys.join(CmdConst.SEP_PIPE), global.ENC)      
+
+        var keySizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        keySizeBuf.writeInt32LE(keyBuf.length);
+
+        let dataBuf = Buffer.concat([
+            userIdBuf
+            , gubunBuf
+            , skipBuf
+            , periodBuf
+            , keySizeBuf
+            , keyBuf
+        ]);
+
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_DELETE_MESSAGE, 0), dataBuf);
+    });
+}
+
+/**
  * 상태 정보 변경 요청
  * @param {Number} status 
  * @param {Boolean} force 
@@ -221,8 +266,6 @@ function reqChangeStatus(status, force = false) {
             , userIdBuf
             , senderIdBuf
         ]);
-
-        console.log('[CHANGE_STATUS] ', status, global.USER.userId)
 
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_CHANGE_STATE, 0), dataBuf);
     });
@@ -468,6 +511,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message) {
 module.exports = {
     reqconnectNS: reqconnectNS,
     reqSendMessage: reqSendMessage,
+    reqDeleteMessage: reqDeleteMessage,
     reqChangeStatus: reqChangeStatus,
     reqGetStatus: reqGetStatus,
     reqSetStatusMonitor: reqSetStatusMonitor,

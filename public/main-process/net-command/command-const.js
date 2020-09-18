@@ -48,6 +48,7 @@ module.exports = Object.freeze({
     CONNECT_TYPE_MOBILE_IOS_PAD     : 7,  // 아이폰 PAD
     CONNECT_TYPE_APP_MAC            : 10, // 맥버전
 
+    
     DATE_FORMAT_YYYYMMDDHHmmssSSS   : 'YYYYMMDDHHmmssSSS',
     DATE_FORMAT_YYYYMMDDHHmmss      : 'YYYYMMDDHHmmss',
 
