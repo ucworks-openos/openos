@@ -22,7 +22,6 @@ export function setCurrentMessage(messageKey) {
 }
 
 export async function getInitialMessageLists(messageType) {
-    console.log('messageTypemessageTypemessageTypemessageType', messageType)
     const request = await getMessage(messageType, 0, 10)
     return {
         type: GET_INITIAL_MESSAGE_LISTS,
@@ -30,12 +29,8 @@ export async function getInitialMessageLists(messageType) {
     }
 }
 
-
 export async function getMessageHo(messageKey) {
-    console.log('getMessageHo messageKey', messageKey)
-
     const request = await getMessageDetail(messageKey)
-    console.log('request', request)
     // let request = messageLists.filter(msg => msg.msg_key === messageKey)
     return {
         type: GET_MESSAGE,
@@ -60,7 +55,6 @@ export function setCurrentMessageListsType(messageListsType) {
 
 export async function getMoreMessages(messageType, page = 1, messageDefaultCounts = 10) {
     const request = await getMessage(messageType, page * messageDefaultCounts, messageDefaultCounts)
-    console.log('request requestrequestrequest', request)
     return {
         type: GET_MORE_MESSAGES,
         payload: request.data.table.row

@@ -11,8 +11,8 @@ function LeftPanel() {
     const [isOpenMessageInputModal, setIsOpenMessageInputModal] = useState(false)
     const dispatch = useDispatch();
     const currentMessageListType = useSelector(state => state.messages.currentMessageListType)
-    const onChangeMessageListsTypeClick = () => {
-        dispatch(setCurrentMessageListsType(currentMessageListType === 'MSG_RECV' ? 'MSG_SEND' : 'MSG_RECV'))
+    const onChangeMessageListsTypeClick = (msgType) => {
+        dispatch(setCurrentMessageListsType(msgType))
     }
     const onOpenMessageInputModalClick = () => {
         setIsOpenMessageInputModal(true)
@@ -23,23 +23,19 @@ function LeftPanel() {
 
     return (
         <div className="list-area">
-            <div className="chat-page-title-wrap">
-                <h4 className="page-title">쪽지
-                    <button style={{ margin: '0 10px', padding: '4px', border: '1px solid black' }} onClick={onChangeMessageListsTypeClick}>
-                        {currentMessageListType === 'MSG_RECV' ? "받은 쪽지" : "보낸 쪽지"}
-                    </button>
-
-                    <button style={{ margin: '0 10px', padding: '4px', border: '1px solid black' }} onClick={onOpenMessageInputModalClick}>
-                        메시지 보내기
-                    </button>
-                </h4>
-                <div className="chat-list-action-wrap">
-                    <div className="chat-list-action add" title="대화 추가"></div>
-                    <div className="chat-list-action search" title="대화방 검색">
-                        <input type="checkbox" id="chat-list-search-toggle-check" />
-                        <label className="chat-list-search-toggle" htmlFor="chat-list-search-toggle-check"></label>
-                        <div className="chat-list-search-wrap">
-                            <input type="text" className="chat-list-search" placeholder="대화방 명, 참여자명, 대화내용 검색" />
+            <div class="page-title-wrap">
+                <h4 class="page-title">쪽지</h4>
+                <div class={`message-tab receive ${currentMessageListType === "MSG_RECV" && "current"}`} onClick={() => onChangeMessageListsTypeClick('MSG_RECV')} >수신</div>
+                <div class={`message-tab sent ${currentMessageListType === "MSG_SEND" && "current"}`} onClick={() => onChangeMessageListsTypeClick('MSG_SEND')}>발신</div>
+                {/* <div class="message-tab booked">예약</div>
+                <div class="message-tab file">파일함</div> */}
+                <div class="message-list-action-wrap">
+                    <button class="message-list-action add" title="쪽지쓰기" onClick={onOpenMessageInputModalClick}></button>
+                    <div class="message-list-action search" title="쪽지 검색">
+                        <input type="checkbox" id="message-list-search-toggle-check" />
+                        <label class="message-list-search-toggle" for="message-list-search-toggle-check"></label>
+                        <div class="message-list-search-wrap">
+                            <input type="text" class="message-list-search" placeholder="이름, 내용, 파일명, 일시 검색" />
                         </div>
                     </div>
                 </div>

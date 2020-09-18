@@ -150,7 +150,7 @@ function FuncTestPage() {
   const handleGetUserInfos = (e) => {
     let userIds = infoUserIds.split(',')
     appendLocalLog("handleGetUserInfos:", userIds);
-
+    
     getUserInfos(userIds).then(function(data) {
       appendLocalLog('handleGetUserInfos Result:' + JSON.stringify(data));
     });

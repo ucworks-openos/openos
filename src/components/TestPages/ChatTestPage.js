@@ -8,8 +8,8 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
-import {getConfig, login} from '../ipcCommunication/ipcCommon'
-import {getChatRoomList, sendChatMessage} from '../ipcCommunication/ipcMessage'
+import { getConfig, login } from '../ipcCommunication/ipcCommon'
+import { getChatRoomList, sendChatMessage } from '../ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")
 const { remote } = window.require("electron")
@@ -89,18 +89,18 @@ function FuncTestPage2() {
   // Login
   const handleLogin = (e) => {
 
-    login(loginId, loginPwd).then(function(resData){
-      
-    }).catch(function(err){
+    login(loginId, loginPwd).then(function (resData) {
+
+    }).catch(function (err) {
     });;
   }
 
   // GetChatRoomList
   const handleGetChatRoomList = (e) => {
-    getChatRoomList(0, 100).then(function(resData){
+    getChatRoomList(0, 100).then(function (resData) {
       console.log('Promiss getChatRoomList res', resData);
-      
-    }).catch(function(err){
+
+    }).catch(function (err) {
     });;
   }
 
@@ -117,7 +117,7 @@ function FuncTestPage2() {
     let chatUserIdStr = loginUser.userId + "," + targetUserIds
 
     appendChatMessage(loginUser.userName, chatMessage);
-    sendChatMessage(chatUserIdStr.split(','), chatMessage, isNewChat?null:chatRoomId);
+    sendChatMessage(chatUserIdStr.split(','), chatMessage, isNewChat ? null : chatRoomId);
   }
 
   // LogClear
@@ -128,12 +128,12 @@ function FuncTestPage2() {
   return (
     <GridWrapper >
       <Container fluid='false' className='mt-5'>
-        <Row  xs={2} md={3} lg={5}>
+        <Row xs={2} md={3} lg={5}>
           <Col>Server IP : {serverIp}</Col>
           <Col>Server PORT : {serverPort}</Col>
           <Col>CreateNew : {isNewChat.toString()}</Col>
         </Row>
-        
+
         {/* 로그인 */}
         <Row className='mt-1'>
           <Col>
@@ -167,7 +167,7 @@ function FuncTestPage2() {
         <Row>
           <Col>
             <InputGroup >
-            <InputGroup.Prepend>
+              <InputGroup.Prepend>
                 <InputGroup.Text id="userIds">대상IDs</InputGroup.Text>
               </InputGroup.Prepend>
               <FormControl
@@ -185,7 +185,7 @@ function FuncTestPage2() {
 
         {/* 대화참여하기  */}
         <Row>
-          
+
           <Col>
             <InputGroup >
               <InputGroup.Prepend>
@@ -240,7 +240,7 @@ function FuncTestPage2() {
           <textarea ref={chatArea} rows={10} value={chatMessages} className='mt-1' />
         </Row>
         <Row xs={1} className='mt-1'>
-          <textarea ref={netLogArea} rows={10} value={netLog} className='mt-1'/>
+          <textarea ref={netLogArea} rows={10} value={netLog} className='mt-1' />
         </Row>
       </Container>
     </GridWrapper>

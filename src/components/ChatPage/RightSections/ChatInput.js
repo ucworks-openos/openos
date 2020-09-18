@@ -7,28 +7,22 @@ import {
 function ChatInput() {
     const dispatch = useDispatch();
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
+    const chatRooms = useSelector(state => state.chats.chatRooms)
     const [inputValue, setInputValue] = useState("")
 
     const onInputValueChange = (e) => {
         setInputValue(e.currentTarget.value)
     }
 
-
     const onSubmit = (e) => {
         e.preventDefault();
-        if(inputValue.trim().length === 0) {
+        if (inputValue.trim().length === 0) {
             alert("먼저 글자를 입력하세요 ~~")
             return;
         }
-        const body = {
-            "id": 5,
-            "roomId": currentChatRoom,
-            "person": "누구임?",
-            "content": inputValue,
-            "unread": 3,
-            "createdAt": "202012120313"
-        }
-        dispatch(addChatMessage(body))
+
+        dispatch(addChatMessage(currentChatRoom.chat_entry_ids, inputValue, false, currentChatRoom.room_key))
+
         setInputValue("")
     }
 
@@ -36,7 +30,7 @@ function ChatInput() {
         <div className="chat-input-area">
             <div className="chat-input-wrap">
                 <textarea className="chat-input" value={inputValue} onChange={onInputValueChange} placeholder="채팅 내용을 입력해주세요."></textarea>
-                <button onClick={onSubmit} type="submit" className="btn-ghost-m" />
+                <button onClick={onSubmit} type="submit" style={{ background: "blue", color: 'white' }} className="btn-ghost-m" >전송</button>
             </div>
             <div className="input-action-wrap">
                 <div className="input-action btn-txt" title="텍스트 (글꼴, 크기, 색상,표)"></div>

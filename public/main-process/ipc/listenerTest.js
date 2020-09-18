@@ -66,24 +66,33 @@ ipcMain.on('testAction', async (event, ...args) => {
     //backgroundColor: '#2e2029',
     modal: true,
     resizable: true,
-    //focusable: false, // 포커스를 가져가 버리는데..  포커스를 뺴면 알림창이 안닫힌다.
+    focusable: false, // 포커스를 가져가 버리는데..  
     fullscreenable: false,
-    frame: true,     // 프레임 없어짐, 타이틀바 포함  titleBarStyle: hidden
+    frame: false,     // 프레임 없어짐, 타이틀바 포함  titleBarStyle: hidden
     thickFrame: true, // 그림자와 창 애니메이션
-    
+    webPreferences: {
+      nodeIntegration: true, // is default value after Electron v5
+    }
   })
   win.webContents.openDevTools();
 
   let notifyFile = `file://${global.ROOT_PATH}/notify.html`;
   console.log(`>>>>>>>>>>>  `, notifyFile);
   win.webContents.on('did-finish-load', () => {
-    //win.webContents.send('notify', "Hellow")
+    
     console.log(`>>>>>>>>>>>   LOAD COMPLETED!`);
     win.webContents.executeJavaScript(`
-        document.getElementById("msg").innerHTML += 'HELLO<br>FIGHTING!'
-      `)
-  })
+        document.getElementById("title").innerHTML += 'HELLO'
+        document.getElementById("msg").innerHTML += 'FIGHTING!'
+    `);
+  });
   win.loadURL(notifyFile)
+
+  // setTimeout(()=> {
+  //   console.log('>>>>>  notify')
+  // win.webContents.send('notify', "Hello w");
+  // }, 1000);
+  
   
 
   
