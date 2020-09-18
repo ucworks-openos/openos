@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import styled from "styled-components";
 import Modal from "react-modal";
 import MessageModal from "../../common/components/Modal/MessageModal";
@@ -8,12 +14,18 @@ import { EconnectType, EnodeGubun, EuserState } from "../../enum";
 type TFavoriteNodeProps = {
   data: TTreeNode;
   index: number;
+  toggle: () => void;
+  setSelectedNode: (node: TTreeNode) => void;
 };
 
 export default function FavoriteNode(props: TFavoriteNodeProps) {
-  const { data, index } = props;
+  const { data, index, toggle, setSelectedNode } = props;
   const [visible, setVisible] = useState<boolean>(false);
-  const [messageModalVisible, setMessageModalVisible] = useState(false);
+
+  const handleToggle = () => {
+    setSelectedNode(data);
+    toggle();
+  };
 
   const handleViewDetail = () => {
     setVisible(true);
@@ -26,14 +38,6 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
   const handleImageError = (image: any) => {
     image.target.onerror = null;
     image.target.src = `/images/img_imgHolder.png`;
-  };
-
-  const handleMessageModalOpen = () => {
-    setMessageModalVisible(true);
-  };
-
-  const handleMessageModalClose = () => {
-    setMessageModalVisible(false);
   };
 
   const connectTypeConverter = () => {
@@ -122,7 +126,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
                     <div
                       className="btn-contact-action message"
                       title="쪽지"
-                      onClick={handleMessageModalOpen}
+                      onClick={handleToggle}
                     ></div>
                     <div
                       className="btn-contact-action remote"
@@ -169,39 +173,14 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
           </div>
           <div className="user-quick-action-wrap">
             <div className="btn-quick chat"></div>
-            <div
-              className="btn-quick message"
-              onClick={handleMessageModalOpen}
-            ></div>
+            <div className="btn-quick message" onClick={handleToggle}></div>
             <div className="btn-quick call"></div>
           </div>
         </li>
       )}
-      <Modal
-        isOpen={messageModalVisible}
-        onRequestClose={handleMessageModalClose}
-        style={messageModalCustomStyles}
-      >
-        <MessageModal
-          receiverId={data?.userId!}
-          receiverName={data?.userName!}
-          closeModalFunction={handleMessageModalClose}
-        />
-      </Modal>
     </>
   );
 }
-
-const messageModalCustomStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-  },
-};
 
 const Department = styled.h6`
   background-color: #ebedf1;

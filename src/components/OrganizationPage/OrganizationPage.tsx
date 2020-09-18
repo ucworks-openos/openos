@@ -17,7 +17,7 @@ import { CLIENT_RENEG_WINDOW } from "tls";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 import { arrayLike, convertToUser } from "../../common/util";
-import { Efavorite, EnodeGubun } from "../../enum";
+import { EconnectType, Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 
 let _orgCode: string = ``;
@@ -37,6 +37,15 @@ export default function OrganizationPage() {
   const [selectedNode, setSelectedNode] = useState<TTreeNode | string[]>([]);
   const targetInfo = useStateListener();
 
+  const connectTypeConverter = (connectTypeBundle: string) => {
+    const connectTypeMaybeArr = connectTypeBundle
+      ? connectTypeBundle.split(`|`)
+      : ``;
+
+    const connectType = arrayLike(connectTypeMaybeArr);
+    return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
+  };
+
   useEffect(() => {
     const initiate = async () => {
       const [targetId, state, connectType] = targetInfo;
@@ -48,7 +57,7 @@ export default function OrganizationPage() {
       targetList?.splice(targetI, 1, {
         ...target,
         userState: Number(state),
-        connectType: connectType,
+        connectType: connectTypeConverter(connectType),
       });
       setTreeData(replica);
     };
