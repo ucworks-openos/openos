@@ -6,10 +6,12 @@ const nsAPI = require('../net-command/command-ns-api');
 const fetchAPI = require('../net-command/command-fetch-api');
 
 const ResData = require('../ResData');
+const { decryptMessage } = require('../utils/utils-crypto');
 
 
-
-// sendMessage
+/**
+ * sendMessage
+ */
 ipcMain.on('sendMessage', async (event, recvIds, recvNames, subject, message) => {
   
   nsAPI.reqSendMessage(recvIds, recvNames, subject, message).then(function(resData)
@@ -23,8 +25,9 @@ ipcMain.on('sendMessage', async (event, recvIds, recvNames, subject, message) =>
 
 });
 
-
-// getMessage
+/**
+ * getMessage
+ */
 ipcMain.on('getMessage', async (event, msgType, rowOffset = 0, rowLimit = 100) => {
   
   fetchAPI.reqMessageList(msgType, rowOffset, rowLimit).then(function(resData)
@@ -37,7 +40,9 @@ ipcMain.on('getMessage', async (event, msgType, rowOffset = 0, rowLimit = 100) =
   });
 });
 
-// getMessage
+/**
+ * getMessageDetail
+ */
 ipcMain.on('getMessageDetail', async (event, msgKey) => {
   
   fetchAPI.reqGetMessageDetail(msgKey).then(function(resData)
@@ -50,7 +55,24 @@ ipcMain.on('getMessageDetail', async (event, msgKey) => {
   });
 });
 
-// getChatRoomList
+/**
+ * deleteMessage
+ */
+ipcMain.on('deleteMessage', async (event, msgGubun, msgKeys) => {
+  
+  nsAPI.reqDeleteMessage(msgGubun, msgKeys).then(function(resData)
+  {
+    sendLog('[IPC] deleteMessage res:', resData)
+    event.reply('res-deleteMessage', resData);
+  }).catch(function(err) {
+    sendLog('[IPC] deleteMessage res  Err:', err)
+    event.reply('res-deleteMessage', new ResData(false, err));
+  });
+});
+
+/**
+ * getChatRoomList
+ */
 ipcMain.on('getChatRoomList', async (event, msgKey) => {
   
   fetchAPI.reqChatRoomList(msgKey).then(function(resData)
@@ -63,7 +85,9 @@ ipcMain.on('getChatRoomList', async (event, msgKey) => {
   });
 });
 
-// getChatRoomList
+/**
+ * getChatRoomList
+ */
 ipcMain.on('sendChatMessage', async (event, chatUserIds, chatMessage, roomKey = null) => {
 
   sendLog('[IPC] sendChatMessage :',roomKey, chatUserIds, chatMessage);
@@ -100,11 +124,37 @@ ipcMain.on('sendChatMessage', async (event, chatUserIds, chatMessage, roomKey = 
   });
 });
 
-
-// getChatRoomList
+/**
+ * getChatRoomList
+ */
 ipcMain.on('notiTitleClick', async (event, notiType, notiId) => {
   console.log('notiTitleClick!', notiType, notiId)
 });
 
 
+/**
+ * getChatList
+ */
+ipcMain.on('getChatList', async (event, roomId, lastLineKey = '9999999999999999', rowLimit = 30) => {
+  
+  fetchAPI.reqGetChatList(roomId, lastLineKey = '9999999999999999', rowLimit = 100).then(function(resData)
+  {
+    sendLog('[IPC] getChatList res:', resData)
+    event.reply('res-getChatList', resData);
+  }).catch(function(err) {
+    sendLog('[IPC] getChatList res  Err:', err)
+    event.reply('res-getChatList', new ResData(false, err));
+  });
+});
 
+/**
+ * decrypt message
+ */
+ipcMain.on('decryptMessage', async (event, encryptKey, cipherMessage) => {
+  
+  let decMessage = decryptMessage(encryptKey, cipherMessage);
+
+  sendLog('[IPC] decryptMessage res:', decMessage)
+  event.reply('res-decryptMessage', decMessage);
+
+});

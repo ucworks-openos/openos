@@ -14,8 +14,8 @@ module.exports = Object.freeze({
     SEP_DC4                 : String.fromCharCode(20),
     SEP_COMMA               : ',',
 
-    MSG_COMMON_DATA         : 'COMMON',
-    MSG_CONFIRM_DATA        : 'CONFIRM',
+
+    DEFUALT_MAX_UNIXDATE_STRING: '9999999999999999',
     
     MSG_ALERT               : 1,
     MSG_ALL_NOTIFY          : 2,
@@ -47,10 +47,6 @@ module.exports = Object.freeze({
     CONNECT_TYPE_MOBILE_IOS         : 6,  // 아이폰
     CONNECT_TYPE_MOBILE_IOS_PAD     : 7,  // 아이폰 PAD
     CONNECT_TYPE_APP_MAC            : 10, // 맥버전
-
-    DATE_FORMAT_YYYYMMDDHHmmssSSS   : 'YYYYMMDDHHmmssSSS',
-    DATE_FORMAT_YYYYMMDDHHmmss      : 'YYYYMMDDHHmmss',
-
 
 
     //#region COMMAND LENGTH

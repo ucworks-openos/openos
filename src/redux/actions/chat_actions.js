@@ -11,9 +11,12 @@ import {
 import chatMessages from "../mock-datas/chat-messages.json";
 import { getChatRoomList, sendChatMessage } from '../../components/ipcCommunication/ipcMessage'
 
+// import {
+//     getUserInfos
+// } from '../../components/ipcCommunication/ipcCommon'
+
 export function setCurrentChatRoom(roomKey, chatRooms) {
     const request = chatRooms.filter(c => c.room_key === roomKey)
-    console.log(' setCurrentChatRoom request', request)
 
     return {
         type: SET_CURRENT_CHAT_ROOM,
@@ -23,9 +26,7 @@ export function setCurrentChatRoom(roomKey, chatRooms) {
 
 export async function getInitialChatRooms() {
     const request = await getChatRoomList(0, 100)
-    console.log('Array.isArray(request.data.table.row)', Array.isArray(request.data.table.row))
     const realRequest = Array.isArray(request.data.table.row) ? request.data.table.row : [request.data.table.row]
-    console.log('realRequest', realRequest)
     return {
         type: GET_INITIAL_CHAT_ROOMS,
         payload: realRequest

@@ -6,7 +6,7 @@ import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
 import {getConfig, login, searchUsers, searchOrgUsers} from '../ipcCommunication/ipcCommon'
-import {getMessage, getMessageDetail, getChatRoomList} from '../ipcCommunication/ipcMessage'
+import {getMessage, getMessageDetail, deleteMessage, getChatRoomList} from '../ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")
 
@@ -108,7 +108,6 @@ function FuncTestPage2() {
   // GetMessage
   const handleGetMessage = (e) => {
     appendLocalLog("handleGetMessage:", e.target.value);
-    console.log('e', e.target.value)
     getMessage(e.target.value, 0, 10).then(function(data) {
       appendLocalLog('handleGetMessage Result:' + JSON.stringify(data));
     });
@@ -120,6 +119,15 @@ function FuncTestPage2() {
 
     getMessageDetail(msgKey).then(function(data) {
       appendLocalLog('handleGetMessageDetail Result:' + JSON.stringify(data));
+    });
+  }
+
+  // DeleteMessage
+  const handleDeleteMessage = (e) => {
+    appendLocalLog("handleDeleteMessage:", msgKey);
+
+    deleteMessage('SEND', msgKey.split(',')).then(function(data) {
+      appendLocalLog('handleDeleteMessage Result:' + JSON.stringify(data));
     });
   }
 
@@ -247,6 +255,7 @@ function FuncTestPage2() {
 
               <InputGroup.Append>
                 <Button variant="outline-secondary" onClick={handleGetMessageDetail}>쪽지 정보 요청</Button>
+                <Button variant="outline-secondary" onClick={handleDeleteMessage}>쪽지 삭제 요청</Button>
               </InputGroup.Append>
             </InputGroup>
           </Col>

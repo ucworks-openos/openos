@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import MessageContent from "./MessageContent";
 import { useDispatch, useSelector } from "react-redux";
-
+import MessageFiles from "./MessageFiles";
 function RightPanel() {
   const message = useSelector((state) => state.messages.message);
-
   return (
     <main className="message-main-wrap">
       <div class="message-title-wrap">
@@ -22,6 +21,8 @@ function RightPanel() {
       </div>
 
       <MessageContent />
+
+      <MessageFiles />
     </main>
   );
 }

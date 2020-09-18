@@ -12,7 +12,7 @@ function ChatRooms() {
     const chatRooms = useSelector(state => state.chats.chatRooms)
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
     console.log('chatRooms', chatRooms)
-    console.log('currentChatRoom', currentChatRoom)
+    // console.log('currentChatRoom', currentChatRoom)
     const onChatRoomClick = (roomKey) => {
         dispatch(setCurrentChatRoom(roomKey, chatRooms))
     }

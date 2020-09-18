@@ -9,7 +9,7 @@ import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
 import { getConfig, login } from '../ipcCommunication/ipcCommon'
-import { getChatRoomList, sendChatMessage } from '../ipcCommunication/ipcMessage'
+import { getChatRoomList, sendChatMessage, getChatList } from '../ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")
 const { remote } = window.require("electron")
@@ -35,6 +35,8 @@ function FuncTestPage2() {
 
   const [targetUserIds, setTargetUserIds] = useState("proju,bucky2,smileajw1004");
   const [chatRoomId, setChatRoomId] = useState("bslee_40b431b5fea09b109bb25e57379646fe");
+  const [lastLineKey, setLastLineKey] = useState("1600333476156745"); //9999999999999999
+
   const [chatMessage, setChatMessage] = useState("Hello Chat");
 
   const [isNewChat, setIsNewChat] = useState(true);
@@ -110,6 +112,14 @@ function FuncTestPage2() {
 
   const handleJoinChat = (e) => {
     setIsNewChat(false);
+  }
+
+  const handleGetChatList = (e) => {
+    getChatList(chatRoomId, lastLineKey, 100).then(function (resData) {
+      console.log('Promiss getChatRoomList res', resData);
+
+    }).catch(function (err) {
+    });;
   }
 
   const handleSendChatMessage = (e) => {
@@ -197,8 +207,20 @@ function FuncTestPage2() {
                 placeholder={chatRoomId}
                 onChange={(e) => setChatRoomId(e.target.value)}
               />
+              <InputGroup.Prepend>
+                <InputGroup.Text id="chatRoomId">LineKey</InputGroup.Text>
+              </InputGroup.Prepend>
+              <FormControl
+                aria-label="Default"
+                aria-describedby="inputGroup-sizing-default"
+                placeholder={lastLineKey}
+                onChange={(e) => setLastLineKey(e.target.value)}
+              />
               <InputGroup.Append>
                 <Button variant="outline-secondary" onClick={handleJoinChat}>대화참여</Button>
+              </InputGroup.Append>
+              <InputGroup.Append>
+                <Button variant="outline-secondary" onClick={handleGetChatList}>대화리스트</Button>
               </InputGroup.Append>
             </InputGroup>
           </Col>

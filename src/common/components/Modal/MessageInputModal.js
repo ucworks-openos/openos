@@ -15,6 +15,7 @@ import {
 import { searchUsers } from "../../../components/ipcCommunication/ipcCommon";
 import styled from "styled-components";
 import { arrayLike } from "../../util";
+import "./MessageInputModal.css";
 
 function MessageInputModal(props) {
   const dispatch = useDispatch();
@@ -54,14 +55,53 @@ function MessageInputModal(props) {
     setTitle(event.currentTarget.value);
   };
 
-  // const onSendToChange = (selectedItems) => {
-  //     let newSendTo = [];
-  //     selectedItems && selectedItems.map(item => {
-  //         newSendTo.push(item.label)
-  //     })
-  //     setSelectedUsers(selectedItems)
-  //     setSendTo(newSendTo)
-  // }
+  // SearchUser
+  const handleSearchUser = async (e) => {
+    let result = await searchUsers(searchMode, searchText);
+    let isAlreadySelectedUser;
+    //검색으로 나온 유저가 없을 때
+    if (result.data.root_node !== "") {
+      let searchedUsers = result.data.root_node.node_item;
+      //검색으로 나온 유저들 1명이상일 때
+      if (searchedUsers.length > 1) {
+        //이미 선택되어 있는 사람이 없을 때는 검색으로 나온 유저를 다 넣어주기
+        if (selectedUsers.length === 0) {
+          setSelectedUsers(searchedUsers);
+          setSearchText("");
+          //이미 선택되어 있는 사람이 있을 때
+        } else {
+          let arr1 = selectedUsers;
+          let arr2 = searchedUsers;
+          //두개의 배열을 합친 다음에 겹치는 것들을 지우기
+          let arr3 = arr1.concat(
+            arr2.filter(
+              ({ user_id }) =>
+                !arr1.find((f) => f.user_id.value === user_id.value)
+            )
+          );
+          setSelectedUsers(arr3);
+          setSearchText("");
+        }
+        //검색으로 나온 유저가 1명일 때
+      } else {
+        isAlreadySelectedUser =
+          selectedUsers.filter(
+            (user) =>
+              user.user_id.value ===
+              result.data.root_node.node_item.user_id.value
+          ).length !== 0;
+        if (isAlreadySelectedUser) {
+          return alert("이미 체크 된 유저 입니다.");
+        } else {
+          setSelectedUsers([...selectedUsers, result.data.root_node.node_item]);
+          setSearchText("");
+        }
+      }
+      //검색으로 나온 유저가 없을때
+    } else {
+      alert("검색어에 맞는 분이 없습니다.");
+    }
+  };
 
   // SearchUser
   const handleSearchUser = async (e) => {
@@ -101,12 +141,19 @@ function MessageInputModal(props) {
     props.closeModalFunction();
   };
 
-  const onDeleteCheckedMemberClick = (targetedUser) => {
-    let newSelectedUsers = selectedUsers.filter(
-      (user) => user.user_id.value !== targetedUser
-    );
-    setSelectedUsers(newSelectedUsers);
-  };
+  const renderCheckedMember = () =>
+    selectedUsers &&
+    selectedUsers.map((user) => (
+      <div
+        class="to-ppl-added-single"
+        key={user.user_id.value}
+        onClick={() => onDeleteCheckedMemberClick(user.user_id.value)}
+      >
+        {" "}
+        {user.user_name.value}
+        <button class="remove-ppl-added"></button>
+      </div>
+    ));
 
   const renderCheckedMember = () =>
     selectedUsers?.map((user) => {
@@ -122,101 +169,64 @@ function MessageInputModal(props) {
     });
 
   return (
-    <>
-      <div>
-        <InputGroup>
-          <DropdownButton
-            as={InputGroup.Prepend}
-            variant="outline-secondary"
-            title={searchMode}
-            id="input-group-dropdown-1"
-            onSelect={setSearchMode}
-          >
-            <Dropdown.Item eventKey="ALL" active>
-              ALL
-            </Dropdown.Item>
-            <Dropdown.Item eventKey="PHONE">PHONE</Dropdown.Item>
-            <Dropdown.Item eventKey="IPPHONE">IPPHONE</Dropdown.Item>
-            <Dropdown.Item eventKey="MOBILE">MOBILE</Dropdown.Item>
-            <Dropdown.Divider />
-          </DropdownButton>
-          <FormControl
-            aria-label="Default"
-            aria-describedby="inputGroup-sizing-default"
-            placeholder="이름은 입력해주세요"
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-          <InputGroup.Append>
-            <Button variant="outline-secondary" onClick={handleSearchUser}>
-              추가
-            </Button>
-          </InputGroup.Append>
-        </InputGroup>
+    <div>
+      <h5 class="modal-title write-message">쪽지 쓰기</h5>
+      <div class="write-row to-ppl-wrap">
+        <input
+          type="text"
+          onChange={(e) => setSearchText(e.target.value)}
+          class="to-ppl"
+          placeholder="받는 사람의 이름을 입력한 후 + 버튼을 눌러주세요"
+        />
+        <button class="add-ppl" onClick={handleSearchUser} value=""></button>
+      </div>
 
-        {/* <ReactSelect selectValue={selectedUsers} selectLists={userLists} onChange={onSendToChange} value={title} /> */}
-      </div>
-      <br />
-      {selectedUsers?.length > 0 && (
-        <>
-          <CheckedMemberWrapper>{renderCheckedMember()}</CheckedMemberWrapper>
-          <br />
-        </>
+      {selectedUsers.length > 0 && (
+        <div class="write-row to-ppl-added">{renderCheckedMember()}</div>
       )}
-      <div>
-        <InputGroup className="mb-3">
-          <InputGroup.Prepend>
-            <InputGroup.Text
-              placeholder="쪽지의 이름을 입력해주세요."
-              id="inputGroup-sizing-default"
-            >
-              이름
-            </InputGroup.Text>
-          </InputGroup.Prepend>
-          <FormControl
-            onChange={onTitleChange}
-            value={title}
-            aria-label="Default"
-            aria-describedby="inputGroup-sizing-default"
-          />
-        </InputGroup>
+
+      <div class="write-row subject-wrap">
+        <input
+          type="text"
+          class="subject"
+          onChange={onTitleChange}
+          value={title}
+          placeholder="쪽지 제목을 입력해주세요"
+        />
       </div>
-      <div>
-        <div>
-          <QuillEditor
-            placeholder={"쪽지를 입력해주세요."}
-            onEditorChange={onEditorChange}
-            onFilesChange={onFilesChange}
-          />
-          <br />
-          <Button variant="outline-primary" type="submit" onClick={onSubmit}>
-            전송
-          </Button>{" "}
-          <Button variant="outline-danger" onClick={props.closeModalFunction}>
-            닫기
-          </Button>
+
+      <QuillEditor
+        placeholder={"쪽지 내용을 입력해주세요."}
+        onEditorChange={onEditorChange}
+        onFilesChange={onFilesChange}
+      />
+      <br />
+      <div class="write-row add-file-wrap">
+        <div class="add-file-title">첨부파일(1)</div>
+        <label for="btn-add-file" class="label-add-file btn-solid-s">
+          첨부하기
+        </label>
+        <input type="file" id="btn-add-file" class="btn-add-file" />
+      </div>
+
+      <div class="attatched-file-wrap">
+        <div class="attatched-file-row">
+          <i class="icon-attatched-file"></i>
+          <div class="label-attatched-file-name">02_asset_bmp.zip (100Mb)</div>
+          <div class="btn-attatched-file-name-remove">삭제</div>
         </div>
       </div>
-    </>
+
+      <div class="modal-btn-wrap">
+        <div class="btn-ghost-s cancel" onClick={props.closeModalFunction}>
+          취소하기
+        </div>
+        <div class="btn-solid-s submit" type="submit" onClick={onSubmit}>
+          전송하기
+        </div>
+      </div>
+    </div>
   );
 }
 
 export default MessageInputModal;
-
-const CheckedMemberWrapper = styled.div`
-  display: flex;
-  flex-grow: 1;
-  padding: 1rem 0;
-  width: 100%;
-  flex-wrap: wrap;
-`;
-
-const CheckedMember = styled.div`
-  object-fit: contain;
-  border-radius: 14px;
-  border: solid 1px black;
-  padding: 0.2rem 1rem 0.4rem;
-  margin: 0 0.5rem;
-  word-break: keep-all;
-  margin-bottom: 5px;
-  cursor: pointer;
-`;
