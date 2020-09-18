@@ -18,9 +18,9 @@ import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 import { arrayLike, convertToUser } from "../../common/util";
 import { Efavorite, EnodeGubun } from "../../enum";
-import useStatusListener from "../../hooks/useStatusListener";
+import useStateListener from "../../hooks/useStateListener";
 
-let _orgCode = ``;
+let _orgCode: string = ``;
 
 export default function OrganizationPage() {
   const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
@@ -35,7 +35,26 @@ export default function OrganizationPage() {
     setSearchResult,
   } = useSearch({ type: `organization` });
   const [selectedNode, setSelectedNode] = useState<TTreeNode | string[]>([]);
-  useStatusListener();
+  const targetInfo = useStateListener();
+
+  useEffect(() => {
+    const initiate = async () => {
+      const [targetId, state, connectType] = targetInfo;
+      const replica = [...treeData];
+      const { v: target, i: targetI, list: targetList } = await find(
+        replica,
+        targetId
+      );
+      targetList?.splice(targetI, 1, {
+        ...target,
+        userState: Number(state),
+        connectType: connectType,
+      });
+      setTreeData(replica);
+    };
+    initiate();
+  }, [targetInfo]);
+
   useEffect(() => {
     const getRoot = async () => {
       const {
@@ -61,6 +80,7 @@ export default function OrganizationPage() {
         v.node_item.reduce((prev: any, cur: any, i: number): TTreeNode => {
           // 암묵적으로 node_item의 첫번째 인자는 루트 노드임을 가정한다.
           if (i === 0) {
+            _orgCode = cur.org_code?.value;
             return {
               title: cur.group_name?.value,
               key: cur.group_seq?.value,
@@ -112,12 +132,11 @@ export default function OrganizationPage() {
       // root_node를 순회하며 최상위 키만 뽑아온다.
       const rootKeys = root.map((v: any) => v.key);
       // 모든 root_node는 하나의 org_code를 공유한다고 가정한다?
-      const orgCode = root[0].orgCode;
-
+      console.log(`root: `, root);
       setTreeData(root);
+
       setExpandedKeys(rootKeys);
       setStatusMonitor(monitorIds);
-      _orgCode = orgCode!;
     };
     !treeData.length && getRoot();
   }, []);
@@ -135,7 +154,6 @@ export default function OrganizationPage() {
       ?.filter((_: any, i: number) => i !== 0)
       .map((v: any) => {
         const defaultProps = {
-          key: v.group_seq.value,
           gubun: v.gubun.value,
           groupParentId: v.group_parent_id.value,
           groupSeq: v.group_seq.value,
@@ -144,6 +162,7 @@ export default function OrganizationPage() {
 
         if (v.gubun.value === EnodeGubun.ORGANIZATION_USER) {
           const userProps = {
+            key: v.user_id?.value,
             title: v.user_name?.value,
             ...convertToUser(v),
           };
@@ -151,6 +170,7 @@ export default function OrganizationPage() {
         } else {
           // 부서
           const departmentProps = {
+            key: v.group_seq.value,
             children: [],
             title: v.group_name?.value,
             groupCode: v.group_code.value,
@@ -247,10 +267,6 @@ export default function OrganizationPage() {
     }
   };
 
-  useEffect(() => {
-    console.log(`searchResult: `, searchResult);
-  });
-
   // attach children
   const attach = (
     prev: TTreeNode[],
@@ -283,7 +299,7 @@ export default function OrganizationPage() {
         return;
         // if the node yet to load chilren, execute axios call.
       }
-      const { v } = await find(treeData, Number(e.key));
+      const { v } = await find(treeData, e.key);
       const children = await getChild(v.groupCode!);
       // update tree
       setTreeData(attach(treeData, Number(e.key), children));
@@ -295,11 +311,11 @@ export default function OrganizationPage() {
   // list is lexically binded with treedata
   const find = (
     list: TTreeNode[],
-    key: number
+    key: number | string
   ): Promise<{ v: TTreeNode; i: number; list: TTreeNode[] }> =>
     new Promise((resolve) => {
       for (let i = 0; i < list.length; i++) {
-        if (Number(list[i].key) === Number(key)) {
+        if (list[i].key === key) {
           resolve({ v: list[i], i: i, list: list });
         }
         if (list[i].children) {

@@ -18,7 +18,7 @@ import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 import { arrayLike, convertToUser } from "../../common/util";
 import { Efavorite, EnodeGubun } from "../../enum";
-import useStatusListener from "../../hooks/useStatusListener";
+import useStateListener from "../../hooks/useStateListener";
 
 export default function FavoritePage() {
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
@@ -44,7 +44,25 @@ export default function FavoritePage() {
   } = useTree({
     type: `favorite`,
   });
-  useStatusListener();
+  const targetInfo = useStateListener();
+
+  useEffect(() => {
+    const initiate = async () => {
+      const [targetId, state, connectType] = targetInfo;
+      const replica = [...treeData];
+      const { v: target, i: targetI, list: targetList } = await find(
+        replica,
+        targetId
+      );
+      targetList?.splice(targetI, 1, {
+        ...target,
+        userState: Number(state),
+        connectType: connectType,
+      });
+      setTreeData(replica);
+    };
+    initiate();
+  }, [targetInfo]);
 
   type TgetBuddyTreeReturnTypes = {
     buddyTree: TTreeNode[];
@@ -75,9 +93,14 @@ export default function FavoritePage() {
           items: { node_item: userSchemaMaybeArr },
         },
       } = await getUserInfos(userIds);
+      //
+      //
+      // 버그 발견!! getUserInfos 결과값이 다르게 들어옴!
+      //
+      //
+      //
       // 사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
       const userSchema = arrayLike(userSchemaMaybeArr);
-      console.log(`userSchema: `, userSchema);
       // 즐겨찾기 트리 생성
       const root = response.reduce((prev: TTreeNode[], cur: any, i: number) => {
         // pid (parent id)가 없을 경우 최상위 노드의 자식에 삽입
@@ -126,10 +149,6 @@ export default function FavoritePage() {
     !treeData.length && initiate();
   }, []);
 
-  useEffect(() => {
-    console.log(`treeData: `, treeData);
-  });
-
   // 재귀함수 (children에 하위 노드 삽입)
   const append = (
     prev: TTreeNode[],
@@ -169,7 +188,7 @@ export default function FavoritePage() {
                 key: child.id,
                 gubun: child.gubun,
                 pid: child.pid,
-                ...convertToUser(userV),
+                ...(userV && convertToUser(userV)),
               },
             ],
           };

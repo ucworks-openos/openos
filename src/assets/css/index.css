@@ -519,8 +519,14 @@ a:hover,
 .user-state.inMeeting {
   background-color: #787aff;
 }
-.user-state.offline {
-  background-color: #333;
+.user-state.offline1 {
+  background-color: #fff;
+}
+.user-state.offline2 {
+  background-color: #fff;
+}
+.user-state.offline3 {
+  background-color: #fff;
 }
 
 .user-name {

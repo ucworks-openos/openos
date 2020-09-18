@@ -69,7 +69,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
                 onError={handleImageError}
               />
               <div
-                className={`user-state ${EuserState[data?.userState]}`}
+                className={`user-state ${EuserState[Number(data?.userState)]}`}
               ></div>
               {visible && (
                 <div className="user-info-container">
@@ -89,7 +89,9 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
                       />
                     </div>
                     <div
-                      className={`user-state ${EuserState[data?.userState]}`}
+                      className={`user-state ${
+                        EuserState[Number(data?.userState)]
+                      }`}
                     ></div>
                   </div>
                   <div className="user-info-wrap">

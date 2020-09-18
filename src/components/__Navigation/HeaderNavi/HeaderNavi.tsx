@@ -6,7 +6,7 @@ import {
   changeStatus,
   getUserInfos,
 } from "../../ipcCommunication/ipcCommon";
-import { convertToUser } from "../../../common/util";
+import { convertToUser, delay } from "../../../common/util";
 import { EuserState } from "../../../enum";
 
 export default function HeaderNavi() {
@@ -24,6 +24,7 @@ export default function HeaderNavi() {
 
   useEffect(() => {
     const initiate = async () => {
+      await delay();
       const profile = await getProfile(sessionStorage.getItem(`loginId`)!);
       console.log(`my profile: `, profile);
       setMyInfo(profile);
@@ -124,7 +125,9 @@ export default function HeaderNavi() {
               onError={handleImageError}
             />
           </div>
-          <div className={`user-state ${EuserState[myInfo.userState]}`}></div>
+          <div
+            className={`user-state ${EuserState[Number(myInfo.userState)]}`}
+          ></div>
         </div>
         {avatarDropDownIsOpen && (
           <div className="user-profile-dropdown-wrap">
@@ -144,7 +147,7 @@ export default function HeaderNavi() {
                 />
               </div>
               <div
-                className={`user-state ${EuserState[myInfo.userState]}`}
+                className={`user-state ${EuserState[Number(myInfo.userState)]}`}
               ></div>
             </div>
             <div className="user-owner sub1">MY</div>
