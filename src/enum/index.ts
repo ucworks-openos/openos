@@ -11,14 +11,16 @@ export enum EnodeGubun {
 }
 
 export enum EuserState {
-  online,
-  absence,
-  otherWork,
-  workingOutside,
-  onCall,
-  atTable,
-  inMeeting,
-  offline,
+  offline1 = 0,
+  online = 1,
+  absence = 2,
+  otherWork = 3,
+  workingOutside = 4,
+  onCall = 5,
+  atTable = 6,
+  inMeeting = 7,
+  offline2 = 8,
+  offline3 = 9,
 }
 
 export enum EconnectType {

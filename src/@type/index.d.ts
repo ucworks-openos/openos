@@ -1,4 +1,5 @@
 import { Interface } from "readline";
+import { Efavorite, EnodeGubun, EuserState } from "../enum";
 
 declare global {
   type TTreeNode = TTreeDefault & TUser;

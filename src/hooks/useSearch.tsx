@@ -20,7 +20,9 @@ type TuseSearchProps = {
   type: `organization` | `favorite`;
 };
 
-export default function useTree(props: TuseSearchProps): TuseSearchReturnTypes {
+export default function useSearch(
+  props: TuseSearchProps
+): TuseSearchReturnTypes {
   const { type } = props;
   const states: TOrganizationSearchState & TFavoriteSearchState = useSelector(
     (state: RootState) => state.search

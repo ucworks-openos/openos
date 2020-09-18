@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import "./FavoritePage.css";
 import "../../assets/css/Tree.scss";
@@ -17,15 +17,22 @@ import {
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 import { arrayLike, convertToUser } from "../../common/util";
-import { Efavorite, EnodeGubun } from "../../enum";
-import useStatusListener from "../../hooks/useStatusListener";
+import { EconnectType, Efavorite, EnodeGubun } from "../../enum";
+import useStateListener from "../../hooks/useStateListener";
+import MessageInputModal from "../../common/components/Modal/MessageInputModal";
 
 export default function FavoritePage() {
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
     false
   );
-  const [isAddGroupModalOpen, setIsAddGroupModalOpen] = useState(false);
-  const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState(false);
+
+  const [messageModalVisible, setMessageModalVisible] = useState<boolean>(
+    false
+  );
+  const [addGroupModalVisible, setAddGroupModalVisible] = useState<boolean>(
+    false
+  );
+  const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState<boolean>(false);
   const {
     searchMode,
     searchKeyword,
@@ -44,7 +51,34 @@ export default function FavoritePage() {
   } = useTree({
     type: `favorite`,
   });
-  useStatusListener();
+  const targetInfo = useStateListener();
+
+  const connectTypeConverter = (connectTypeBundle: string) => {
+    const connectTypeMaybeArr = connectTypeBundle
+      ? connectTypeBundle.split(`|`)
+      : ``;
+
+    const connectType = arrayLike(connectTypeMaybeArr);
+    return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
+  };
+
+  useEffect(() => {
+    const initiate = async () => {
+      const [targetId, state, connectType] = targetInfo;
+      const replica = [...treeData];
+      const { v: target, i: targetI, list: targetList } = await find(
+        replica,
+        targetId
+      );
+      targetList?.splice(targetI, 1, {
+        ...target,
+        userState: Number(state),
+        connectType: connectTypeConverter(connectType),
+      });
+      setTreeData(replica);
+    };
+    initiate();
+  }, [targetInfo]);
 
   type TgetBuddyTreeReturnTypes = {
     buddyTree: TTreeNode[];
@@ -77,7 +111,6 @@ export default function FavoritePage() {
       } = await getUserInfos(userIds);
       // 사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
       const userSchema = arrayLike(userSchemaMaybeArr);
-      console.log(`userSchema: `, userSchema);
       // 즐겨찾기 트리 생성
       const root = response.reduce((prev: TTreeNode[], cur: any, i: number) => {
         // pid (parent id)가 없을 경우 최상위 노드의 자식에 삽입
@@ -126,10 +159,6 @@ export default function FavoritePage() {
     !treeData.length && initiate();
   }, []);
 
-  useEffect(() => {
-    console.log(`treeData: `, treeData);
-  });
-
   // 재귀함수 (children에 하위 노드 삽입)
   const append = (
     prev: TTreeNode[],
@@ -169,7 +198,7 @@ export default function FavoritePage() {
                 key: child.id,
                 gubun: child.gubun,
                 pid: child.pid,
-                ...convertToUser(userV),
+                ...(userV && convertToUser(userV)),
               },
             ],
           };
@@ -218,6 +247,10 @@ export default function FavoritePage() {
     return list;
   };
 
+  const toggleMessageModalVisible = () => {
+    setMessageModalVisible((prev: boolean) => !prev);
+  };
+
   const handleSearch = (e: any) => {
     const which = e.which;
     const keyword = e.target.value;
@@ -258,6 +291,7 @@ export default function FavoritePage() {
 
   const handleSelect = async ([selectedKeys]: (string | number)[]) => {
     const { v } = await find(treeData, selectedKeys?.toString());
+    console.log(`selected Node: `, v);
     setSelectedNode(v);
   };
 
@@ -346,12 +380,34 @@ export default function FavoritePage() {
     return data.map((item, i) => {
       if (item.children) {
         return (
-          <TreeNode {...item} title={<Node data={item} index={i} />}>
+          <TreeNode
+            {...item}
+            title={
+              <Node
+                data={item}
+                index={i}
+                toggle={toggleMessageModalVisible}
+                setSelectedNode={setSelectedNode}
+              />
+            }
+          >
             {renderTreeNodes(item.children)}
           </TreeNode>
         );
       }
-      return <TreeNode {...item} title={<Node data={item} index={i} />} />;
+      return (
+        <TreeNode
+          {...item}
+          title={
+            <Node
+              data={item}
+              index={i}
+              toggle={toggleMessageModalVisible}
+              setSelectedNode={setSelectedNode}
+            />
+          }
+        />
+      );
     });
   };
 
@@ -361,11 +417,11 @@ export default function FavoritePage() {
 
   const AddGroupModalOpen = () => {
     setIsHamburgerButtonClicked(false);
-    setIsAddGroupModalOpen(true);
+    setAddGroupModalVisible(true);
   };
 
   const AddGroupModalClose = () => {
-    setIsAddGroupModalOpen(false);
+    setAddGroupModalVisible(false);
   };
 
   const EditGroupTabOpen = () => {
@@ -627,13 +683,24 @@ export default function FavoritePage() {
       <SignitureCi />
 
       <Modal
-        isOpen={isAddGroupModalOpen}
+        isOpen={addGroupModalVisible}
         onRequestClose={AddGroupModalClose}
         style={addGroupModalCustomStyles}
       >
         <AddGroupModal
-          show={isAddGroupModalOpen}
+          show={addGroupModalVisible}
           closeModalFunction={AddGroupModalClose}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={messageModalVisible}
+        onRequestClose={toggleMessageModalVisible}
+        style={messageModalCustomStyles}
+      >
+        <MessageInputModal
+          closeModalFunction={toggleMessageModalVisible}
+          selectedNode={selectedNode}
         />
       </Modal>
     </div>
@@ -641,6 +708,18 @@ export default function FavoritePage() {
 }
 
 Modal.setAppElement("#root");
+
+const messageModalCustomStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+  },
+  overlay: { zIndex: 1000 },
+};
 
 const addGroupModalCustomStyles = {
   content: {

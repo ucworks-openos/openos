@@ -10,6 +10,7 @@ import { Button, InputGroup, FormControl, Col, DropdownButton, Dropdown } from '
 import { searchUsers } from '../../../components/ipcCommunication/ipcCommon'
 import styled from 'styled-components';
 import './MessageInputModal.css';
+import { getInitialChatMessages } from '../../../redux/actions/chat_actions';
 
 function MessageInputModal(props) {
     const dispatch = useDispatch();
@@ -20,6 +21,22 @@ function MessageInputModal(props) {
     const [selectedUsers, setSelectedUsers] = useState([])
     const [searchMode, setSearchMode] = useState('ALL');
     const [searchText, setSearchText] = useState('');
+
+    useEffect(() => {
+        const initiate = () => {
+            console.log(`selectedNode: `, props.selectedNode);
+            const extracted = {
+                user_id: {
+                    value: props.selectedNode.userId,
+                }, 
+                user_name: {
+                    value: props.selectedNode.userName,
+                }
+            }
+            setSelectedUsers([extracted]);
+        }
+        initiate();
+    }, [props.selectedNode])
 
     const onEditorChange = (value) => {
         setContent(value)
