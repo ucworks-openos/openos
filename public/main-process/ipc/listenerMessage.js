@@ -120,16 +120,16 @@ ipcMain.on('notiTitleClick', async (event, notiType, notiId) => {
 
 
 // getChatList
-ipcMain.on('getChatList', async (event, msgKey) => {
+ipcMain.on('getChatList', async (event, roomId, lastLineKey = '9999999999999999', rowLimit = 30) => {
   
-  // fetchAPI.getChatList(msgKey).then(function(resData)
-  // {
-  //   sendLog('[IPC] getChatList res:', resData)
-  //   event.reply('res-getChatList', resData);
-  // }).catch(function(err) {
-  //   sendLog('[IPC] getChatList res  Err:', err)
-  //   event.reply('res-getChatList', new ResData(false, err));
-  // });
+  fetchAPI.reqGetChatList(roomId, lastLineKey = '9999999999999999', rowLimit = 100).then(function(resData)
+  {
+    sendLog('[IPC] getChatList res:', resData)
+    event.reply('res-getChatList', resData);
+  }).catch(function(err) {
+    sendLog('[IPC] getChatList res  Err:', err)
+    event.reply('res-getChatList', new ResData(false, err));
+  });
 });
 
 

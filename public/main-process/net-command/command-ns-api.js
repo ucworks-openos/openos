@@ -8,7 +8,7 @@ const BufferUtil = require('../utils/utils-buffer');
 const CryptoUtil = require('../utils/utils-crypto');
 const nsCore = require('../net-core/network-ns-core');
 const { adjustBufferMultiple4, getMultiple4Size } = require('../utils/utils-buffer');
-const { MSG_GUBUN } = require('../common/common-const');
+const { MSG_GUBUN, MSG_DATA_TYPE, DATE_FORMAT } = require('../common/common-const');
 
 /**
  * 연결을 종료합니다.
@@ -141,11 +141,11 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
 
 
         keyBuf.write(OsUtil.getUUID(), global.ENC);
-        gubunBuf.write(CmdConst.MSG_COMMON_DATA, global.ENC);
+        gubunBuf.write(MSG_DATA_TYPE.COMMON, global.ENC);
         subjectBuf.write(subject, global.ENC);
         sendIdBuf.write(global.USER.userId, global.ENC);
         sendNameBuf.write(global.USER.userName, global.ENC);
-        sendDateBuf.write(OsUtil.getDateString(CmdConst.DATE_FORMAT_YYYYMMDDHHmmssSSS), global.ENC)  //yyyymmddhhnnsszzz
+        sendDateBuf.write(OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS), global.ENC)  //yyyymmddhhnnsszzz
         resGubunBuf.writeInt32LE(CmdConst.MSG_ALERT);
         destNameSizeBuf.writeInt32LE(destNamesBuf.length)
         destIdSizeBuf.writeInt32LE(destIdsBuf.length);
@@ -442,7 +442,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message) {
         let unreadCountBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
         unreadCountBuf.writeInt32LE(1);
 
-        let sendDate = OsUtil.getDateString(CmdConst.DATE_FORMAT_YYYYMMDDHHmmssSSS);
+        let sendDate = OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
         let sendDateBuf = Buffer.alloc(CmdConst.BUF_LEN_DATE);
         sendDateBuf.write(sendDate, global.ENC);
         let ipBuf = Buffer.alloc(CmdConst.BUF_LEN_IP);

@@ -10,6 +10,7 @@ const CmdConst = require('./command-const');
 const SqlConst = require('./command-const-sql');
 const fetchCore = require('../net-core/network-fetch-core');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
+const { DATE_FORMAT } = require('../common/common-const');
 
 /**
  * 서버로 접속요청 합니다.
@@ -33,7 +34,7 @@ function close() {
  * 쪽지목록 조회
  */
 function reqMessageList(msgType, rowOffset = 0, rowLimit = 100) {
-    let queryKey = 'GET_MSG_LIST_' + msgType + '_' + global.USER.userId + '_' + OsUtil.getDateString(CmdConst.DATE_FORMAT_YYYYMMDDHHmmssSSS);
+    let queryKey = 'GET_MSG_LIST_' + msgType + '_' + global.USER.userId + '_' + OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
 
     let query = ''
     switch(msgType) {
@@ -67,7 +68,7 @@ function reqMessageList(msgType, rowOffset = 0, rowLimit = 100) {
 function reqGetMessageDetail(msgKey) {
     return new Promise(async function(resolve, reject) {
             
-        let queryKey = 'GET_MSG_LIST_MSG_ALL_' + global.USER.userId + '_' + OsUtil.getDateString(CmdConst.DATE_FORMAT_YYYYMMDDHHmmssSSS);
+        let queryKey = 'GET_MSG_LIST_MSG_ALL_' + global.USER.userId + '_' + OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
         let query = SqlConst.SQL_select_tbl_message_msg_key_from_server;
         query = query.replace(':MSG_KEY:', msgKey);
         
@@ -105,11 +106,26 @@ function reqGetMessageDetail(msgKey) {
  */
 function reqChatRoomList( rowOffset = 0, rowLimit = 100) {
     
-    let queryKey = 'GET_CHAT_COLLRECT_' + global.USER.userId + '_' + OsUtil.getDateString(CmdConst.DATE_FORMAT_YYYYMMDDHHmmssSSS);
+    let queryKey = 'GET_CHAT_COLLRECT_' + global.USER.userId + '_' + OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
     let query = SqlConst.SQL_select_tbl_chat_collect_server;
     query = query.replace(':USER_ID:', global.USER.userId);
     query = query.replace(':ROW_LIMIT:', rowLimit);
     query = query.replace(':ROW_OFFSET:', rowOffset);
+    
+    return selectToServer(query, queryKey)
+}
+
+/**
+ * 이전대화 목록 조회
+ */
+function reqGetChatList(roomId, lastLineKey = '9999999999999999', rowLimit = 30) {
+    
+    let queryKey = 'GET_TBL_CHAT_RECV_LINE_' + global.USER.userId + '_' + OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
+    let query = SqlConst.SQL_select_tbl_chat_recv_line_server_redis;
+    query = query.replace(':CHAT_USER_ID:', global.USER.userId);
+    query = query.replace(':ROOM_KEY:', roomId);
+    query = query.replace(':LINE_KEY:', lastLineKey);
+    query = query.replace(':ROW_LIMIT:', rowLimit);
     
     return selectToServer(query, queryKey)
 }
@@ -171,5 +187,6 @@ module.exports = {
     reqMessageList: reqMessageList,
     reqGetMessageDetail: reqGetMessageDetail,
     reqChatRoomList: reqChatRoomList,
+    reqGetChatList: reqGetChatList,
     close: close
 }
