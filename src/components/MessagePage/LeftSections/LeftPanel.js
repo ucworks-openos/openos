@@ -68,6 +68,9 @@ const CustomStyles = {
         right: "auto",
         bottom: "auto",
         marginRight: "-50%",
+        minWidth:"460px",
+        height:'auto',
+        padding:'24px 24px 40px',
         transform: "translate(-50%, -50%)",
     }, overlay: { zIndex: 1000 }
 };

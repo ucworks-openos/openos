@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import ChatRoomLists from './ChatRooms';
 import Modal from "react-modal";
-import ChatInputModal from '../../../common/components/Modal/ChatInputModal';
+import ChatInvitationModal from '../../../common/components/Modal/ChatInvitationModal';
 
 function LeftPanel() {
     const [isOpenChatInputModal, setIsOpenChatInputModal] = useState(false)
@@ -39,7 +39,7 @@ function LeftPanel() {
                 onRequestClose={ChatInputModalClose}
                 style={CustomStyles}
             >
-                <ChatInputModal
+                <ChatInvitationModal
                     closeModalFunction={ChatInputModalClose}
                 />
             </Modal>

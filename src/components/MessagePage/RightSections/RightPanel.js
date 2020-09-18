@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import MessageContent from "./MessageContent";
 import { useDispatch, useSelector } from 'react-redux';
-
+import MessageFiles from './MessageFiles';
 function RightPanel() {
 
     const message = useSelector(state => state.messages.message)
@@ -23,6 +23,8 @@ function RightPanel() {
             </div>
 
             <MessageContent />
+
+            <MessageFiles />
         </main>
     )
 }

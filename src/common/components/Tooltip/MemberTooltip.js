@@ -7,18 +7,15 @@ function MemberTooltip({ userIds, RecvCounts }) {
 
     useEffect(() => {
         let convertedUserIds = userIds.split('|')
-        if (convertedUserIds.length < 50) {
-            getUserInfos(convertedUserIds).then(function (results) {
-                if (results.data.items && results.data.items.node_item !== "") {
-                    setUserInfos(Array.isArray(results.data.items.node_item) ? results.data.items.node_item : [results.data.items.node_item])
-                }
-            });
-        }
+        getUserInfos(convertedUserIds).then(function (results) {
+            if (results.data.items && results.data.items.node_item !== "") {
+                setUserInfos(Array.isArray(results.data.items.node_item) ? results.data.items.node_item : [results.data.items.node_item])
+            }
+        });
     }, [userIds])
 
     const renderUserItem = userInfos && userInfos.map(user => (
-        <li class="user-single" key={user.user_id}>
-            {console.log('user', user)}
+        <li class="user-single" key={user.user_id.value}>
             <div class="user-profile-state-wrap">
                 <div class="user-pic-wrap">
                     <img src={user.user_picture_post ? user.user_picture_post.value : '/images/img_imgHolder.png'} alt="user-profile-picture" />
@@ -27,12 +24,11 @@ function MemberTooltip({ userIds, RecvCounts }) {
             </div>
             <div class="to-ppl-user-info-wrap">
                 <div class="row1">
-                    <h6 class="user-name">{user.user_name.value}</h6>
-                    <span class="ppl-position">사원</span>
-                    <span class="user-department">{user.user_group_name.value}</span>
+                    <h6 class="user-name">{user.user_name && user.user_name.value}</h6>
+                    {/* <span class="ppl-position">사원</span> */}
+                    <span class="user-department">{user.user_group_name && user.user_group_name.value}</span>
                 </div>
                 <div class="row2">
-                    <span class="read-info-date">2020-08-23(일) 오후1:00</span>
                     <span class="read-info-state">읽음</span>
                 </div>
             </div>
@@ -40,7 +36,7 @@ function MemberTooltip({ userIds, RecvCounts }) {
     ))
 
     return (
-        <ul class="list-dropdown to-ppl-list">
+        <ul class="list-dropdown to-ppl-list" style={{ maxHeight: '315px', overflowY: 'auto' }}>
             <h6 class="list-dropdown-label">{`수신인 목록(${RecvCounts})`}</h6>
             {renderUserItem}
         </ul>
