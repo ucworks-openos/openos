@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Button, Container, Row, Col } from 'react-bootstrap';
+import InputGroup from 'react-bootstrap/InputGroup'
+import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
 import {getConfig, login} from '../ipcCommunication/ipcCommon'
 import {connectDS, upgradeCheck, testAction} from '../ipcCommunication/ipcTest'
+import { decryptMessage } from '../ipcCommunication/ipcMessage';
+import { setExpandedKeys } from '../../reducer/tree';
 
 const electron  = window.require("electron")
 
@@ -22,8 +26,12 @@ function NetTestPage() {
   const [netLog, setNetLog] = useState("");
   const [localLog, setLocalLog] = useState("");
 
+  const [encKey, setEncKey] = useState("OTS|1053aa28");
+  const [cipherMsg, setCipherMsg] = useState('a92608b9');
+
   const netLogArea = useRef(null);
   const localLogArea = useRef(null);
+
   
   //initialize
   useEffect(() => {
@@ -115,6 +123,17 @@ function NetTestPage() {
       alert('Login fail! ' + err)
     });;
   }
+
+  const handleDecrypt = (e) => {
+    appendLocalLog("handleDecrypt");
+    decryptMessage(encKey, cipherMsg).then(function(resData){
+
+      appendLocalLog('decryptMessage res : ' + resData);
+
+    }).catch(function(err){
+      appendLocalLog('decryptMessage res Fale: ' + JSON.stringify(err));
+    });;
+  }
  
   // LogClear
   const handleLogClear = (e) => {
@@ -152,6 +171,35 @@ function NetTestPage() {
             <Button onClick={handleLogClear}>
                 clear
             </Button>
+          </Col>
+        </Row>
+
+        {/* DESCRYPT TEST  */}
+        <Row>
+          <Col>
+            <InputGroup >
+              <InputGroup.Prepend>
+                <InputGroup.Text id="userIds">암호키</InputGroup.Text>
+              </InputGroup.Prepend>
+              <FormControl
+                aria-label="Default"
+                aria-describedby="inputGroup-sizing-default"
+                placeholder={encKey}
+                onChange={(e) => setEncKey(e.target.value)}
+              />
+              <InputGroup.Prepend>
+                <InputGroup.Text id="userIds">암호메세지</InputGroup.Text>
+              </InputGroup.Prepend>
+              <FormControl
+                aria-label="Default"
+                aria-describedby="inputGroup-sizing-default"
+                placeholder={cipherMsg}
+                onChange={(e) => setCipherMsg(e.target.value)}
+              />
+              <InputGroup.Append>
+                <Button variant="outline-secondary" onClick={handleDecrypt}>복호화</Button>
+              </InputGroup.Append>
+            </InputGroup>
           </Col>
         </Row>
         <Row xs={1} >
