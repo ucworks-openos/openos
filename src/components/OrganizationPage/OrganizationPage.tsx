@@ -4,6 +4,7 @@ import Tree, { TreeNode } from "rc-tree";
 import styled from "styled-components";
 import "../../assets/css/Tree.scss";
 import { useParams } from "react-router-dom";
+import Modal from "react-modal";
 import Node from "./OrganizationNode";
 import { EventDataNode, DataNode } from "rc-tree/lib/interface";
 import {
@@ -19,6 +20,7 @@ import useSearch from "../../hooks/useSearch";
 import { arrayLike, convertToUser } from "../../common/util";
 import { EconnectType, Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
+import MessageInputModal from "../../common/components/Modal/MessageInputModal";
 
 let _orgCode: string = ``;
 
@@ -36,6 +38,9 @@ export default function OrganizationPage() {
   } = useSearch({ type: `organization` });
   const [selectedNode, setSelectedNode] = useState<TTreeNode | string[]>([]);
   const targetInfo = useStateListener();
+  const [messageModalVisible, setMessageModalVisible] = useState<boolean>(
+    false
+  );
 
   const connectTypeConverter = (connectTypeBundle: string) => {
     const connectTypeMaybeArr = connectTypeBundle
@@ -365,17 +370,43 @@ export default function OrganizationPage() {
     </>
   );
 
+  const toggleMessageModalVisible = () => {
+    setMessageModalVisible((prev: boolean) => !prev);
+  };
+
   // need to be memorized
   const renderTreeNodes = (data: TTreeNode[]) => {
     return data.map((item, index) => {
       if (item.children) {
         return (
-          <TreeNode {...item} title={<Node data={item} index={index} />}>
+          <TreeNode
+            {...item}
+            title={
+              <Node
+                data={item}
+                index={index}
+                toggle={toggleMessageModalVisible}
+                setSelectedNode={setSelectedNode}
+              />
+            }
+          >
             {renderTreeNodes(item.children)}
           </TreeNode>
         );
       }
-      return <TreeNode {...item} title={<Node data={item} index={index} />} />;
+      return (
+        <TreeNode
+          {...item}
+          title={
+            <Node
+              data={item}
+              index={index}
+              toggle={toggleMessageModalVisible}
+              setSelectedNode={setSelectedNode}
+            />
+          }
+        />
+      );
     });
   };
 
@@ -427,9 +458,31 @@ export default function OrganizationPage() {
           )}
         </div>
       </main>
+      <Modal
+        isOpen={messageModalVisible}
+        onRequestClose={toggleMessageModalVisible}
+        style={messageModalCustomStyles}
+      >
+        <MessageInputModal
+          closeModalFunction={toggleMessageModalVisible}
+          selectedNode={selectedNode}
+        />
+      </Modal>
     </div>
   );
 }
+
+const messageModalCustomStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+  },
+  overlay: { zIndex: 1000 },
+};
 
 const Switcher = styled.div`
   background-color: #ebedf1;

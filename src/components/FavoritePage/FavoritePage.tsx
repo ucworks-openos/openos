@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import "./FavoritePage.css";
 import "../../assets/css/Tree.scss";
@@ -700,7 +700,7 @@ export default function FavoritePage() {
       >
         <MessageInputModal
           closeModalFunction={toggleMessageModalVisible}
-          selectedUser={selectedNode.userName}
+          selectedNode={selectedNode}
         />
       </Modal>
     </div>
