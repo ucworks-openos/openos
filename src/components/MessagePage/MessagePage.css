@@ -855,7 +855,7 @@
     border-right: 1px solid #DFE2E8;
     background-color: #f8f9fa;
 }
-.page-title-wrap {
+.message-page-title-wrap {
     position: absolute;
     top: 0;
     left: 0;
@@ -1028,7 +1028,7 @@
     display: inline-block;margin-left: 4px;
 }
 /*쪽지영역*/
-.main-wrap {
+.message-main-wrap {
     position: absolute;
     top: 0;
     left: 360px;

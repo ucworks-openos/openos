@@ -93,12 +93,6 @@ export default function FavoritePage() {
           items: { node_item: userSchemaMaybeArr },
         },
       } = await getUserInfos(userIds);
-      //
-      //
-      // 버그 발견!! getUserInfos 결과값이 다르게 들어옴!
-      //
-      //
-      //
       // 사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
       const userSchema = arrayLike(userSchemaMaybeArr);
       // 즐겨찾기 트리 생성
