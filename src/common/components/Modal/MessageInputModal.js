@@ -46,14 +46,35 @@ function MessageInputModal(props) {
     const handleSearchUser = async (e) => {
         let result = await searchUsers(searchMode, searchText)
         let isAlreadySelectedUser;
+        //검색으로 나온 유저가 없을 때
         if (result.data.root_node !== "") {
-            isAlreadySelectedUser = selectedUsers.filter(user => user.user_id.value === result.data.root_node.node_item.user_id.value).length !== 0
-            if (isAlreadySelectedUser) {
-                return alert('이미 체크 된 유저 입니다.')
+            let searchedUsers = result.data.root_node.node_item
+            //검색으로 나온 유저들 1명이상일 때
+            if (searchedUsers.length > 1) {
+                //이미 선택되어 있는 사람이 없을 때는 검색으로 나온 유저를 다 넣어주기 
+                if (selectedUsers.length === 0) {
+                    setSelectedUsers(searchedUsers)
+                    setSearchText('')
+                    //이미 선택되어 있는 사람이 있을 때
+                } else {
+                    let arr1 = selectedUsers
+                    let arr2 = searchedUsers
+                    //두개의 배열을 합친 다음에 겹치는 것들을 지우기
+                    let arr3 = arr1.concat(arr2.filter(({ user_id }) => !arr1.find(f => f.user_id.value === user_id.value)));
+                    setSelectedUsers(arr3)
+                    setSearchText('')
+                }
+                //검색으로 나온 유저가 1명일 때    
             } else {
-                setSearchText('')
-                setSelectedUsers([...selectedUsers, result.data.root_node.node_item])
+                isAlreadySelectedUser = selectedUsers.filter(user => user.user_id.value === result.data.root_node.node_item.user_id.value).length !== 0
+                if (isAlreadySelectedUser) {
+                    return alert('이미 체크 된 유저 입니다.')
+                } else {
+                    setSelectedUsers([...selectedUsers, result.data.root_node.node_item])
+                    setSearchText('')
+                }
             }
+            //검색으로 나온 유저가 없을때
         } else {
             alert('검색어에 맞는 분이 없습니다.')
         }
