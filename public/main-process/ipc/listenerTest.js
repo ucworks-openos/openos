@@ -15,6 +15,7 @@ const notifier = require('node-notifier');
 const nsAPI = require('../net-command/command-ns-api');
 const commandConst = require('../net-command/command-const');
 const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require('constants');
+const { DATE_FORMAT } = require('../common/common-const');
 
 // testAction
 ipcMain.on('testAction', async (event, ...args) => {
@@ -101,7 +102,7 @@ ipcMain.on('testAction', async (event, ...args) => {
   
   return;
 
-  sendLog('DATE>>', OsUtil.getDateString(commandConst.DATE_FORMAT_YYYYMMDDHHmmssSSS));
+  sendLog('DATE>>', OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS));
 
   //nsAPI.reqGetStatus(1, 'bslee');
   //return;

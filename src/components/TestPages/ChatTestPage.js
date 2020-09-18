@@ -35,6 +35,8 @@ function FuncTestPage2() {
 
   const [targetUserIds, setTargetUserIds] = useState("proju,bucky2,smileajw1004");
   const [chatRoomId, setChatRoomId] = useState("bslee_40b431b5fea09b109bb25e57379646fe");
+  const [lastLineKey, setLastLineKey] = useState("1600333476156745"); //9999999999999999
+
   const [chatMessage, setChatMessage] = useState("Hello Chat");
 
   const [isNewChat, setIsNewChat] = useState(true);
@@ -113,7 +115,7 @@ function FuncTestPage2() {
   }
 
   const handleGetChatList = (e) => {
-    getChatList(chatRoomId, 0, 100).then(function (resData) {
+    getChatList(chatRoomId, lastLineKey, 100).then(function (resData) {
       console.log('Promiss getChatRoomList res', resData);
 
     }).catch(function (err) {
@@ -204,6 +206,15 @@ function FuncTestPage2() {
                 aria-describedby="inputGroup-sizing-default"
                 placeholder={chatRoomId}
                 onChange={(e) => setChatRoomId(e.target.value)}
+              />
+              <InputGroup.Prepend>
+                <InputGroup.Text id="chatRoomId">LineKey</InputGroup.Text>
+              </InputGroup.Prepend>
+              <FormControl
+                aria-label="Default"
+                aria-describedby="inputGroup-sizing-default"
+                placeholder={lastLineKey}
+                onChange={(e) => setLastLineKey(e.target.value)}
               />
               <InputGroup.Append>
                 <Button variant="outline-secondary" onClick={handleJoinChat}>대화참여</Button>

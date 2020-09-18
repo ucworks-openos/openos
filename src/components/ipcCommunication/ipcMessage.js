@@ -40,7 +40,6 @@ export const deleteMessage = async (msgBubun, msgKeys) => {
     });
 }
 
-
 /** getChatRoomList */
 export const getChatRoomList = async (rowOffset = 0, rowLimit = 100) => {
   return new Promise(function(resolve, reject) {
@@ -63,13 +62,22 @@ export const sendChatMessage = async (chatUserIds, chatMessage, roomKey = null) 
 
 
 /** getChatList */
-export const getChatList = async (roomId, rowOffset = 0, rowLimit = 100) => {
+export const getChatList = async (roomId, lastLineKey = '9999999999999999', rowLimit = 30) => {
   return new Promise(function(resolve, reject) {
       electron.ipcRenderer.on('res-getChatList', (event, arg) => {
           resolve(arg);
         })
-        electron.ipcRenderer.send('getChatList', roomId, rowOffset, rowLimit)
+        electron.ipcRenderer.send('getChatList', roomId, lastLineKey, rowLimit)
     });
 }
 
+/** decryptMessage */
+export const decryptMessage = async (endKey, cipherMessage) => {
+  return new Promise(function(resolve, reject) {
+      electron.ipcRenderer.on('res-decryptMessage', (event, arg) => {
+          resolve(arg);
+      });
 
+      electron.ipcRenderer.send('decryptMessage', endKey, cipherMessage)
+    });
+}
