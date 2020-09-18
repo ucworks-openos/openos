@@ -11,6 +11,10 @@ import {
 import chatMessages from "../mock-datas/chat-messages.json";
 import { getChatRoomList, sendChatMessage } from '../../components/ipcCommunication/ipcMessage'
 
+// import {
+//     getUserInfos
+// } from '../../components/ipcCommunication/ipcCommon'
+
 export function setCurrentChatRoom(roomKey, chatRooms) {
     const request = chatRooms.filter(c => c.room_key === roomKey)
 

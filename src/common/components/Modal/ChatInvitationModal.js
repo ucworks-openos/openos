@@ -5,9 +5,9 @@ import {
 } from '../../../redux/actions/chat_actions';
 import { Button, InputGroup, FormControl, Col, DropdownButton, Dropdown } from 'react-bootstrap';
 import { searchUsers } from '../../../components/ipcCommunication/ipcCommon'
-import styled from 'styled-components';
+import './MessageInputModal.css';
 
-function ChatInputModal(props) {
+function ChatInvitationModal(props) {
     const dispatch = useDispatch();
     const [selectedUsers, setSelectedUsers] = useState([])
     const [searchMode, setSearchMode] = useState('ALL');
@@ -31,6 +31,8 @@ function ChatInputModal(props) {
                     let arr1 = selectedUsers
                     let arr2 = searchedUsers
                     //두개의 배열을 합친 다음에 겹치는 것들을 지우기
+                    //console.log(!arr1.find(f => f.user_id.value === user_id.value))  는 return boolean 이다. 그래서 true면 concat 되고 아니면 filtering 된다.
+                    //find은 원래 조건에 맞는 첫번째 아이템을 return 하는데 !arr.find 하므로써 같은게 있는것에 !반대를 하니깐 같은데 있을 때 false를 배출해줍니다. 
                     let arr3 = arr1.concat(arr2.filter(({ user_id }) => !arr1.find(f => f.user_id.value === user_id.value)));
                     setSelectedUsers(arr3)
                     setSearchText('')
@@ -68,77 +70,32 @@ function ChatInputModal(props) {
 
     const renderCheckedMember = () =>
         selectedUsers && selectedUsers.map((user) => (
-            <CheckedMember key={user.user_id.value} onClick={() => onDeleteCheckedMemberClick(user.user_id.value)}>
-                {user.user_name.value} x
-            </CheckedMember>
+            <div class="to-ppl-added-single" key={user.user_id.value}
+                onClick={() => onDeleteCheckedMemberClick(user.user_id.value)}> {user.user_name.value}
+                <button class="remove-ppl-added"></button>
+            </div>
         ));
 
     return (
         <>
-            <div >
-                <InputGroup >
-                    <DropdownButton
-                        as={InputGroup.Prepend}
-                        variant="outline-secondary"
-                        title={searchMode}
-                        id="input-group-dropdown-1"
-                        onSelect={setSearchMode}
-                    >
-                        <Dropdown.Item eventKey="ALL" active >ALL</Dropdown.Item>
-                        <Dropdown.Item eventKey="PHONE">PHONE</Dropdown.Item>
-                        <Dropdown.Item eventKey="IPPHONE">IPPHONE</Dropdown.Item>
-                        <Dropdown.Item eventKey="MOBILE">MOBILE</Dropdown.Item>
-                        <Dropdown.Divider />
-                    </DropdownButton>
-                    <FormControl
-                        aria-label="Default"
-                        aria-describedby="inputGroup-sizing-default"
-                        placeholder="이름은 입력해주세요"
-                        onChange={(e) => setSearchText(e.target.value)}
-                    />
-                    <InputGroup.Append>
-                        <Button variant="outline-secondary" onClick={handleSearchUser}>추가</Button>
-                    </InputGroup.Append>
-                </InputGroup>
+            <h5 class="modal-title write-message">채팅 대상 초대 하기</h5>
+            <div class="write-row to-ppl-wrap">
+                <input type="text" onChange={(e) => setSearchText(e.target.value)} class="to-ppl" placeholder="초대 할 사람의 이름을 입력한 후 + 버튼을 눌러주세요" />
+                <button class="add-ppl" onClick={handleSearchUser} value=""></button>
             </div>
-            <br />
+
             {selectedUsers.length > 0 &&
-                <>
-                    <CheckedMemberWrapper>
-                        {renderCheckedMember()}
-                    </CheckedMemberWrapper>
-                    <br />
-                </>
-            }
-            <div>
-            </div>
-            <div>
-                <div>
-                    <Button variant="outline-primary" type="submit" onClick={onSubmit}>전송</Button>{" "}
-                    <Button variant="outline-danger" onClick={props.closeModalFunction}>닫기</Button>
+                <div class="write-row to-ppl-added">
+                    {renderCheckedMember()}
                 </div>
+            }
+
+            <div class="modal-btn-wrap">
+                <div class="btn-ghost-s cancel" onClick={props.closeModalFunction}>취소하기</div>
+                <div class="btn-solid-s submit" type="submit" onClick={onSubmit}>전송하기</div>
             </div>
         </>
     )
 }
 
-export default ChatInputModal
-
-const CheckedMemberWrapper = styled.div`
-    display: flex;
-    flex-grow: 1;
-    padding: 1rem 0;
-    width: 100%;
-    flex-wrap: wrap;
-`;
-
-const CheckedMember = styled.div`
-    object-fit: contain;
-    border-radius: 14px;
-    border: solid 1px black;
-    padding: 0.2rem 1rem 0.4rem;
-    margin: 0 0.5rem;
-    word-break: keep-all;
-    margin-bottom: 5px;
-    cursor: pointer;
-`;
+export default ChatInvitationModal
