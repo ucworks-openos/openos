@@ -131,7 +131,6 @@ ipcMain.on('notiTitleClick', async (event, notiType, notiId) => {
   console.log('notiTitleClick!', notiType, notiId)
 });
 
-
 /**
  * getChatList
  */
