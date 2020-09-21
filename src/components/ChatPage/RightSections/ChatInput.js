@@ -7,7 +7,6 @@ import {
 function ChatInput() {
     const dispatch = useDispatch();
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
-    const chatRooms = useSelector(state => state.chats.chatRooms)
     const [inputValue, setInputValue] = useState("")
 
     const onInputValueChange = (e) => {
@@ -20,9 +19,7 @@ function ChatInput() {
             alert("먼저 글자를 입력하세요 ~~")
             return;
         }
-
         dispatch(addChatMessage(currentChatRoom.chat_entry_ids, inputValue, false, currentChatRoom.room_key))
-
         setInputValue("")
     }
 

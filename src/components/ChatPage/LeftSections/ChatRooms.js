@@ -20,18 +20,17 @@ function ChatRooms() {
     const renderChatRoom = () => (
         chatRooms && chatRooms.map(room => {
 
-            let receieveIds = room.chat_entry_ids.split('|')
-            let receievePeopleCounts = receieveIds.length
+            let receieveIds = room && room.chat_entry_ids.split('|')
+            let receievePeopleCounts = receieveIds && receieveIds.length
 
-            const renderSendTo = receieveIds.map(user => {
+            const renderSendTo = receieveIds && receieveIds.map(user => {
                 return <span key={uuidv4()}>{user}{" "}</span>
             })
-            const isCurrentChatRoom = room.room_key === currentChatRoom.room_key ? "current-chat" : "";
+            const isCurrentChatRoom = room && room.room_key === currentChatRoom.room_key ? "current-chat" : "";
             // ${receievePeopleCounts >= 4 ? "n" : receievePeopleCounts} 
 
             return (
-                <li className={`chat-list-single  ppl-1
-                ${isCurrentChatRoom}`}
+                <li className={`chat-list-single  ppl-1${isCurrentChatRoom}`}
                     key={room.room_key}
                     onClick={() => onChatRoomClick(room.room_key)}>
                     <div className="list-thumb-area">

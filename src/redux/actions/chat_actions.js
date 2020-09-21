@@ -9,11 +9,7 @@ import {
     GET_SEARCHED_CHAT_MESSAGES
 } from './types';
 import chatMessages from "../mock-datas/chat-messages.json";
-import { getChatRoomList, sendChatMessage } from '../../components/ipcCommunication/ipcMessage'
-
-// import {
-//     getUserInfos
-// } from '../../components/ipcCommunication/ipcCommon'
+import { getChatRoomList, sendChatMessage, getChatList } from '../../components/ipcCommunication/ipcMessage'
 
 export function setCurrentChatRoom(roomKey, chatRooms) {
     const request = chatRooms.filter(c => c.room_key === roomKey)
@@ -51,14 +47,19 @@ export async function getInitialChatRooms() {
 //     }
 // }
 
-export function getInitialChatMessages(roomId) {
+export async function getInitialChatMessages(chatRoomId, lastLineKey) {
+
+
+    let getChatListsResult = getChatList(chatRoomId, lastLineKey, 100)
+    console.log('getChatListsResult', getChatListsResult)
+    
 
     let request;
-    if (roomId) {
-        request = chatMessages.filter(msg => msg.roomId === roomId)
-    } else {
-        request = chatMessages
-    }
+    // if (roomId) {
+    //     request = chatMessages.filter(msg => msg.roomId === roomId)
+    // } else {
+    //     request = chatMessages
+    // }
 
     return {
         type: GET_INITIAL_CHAT_MESSAGES,
