@@ -21,6 +21,7 @@ function MessageInputModal(props) {
     const [selectedUsers, setSelectedUsers] = useState([])
     const [searchMode, setSearchMode] = useState('ALL');
     const [searchText, setSearchText] = useState('');
+    const currentMessageListType = useSelector(state => state.messages.currentMessageListType)
 
     useEffect(() => {
         const initiate = () => {
@@ -28,7 +29,7 @@ function MessageInputModal(props) {
             const extracted = {
                 user_id: {
                     value: props.selectedNode.userId,
-                }, 
+                },
                 user_name: {
                     value: props.selectedNode.userName,
                 }
@@ -98,15 +99,15 @@ function MessageInputModal(props) {
         }
     }
 
-    const onSubmit = (event) => {
+    const onSubmit = async (event) => {
         event.preventDefault();
         if (title.trim().length === 0) { return alert("먼저 쪽지 이름을 입력해 주세요.") }
         if (content.trim().length === 0) { return alert("먼저 쪽지를 입력해 주세요.") }
         let recvIds = selectedUsers.map(user => user.user_id.value).join('|')
         let recvNames = selectedUsers.map(user => user.user_name.value).join(',')
-        dispatch(addMessage(recvIds, recvNames, title, content))
+        dispatch(addMessage(recvIds, recvNames, title, content, currentMessageListType))
         setContent("")
-        setTitle("")
+        setTitle("") 
         setSelectedUsers([])
         props.closeModalFunction();
     }

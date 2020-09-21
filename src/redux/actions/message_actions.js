@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import messageLists from "../mock-datas/messages.json";
 import { getMessage, getMessageDetail } from '../../components/ipcCommunication/ipcMessage'
 import { sendMessage } from '../../components/ipcCommunication/ipcMessage'
+import moment from 'moment';
 
 export function setCurrentMessage(messageKey) {
     return {
@@ -23,6 +24,7 @@ export function setCurrentMessage(messageKey) {
 
 export async function getInitialMessageLists(messageType) {
     const request = await getMessage(messageType, 0, 10)
+    console.log('request.data.table.row', request.data.table.row)
     return {
         type: GET_INITIAL_MESSAGE_LISTS,
         payload: request.data.table.row
@@ -38,11 +40,23 @@ export async function getMessageHo(messageKey) {
     }
 }
 
-export async function addMessage(recvIds, recvNames, title, content) {
-    const request = await sendMessage(recvIds, recvNames, title, content)
+export async function addMessage(recvIds, recvNames, title, content, currentMessageListType) {
+
+    let request;
+    if (currentMessageListType === "MSG_SEND") {
+        request = {
+            msg_recv_ids: recvIds,
+            msg_recv_name: recvNames,
+            msg_send_name: "최진욱",
+            msg_send_date: moment().format("YYYYMMDDHHmm"),
+            msg_subject: title,
+        }
+    }
+
+    await sendMessage(recvIds, recvNames, title, content)
     return {
         type: ADD_MESSAGE,
-        // payload: request
+        payload: request
     }
 }
 

@@ -10,9 +10,10 @@ import moment from 'moment';
 function ChatRooms() {
     const dispatch = useDispatch();
     const chatRooms = useSelector(state => state.chats.chatRooms)
-    const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
     console.log('chatRooms', chatRooms)
-    // console.log('currentChatRoom', currentChatRoom)
+
+    const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
+    console.log('currentChatRoom', currentChatRoom)
     const onChatRoomClick = (roomKey) => {
         dispatch(setCurrentChatRoom(roomKey, chatRooms))
     }
@@ -33,12 +34,12 @@ function ChatRooms() {
                 <li className={`chat-list-single  ppl-1${isCurrentChatRoom}`}
                     key={room.room_key}
                     onClick={() => onChatRoomClick(room.room_key)}>
-                    <div className="list-thumb-area">
+                    {/* <div className="list-thumb-area">
                         <div className="user-pic-wrap">
                             <img src={userThumbnail} alt="user-profile-picture" />
                         </div>
 
-                    </div>
+                    </div> */}
                     <div className="list-info-area">
                         <div className="list-row 1">
                             <div className="chat-ppl-num">
@@ -74,11 +75,15 @@ function ChatRooms() {
         })
     )
 
-    return (
-        <div>
-            {renderChatRoom()}
-        </div>
-    )
+    if (chatRooms === undefined || (chatRooms && chatRooms[0] === undefined)) {
+        return (<div></div>)
+    } else {
+        return (
+            <div>
+                {renderChatRoom()}
+            </div>
+        )
+    }
 }
 
 export default ChatRooms
