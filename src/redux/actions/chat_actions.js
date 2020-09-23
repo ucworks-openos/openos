@@ -5,15 +5,10 @@ import {
     SET_CURRENT_CHAT_ROOM,
     GET_MORE_CHATS_MESSAGES,
     ADD_CHAT_MESSAGE,
-    DELETE_CHAT_MESSAGE,
-    GET_SEARCHED_CHAT_MESSAGES
+    ADD_CHAT_ROOM
 } from './types';
-import chatMessages from "../mock-datas/chat-messages.json";
-import { getChatRoomList, sendChatMessage } from '../../components/ipcCommunication/ipcMessage'
-
-// import {
-//     getUserInfos
-// } from '../../components/ipcCommunication/ipcCommon'
+import { getChatRoomList, sendChatMessage, getChatList } from '../../components/ipcCommunication/ipcMessage'
+import moment from 'moment';
 
 export function setCurrentChatRoom(roomKey, chatRooms) {
     const request = chatRooms.filter(c => c.room_key === roomKey)
@@ -27,11 +22,59 @@ export function setCurrentChatRoom(roomKey, chatRooms) {
 export async function getInitialChatRooms() {
     const request = await getChatRoomList(0, 100)
     const realRequest = Array.isArray(request.data.table.row) ? request.data.table.row : [request.data.table.row]
+    console.log('realRequest', realRequest)
     return {
         type: GET_INITIAL_CHAT_ROOMS,
         payload: realRequest
     }
 }
+
+export async function getInitialChatMessages(chatRoomId, lastLineKey) {
+    let getChatListsResult = await getChatList(chatRoomId, lastLineKey, 100)
+    return {
+        type: GET_INITIAL_CHAT_MESSAGES,
+        payload: Array.isArray(getChatListsResult.data.table.row) ? getChatListsResult.data.table.row : [getChatListsResult.data.table.row]
+    }
+}
+
+export function addChatMessage(chatUsersId, chatMessage, isNewChat, chatRoomId = null, senderName, senderId) {
+
+    let userIds = chatUsersId.split('|')
+
+    sendChatMessage(userIds, chatMessage, isNewChat ? null : chatRoomId);
+
+    let request = {
+        chat_contents: chatMessage,
+        chat_send_name: senderName,
+        chat_send_date: moment().format("YYYYMMDDHHmm"),
+        read_count: 0,
+        chat_send_id: senderId
+    }
+
+    return {
+        type: ADD_CHAT_MESSAGE,
+        payload: request
+    }
+}
+
+export function addChatRoom(request) {
+
+    return {
+        type: ADD_CHAT_ROOM,
+        payload: request
+    }
+}
+
+// export function getMoreChatMessages(bandId, page = 1) {
+//     const request = axios.get(`${SERVER_URI}:5000/api/talk?bandId=${bandId}&page=${page}`)
+//         .then(response => response.data);
+
+//     return {
+//         type: GET_MORE_CHATS_MESSAGES,
+//         payload: request
+//     }
+// }
+
 
 // export async function getInitialChatRooms() {
 //     const getChatRoomListResponse = await getChatRoomList(0, 100)
@@ -50,62 +93,3 @@ export async function getInitialChatRooms() {
 //         payload: chatRoomWithMembers
 //     }
 // }
-
-export function getInitialChatMessages(roomId) {
-
-    let request;
-    if (roomId) {
-        request = chatMessages.filter(msg => msg.roomId === roomId)
-    } else {
-        request = chatMessages
-    }
-
-    return {
-        type: GET_INITIAL_CHAT_MESSAGES,
-        payload: request
-    }
-}
-
-
-export function addChatMessage(chatUsersId, chatMessage, isNewChat, chatRoomId = null) {
-
-    let userIds = chatUsersId.split('|')
-    sendChatMessage(userIds, chatMessage, isNewChat ? null : chatRoomId);
-
-    return {
-        type: ADD_CHAT_MESSAGE,
-        // payload: newMessage
-    }
-}
-// export function getMoreChatMessages(bandId, page = 1) {
-//     const request = axios.get(`${SERVER_URI}:5000/api/talk?bandId=${bandId}&page=${page}`)
-//         .then(response => response.data);
-
-//     return {
-//         type: GET_MORE_CHATS_MESSAGES,
-//         payload: request
-//     }
-// }
-
-// export function deleteChatMessage(item) {
-//     const request = axios.delete(`${SERVER_URI}:5000/api/talk?talkId=${item.id}`)
-//         .then(response => {
-//             return { id: item.id }
-//         });
-
-//     return {
-//         type: DELETE_CHAT_MESSAGE,
-//         payload: request
-//     }
-// }
-
-// export function getSearchedChatMessages(bandId, searchTerm) {
-//     const request = axios.get(`${SERVER_URI}:5000/api/talk?bandId=${bandId}&searchTerm=${encodeURIComponent(searchTerm)}&page=1&type=search`)
-//         .then(response => response.data);
-
-//     return {
-//         type: GET_SEARCHED_CHAT_MESSAGES,
-//         payload: request
-//     }
-// }
-

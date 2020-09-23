@@ -24,12 +24,12 @@ export default function (state = {}, action) {
             return {
                 ...state, messageLists: [...state.messageLists, ...action.payload],
                 messageCounts: action.payload.length,
-                page: state.page + 1 
+                page: state.page + 1
             }
         case ADD_MESSAGE:
             return {
                 ...state,
-                messageLists: state.messageLists.concat(action.payload)
+                messageLists: [action.payload, ...state.messageLists]
             };
         case SET_CURRENT_MESSAGE_LISTS_TYPE:
             return { ...state, currentMessageListType: action.payload }
