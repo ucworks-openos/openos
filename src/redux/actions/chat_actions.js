@@ -4,7 +4,8 @@ import {
     GET_INITIAL_CHAT_MESSAGES,
     SET_CURRENT_CHAT_ROOM,
     GET_MORE_CHATS_MESSAGES,
-    ADD_CHAT_MESSAGE
+    ADD_CHAT_MESSAGE,
+    ADD_CHAT_ROOM
 } from './types';
 import { getChatRoomList, sendChatMessage, getChatList } from '../../components/ipcCommunication/ipcMessage'
 import moment from 'moment';
@@ -21,6 +22,7 @@ export function setCurrentChatRoom(roomKey, chatRooms) {
 export async function getInitialChatRooms() {
     const request = await getChatRoomList(0, 100)
     const realRequest = Array.isArray(request.data.table.row) ? request.data.table.row : [request.data.table.row]
+    console.log('realRequest', realRequest)
     return {
         type: GET_INITIAL_CHAT_ROOMS,
         payload: realRequest
@@ -29,24 +31,24 @@ export async function getInitialChatRooms() {
 
 export async function getInitialChatMessages(chatRoomId, lastLineKey) {
     let getChatListsResult = await getChatList(chatRoomId, lastLineKey, 100)
-    console.log('getChatListsResult', getChatListsResult)
-
     return {
         type: GET_INITIAL_CHAT_MESSAGES,
         payload: Array.isArray(getChatListsResult.data.table.row) ? getChatListsResult.data.table.row : [getChatListsResult.data.table.row]
     }
 }
 
-export function addChatMessage(chatUsersId, chatMessage, isNewChat, chatRoomId = null) {
+export function addChatMessage(chatUsersId, chatMessage, isNewChat, chatRoomId = null, senderName, senderId) {
 
     let userIds = chatUsersId.split('|')
+
     sendChatMessage(userIds, chatMessage, isNewChat ? null : chatRoomId);
 
     let request = {
         chat_contents: chatMessage,
-        chat_send_name: "최진욱",
+        chat_send_name: senderName,
         chat_send_date: moment().format("YYYYMMDDHHmm"),
-        read_count: 0
+        read_count: 0,
+        chat_send_id: senderId
     }
 
     return {
@@ -55,6 +57,13 @@ export function addChatMessage(chatUsersId, chatMessage, isNewChat, chatRoomId =
     }
 }
 
+export function addChatRoom(request) {
+
+    return {
+        type: ADD_CHAT_ROOM,
+        payload: request
+    }
+}
 
 // export function getMoreChatMessages(bandId, page = 1) {
 //     const request = axios.get(`${SERVER_URI}:5000/api/talk?bandId=${bandId}&page=${page}`)

@@ -7,12 +7,16 @@ import {
     getInitialMessageLists,
     setCurrentMessageListsType
 } from "../../redux/actions/message_actions";
+import {
+    getLogginedInUserInfo
+} from "../../redux/actions/user_actions";
 
 function MessagePage() {
     const dispatch = useDispatch();
     const currentMessageListType = useSelector(state => state.messages.currentMessageListType)
     useEffect(() => {
-        dispatch(setCurrentMessageListsType('MSG_RECV'))        
+        dispatch(setCurrentMessageListsType('MSG_RECV'))
+        dispatch(getLogginedInUserInfo(sessionStorage.getItem("loginId")))
     }, [])
     useEffect(() => {
         dispatch(getInitialMessageLists(currentMessageListType ? currentMessageListType : 'MSG_RECV'))

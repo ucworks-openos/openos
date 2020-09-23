@@ -41,9 +41,9 @@ function MessagesLists() {
                             <div className="message-title">
                                 To : {renderSendTo}
                             </div>
-                            <div className="message-counter unread">
+                            {/* <div className="message-counter unread">
                                 new
-                            </div>
+                            </div> */}
                         </div>
                         <div className="list-row 2">
                             <div className="message-summary">

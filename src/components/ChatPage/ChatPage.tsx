@@ -6,12 +6,16 @@ import { useDispatch } from 'react-redux';
 import {
     getInitialChatRooms,
 } from "../../redux/actions/chat_actions";
+import {
+    getLogginedInUserInfo
+} from "../../redux/actions/user_actions";
 
 function ChatPage() {
     const dispatch = useDispatch();
 
     useEffect(() => {
         dispatch(getInitialChatRooms())
+        dispatch(getLogginedInUserInfo(sessionStorage.getItem("loginId")))
     }, [])
 
     return (

@@ -1,4 +1,3 @@
-import axios from 'axios';
 import {
     GET_INITIAL_MESSAGE_LISTS,
     GET_MESSAGE,
@@ -6,11 +5,7 @@ import {
     GET_MORE_MESSAGES,
     ADD_MESSAGE,
     SET_CURRENT_MESSAGE_LISTS_TYPE,
-    DELETE_CHAT_MESSAGE,
-    GET_SEARCHED_CHAT_MESSAGES
 } from './types';
-import { useDispatch, useSelector } from 'react-redux';
-import messageLists from "../mock-datas/messages.json";
 import { getMessage, getMessageDetail } from '../../components/ipcCommunication/ipcMessage'
 import { sendMessage } from '../../components/ipcCommunication/ipcMessage'
 import moment from 'moment';
@@ -24,7 +19,6 @@ export function setCurrentMessage(messageKey) {
 
 export async function getInitialMessageLists(messageType) {
     const request = await getMessage(messageType, 0, 10)
-    console.log('request.data.table.row', request.data.table.row)
     return {
         type: GET_INITIAL_MESSAGE_LISTS,
         payload: request.data.table.row
@@ -40,14 +34,14 @@ export async function getMessageHo(messageKey) {
     }
 }
 
-export async function addMessage(recvIds, recvNames, title, content, currentMessageListType) {
+export async function addMessage(recvIds, recvNames, title, content, currentMessageListType, senderName) {
 
     let request;
     if (currentMessageListType === "MSG_SEND") {
         request = {
             msg_recv_ids: recvIds,
             msg_recv_name: recvNames,
-            msg_send_name: "최진욱",
+            msg_send_name: senderName,
             msg_send_date: moment().format("YYYYMMDDHHmm"),
             msg_subject: title,
         }

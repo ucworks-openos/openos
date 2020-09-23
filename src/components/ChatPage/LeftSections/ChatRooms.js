@@ -1,5 +1,4 @@
 import React from 'react'
-import userThumbnail from "../../../assets/images/img_user-thumbnail.png";
 import {
     setCurrentChatRoom,
 } from "../../../redux/actions/chat_actions";
@@ -10,10 +9,8 @@ import moment from 'moment';
 function ChatRooms() {
     const dispatch = useDispatch();
     const chatRooms = useSelector(state => state.chats.chatRooms)
-    console.log('chatRooms', chatRooms)
 
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
-    console.log('currentChatRoom', currentChatRoom)
     const onChatRoomClick = (roomKey) => {
         dispatch(setCurrentChatRoom(roomKey, chatRooms))
     }
@@ -23,17 +20,17 @@ function ChatRooms() {
 
             let receieveIds = room && room.chat_entry_ids.split('|')
             let receievePeopleCounts = receieveIds && receieveIds.length
-
             const renderSendTo = receieveIds && receieveIds.map(user => {
                 return <span key={uuidv4()}>{user}{" "}</span>
             })
-            const isCurrentChatRoom = room && room.room_key === currentChatRoom.room_key ? "current-chat" : "";
+
+            const isCurrentChatRoom = room && room.room_key && room.room_key === currentChatRoom.room_key ? "current-chat" : "";
             // ${receievePeopleCounts >= 4 ? "n" : receievePeopleCounts} 
 
             return (
-                <li className={`chat-list-single  ppl-1${isCurrentChatRoom}`}
-                    key={room.room_key}
-                    onClick={() => onChatRoomClick(room.room_key)}>
+                <li className={`chat-list-single  ppl-1 ${isCurrentChatRoom}`}
+                    key={room.room_key && room.room_key}
+                    onClick={() => onChatRoomClick(room.room_key && room.room_key)}>
                     {/* <div className="list-thumb-area">
                         <div className="user-pic-wrap">
                             <img src={userThumbnail} alt="user-profile-picture" />
@@ -43,12 +40,12 @@ function ChatRooms() {
                     <div className="list-info-area">
                         <div className="list-row 1">
                             <div className="chat-ppl-num">
-                                {room.peopleCount}
+                                {receievePeopleCounts}
                             </div>
                             <div className="chat-room-name">
                                 {renderSendTo}
                             </div>
-                            {room.unread_count !== "0"
+                            {room.unread_count && room.unread_count !== "0"
                                 &&
                                 <div className="chat-counter unread">
                                     {room.unread_count}
@@ -57,7 +54,7 @@ function ChatRooms() {
                         </div>
                         <div className="list-row 2">
                             <div className="last-chat">
-                                {room.chat_contents}
+                                {room.chat_contents && room.chat_contents}
                             </div>
                             <div className="icon-chat-noti on"></div>
                         </div>
@@ -491,3 +488,34 @@ export default ChatRooms
     </div>
 </div>
 </li> */}
+
+// const [chatRoomsWithUserInfos, setChatRoomsWithUserInfos] = useState([])
+
+// useEffect(() => {
+//     (chatRooms &&
+//         getChatRoomsWithUserInfos()
+//     )
+// }, [chatRooms])
+
+// const getChatRoomsWithUserInfos = async () => {
+//     let newChatRooms = [];
+//     for (let index = 0; index < chatRooms.length; index++) {
+//         const chatRoomEl = chatRooms[index];
+//         const memberIds = chatRoomEl.chat_entry_ids.split('|')
+//         let userInfos = [];
+//         console.log('  index', index)
+
+//         for (let index = 0; index < memberIds.length; index++) {
+//             const memberEl = memberIds[index];
+//             console.log(' memberIds index', index, memberIds[index])
+//             let userInfoResult = await getUserInfos(memberEl)
+
+//             // userInfos.push(userInfoResult.data.items !== undefined ? userInfoResult.data.items.node_item : userInfoResult)
+//         }
+//         chatRoomEl.userInfo = userInfos
+//         newChatRooms.push(chatRoomEl)
+//         // console.log('chatrooms.lenfksm', chatRooms.length)
+//         // console.log('chatROoms', index)
+//     }
+//     setChatRoomsWithUserInfos(newChatRooms)
+// }
