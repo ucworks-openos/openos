@@ -5,10 +5,22 @@ import {
     SET_CURRENT_CHAT_ROOM,
     GET_MORE_CHATS_MESSAGES,
     ADD_CHAT_MESSAGE,
-    ADD_CHAT_ROOM
+    ADD_CHAT_ROOM,
+    ADD_RECEIVED_CHAT
 } from './types';
 import { getChatRoomList, sendChatMessage, getChatList } from '../../components/ipcCommunication/ipcMessage'
 import moment from 'moment';
+import { v4 as uuidv4 } from 'uuid';
+/**
+ * 32자리 UUID를 반환합니다 
+ */
+function getUUID() {
+    // 인덱싱이 되는경우 '-'가 성능저하가 됨으로 
+    // 인덱싱 성능 보장용으로 사용한다. DB에 사용할경우 type을 binary로 하면 된다.
+    // [인덱싱 성능 관련 참고:https://www.percona.com/blog/2014/12/19/store-uuid-optimized-way/]
+    let tokens = uuidv4().split('-')
+    return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4]
+}
 
 export function setCurrentChatRoom(roomKey, chatRooms) {
     const request = chatRooms.filter(c => c.room_key === roomKey)
@@ -20,12 +32,15 @@ export function setCurrentChatRoom(roomKey, chatRooms) {
 }
 
 export async function getInitialChatRooms() {
-    const request = await getChatRoomList(0, 100)
-    const realRequest = Array.isArray(request.data.table.row) ? request.data.table.row : [request.data.table.row]
-    console.log('realRequest', realRequest)
+    const getChatRoomListResult = await getChatRoomList(0, 100)
+    let request = [];
+    let chatRoomListData = getChatRoomListResult.data.table.row
+    if (chatRoomListData !== undefined) {
+        request = Array.isArray(chatRoomListData) ? chatRoomListData : [chatRoomListData]
+    }
     return {
         type: GET_INITIAL_CHAT_ROOMS,
-        payload: realRequest
+        payload: request
     }
 }
 
@@ -42,7 +57,6 @@ export function addChatMessage(chatUsersId, chatMessage, isNewChat, chatRoomId =
     let userIds = chatUsersId.split('|')
 
     sendChatMessage(userIds, chatMessage, isNewChat ? null : chatRoomId);
-
     let request = {
         chat_contents: chatMessage,
         chat_send_name: senderName,
@@ -57,8 +71,39 @@ export function addChatMessage(chatUsersId, chatMessage, isNewChat, chatRoomId =
     }
 }
 
-export function addChatRoom(request) {
 
+export function addReceivedChat(newMessage) {
+
+    console.log('addReceivedChat newMessage', newMessage)
+
+    return {
+        type: ADD_RECEIVED_CHAT,
+        payload: newMessage
+    }
+}
+
+
+export async function addChatRoom(request) {
+    // 여기서 체크해야할것은 만약 1:1 채팅이면 
+    // 이미 만들어진 채팅 방이 있는지 체크해서 
+    // 있다면 그 채팅방의 채팅 리스트를 보내주기 
+
+    if (request.user_counts === 2) {
+        let chatRoomKey = request.selected_users.sort().join("|")
+        request.room_key = chatRoomKey
+        let getChatListsResult = await getChatList(chatRoomKey, '9999999999999999', 100)
+        let chatData = getChatListsResult.data.table.row
+        if (chatData) {
+            request.chatLists = Array.isArray(getChatListsResult.data.table.row) ? getChatListsResult.data.table.row : [getChatListsResult.data.table.row]
+        } else {
+            request.chatLists = [];
+        }
+
+    } else {
+        request.room_key = request.chat_send_id + "_" + getUUID()
+        request.chatLists = []
+    }
+    console.log('request', request)
     return {
         type: ADD_CHAT_ROOM,
         payload: request
