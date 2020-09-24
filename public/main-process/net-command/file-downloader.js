@@ -224,49 +224,74 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
 
         let receiveDatasProc = function(rcvData){
             console.log('\r\n++++++++++++++++++++++++++++++++++');
-            console.log('FS rcvData:', rcvData.length);
+            console.log('FS rcvData:', rcvData);
             console.log('\r\n');
-    
+            let leftBuf;
             if (!rcvCommand){
+                let dataLen = fileCmdSize;
+                if (sndCommand) {
+                    dataLen = sndCommand.getResponseLength();
+                }
+
                 // 수신된 CommandHeader가 없다면 헤더를 만든다.
-                rcvCommand = new CommandHeader(rcvData.readInt32LE(0), rcvData.readInt32LE(4));
-    
-                rcvCommand.data = rcvData.subarray(8);
+                let cmdLeft = getCommandHeader(rcvData, dataLen);
+                rcvCommand = cmdLeft.command;
+                rcvData = cmdLeft.leftBuf;
+
                 if (sndCommand) {
                     rcvCommand.sendCmd = sndCommand
-    
-                    // 파일서버의 경우 헤더에 전문길이를 주지않는 경우 있음 ㅜㅜ FS_UPLOADFILE
-                    // 요청 커맨드에서 원하는 응답길이가 있다면 해당 응답길이만큼 받을수 있도록 한다.
-                    // if (sndCommand.getResponseLength() > 0) {
-                    //     rcvCommand.setResponseLength(sndCommand.getResponseLength());
-                    // }
-                    rcvCommand.setResponseLength(fileCmdSize);
                 }
-            } else {
-                // 헤더가 있다면 데이터 길이만큼 다 받았는지 확인한 후 처리로 넘긴다.
-                rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData]);        
-            }
-    
-            if (!rcvCommand.readCnt) {
-                rcvCommand.readCnt = 0;
-            }
-    
-            rcvCommand.readCnt += rcvData.length;
-            //console.log('Recive Command Data :', rcvCommand);
 
-            if (rcvCommand.getResponseLength() < rcvCommand.readCnt) {
-                // 더 많이 받았다면 쪼개야 한다....
-                
+                if (rcvCommand.readCnt == dataLen) {
+                    receiveCommandProc(rcvCommand);
+                } else if (rcvCommand.readCnt > dataLen) {
+                    console.log('>>  OVER READ !!!', dataLen, rcvCommand)
+                }
+
+                // 남는거 없이 다 읽었다면 끝낸다.
+                if (!rcvData || rcvData.length == 0) return;
+
+            } else {
+
+                // 또 받을 데이터 보다 더 들어 왔다면 자르고 남는것을 넘긴다.
+                let leftLen = rcvCommand.getResponseLength() - rcvCommand.readCnt;
+
+                if (rcvData.length > leftLen) {
+                    // 읽을 데이터 보다 더 들어 왔다.
+                    rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData.slice(0, leftLen)]);
+                    rcvCommand.addReadCount(leftLen);
+                    rcvData = rcvData.slice(leftLen);
+                    receiveCommandProc(cmd);
+                } else {
+                    // 필요한 데이터가 딱맞거나 작다면 그냥 다읽고 끝낸다.
+                    rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData]);
+                    rcvCommand.addReadCount(rcvData.length);
+
+                    if (rcvCommand.readCnt >= rcvCommand.getResponseLength()) {
+                        
+                        if (rcvCommand.readCnt > rcvCommand.getResponseLength()) console.log('>>  OVER READ !!!',rcvData.length, rcvCommand); 
+                        // 제대로 다 읽었다면 Cmd 처리    
+                        receiveCommandProc(rcvCommand);
+                    } 
+                    
+                    // 더 받을게 남았았음으로 다음에 오는 데이터를 받도록 넘어간다.
+                    return;
+                }
             }
-    
-            if (rcvCommand.getResponseLength() <= rcvCommand.readCnt) {
-                // 데이터를 모두 다 받았다.
-                var procCmd = rcvCommand;
-                rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
-                sndCommand = null;
-    
-                receiveCommandProc(procCmd)
-            }                                                                                                       
+
+            // 여기서 부터는 무조건 커맨드를 처리하고 남은 데이터를 처리한다.
+            while(rcvData && rcvData.length > 8) {
+                let cmdLeft = getCommandHeader(rcvData, fileCmdSize);
+                rcvCommand = cmdLeft.command;
+                rcvData = cmdLeft.leftBuf;
+                if (sndCommand) {
+                    rcvCommand.sendCmd = sndCommand
+                }
+
+                if (rcvCommand.readCnt == dataLen) {
+                    receiveCommandProc(procCmd);
+                }
+            }
         };
 
 
