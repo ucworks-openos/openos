@@ -5,15 +5,15 @@ import {
     getInitialChatMessages
 } from "../../../redux/actions/chat_actions";
 import moment from 'moment';
-import { getUserInfos } from '../../ipcCommunication/ipcCommon'
+// import { getUserInfos } from '../../ipcCommunication/ipcCommon'
 function ChatMessages() {
     const dispatch = useDispatch();
     const chatMessages = useSelector(state => state.chats.chatMessages)
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
     const [chatMessagesWithUserInfos, setChatMessagesWithUserInfos] = useState([])
     const messagesEndRef = useRef(null)
-    console.log('chatMessages', chatMessages)
-    console.log('chatMessages', currentChatRoom)
+    // console.log('chatMessages', chatMessages)
+    // console.log('currentChatRoom', currentChatRoom)
 
     const scrollToBottom = () => {
         messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
@@ -30,8 +30,11 @@ function ChatMessages() {
     }, [chatMessages])
 
     useEffect(() => {
-        if(currentChatRoom) {
-            if(currentChatRoom.newChatRoom) {
+        if (currentChatRoom) {
+            //새로 만든 채팅방(전 데이터가 데이테베이스에 없는)은 아직 데이터베이스에서 없기 때문에 
+            //데이터 베이스에서 메시지를 가져오면 안됨.
+            console.log('currentChatRoom.last_line_key', currentChatRoom.last_line_key)
+            if (currentChatRoom.last_line_key === undefined) {
                 setChatMessagesWithUserInfos([])
             } else {
                 dispatch(getInitialChatMessages(currentChatRoom.room_key, currentChatRoom.last_line_key))
@@ -53,6 +56,7 @@ function ChatMessages() {
 
     const renderChatMessages = () => (
         chatMessagesWithUserInfos && chatMessagesWithUserInfos.map((chat, index) => {
+            // console.log('chat', chat)
             if (chat.chat_send_id === `${sessionStorage.getItem("loginId")}`) {
                 return (
                     <div key={index} className="speech-row speech-my">
@@ -100,14 +104,16 @@ function ChatMessages() {
     )
     if (chatMessagesWithUserInfos) {
         return (
-            <div>
+            <div className="chat-area">
                 {renderChatMessages()}
+                <br />
                 <div ref={messagesEndRef} />
             </div>
         )
     } else {
         return (
-            <div> </div>
+            <div className="chat-area">
+            </div>
         )
     }
 

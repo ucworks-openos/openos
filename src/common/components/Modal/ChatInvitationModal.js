@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    addChatMessage, addChatRoom
+    addChatRoom
 } from '../../../redux/actions/chat_actions';
 import { searchUsers } from '../../../components/ipcCommunication/ipcCommon'
 import './MessageInputModal.css';
 import Alert from 'react-bootstrap/Alert'
-import { sendChatMessage } from '../../../components/ipcCommunication/ipcMessage'
-import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
 
 function ChatInvitationModal(props) {
@@ -67,6 +65,7 @@ function ChatInvitationModal(props) {
 
     const onSubmit = (event) => {
         event.preventDefault();
+        //만약 유저가 선택 안되어 있다면 선택 먼저 하고 진행
         if (selectedUsers.length === 0) {
             setIsUserSelected(true)
             setTimeout(() => {
@@ -74,18 +73,24 @@ function ChatInvitationModal(props) {
             }, 2000)
             return;
         }
+        //자기 자신도 선택된 사람에 포함해서 넣어주기 
         selectedUsers.push(loggedInUser)
+
+        let userIdArray = [];
+        selectedUsers.map(user => userIdArray.push(user.user_id.value))
+        //보내줘야 하는 형식으로 유저 ID들을 만들어 보내주기
         let userIds = selectedUsers.map(user => user.user_id.value).join("|")
         const chatRoomBody = {
+            selected_users: userIdArray,
+            user_counts: selectedUsers.length,
             chat_entry_ids: userIds,
-            room_key: uuidv4(),
             unread_count: 0,
             chat_content: "",
             chat_send_name: loggedInUser.user_name.value,
             create_room_date: moment().format("YYYYMMDDHHmm"),
             chat_send_id: loggedInUser.user_id.value,
-            newChatRoom: true
         }
+        //채팅룸을 추가하기
         dispatch(addChatRoom(chatRoomBody));
         setSelectedUsers([])
         props.closeModalFunction();

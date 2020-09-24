@@ -10,6 +10,7 @@ function ChatInput() {
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
     const [inputValue, setInputValue] = useState("")
     const [isAlreadyTyped, setIsAlreadyTyped] = useState(false)
+    const [isAlreadyRoomSelected, setIsAlreadyRoomSelected] = useState(false)
     const loggedInUser = useSelector(state => state.users.loggedInUser)
     const onInputValueChange = (e) => {
         setInputValue(e.currentTarget.value)
@@ -23,6 +24,14 @@ function ChatInput() {
             }, 2000)
             return;
         }
+        if (!currentChatRoom) {
+            setIsAlreadyRoomSelected(true)
+            setTimeout(() => {
+                setIsAlreadyRoomSelected(false)
+            }, 2000)
+            return;
+        }
+
         setInputValue("")
         dispatch(addChatMessage(currentChatRoom.chat_entry_ids, inputValue, false, currentChatRoom.room_key, loggedInUser.user_name.value, loggedInUser.user_id.value))
     }
@@ -30,17 +39,20 @@ function ChatInput() {
     return (
         <>
             {isAlreadyTyped &&
-                <div style={{
-                    position: "absolute",
-                    left: '0',
-                    bottom: '187px',
-                    width: '100%'
-                }}>
+                <div style={{ position: "absolute", left: '0', bottom: '187px', width: '100%' }}>
                     <Alert variant="danger">
                         먼저 글자를 입력해주세요.
                     </Alert>
                 </div>
             }
+            {isAlreadyRoomSelected &&
+                <div style={{ position: "absolute", left: '0', bottom: '187px', width: '100%' }}>
+                    <Alert variant="danger">
+                        먼저 방을 선택해주세요.
+                    </Alert>
+                </div>
+            }
+
             <div className="chat-input-area">
                 <div className="chat-input-wrap">
                     <input className="chat-input"
@@ -48,7 +60,7 @@ function ChatInput() {
                         value={inputValue} onChange={onInputValueChange} placeholder="채팅 내용을 입력해주세요."></input>
                     <button onClick={onSubmit} type="submit" style={{ width: '78px', height: '48px' }} className="btn-ghost-m" >
                         전송
-                </button>
+                    </button>
                 </div>
 
                 <div className="input-action-wrap">

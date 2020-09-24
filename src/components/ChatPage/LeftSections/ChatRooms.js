@@ -1,41 +1,48 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
     setCurrentChatRoom,
 } from "../../../redux/actions/chat_actions";
 import { useDispatch, useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
+import {
+    getInitialChatRooms,
+} from "../../../redux/actions/chat_actions";
 
 function ChatRooms() {
     const dispatch = useDispatch();
     const chatRooms = useSelector(state => state.chats.chatRooms)
-
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
+
+    useEffect(() => {
+        dispatch(getInitialChatRooms())
+    }, [])
+
     const onChatRoomClick = (roomKey) => {
+        // console.log('roomKey', roomKey, 'chatRooms', chatRooms)
         dispatch(setCurrentChatRoom(roomKey, chatRooms))
     }
 
     const renderChatRoom = () => (
         chatRooms && chatRooms.map(room => {
-
+            console.log('room', room)
             let receieveIds = room && room.chat_entry_ids.split('|')
             let receievePeopleCounts = receieveIds && receieveIds.length
             const renderSendTo = receieveIds && receieveIds.map(user => {
                 return <span key={uuidv4()}>{user}{" "}</span>
             })
 
-            const isCurrentChatRoom = room && room.room_key && room.room_key === currentChatRoom.room_key ? "current-chat" : "";
+            const isCurrentChatRoom = room && room.room_key === currentChatRoom.room_key ? "current-chat" : "";
             // ${receievePeopleCounts >= 4 ? "n" : receievePeopleCounts} 
 
             return (
                 <li className={`chat-list-single  ppl-1 ${isCurrentChatRoom}`}
-                    key={room.room_key && room.room_key}
-                    onClick={() => onChatRoomClick(room.room_key && room.room_key)}>
+                    key={room.room_key}
+                    onClick={() => onChatRoomClick(room.room_key)}>
                     {/* <div className="list-thumb-area">
                         <div className="user-pic-wrap">
                             <img src={userThumbnail} alt="user-profile-picture" />
                         </div>
-
                     </div> */}
                     <div className="list-info-area">
                         <div className="list-row 1">

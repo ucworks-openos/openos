@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import HamburgerButton from "../../../common/components/HamburgerButton";
 import ChatInput from "./ChatInput";
-import ChatPanel from "./ChatPanel";
+import ChatMessages from "./ChatMessages";
 import { useDispatch, useSelector } from 'react-redux';
 
 function RightPanel() {
 
     const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(false);
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
-    console.log('currentChatRoom', currentChatRoom)
+    // console.log('currentChatRoom', currentChatRoom)
     const clickHamburgerButton = () => {
         setIsHamburgerButtonClicked(!isHamburgerButtonClicked);
     };
@@ -52,7 +52,7 @@ function RightPanel() {
                     </ul>
                 </div>
             </div>
-            <ChatPanel />
+            <ChatMessages />
             <ChatInput />
         </main>
     )
