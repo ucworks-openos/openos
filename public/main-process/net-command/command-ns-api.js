@@ -151,8 +151,10 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
         destIdSizeBuf.writeInt32LE(destIdsBuf.length);
 
         // Message Data
-        let cipherData = CryptoUtil.encryptMessage(message);
-        cipherContentBuf = Buffer.from(cipherData.cipherContent, global.ENC);
+        let cipherData = CryptoUtil.encryptMessage(message, true);
+        console.log('cipherData', cipherData)
+
+        let cipherContentBuf = Buffer.from(cipherData.cipherContent, global.ENC);
         cipherContentSizeBuf.writeInt32LE(cipherContentBuf.length);
         encryptKeyBuf.write(cipherData.encKey, global.ENC);
 

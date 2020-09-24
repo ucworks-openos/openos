@@ -142,8 +142,8 @@ ipcMain.on('searchOrgUsers', async (event, orgGrgoupCode, searchText) => {
 });
 
 // saveBuddyData
-ipcMain.on('saveBuddyData', async (event, userIds) => {
-  nsAPI.reqSaveBuddyData(userIds).then(function(resData)
+ipcMain.on('saveBuddyData', async (event, favoritData) => {
+  nsAPI.reqSaveBuddyData(favoritData).then(function(resData)
   {
     console.log('saveBuddyData res:', resData)
     event.reply('res-saveBuddyData', resData);

@@ -4,6 +4,7 @@ const DS_BASE           = 3000;
 const NS_BASE           = 4000;
 const SB_BASE           = 5000;
 const PS_BASE           = 6000;
+const FS_BASE           = 7000;
 const CS_BASE           = 13000;
 const CHAT_DATA_BASE    = 15000;
 const FETCH_BASE        = 25000;
@@ -15,7 +16,7 @@ module.exports = Object.freeze({
 
     //
     //#region DS COMMAND
-    DS_BASE               : DS_BASE,
+    DS_BASE               : DS_BASE, // 3000
     DS_HANDSHAKE          : DS_BASE + 300,
     DS_SET_SESSION        : DS_BASE + 303,
 
@@ -87,7 +88,7 @@ module.exports = Object.freeze({
 
     //
     //#region NS COMMAND
-    NS_BASE                      : NS_BASE,
+    NS_BASE                      : NS_BASE, // NS_BASE
     NS_CONNECT                   : NS_BASE + 6,
     NS_USER_DISCONNECT           : NS_BASE + 8,
     NS_CHANGE_STATE              : NS_BASE + 10,
@@ -107,7 +108,7 @@ module.exports = Object.freeze({
 
     //
     //#region FETCH COMMAND
-    FETCH_BASE                      : FETCH_BASE,
+    FETCH_BASE                      : FETCH_BASE,  //25000
     FETCH_NO_SQL                    : FETCH_BASE + 1,
     FETCH_SELECT_SUCCESS            : FETCH_BASE + 2,
     FETCH_INSERT_SUCCESS            : FETCH_BASE + 3,
@@ -130,7 +131,7 @@ module.exports = Object.freeze({
     //#endregion FETCH COMMAND
 
 
-    SB_BASE                      : SB_BASE,
+    SB_BASE                      : SB_BASE, // 5000
     SB_CHAT_DATA                 : SB_BASE + 3,
     SB_CHAT_INPUT_CHANGE         : SB_BASE + 5,
     SB_CHAT_OUT                  : SB_BASE + 6,
@@ -140,11 +141,32 @@ module.exports = Object.freeze({
     SB_NO_CHATTING               : SB_BASE + 11,
 
     // 채팅구분
-    CHAT_DATA_BASE               : CHAT_DATA_BASE,
+    CHAT_DATA_BASE               : CHAT_DATA_BASE, // 15000
     CHAT_DATA_LINE               : 0,
     CHAT_DATA_READ_OK            : CHAT_DATA_BASE + 31,
     CHAT_DATA_INVITE_OK          : CHAT_DATA_BASE + 32,
     CHAT_RECV_FILE               : CHAT_DATA_BASE + 35,
     CHAT_SEND_FILE               : CHAT_DATA_BASE + 36,
+
+
+    FS_BASE                      : FS_BASE, 
+    FS_SERVER_BUSY               : FS_BASE + 999,
+    FS_LOGINREADY                : FS_BASE + 1,
+    FS_UPLOADFILE                : FS_BASE + 2,
+    FS_UPLOADREADY               : FS_BASE + 3,
+    FS_UPLOADSEND                : FS_BASE + 4,
+    FS_UPLOADEND                 : FS_BASE + 5,
+    FS_BIGUPLOADFILE             : FS_BASE + 102,
+    FS_DOWNLOADFILE              : FS_BASE + 6,
+    FS_DOWNLOADREADY             : FS_BASE + 7,
+    FS_DOWNLOAD                  : FS_BASE + 8,
+    FS_DOWNLOADSEND              : FS_BASE + 9,
+    FS_DOWNLOADOK                : FS_BASE + 10,
+    FS_DOWNLOADEND               : FS_BASE + 11,
+    FS_LOGOUT                    : FS_BASE + 12,
+    FS_GET_UPGRADE_DATA          : FS_BASE + 13,
+    FS_PUT_UPGRADE_DATA          : FS_BASE + 14,
+    FS_NO_KEY_HEADER             : FS_BASE + 20,
+    FS_ERROR                     : FS_BASE + 21,
 
 });

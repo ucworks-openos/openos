@@ -1,5 +1,5 @@
 const { sendLog } = require('../ipc/ipc-cmd-sender');
-const { fetchResProc } = require('../net-command/command-fetch-res');
+const { responseCmdProc } = require('../net-command/command-fs-res');
 
 const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
@@ -7,67 +7,66 @@ const CmdConst = require('../net-command/command-const');
 const CmdCodes = require('../net-command/command-code');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
-
-var fetchSock;
+var fsSock;
 var rcvCommand;
 
-
 /**
- * FETCH는 연결 비유지형으로 요청후 원하는 응답을 받으면 끊어 버린다.
+ * FS는 연결 비유지형으로 요청후 원하는 응답을 받으면 끊어 버린다.
  * 단, 응답이 오지 않는것도 있음으로 주의
  */
+
 
  /**
   * 서버 접속
   */
 function connect () {
     
-    if (fetchSock) {
-        fetchSock.destroy();
+    if (fsSock) {
+        fsSock.destroy();
     }
     
-    sendLog("Conncect FETCH to " + JSON.stringify(global.SITE_CONFIG.FETCH, null, 0))
+    sendLog("Conncect MAIN_FS to " + JSON.stringify(global.SERVER_INFO.FS, null, 0))
 
     return new Promise(function(resolve, reject){
         var tcpSock = require('net');  
-        var client  = new tcpSock.Socket;  
-        fetchSock = client.connect(global.SERVER_INFO.FETCH.port, global.SERVER_INFO.FETCH.pubip, function() {
-            sendLog("Conncect FETCH Completed to " + JSON.stringify(global.SERVER_INFO.FETCH, null, 0))
-            global.SERVER_INFO.FETCH.isConnected = true;
-    
+        var client  = new tcpSock.Socket; 
+         
+        fsSock = client.connect(global.SERVER_INFO.FS.port, global.SERVER_INFO.FS.pubip, function() {
+            sendLog("Conncect MAIN_FS Completed to " + JSON.stringify(global.SERVER_INFO.FS, null, 0))
+            global.SERVER_INFO.FS.isConnected = true;
+
             resolve(new ResData(true));
         });  
     
         // listen for incoming data
-        fetchSock.on("data", function(data){
+        fsSock.on("data", function(data){
             readDataStream(data);
         })
-    
         // 접속이 종료됬을때 메시지 출력
-        fetchSock.on('end', function(){
-            sendLog('FETCH Disconnected!');
-            global.SERVER_INFO.FETCH.isConnected = false;
+        fsSock.on('end', function(){
+            sendLog('FS Disconnected!');
+            global.SERVER_INFO.FS.isConnected = false;
         });
-        // 
-        fetchSock.on('close', function(hadError){
-            sendLog("FETCH Close. hadError: " + hadError);
-            global.SERVER_INFO.FETCH.isConnected = false;
+        // close
+        fsSock.on('close', function(hadError){
+            sendLog("FS Close. hadError: " + hadError);
+            global.SERVER_INFO.FS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
-        fetchSock.on('error', function(err){
-            sendLog("FETCH Error: " + JSON.stringify(err));
+        fsSock.on('error', function(err){
+            sendLog("FS Error: " + JSON.stringify(err));
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
-            if (!global.SERVER_INFO.FETCH.isConnected) {
+            if (!global.SERVER_INFO.FS.isConnected) {
                 reject(err);
             } else {
-                global.SERVER_INFO.FETCH.isConnected = false;
+                global.SERVER_INFO.FS.isConnected = false;
             }
         });
         // connection에서 timeout이 발생하면 메시지 출력
-        fetchSock.on('timeout', function(){
-            sendLog('FETCH Connection timeout.');
-            global.SERVER_INFO.FETCH.isConnected = false;
+        fsSock.on('timeout', function(){
+            sendLog('FS Connection timeout.');
+            global.SERVER_INFO.FS.isConnected = false;
         });
     });
 };
@@ -76,8 +75,8 @@ function connect () {
  * 종료
  */
 function close() {
-    if (fetchSock) {
-        fetchSock.destroy();
+    if (fsSock) {
+        fsSock.destroy();
     }
 }
 
@@ -86,16 +85,22 @@ function close() {
  * @param {Buffer}} rcvData 
  */
 function readDataStream(rcvData){  
-    // console.log('\r\n++++++++++++++++++++++++++++++++++');
-    // console.log('FETCH rcvData:', rcvData);
+    console.log('\r\n++++++++++++++++++++++++++++++++++');
+    console.log('FS rcvData:', rcvData);
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
         rcvCommand = new CommandHeader(rcvData.readInt32LE(0), rcvData.readInt32LE(4));
 
         rcvCommand.data = rcvData.subarray(8);
-        if (global.FETCH_SEND_COMMAND) {
-            rcvCommand.sendCmd = global.FETCH_SEND_COMMAND
+        if (global.FS_SEND_COMMAND) {
+            rcvCommand.sendCmd = global.FS_SEND_COMMAND
+
+            // 파일서버의 경우 헤더에 전문길이를 주지않는 경우 있음 ㅜㅜ FS_UPLOADFILE
+            // 요청 커맨드에서 원하는 응답길이가 있다면 해당 응답길이만큼 받을수 있도록 한다.
+            if (global.FS_SEND_COMMAND.getResponseLength() > 0) {
+                rcvCommand.setResponseLength(global.FS_SEND_COMMAND.getResponseLength());
+            }
         }
     } else {
         // 헤더가 있다면 데이터 길이만큼 다 받았는지 확인한 후 처리로 넘긴다.
@@ -107,17 +112,17 @@ function readDataStream(rcvData){
     }
 
     rcvCommand.readCnt += rcvData.length;
-    // console.log('Recive FETCH Command Data :', rcvCommand);
+    console.log('Recive FS Command Data :', rcvCommand);
 
-    if (rcvCommand.size <= rcvCommand.readCnt) {
+    if (rcvCommand.getResponseLength() <= rcvCommand.readCnt) {
         // 데이터를 모두 다 받았다.
 
         var procCmd = rcvCommand;
         rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
-        global.FETCH_SEND_COMMAND = null;
+        global.FS_SEND_COMMAND = null;
 
-        if (!fetchResProc(procCmd)) {
-            console.log('Revceive FETCH Data Proc Fail! :', rcvData.toString('utf-8', 0));
+        if (!responseCmdProc(procCmd)) {
+            console.log('Revceive FS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     }
 };
@@ -128,10 +133,10 @@ function readDataStream(rcvData){
  * @param {CommandHeader} cmdHeader 
  * @param {Buffer} dataBuf 
  */
-function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
+function writeCommand(cmdHeader, dataBuf = null) {
     //try {
         rcvCommand = null;
-        global.FETCH_SEND_COMMAND = null;
+        global.FS_SEND_COMMAND = null;
         // Header Buffer
         var codeBuf = Buffer.alloc(4);
         var sizeBuf = Buffer.alloc(4);
@@ -148,22 +153,24 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
         codeBuf.copy(cmdBuf);
 
         // full Size
-        cmdHeader.size = cmdBuf.length;
+        // 수동으로 헤더길이를 지정하는 경우, 사이즈를 계산하지 않는다.
+        if (cmdHeader.size <= 0) cmdHeader.size = cmdBuf.length;
+        
         sizeBuf.writeInt32LE(cmdHeader.size);
         sizeBuf.copy(cmdBuf, 4, 0);
 
-        fetchSock.write(cmdBuf);
-        global.FETCH_SEND_COMMAND = cmdHeader;
+        fsSock.write(cmdBuf);
+        global.FS_SEND_COMMAND = cmdHeader
 
-        console.log("write FETCH Command : ", global.FETCH_SEND_COMMAND);
+        console.log("write FS Command : ", global.FS_SEND_COMMAND);
         console.log('-------------------------- \r\n');
     // } catch (exception) {
-    //     sendLog("write FETCH Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
+    //     sendLog("write FS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }
  };
 
 module.exports = {
-    connectFETCH: connect,
-    writeCommandFETCH: writeCommand,
+    connectFS: connect,
+    writeCommandFS: writeCommand,
     close: close
 };

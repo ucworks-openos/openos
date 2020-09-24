@@ -16,11 +16,55 @@ const nsAPI = require('../net-command/command-ns-api');
 const commandConst = require('../net-command/command-const');
 const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require('constants');
 const { DATE_FORMAT } = require('../common/common-const');
+const CommandHeader = require('../net-command/command-header');
+const {funcTest} = require('./funcTest');
 
 // testAction
 ipcMain.on('testAction', async (event, ...args) => {
   var resData = new ResData(true, '');
-  sendLog('testAction');
+  sendLog('testAction', args);
+
+  let t1 = new funcTest('1', '1-1');
+  let t2 = new funcTest('2', '2-2');
+
+  funcTest('3', '3-3');
+  funcTest('4', '4-4');
+
+  let tmp = 'aaaaaz';
+
+  
+  let fuc = function (Hello) {
+    console.log(Hello, tmp);
+  };
+  
+  fuc('Hello')
+  fuc('Hello')
+
+
+  return;
+
+  let cmd = new CommandHeader(7000, 40, null);
+  cmd.setName('Hello');
+
+  sendLog('--------------------------------', JSON.stringify(cmd));
+
+  return;
+
+
+  let testBuf = Buffer.from('안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요', 'utf8');
+
+  let encKey = CryptoUtil.randomPassword(4);
+  console.log('BUF_ENC', testBuf)
+  let encBuf = CryptoUtil.encryptBufferRC4(encKey, testBuf);
+  console.log('BUF_ENC ENCRYPTO', encBuf)
+  let decBuf = CryptoUtil.decryptBufferRC4(encKey, encBuf);
+  console.log('BUF_ENC DECRYPTO', decBuf)
+  console.log('BUF_ENC', decBuf.toString('utf8'));
+
+
+
+
+  return;
 
   /*
   const choice = dialog.showMessageBoxSync(global.MAIN_WINDOW, {

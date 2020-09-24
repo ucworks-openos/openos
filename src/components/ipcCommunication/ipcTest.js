@@ -1,3 +1,4 @@
+
 const electron = window.require("electron")
 
 /** DS 연결. */
@@ -21,12 +22,14 @@ export const upgradeCheck = async () => {
 }
 
 /** Test Action */
-export const testAction = (data = '') => {
+export const testAction = (testArg) => {
+    console.log('testAction', testArg)
+
     return new Promise(function(resolve, reject) {
         electron.ipcRenderer.on('res-testAction', (event, arg) => {
             resolve(arg);
           })
-          electron.ipcRenderer.send('testAction', data)
+          electron.ipcRenderer.send('testAction', testArg)
       });
 }
 

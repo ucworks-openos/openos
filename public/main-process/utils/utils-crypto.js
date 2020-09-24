@@ -29,7 +29,6 @@ function randomPassword(len) {
  */
 function encryptRC4(key, text) {
     try {
-        //var keyHash = crypto.createHash('sha256').update(key).digest();
         var keyHash = Buffer.from(key, global.ENC);
         var cipher = crypto.createCipheriv('rc4', keyHash,'');
         return cipher.update(text, 'utf8', 'hex');
@@ -40,6 +39,18 @@ function encryptRC4(key, text) {
     
     return '';
 }
+
+function encryptBufferRC4(key, buf) {
+    try {
+        var keyHash = Buffer.from(key, global.ENC);
+        var cipher = crypto.createCipheriv('rc4', keyHash,'');
+        return Buffer.concat([cipher.update(buf),cipher.final()]);
+    } catch (err) {
+        console.log('encryptRC4 Err! ', key, buf, err);
+        sendLog('encryptRC4 Ex', err);
+    }
+}
+
 /**
  * RC4 암호 문자열을 복호화 합니다.
  * @param {String}} key 
@@ -53,6 +64,13 @@ function decryptRC4(key, ciphertext) {
     var decipher = crypto.createDecipheriv('rc4', keyHash,'' );
     var text = decipher.update( ciphertext, 'hex','utf8');
     return text;
+}
+
+function decryptBufferRC4(key, cipherBuf) {
+    var keyHash = Buffer.from(key, global.ENC);
+    var decipher = crypto.createDecipheriv('rc4', keyHash,'' );
+    var decBuf = Buffer.concat([decipher.update(cipherBuf) , decipher.final()]);
+    return decBuf;
 }
 //#endregion RC4
 
@@ -110,18 +128,30 @@ function decryptAES256(key, ciphertext) {
 //#endregion AES256
     
 /**
- * 메세지 Enc 알고이즘에 따라 암호화 합니다.
+ * 메세지 Enc 알고이즘에 따라 암호화 합니다.  
  * @param {String} message 
  * @returns {Object} {cipherContent:cipherContent, encKey:encKey}
  */
 function encryptMessage(message, isLogging = false) {
+    return encryptText(global.ENCRYPT.msgAlgorithm, message, isLogging)
+}
+
+/**
+ * 메세지 Enc 알고이즘에 따라 암호화 합니다.
+ * @param {ENCODE_TYPE_} encAlgorithm
+ * @param {String} message 
+ * @returns {Object} {cipherContent:cipherContent, encKey:encKey}
+ */
+function encryptText(encAlgorithm, message, isLogging = false) {
     
     let tmpPwd = '';
     let cipherPwd = '';
     let cipherContent = '';
     let encKey = '';
 
-    switch(global.ENCRYPT.msgAlgorithm) {
+    if (isLogging) console.log('encryptMessage', encAlgorithm, message)
+
+    switch(encAlgorithm) {
         case CmdConst.ENCODE_TYPE_OTS:
             tmpPwd = randomPassword(4);
             cipherPwd = encryptRC4(CmdConst.SESSION_KEY, tmpPwd);
@@ -199,9 +229,12 @@ function decryptMessage(encryptKey, cipherContent, isLogging = false) {
 module.exports = {
     randomPassword: randomPassword,
     encryptRC4: encryptRC4,
+    encryptBufferRC4: encryptBufferRC4,
     decryptRC4: decryptRC4,
+    decryptBufferRC4: decryptBufferRC4,
     encryptAES256: encryptAES256,
     decryptAES256: decryptAES256,
     encryptMessage: encryptMessage,
+    encryptText: encryptText,
     decryptMessage: decryptMessage,
 }
