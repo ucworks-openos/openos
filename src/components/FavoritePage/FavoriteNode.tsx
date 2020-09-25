@@ -66,8 +66,14 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
     toggle();
   };
 
-  const handleViewDetail = () => {
-    setVisible(true);
+  const handleDetailToggle = (e: any) => {
+    if (data?.gubun !== EnodeGubun.FAVORITE_USER) return false;
+    // * 프로필 사진 클릭 시 selectedKeys를 현재 노드의 키로 덮어씌움
+    if (selectedKeys.indexOf(data?.key) === -1) {
+      setSelectedKeys([data?.key]);
+    }
+    // 선택되지 않은 상태에서만 디테일 보이도록
+    setVisible((prev) => !prev);
   };
 
   const handleCloseDetail = () => {
@@ -101,7 +107,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
                 }
                 style={{ width: `48px`, height: `48px` }}
                 alt="user-profile-picture"
-                onClick={handleViewDetail}
+                onClick={handleDetailToggle}
                 onBlur={handleCloseDetail}
                 tabIndex={index}
                 onError={handleImageError}
@@ -111,7 +117,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
               ></div>
               {visible && (
                 <div className="user-info-container">
-                  <div className="btn-close" onClick={handleViewDetail}></div>
+                  <div className="btn-close"></div>
                   <div className="user-profile-state-wrap">
                     <div className="user-pic-wrap">
                       <img

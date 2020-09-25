@@ -695,7 +695,7 @@ const Switcher = styled.div`
 const ContextMenu = styled.div`
   position: absolute;
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: 0px 0px 4px #dfe2e8;
   user-select: none;
 
@@ -706,6 +706,7 @@ const ContextMenu = styled.div`
     &:hover {
       cursor: pointer;
       background-color: #f5f6f8;
+      border-radius: 10px;
       color: #11378d;
     }
   }

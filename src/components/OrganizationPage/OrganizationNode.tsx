@@ -70,11 +70,10 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
 
   const handleDetailToggle = (e: any) => {
     if (data?.gubun !== EnodeGubun.ORGANIZATION_USER) return false;
+    // * 프로필 사진 클릭 시 selectedKeys를 현재 노드의 키로 덮어씌움
     if (selectedKeys.indexOf(data?.key) === -1) {
       setSelectedKeys([data?.key]);
     }
-    // 상세보기와 동시에 노드 셀렉트가 되는 것 방지
-    e.stopPropagation();
     // 선택되지 않은 상태에서만 디테일 보이도록
     setVisible((prev) => !prev);
   };

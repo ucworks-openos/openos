@@ -22,6 +22,7 @@ import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/Modal/MessageInputModal";
 import tree from "../../reducer/tree";
 import moment from "moment";
+import ModifyGroupModal from "../../common/components/Modal/ModifyGroupModal";
 
 type TgetBuddyTreeReturnTypes = {
   buddyTree: TTreeNode[];
@@ -41,6 +42,9 @@ export default function FavoritePage() {
   const [addGroupModalVisible, setAddGroupModalVisible] = useState<boolean>(
     false
   );
+  const [modifyGroupModalVisible, setModifyGroupModalVisible] = useState<
+    boolean
+  >(false);
   const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState<boolean>(false);
   const {
     searchMode,
@@ -58,7 +62,13 @@ export default function FavoritePage() {
   const [selectedKeys, setSelectedKeys] = useState<(string | number)[]>([]);
   const [rightClickedKey, setRightClickedKey] = useState<string | number>(0);
 
-  const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
+  const [
+    departmentContextMenuVisible,
+    setDepartmentContextMenuVisible,
+  ] = useState<boolean>(false);
+  const [userContextMenuVisible, setUserContextMenuVisible] = useState<boolean>(
+    false
+  );
 
   const [clickedNodeWidth, setClickedNodeWidth] = useState<number>(0);
 
@@ -192,6 +202,37 @@ export default function FavoritePage() {
   }, []);
 
   // ANCHOR handler
+  const handleModifyGroupVisible = async () => {
+    const { v: targetV, i: targetI, list: targetList } = await find(
+      treeData,
+      rightClickedKey.toString()
+    );
+
+    // * 최상위 그룹 수정 불가
+    if (!targetV.pid) {
+      handleDepartmentContextMenuClose();
+      return false;
+    } else {
+      setModifyGroupModalVisible(true);
+      handleDepartmentContextMenuClose();
+    }
+  };
+
+  const handleDeleteGroup = async () => {
+    const replica = [...treeData];
+    const { v: targetV, i: targetI, list: targetList } = await find(
+      replica,
+      rightClickedKey.toString()
+    );
+    // * 하위 부서만 삭제 가능
+    if (targetV.pid) {
+      targetList.splice(targetI, 1);
+      setTreeData(replica);
+    }
+    setFinalSelectedKeys([]);
+    handleDepartmentContextMenuClose();
+  };
+
   const handleDeleteBuddy = async () => {
     const replica = [...treeData];
     for (const v of finalSelectedKeys) {
@@ -199,7 +240,6 @@ export default function FavoritePage() {
         replica,
         v.toString()
       );
-      console.log(`find! `, targetV);
       targetList.splice(targetI, 1);
     }
     if (searchMode) {
@@ -219,11 +259,15 @@ export default function FavoritePage() {
       setSelectedKeys([]);
     }
     setFinalSelectedKeys([]);
-    handleContextMenuClose();
+    handleUserContextMenuClose();
   };
 
-  const handleContextMenuClose = () => {
-    setContextMenuVisible(false);
+  const handleDepartmentContextMenuClose = () => {
+    setDepartmentContextMenuVisible(false);
+  };
+
+  const handleUserContextMenuClose = () => {
+    setUserContextMenuVisible(false);
     // * rightClicked시에만 생기는 특수 border는 contextMenu가 close될 때 같이 사라진다.
     setRightClickedKey(``);
   };
@@ -232,17 +276,26 @@ export default function FavoritePage() {
     const {
       node: { gubun, key: newSelectedkey },
     } = info;
-    if (gubun !== EnodeGubun.FAVORITE_USER) return false;
-    // * 프로필 사진 클릭 시 작동 안함
-    if (info.event.nativeEvent.target.localName === `img`) return false;
-    setRightClickedKey(newSelectedkey);
-    setContextMenuVisible(true);
 
+    if (gubun !== EnodeGubun.FAVORITE_USER) {
+      // * 부서 클릭 시
+      setDepartmentContextMenuVisible(true);
+      setClickedNodeWidth(
+        info.event.nativeEvent.path.find((v: any) => v.localName === `div`)
+          .offsetWidth
+      );
+    } else {
+      // * 유저 클릭 시
+      // * 프로필 사진 클릭 시 작동 안함
+      if (info.event.nativeEvent.target.localName === `img`) return false;
+      setClickedNodeWidth(
+        info.event.nativeEvent.path.find((v: any) => v.localName === `li`)
+          .offsetWidth
+      );
+      setUserContextMenuVisible(true);
+    }
     // TODO depth계산해서 node에 넣어준 후, pageX에 1depth당 +30px씩 증감해야 함
-    setClickedNodeWidth(
-      info.event.nativeEvent.path.find((v: any) => v.localName === `li`)
-        .offsetWidth
-    );
+    setRightClickedKey(newSelectedkey);
     setPageX(info.event.pageX);
     setPageY(info.event.pageY);
   };
@@ -640,21 +693,6 @@ export default function FavoritePage() {
               isHamburgerButtonClicked ? "lnb-menu-wrap" : "lnb-menu-wrap-hide"
             }
           >
-            <li
-              className="lnb-menu-item go-to-add-group"
-              onClick={AddGroupModalOpen}
-            >
-              <h6>그룹 추가</h6>
-            </li>
-            <li
-              className="lnb-menu-item go-to-edit-group"
-              onClick={EditGroupTabOpen}
-            >
-              <h6>그룹 수정/삭제</h6>
-            </li>
-            <li className="lnb-menu-item go-to-edit-favorit">
-              <h6>즐겨찾기 대상 수정/삭제</h6>
-            </li>
             <li className="lnb-menu-item favorite-view-option">
               <h6>멤버 보기 옵션</h6>
               <ul>
@@ -855,8 +893,23 @@ export default function FavoritePage() {
         style={commonModalStyles}
       >
         <AddGroupModal
-          show={addGroupModalVisible}
           closeModalFunction={AddGroupModalClose}
+          rightClickedKey={rightClickedKey}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={modifyGroupModalVisible}
+        onRequestClose={() => {
+          setModifyGroupModalVisible(false);
+        }}
+        style={commonModalStyles}
+      >
+        <ModifyGroupModal
+          closeModalFunction={() => {
+            setModifyGroupModalVisible(false);
+          }}
+          rightClickedKey={rightClickedKey}
         />
       </Modal>
 
@@ -879,10 +932,32 @@ export default function FavoritePage() {
         style={{
           top: pageY,
           left: leftPosition,
-          display: contextMenuVisible ? `block` : `none`,
+          display: departmentContextMenuVisible ? `block` : `none`,
         }}
       >
-        <div onMouseLeave={handleContextMenuClose} tabIndex={1}>
+        <div onMouseLeave={handleDepartmentContextMenuClose} tabIndex={1}>
+          <li>
+            <ul onClick={handleDeleteGroup}>그룹 삭제</ul>
+            <ul onClick={handleModifyGroupVisible}>그룹 수정</ul>
+            <ul
+              onClick={() => {
+                setAddGroupModalVisible(true);
+              }}
+            >
+              하위 그룹 추가
+            </ul>
+          </li>
+        </div>
+      </ContextMenu>
+
+      <ContextMenu
+        style={{
+          top: pageY,
+          left: leftPosition,
+          display: userContextMenuVisible ? `block` : `none`,
+        }}
+      >
+        <div onMouseLeave={handleUserContextMenuClose} tabIndex={1}>
           <li>
             <ul onClick={handleDeleteBuddy}>즐겨찾기에서 삭제</ul>
             <ul>쪽지 보내기</ul>
@@ -918,17 +993,18 @@ const Switcher = styled.div`
 const ContextMenu = styled.div`
   position: absolute;
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: 0px 0px 4px #dfe2e8;
   user-select: none;
 
   li ul {
-    background-clip: border-box;
+    /* background-clip: border-box; */
     padding: 15px;
 
     &:hover {
       cursor: pointer;
       background-color: #f5f6f8;
+      border-radius: 10px;
       color: #11378d;
     }
   }
