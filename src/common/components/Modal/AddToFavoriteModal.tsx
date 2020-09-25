@@ -7,6 +7,7 @@ import { EnodeGubun } from "../../../enum";
 import useTree from "../../../hooks/useTree";
 import { arrayLike, convertToUser, delay } from "../../util";
 import Node from "../AddToFavoriteTreeNode";
+import moment from "moment";
 
 type TaddToFavoriteModalProps = {
   selectedKeys: (string | number)[];
@@ -18,28 +19,9 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
   // ANCHOR state
   const { closeModalFunction, selectedKeys, setSelectedKeys } = props;
   const { treeData, setTreeData } = useTree({ type: `favorite` });
-  const [selectedKey, setSelectedKey] = useState<string | number>(0);
+  const [selectedKey, setSelectedKey] = useState<string | number>(1);
   const [selectedUserInfos, setSelectedUserInfos] = useState<TTreeNode[]>([]);
-  const [phaze, setPhaze] = useState<0 | 1 | 2 | 3>(0);
-
-  // ANCHOR memo
-  const spread = (tree: TTreeNode[], list: (string | number)[]) => {
-    tree.forEach((v: any) => {
-      if (v.gubun !== EnodeGubun.GROUP) {
-        list.push(v.key);
-      }
-      if (v.children) {
-        spread(v.children, list);
-      }
-    });
-
-    return list;
-  };
-
-  const setFlatUserKeys = () => {
-    return spread(treeData, []);
-  };
-  const flatUserKeys = useMemo(setFlatUserKeys, [treeData]);
+  const [phaze, setPhaze] = useState<0 | 1 | 2>(0);
 
   // ANCHOR effect
   useEffect(() => {
@@ -55,19 +37,14 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
       // * 가져온 정보를 가공. 이 때 selectedKeys 유저가 Favorite 유저와 중복됟 시 중복 표기 해 줌.
       const result = userSchema.map((v: any) => ({
         title: v.user_name.value,
-        key: v.user_id.value,
+        key: v.user_id.value?.concat(`_`, moment().format(`YYYYMMDDHHmmssSSS`)),
         gubun: EnodeGubun.FAVORITE_USER,
-        duplicated: flatUserKeys.indexOf(v.user_id.value) > -1 ? true : false,
         ...(v && convertToUser(v)),
       }));
-      // * 모든 유저가 이미 즐겨찾기에 존재하면 페이즈 2 (중복 추가 불가 안내페이지)로 이동
-      if (!result.find((v: any) => v.duplicated === false)) {
-        setPhaze(2);
-      } else {
-        await delay();
-        setSelectedUserInfos(result);
-        setPhaze(1);
-      }
+
+      await delay();
+      setSelectedUserInfos(result);
+      setPhaze(1);
     };
     initiate();
   }, []);
@@ -77,7 +54,30 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
     const {
       node: { key: newSelectedKey },
     } = e;
-    setSelectedKey(newSelectedKey);
+
+    // * 선택한 부서의 자식노드를 가져옴.
+    const { v, children } = await findChildren(
+      treeData,
+      newSelectedKey?.toString()
+    );
+
+    // * selectedUserInfos 중에서 이미 선택한 부서에 들어가있는지 user_id로 판단. 중복되면 duplicated값 세팅.
+    const duplicatedTested = selectedUserInfos.map((v: TTreeNode) => ({
+      ...v,
+      duplicated: children.find(
+        (childV: TTreeNode) => v.userId === childV.userId
+      )
+        ? true
+        : false,
+    }));
+    setSelectedUserInfos(duplicatedTested);
+
+    // * 만일 selectedUserInfos의 유저들이 선택한 부서에 모두 들어가있다면, 클릭 못하도록 selectedKey를 날려버린다.
+    if (!duplicatedTested.find((v: any) => v.duplicated === false)) {
+      setSelectedKey(``);
+    } else {
+      setSelectedKey(newSelectedKey);
+    }
   };
 
   const handleAddToFavorite = async () => {
@@ -104,8 +104,8 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
     // * replica를 변경.
     children.unshift(...result);
     setTreeData(replica);
-    // * 페이즈 3 (완료 페이지)로 이동.
-    setPhaze(3);
+    // * 페이즈 2 (완료 페이지)로 이동.
+    setPhaze(2);
     setSelectedKeys([]);
   };
 
@@ -249,17 +249,6 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
           </div>
         </div>
       ) : phaze === 2 ? (
-        <Information>
-          <h4 className="page-title">
-            즐겨찾기에 중복하여 추가할 수 없습니다.
-          </h4>
-          <div>
-            <div className="btn-solid-s" onClick={closeModalFunction}>
-              완료
-            </div>
-          </div>
-        </Information>
-      ) : phaze === 3 ? (
         <Information>
           <h4 className="page-title">즐겨찾기에 추가되었습니다.</h4>
           <div>

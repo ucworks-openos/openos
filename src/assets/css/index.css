@@ -444,7 +444,7 @@ a:hover,
 .page-title {
   display: inline-block;
   margin-right: 16px;
-  user-select:
+  user-select: none;
 }
 .local-search-wrap {
   width: 10%;

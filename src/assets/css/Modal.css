@@ -19,6 +19,7 @@
     color: #11378D;
     font-weight: 500;
     cursor: pointer;
+    user-select: none;
 }
 .btn-disabled {
     display: inline-block;
@@ -28,6 +29,7 @@
     color: #11378D;
     font-weight: 500;
     cursor: pointer;
+    user-select: none;
 }
 .btn-disabled{color: #fff;background-color:#DFE2E8;}
 .btn-solid-s{color: #fff;background-color:#11378D;}

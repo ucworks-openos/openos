@@ -21,6 +21,7 @@ import { EconnectType, Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/Modal/MessageInputModal";
 import tree from "../../reducer/tree";
+import moment from "moment";
 
 type TgetBuddyTreeReturnTypes = {
   buddyTree: TTreeNode[];
@@ -126,7 +127,6 @@ export default function FavoritePage() {
         },
       } = await getBuddyList();
       const response = arrayLike(responseMaybeArr);
-      console.log(`buddy response: `, response);
       // 친구 id만 추출
       const userIds = response
         .filter((v: any) => v.gubun === EnodeGubun.FAVORITE_USER)
@@ -199,20 +199,21 @@ export default function FavoritePage() {
         replica,
         v.toString()
       );
+      console.log(`find! `, targetV);
       targetList.splice(targetI, 1);
     }
-
-    const searchResultReplica = [...searchResult];
-    for (const v of finalSelectedKeys) {
-      const { v: targetV, i: targetI, list: targetList } = await find(
-        searchResultReplica,
-        v.toString()
-      );
-      targetList.splice(targetI, 1);
+    if (searchMode) {
+      const searchResultReplica = [...searchResult];
+      for (const v of finalSelectedKeys) {
+        const { v: targetV, i: targetI, list: targetList } = await find(
+          searchResultReplica,
+          v.toString()
+        );
+        targetList.splice(targetI, 1);
+      }
+      setSearchResult(searchResultReplica);
     }
-
     setTreeData(replica);
-    setSearchResult(searchResultReplica);
     // * 선택해둔 노드를 rightClick한 경우 selectedKeys 클리어. (선택하지 않은 노드를 rightClick한 경우에는 selectedKeys 그대로 놔둠)
     if (selectedKeys.find((v: any) => v === rightClickedKey)) {
       setSelectedKeys([]);
@@ -443,7 +444,7 @@ export default function FavoritePage() {
               ...v.children,
               {
                 title: child.name,
-                key: child.id,
+                key: child.id.concat(`_`, moment().format(`YYYYMMDDHHmmssSSS`)),
                 gubun: child.gubun,
                 pid: child.pid,
                 ...(userV && convertToUser(userV)),
