@@ -15,15 +15,16 @@ type TFavoriteNodeProps = {
   data: TTreeNode;
   index: number;
   toggle: () => void;
-  setSelectedNode: (node: TTreeNode) => void;
+  selectedKeys: (string | number)[];
+  setSelectedKeys: (selectedKeys: (string | number)[]) => void;
 };
 
 export default function FavoriteNode(props: TFavoriteNodeProps) {
-  const { data, index, toggle, setSelectedNode } = props;
+  const { data, index, toggle, selectedKeys, setSelectedKeys } = props;
   const [visible, setVisible] = useState<boolean>(false);
 
   const handleToggle = () => {
-    setSelectedNode(data);
+    setSelectedKeys([...selectedKeys, data?.key]);
     toggle();
   };
 

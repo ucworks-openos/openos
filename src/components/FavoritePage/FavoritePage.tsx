@@ -41,17 +41,12 @@ export default function FavoritePage() {
     setSearchKeyword,
     setSearchResult,
   } = useSearch({ type: `favorite` });
-  const {
-    treeData,
-    expandedKeys,
-    selectedNode,
-    setTreeData,
-    setExpandedKeys,
-    setSelectedNode,
-  } = useTree({
+  const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
     type: `favorite`,
   });
   const targetInfo = useStateListener();
+
+  const [selectedKeys, setSelectedKeys] = useState<(string | number)[]>([]);
 
   const connectTypeConverter = (connectTypeBundle: string) => {
     const connectTypeMaybeArr = connectTypeBundle
@@ -95,6 +90,7 @@ export default function FavoritePage() {
         },
       } = await getBuddyList();
       const response = arrayLike(responseMaybeArr);
+      console.log(`buddy response: `, response);
       // 친구 id만 추출
       const userIds = response
         .filter((v: any) => v.gubun === EnodeGubun.FAVORITE_USER)
@@ -289,10 +285,8 @@ export default function FavoritePage() {
     }
   };
 
-  const handleSelect = async ([selectedKeys]: (string | number)[]) => {
-    const { v } = await find(treeData, selectedKeys?.toString());
-    console.log(`selected Node: `, v);
-    setSelectedNode(v);
+  const handleSelect = async (selectedKeys: (string | number)[]) => {
+    setSelectedKeys(selectedKeys);
   };
 
   const find = (
@@ -387,7 +381,8 @@ export default function FavoritePage() {
                 data={item}
                 index={i}
                 toggle={toggleMessageModalVisible}
-                setSelectedNode={setSelectedNode}
+                selectedKeys={selectedKeys}
+                setSelectedKeys={setSelectedKeys}
               />
             }
           >
@@ -403,7 +398,8 @@ export default function FavoritePage() {
               data={item}
               index={i}
               toggle={toggleMessageModalVisible}
-              setSelectedNode={setSelectedNode}
+              selectedKeys={selectedKeys}
+              setSelectedKeys={setSelectedKeys}
             />
           }
         />
@@ -700,7 +696,7 @@ export default function FavoritePage() {
       >
         <MessageInputModal
           closeModalFunction={toggleMessageModalVisible}
-          selectedNode={selectedNode}
+          // selectedNode={selectedNode}
         />
       </Modal>
     </div>

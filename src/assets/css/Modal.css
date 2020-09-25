@@ -20,7 +20,17 @@
     font-weight: 500;
     cursor: pointer;
 }
-.btn-ghost-s{margin-right: 16px;}
+.btn-disabled {
+    display: inline-block;
+    padding: 2px 12px;
+    border: 1px solid #DFE2E8;
+    border-radius: 4px;
+    color: #11378D;
+    font-weight: 500;
+    cursor: pointer;
+}
+.btn-disabled{color: #fff;background-color:#DFE2E8;}
 .btn-solid-s{color: #fff;background-color:#11378D;}
-.btn-ghost-s:hover{background-color:#ebf1ff;}
 .btn-solid-s:hover{border-color:#2F59B7;background-color:#0A2768;}
+.btn-ghost-s{margin-right: 16px;}
+.btn-ghost-s:hover{background-color:#ebf1ff;}
