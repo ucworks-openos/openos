@@ -17,12 +17,50 @@ type TFavoriteNodeProps = {
   toggle: () => void;
   selectedKeys: (string | number)[];
   setSelectedKeys: (selectedKeys: (string | number)[]) => void;
+  rightClickedKey: string | number;
+};
+
+type UserRowProps = {
+  selected: boolean;
+  rightClicked: boolean;
 };
 
 export default function FavoriteNode(props: TFavoriteNodeProps) {
-  const { data, index, toggle, selectedKeys, setSelectedKeys } = props;
+  const {
+    data,
+    index,
+    toggle,
+    selectedKeys,
+    setSelectedKeys,
+    rightClickedKey,
+  } = props;
   const [visible, setVisible] = useState<boolean>(false);
 
+  // ANCHOR memo
+  const connectTypeConverter = () => {
+    const connectTypeMaybeArr = data?.connectType
+      ? data?.connectType.split(`|`)
+      : ``;
+
+    const connectType = arrayLike(connectTypeMaybeArr);
+    return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
+  };
+
+  const connectType = useMemo(connectTypeConverter, []);
+
+  const setSelected = () => {
+    const selected = selectedKeys.indexOf(data?.key) > -1;
+    return selected;
+  };
+  const selected = useMemo(setSelected, [selectedKeys]);
+
+  const setRightClicked = () => {
+    const rightClicked = rightClickedKey === data?.key;
+    return rightClicked;
+  };
+  const rightClicked = useMemo(setRightClicked, [rightClickedKey]);
+
+  // ANCHOR handler
   const handleToggle = () => {
     setSelectedKeys([...selectedKeys, data?.key]);
     toggle();
@@ -41,23 +79,18 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
     image.target.src = `/images/img_imgHolder.png`;
   };
 
-  const connectTypeConverter = () => {
-    const connectTypeMaybeArr = data?.connectType
-      ? data?.connectType.split(`|`)
-      : ``;
-
-    const connectType = arrayLike(connectTypeMaybeArr);
-    return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
-  };
-
-  const connectType = useMemo(connectTypeConverter, []);
-
   return (
     <>
       {data?.gubun === EnodeGubun.GROUP ? (
         <Department>{data?.title}</Department>
       ) : (
-        <li className="user-row">
+        <UserRow
+          className={`user-row ${selected && `selected`} ${
+            rightClicked && `rightClicked`
+          }`}
+          selected={selected}
+          rightClicked={rightClicked}
+        >
           <div className="user-profile-state-wrap">
             <div className="user-pic-wrap">
               <img
@@ -177,7 +210,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
             <div className="btn-quick message" onClick={handleToggle}></div>
             <div className="btn-quick call"></div>
           </div>
-        </li>
+        </UserRow>
       )}
     </>
   );
@@ -192,4 +225,14 @@ const Department = styled.h6`
   border-bottom: 1px solid #dfe2e8;
   font-size: 14px;
   cursor: pointer;
+`;
+
+const UserRow = styled.li`
+  background-color: ${(props: UserRowProps) => props.selected && `#fff`};
+  border: ${(props: UserRowProps) =>
+    props.selected
+      ? `1px solid #ebedf1`
+      : props.rightClicked
+      ? `1px solid #e0e0e0`
+      : ``};
 `;

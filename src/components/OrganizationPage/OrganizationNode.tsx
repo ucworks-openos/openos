@@ -30,6 +30,30 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
   } = props;
   const [visible, setVisible] = useState<boolean>(false);
 
+  // ANCHOR memo
+  const connectTypeConverter = () => {
+    const connectTypeMaybeArr: string | string[] = data?.connectType
+      ? data?.connectType.split(`|`)
+      : ``;
+
+    const connectType = arrayLike(connectTypeMaybeArr);
+    return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
+  };
+  const connectType = useMemo(connectTypeConverter, []);
+
+  const setSelected = () => {
+    const selected = selectedKeys.indexOf(data?.key) > -1;
+    return selected;
+  };
+  const selected = useMemo(setSelected, [selectedKeys]);
+
+  const setRightClicked = () => {
+    const rightClicked = rightClickedKey === data?.key;
+    return rightClicked;
+  };
+  const rightClicked = useMemo(setRightClicked, [rightClickedKey]);
+
+  // ANCHOR handler
   const handleToggle = () => {
     setSelectedKeys([...selectedKeys, data?.key]);
     toggle();
@@ -54,29 +78,6 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
     // 선택되지 않은 상태에서만 디테일 보이도록
     setVisible((prev) => !prev);
   };
-
-  const connectTypeConverter = () => {
-    const connectTypeMaybeArr: string | string[] = data?.connectType
-      ? data?.connectType.split(`|`)
-      : ``;
-
-    const connectType = arrayLike(connectTypeMaybeArr);
-    return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
-  };
-
-  const setSelected = () => {
-    const selected = selectedKeys.indexOf(data?.key) > -1;
-    return selected;
-  };
-
-  const setRightClicked = () => {
-    const rightClicked = rightClickedKey === data?.key;
-    return rightClicked;
-  };
-
-  const connectType = useMemo(connectTypeConverter, []);
-  const selected = useMemo(setSelected, [selectedKeys]);
-  const rightClicked = useMemo(setRightClicked, [rightClickedKey]);
 
   return (
     <>

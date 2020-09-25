@@ -60,6 +60,13 @@ export default function OrganizationPage() {
   const [pageY, setPageY] = useState<number>(0);
 
   // ANCHOR memo
+  const leftPositionCalculator = () => {
+    const percentage = Math.round((pageX / clickedNodeWidth) * 100);
+    return percentage > 100 ? pageX - (pageX - clickedNodeWidth) * 0.8 : pageX;
+  };
+
+  const leftPosition = useMemo(leftPositionCalculator, [pageX]);
+
   const setFinalSelectedKeys = () => {
     if (!rightClickedKey) return [];
     // * 선택해둔 노드를 rightClick하지 않은 경우 rightClickedKey를 fianl로 보냄.
@@ -197,7 +204,7 @@ export default function OrganizationPage() {
     setRightClickedKey(newSelectedkey);
     setContextMenuVisible(true);
 
-    // TODO depth계산해서 node에 넣어준 후, clickedNodeWidth에 1depth당 30px씩 추가해야 함.
+    // TODO depth계산해서 node에 넣어준 후, pageX에 1depth당 +30px씩 증감해야 함
     setClickedNodeWidth(
       info.event.nativeEvent.path.find((v: any) => v.localName === `li`)
         .offsetWidth
@@ -370,14 +377,6 @@ export default function OrganizationPage() {
   };
 
   // ANCHOR etc
-
-  const leftPositionCalculator = () => {
-    const percentage = Math.round((pageX / clickedNodeWidth) * 100);
-    return percentage > 100 ? pageX - (pageX - clickedNodeWidth) * 0.8 : pageX;
-  };
-
-  const leftPosition = useMemo(leftPositionCalculator, [pageX]);
-
   const connectTypeConverter = (connectTypeBundle: string) => {
     const connectTypeMaybeArr = connectTypeBundle
       ? connectTypeBundle.split(`|`)

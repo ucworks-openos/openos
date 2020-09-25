@@ -56,7 +56,7 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
       const result = userSchema.map((v: any) => ({
         title: v.user_name.value,
         key: v.user_id.value,
-        gubun: v.gubun.value,
+        gubun: EnodeGubun.FAVORITE_USER,
         duplicated: flatUserKeys.indexOf(v.user_id.value) > -1 ? true : false,
         ...(v && convertToUser(v)),
       }));
@@ -184,7 +184,7 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
         <div>
           <Container>
             <div>
-              <h4 className="page-title">다음의 멤버들이 추가됩니다.</h4>
+              <h4 className="page-title">다음 멤버를 추가합니다.</h4>
               <div>
                 {selectedUserInfos.map((v: any) => (
                   <li
