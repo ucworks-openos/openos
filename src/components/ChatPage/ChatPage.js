@@ -7,30 +7,36 @@ import {
     getLogginedInUserInfo
 } from "../../redux/actions/user_actions";
 import {
-    addReceivedChat
-} from "../../redux/actions/chat_actions";
+    moveToClickedChatRoom
+} from '../../redux/actions/chat_actions';
+import moment from 'moment';
 
-const electron = window.require("electron")
-
-function ChatPage() {
+function ChatPage(props) {
     const dispatch = useDispatch();
+    const roomKey = props.match.params["roomKey"];
+    const members = props.match.params["members"];
+    const message = props.match.params["message"];
 
     useEffect(() => {
-        electron.ipcRenderer.on('chatReceived', (event, chatMsg) => {
-            let divideChatData = chatMsg[0].chatData.split("|")
-            if (divideChatData.length > 1) {
-                return null;
-            } else {
-                dispatch(addReceivedChat(chatMsg[0]));
-            }
-        });
-
-        electron.ipcRenderer.on('notiTitleClick', (notiType, roomKey) => {
-            console.log('notiType', notiType, 'notyId', roomKey)
-        });
-
         dispatch(getLogginedInUserInfo(sessionStorage.getItem("loginId")))
-    }, [])
+        if (roomKey) {
+            let selectedUsers = members.split("|")
+            const chatRoomBody = {
+                selected_users: selectedUsers,
+                user_counts: selectedUsers.length,
+                chat_entry_ids: members,
+                unread_count: 0,
+                room_key: roomKey,
+                chat_contents: message ? message : "",
+                chat_send_name: sessionStorage.getItem("loginName"),
+                create_room_date: moment().format("YYYYMMDDHHmm"),
+                chat_send_id: sessionStorage.getItem("loginId"),
+                last_line_key: '9999999999999999'
+            }
+            dispatch(moveToClickedChatRoom(chatRoomBody));
+        }
+
+    }, [roomKey])
 
     return (
         <div className="contents-wrap-chat">
