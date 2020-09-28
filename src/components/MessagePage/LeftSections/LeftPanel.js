@@ -23,10 +23,10 @@ function LeftPanel() {
 
   return (
     <div className="list-area">
-      <div class="message-page-title-wrap">
-        <h4 class="page-title">쪽지</h4>
+      <div className="message-page-title-wrap">
+        <h4 className="page-title">쪽지</h4>
         <div
-          class={`message-tab receive ${
+          className={`message-tab receive ${
             currentMessageListType === "MSG_RECV" && "current"
           }`}
           onClick={() => onChangeMessageListsTypeClick("MSG_RECV")}
@@ -34,31 +34,31 @@ function LeftPanel() {
           수신
         </div>
         <div
-          class={`message-tab sent ${
+          className={`message-tab sent ${
             currentMessageListType === "MSG_SEND" && "current"
           }`}
           onClick={() => onChangeMessageListsTypeClick("MSG_SEND")}
         >
           발신
         </div>
-        {/* <div class="message-tab booked">예약</div>
-                <div class="message-tab file">파일함</div> */}
-        <div class="message-list-action-wrap">
+        {/* <div className="message-tab booked">예약</div>
+                <div className="message-tab file">파일함</div> */}
+        <div className="message-list-action-wrap">
           <button
-            class="message-list-action add"
+            className="message-list-action add"
             title="쪽지쓰기"
             onClick={onOpenMessageInputModalClick}
           ></button>
-          <div class="message-list-action search" title="쪽지 검색">
+          <div className="message-list-action search" title="쪽지 검색">
             <input type="checkbox" id="message-list-search-toggle-check" />
             <label
-              class="message-list-search-toggle"
-              for="message-list-search-toggle-check"
+              className="message-list-search-toggle"
+              htmlFor="message-list-search-toggle-check"
             ></label>
-            <div class="message-list-search-wrap">
+            <div className="message-list-search-wrap">
               <input
                 type="text"
-                class="message-list-search"
+                // className="message-list-search"
                 placeholder="이름, 내용, 파일명, 일시 검색"
               />
             </div>

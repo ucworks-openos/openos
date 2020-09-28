@@ -21,6 +21,7 @@ const NetTestPage = React.lazy(() => import("./TestPages/NetTestPage"));
 const FuncTestPage = React.lazy(() => import("./TestPages/FuncTestPage"));
 const FuncTestPage2 = React.lazy(() => import("./TestPages/FuncTestPage2"));
 const chatTestPage = React.lazy(() => import("./TestPages/ChatTestPage"));
+const TeamSpacePage = React.lazy(() => import("./TeamSpacePage/TeamSpacePage"));
 
 function RouterPage() {
   return (
@@ -36,6 +37,7 @@ function RouterPage() {
           <Route exact path="/about" component={AboutPage} />
           <Route exact path="/message" component={MessagePage} />
           <Route exact path="/chat" component={ChatPage} />
+          <Route exact path="/team-space" component={TeamSpacePage} />
           <Route exact path="/site-config" component={SiteConfigPage} />
           <Route exact path="/netTest" component={NetTestPage} />
           <Route exact path="/funcTest" component={FuncTestPage} />

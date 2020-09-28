@@ -86,14 +86,14 @@
     display: none;
     position: absolute;
     top: 0px;
-    left: 0;
+    left: 2px !important;
     right: 0;
-    width: 100%;
+    width: 99% !important;
     height: 52px;
     padding: 12px 16px;
     background-color: #f8f9fa;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
-    z-index: 1002;
+    z-index: 5;
 }
 .chat-list-action.search input[type="checkbox"]:checked ~ .chat-list-search-wrap {
     display: block;
@@ -665,12 +665,11 @@
     margin-bottom: auto;
 }
 .btn-ghost-m {
-    min-width: 75px;
     display: inline-block;
     padding: 6px 20px;
-    border: 2px solid #11378d;
+    border: 2px solid #11378D;
     border-radius: 4px;
-    color: #11378d;
+    color: #11378D;
     font-weight: 500;
     cursor: pointer;
 }

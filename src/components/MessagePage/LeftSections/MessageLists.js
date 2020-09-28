@@ -16,7 +16,7 @@ function MessagesLists() {
     const messageDefaultCounts = useSelector(state => state.messages.messageDefaultCounts)
     const messageLists = useSelector(state => state.messages.messageLists)
     const currentMessage = useSelector(state => state.messages.currentMessage)
-    const currentMessageListType = useSelector(state => state.messages.currentMessageListType)
+    const currentMessageListType = useSelector(state => state.messages.currentMessageListType)    
 
     const onMessageClick = (messageId) => {
         dispatch(getMessageHo(messageId))
@@ -41,9 +41,9 @@ function MessagesLists() {
                             <div className="message-title">
                                 To : {renderSendTo}
                             </div>
-                            <div className="message-counter unread">
+                            {/* <div className="message-counter unread">
                                 new
-                            </div>
+                            </div> */}
                         </div>
                         <div className="list-row 2">
                             <div className="message-summary">
