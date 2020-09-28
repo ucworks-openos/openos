@@ -23,6 +23,7 @@ import MessageInputModal from "../../common/components/Modal/MessageInputModal";
 import tree from "../../reducer/tree";
 import moment from "moment";
 import ModifyGroupModal from "../../common/components/Modal/ModifyGroupModal";
+import { flattenDiagnosticMessageText } from "typescript";
 
 type TgetBuddyTreeReturnTypes = {
   buddyTree: TTreeNode[];
@@ -431,6 +432,15 @@ export default function FavoritePage() {
     const replica = [...treeData];
     const { v: dragV, i: dragI, list: dragList } = await find(replica, dragKey);
     const { v: dropV, i: dropI, list: dropList } = await find(replica, dropKey);
+
+    console.log(dropList);
+
+    const duplicated =
+      dropV?.gubun === EnodeGubun.GROUP
+        ? dropV?.children?.find((v: TTreeNode) => v.userId === dragV.userId)
+        : dropList.find((v: TTreeNode) => v.userId === dragV.userId);
+
+    if (duplicated) return false;
 
     // 그룹 -> 유저 드래그
     if (
