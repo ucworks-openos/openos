@@ -154,9 +154,8 @@ function writeCommand(cmdHeader, dataBuf = null) {
         dsSock.write(cmdBuf);
         global.DS_SEND_COMMAND = cmdHeader
 
-        console.log('\r\n-------------------------- ');
-        //sendLog("write Command ------ CMD: " + JSON.stringify(global.DS_SEND_COMMAND));
         console.log("write DS Command : ", global.DS_SEND_COMMAND);
+        console.log('-------------------------- \r\n');
     // } catch (exception) {
     //     sendLog("write DS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }

@@ -79,13 +79,11 @@ declare global {
   type TOrganizationState = {
     organizationTreeData: TTreeNode[];
     organizationExpandedKeys: string[];
-    selectedOrganizationNode: TTreeNode;
   };
 
   type TFavoriteState = {
     favoriteTreeData: TTreeNode[];
     favoriteExpandedKeys: string[];
-    selectedFavoriteNode: TTreeNode;
   };
 
   type TProfileState = {

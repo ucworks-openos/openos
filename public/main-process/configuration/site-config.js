@@ -1,6 +1,6 @@
+const winston = require('../../winston')
+
 const SITE_CONFIG_FILE = 'site.cfg';
-
-
 /**
  * 사이트 Config파일을 로드합니다.
  */
@@ -12,9 +12,8 @@ function readConfig() {
 		let rawdata = fs.readFileSync(SITE_CONFIG_FILE);
 		global.SITE_CONFIG = JSON.parse(rawdata);
 
-		console.log("siteConfig read completed!", global.SITE_CONFIG)
 	} catch (exception) {
-		console.log("SiteConfig Load Fail! path:" + SITE_CONFIG_FILE, exception);
+		winston.error("SiteConfig Load Fail! path:%s  %s", SITE_CONFIG_FILE, exception);
 	}
 }
 
@@ -27,16 +26,16 @@ function readAsyncConfig (readCompleted) {
 
 		fs.readFile(SITE_CONFIG_FILE, (err, data) => {
 			if (err) {
-				console.log("siteConfig Async Read Fail!", err);
+				winston.error("siteConfig Async Read Fail! %s", err);
 				throw err;
 			} 
 			global.SITE_CONFIG = JSON.parse(data);
-			console.log("siteConfig read completed!", global.SITE_CONFIG)
-
+			
+			winston.info("siteConfig wirte completed! %s", global.SITE_CONFIG)
 			readCompleted();
 		});
-	} catch (exception) {
-		console.log("SiteConfig Load Fail! path:" + SITE_CONFIG_FILE, exception);
+	} catch (ex) {
+		winston.error("SiteConfig Load Fail! path: %s   %s", SITE_CONFIG_FILE, ex);
 	}
 }
 	
@@ -48,7 +47,6 @@ function writeConfig () {
 
 	const fs = require('fs');
 	fs.writeFileSync(SITE_CONFIG_FILE, data);
-	console.log("siteConfig wirte completed!", global.SITE_CONFIG)
 }
 
 /**
@@ -59,11 +57,11 @@ function writeAsyncConfig () {
 
 	fs.writeFile(SITE_CONFIG_FILE, data, (err) => {
 		if (err) {
-			console.log("siteConfig Async Write Fail!", err);
+			winston.error("siteConfig Async Write Fail! %s", err);
 			throw err;
 		} 
 
-		console.log("siteConfig wirte completed!", global.SITE_CONFIG)
+		winston.info("siteConfig wirte completed! %s", global.SITE_CONFIG)
 	});
 }
 

@@ -1,11 +1,11 @@
+
 import React, { useState, useEffect } from "react";
+
 import NavItem from "./SideNaviItem";
 import { items } from "./SideNaviLists";
 import "./SideNavi.css";
 import NotificationControl from './NotificationControl';
 import { logout, getUserInfos } from "../../ipcCommunication/ipcCommon";
-
-import { logout } from "../../ipcCommunication/ipcCommon";
 import { useHistory } from "react-router-dom";
 
 function Sidebar() {
@@ -19,7 +19,6 @@ function Sidebar() {
       }
     )
   }, [])
-
 
   const onItemClick = (path) => {
     setActivePath(

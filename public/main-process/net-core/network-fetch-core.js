@@ -155,9 +155,8 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
         fetchSock.write(cmdBuf);
         global.FETCH_SEND_COMMAND = cmdHeader;
 
-        console.log('\r\n-------------------------- ');
-        //sendLog("write Command ------ CMD: " + JSON.stringify(global.FETCH_SEND_COMMAND));
         console.log("write FETCH Command : ", global.FETCH_SEND_COMMAND);
+        console.log('-------------------------- \r\n');
     // } catch (exception) {
     //     sendLog("write FETCH Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }

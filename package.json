@@ -5,6 +5,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "asar": "^3.0.3",
     "axios": "^0.19.2",
     "bootstrap": "^4.3.1",
     "cross-env": "6.0.2",
@@ -13,9 +14,10 @@
     "electron-log": "^3.0.8",
     "ip": "^1.1.5",
     "macaddress": "^0.5.1",
-    "moment": "^2.27.0",
+    "moment": "^2.29.0",
     "node-notifier": "^8.0.0",
     "node-sass": "^4.14.1",
+    "rc-tooltip": "^4.2.3",
     "rc-tree": "^3.9.0",
     "react": "^16.10.2",
     "react-bootstrap": "^1.0.0-beta.14",
@@ -34,6 +36,7 @@
     "typescript": "^4.0.2",
     "update-electron-app": "^1.2.0",
     "uuid": "^8.3.0",
+    "winston": "^3.3.3",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {

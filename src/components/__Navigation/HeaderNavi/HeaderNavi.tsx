@@ -35,6 +35,9 @@ export default function HeaderNavi() {
   const onAvatarClick = () => {
     setAvatarDropDownIsOpen(!avatarDropDownIsOpen);
   };
+  const onAvatarClose = () => {
+    setAvatarDropDownIsOpen(false);
+  };
   const handleLogout = () => {
     logout();
     sessionStorage.removeItem("isLoginElectronApp");
@@ -56,11 +59,26 @@ export default function HeaderNavi() {
     image.target.src = `/images/img_imgHolder.png`;
   };
 
+  const handleRefresh = () => {
+    window.location.reload();
+  };
+
   return (
     <div className="header">
       <div className="btn-page-wrap">
         <div className="btn-prev" title="이전으로"></div>
         <div className="btn-next disabled" title="앞으로"></div>
+      </div>
+      <div
+        onClick={handleRefresh}
+        style={{
+          width: `24px`,
+          height: `24px`,
+          cursor: `pointer`,
+        }}
+      >
+        <img src="/images/icon_redo.png" />
+        {/* 아이콘 제작자 <a href="https://www.flaticon.com/kr/authors/becris" title="Becris">Becris</a> from <a href="https://www.flaticon.com/kr/" title="Flaticon"> www.flaticon.com</a> */}
       </div>
       {/* <form className="golbal-search-wrap">
         <select className="global-search-cat">
@@ -123,6 +141,8 @@ export default function HeaderNavi() {
               alt="user-profile-picture"
               onClick={onAvatarClick}
               onError={handleImageError}
+              onBlur={onAvatarClose}
+              tabIndex={1}
             />
           </div>
           <div

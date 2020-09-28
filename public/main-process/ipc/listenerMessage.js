@@ -124,7 +124,6 @@ ipcMain.on('notiTitleClick', async (event, notiType, notiId, allMembers, message
   send('notiTitleClick!', notiType, notiId, allMembers, message)
 });
 
-
 /**
  * getChatList
  */

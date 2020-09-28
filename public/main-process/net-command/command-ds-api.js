@@ -208,6 +208,7 @@ function reqGetServerInfo(userId) {
         let cmdHeader = new CommandHeader(CmdCodes.DS_GET_SERVER_INFO, 0, function(resData){
             resolve(resData)
         });
+
         dsCore.writeCommandDS(cmdHeader, dataBuf);
     });
 }

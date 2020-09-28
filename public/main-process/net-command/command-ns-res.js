@@ -1,5 +1,6 @@
 
-const { sendLog } = require('../ipc/ipc-cmd-sender');
+const winston = require('../../winston')
+
 const { callCallback } = require('./command-utils');
 const MsgNoti = require('../notification/messageNoti');
 const EncUtil = require('../utils/utils-crypto')
@@ -16,9 +17,7 @@ const { getMultiple4Size, getMultiple4DiffSize } = require('../utils/utils-buffe
  */
 function receiveCmdProc(recvCmd) {
 
-  sendLog('NS receiveCmdProc -- ' + recvCmd.cmdCode);
-  // console.log('NS receiveCmdProc  -- ', recvCmd);
-  // console.log('NS receiveCmdProc DataLen -- ', recvCmd.data.length);
+  winston.info('NS receiveCmdProc -- %s', recvCmd.cmdCode);
 
   // 보낸 Command가 없다면 알림으로 받은 Command이다.
   if (!recvCmd.sendCmd) {
@@ -42,7 +41,7 @@ function receiveCmdProc(recvCmd) {
         {
           let rcvBuf = Buffer.from(recvCmd.data);
           let dataStr = rcvBuf.toString(global.ENC, 0);
-          sendLog('Response Command Receive Fail! : ' + recvCmd.cmdCode + ' Data:' + dataStr);
+          winston.info('Response Command Receive Fail! : %s Data: %s', recvCmd.cmdCode, dataStr);
           callCallback(recvCmd.sendCmd, new ResData(false, 'Response Command Receive Fail! : ' + recvCmd.cmdCode));
           return false;
         }
@@ -203,7 +202,7 @@ function notifyCmdProc(recvCmd) {
       } else {
         let rcvBuf = Buffer.from(recvCmd.data);
         let dataStr = rcvBuf.toString(global.ENC, 0);
-        sendLog('Message Recive Fail!! Data:' + dataStr);
+        winston.info('Message Recive Fail!! Data:%s', dataStr);
       }
      
       break;
@@ -255,7 +254,7 @@ function notifyCmdProc(recvCmd) {
       } else {
         let rcvBuf = Buffer.from(recvCmd.data);
         let dataStr = rcvBuf.toString(global.ENC, 0);
-        sendLog('Message Recive Fail!! Data:' + dataStr);
+        winston.info('Message Recive Fail!! Data:%s', dataStr);
       }
       break;
      
@@ -278,7 +277,7 @@ function notifyCmdProc(recvCmd) {
       } else {
         let rcvBuf = Buffer.from(recvCmd.data);
         let dataStr = rcvBuf.toString(global.ENC, 0);
-        sendLog('NS_STATE_LIST Fail!! Data:' + dataStr);
+        winston.info('NS_STATE_LIST Fail!! Data:%s', dataStr);
       }
       break;
     
@@ -303,7 +302,6 @@ function notifyCmdProc(recvCmd) {
       sInx += CmdConst.BUF_LEN_INT;
       
       let sendDate = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_DATE);
-      console.log('>>>>>>>>>>>>>>>>>>>>>> sendDate ',sInx, sendDate)
       sInx += CmdConst.BUF_LEN_DATE;
 
       let ip = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_IP);
@@ -357,7 +355,7 @@ function notifyCmdProc(recvCmd) {
       let destId = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx);
       sInx += destIdSize;
 
-      sendLog('roomKey:' + roomKey
+      winston.info('roomKey:' + roomKey
             + ', roomType:' + roomType
             + ', lineKey:' + lineKey
             + ', lineNumber:' + lineNumber
@@ -404,7 +402,7 @@ function notifyCmdProc(recvCmd) {
     case CmdCodes.NS_CHATLINE_UNREAD_CNT :
       let rcvBuf = Buffer.from(recvCmd.data);
       let dataStr = rcvBuf.toString(global.ENC, 0);
-      sendLog('NS_CHATLINE_UNREAD_CNT Receive' + dataStr);
+      winston.info('NS_CHATLINE_UNREAD_CNT Receive : %s', dataStr);
       break;
 
     
@@ -413,7 +411,7 @@ function notifyCmdProc(recvCmd) {
     {
       let rcvBuf = Buffer.from(recvCmd.data);
       let dataStr = rcvBuf.toString(global.ENC, 0);
-      sendLog('Unknown Noti Command Receive!!! : ' + recvCmd.cmdCode + ' Data:' + dataStr);
+      winston.info('Unknown Noti Command Receive!!! : %s   Data:%s', recvCmd.cmdCode, dataStr);
       return false;
     }
   }
