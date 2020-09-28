@@ -1,28 +1,25 @@
 import React, { useState, useEffect } from "react";
 import HamburgerButton from "../../../common/components/HamburgerButton";
 import ChatInput from "./ChatInput";
-import ChatPanel from "./ChatPanel";
+import ChatMessages from "./ChatMessages";
+import { useDispatch, useSelector } from 'react-redux';
+
 function RightPanel() {
 
     const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(false);
-    const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState(false);
-
+    const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
+    // console.log('currentChatRoom', currentChatRoom)
     const clickHamburgerButton = () => {
         setIsHamburgerButtonClicked(!isHamburgerButtonClicked);
-    };
-
-    const EditGroupTabOpen = () => {
-        setIsHamburgerButtonClicked(false);
-        setIsEditGroupTabOpen(true);
     };
 
     return (
         <main className="chat-main-wrap">
             <div className="chat-title-wrap">
                 <div className="btn-chat-ppl-info">
-                    5
+                    {currentChatRoom && currentChatRoom.chat_entry_ids.split("|").length}
                 </div>
-                <h4 className="chat-name">tf팀</h4>
+                {/* <h4 className="chat-name">tf팀</h4> */}
                 <div className="chat-local-search-wrap">
                     <input type="text" className="chat-local-search" placeholder="대화 검색" />
                 </div>
@@ -32,11 +29,11 @@ function RightPanel() {
                     <div className="chat-action face-talk" title="페이스톡"></div>
                     <div className="chat-action chat-favorite-toggle" title="즐겨찾기">
                         <input type="checkbox" id="chat-favorite-toggle-check" />
-                        <label className="chat-favorite-toggle-inner" for="chat-favorite-toggle-check" title="즐겨찾기"></label>
+                        <label className="chat-favorite-toggle-inner" htmlFor="chat-favorite-toggle-check" title="즐겨찾기"></label>
                     </div>
                     <div className="chat-action chat-noti-toggle" title="대화방 알림">
                         <input type="checkbox" id="chat-noti-toggle-check" />
-                        <label className="chat-noti-toggle-inner" for="chat-noti-toggle-check" title="대화방 알림"></label>
+                        <label className="chat-noti-toggle-inner" htmlFor="chat-noti-toggle-check" title="대화방 알림"></label>
                     </div>
                 </div>
                 <div className="lnb" title="더보기">
@@ -55,7 +52,7 @@ function RightPanel() {
                     </ul>
                 </div>
             </div>
-            <ChatPanel />
+            <ChatMessages />
             <ChatInput />
         </main>
     )

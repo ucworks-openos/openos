@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import ChatRoomLists from './ChatRooms';
+import ChatRooms from './ChatRooms';
 import Modal from "react-modal";
 import ChatInvitationModal from '../../../common/components/Modal/ChatInvitationModal';
 
@@ -20,9 +20,9 @@ function LeftPanel() {
                     <div className="chat-list-action add" title="대화 추가" onClick={onOpenChatInputModalClick}></div>
                     <div className="chat-list-action search" title="대화방 검색">
                         <input type="checkbox" id="chat-list-search-toggle-check" />
-                        <label className="chat-list-search-toggle" for="chat-list-search-toggle-check"></label>
+                        <label className="chat-list-search-toggle" htmlFor="chat-list-search-toggle-check"></label>
                         <div className="chat-list-search-wrap">
-                            <input type="text" className="chat-list-search" placeholder="대화방 명, 참여자명, 대화내용 검색" />
+                            <input type="text" placeholder="대화방 명, 참여자명, 대화내용 검색" />
                         </div>
                     </div>
                 </div>
@@ -30,7 +30,7 @@ function LeftPanel() {
 
             <div className="chat-list-wrap">
                 <ul>
-                    <ChatRoomLists />
+                    <ChatRooms />
                 </ul>
             </div>
 

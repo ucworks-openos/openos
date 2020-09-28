@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactQuill, { Quill } from 'react-quill';
 import "react-quill/dist/quill.snow.css";
+import Alert from 'react-bootstrap/Alert'
 
 import axios from 'axios';
 const __ISMSIE__ = navigator.userAgent.match(/Trident/i) ? true : false;
@@ -203,6 +204,7 @@ class QuillEditor extends React.Component {
         this.state = {
             editorHtml: __ISMSIE__ ? "<p>&nbsp;</p>" : "",
             files: [],
+            isFailedUploadFile: false
         };
 
         this.reactQuillRef = null;
@@ -282,7 +284,11 @@ class QuillEditor extends React.Component {
                             }, () => { this.props.onFilesChange(this.state.files) });
                         }
                     } else {
-                        return alert('failed to upload file')
+                        this.setState({ isFailedUploadFile: true })
+                        setTimeout(() => {
+                            this.setState({ isFailedUploadFile: false })
+                        }, 2000)
+                        return;
                     }
                 })
         }
@@ -319,7 +325,11 @@ class QuillEditor extends React.Component {
                             }, () => { this.props.onFilesChange(this.state.files) });
                         }
                     } else {
-                        return alert('failed to upload file')
+                        this.setState({ isFailedUploadFile: true })
+                        setTimeout(() => {
+                            this.setState({ isFailedUploadFile: false })
+                        }, 2000)
+                        return;
                     }
                 })
         }
@@ -364,6 +374,11 @@ class QuillEditor extends React.Component {
     render() {
         return (
             <div style={{ width: '100%', marginRight: '16px' }}>
+                {this.state.isFailedUploadFile &&
+                    <Alert variant="danger">
+                        파일 업로드에 실패했습니다.
+                    </Alert>
+                }
                 <div id="toolbar">
                     <select className="ql-header" defaultValue={""} onChange={e => e.persist()}>
                         <option value="1" />
@@ -389,7 +404,7 @@ class QuillEditor extends React.Component {
                     <button className="ql-clean" />
                 </div>
                 <ReactQuill
-                    style={{ height:'127px' }}
+                    style={{ height: '127px' }}
                     ref={(el) => { this.reactQuillRef = el }}
                     theme={'snow'}
                     onChange={this.handleChange}

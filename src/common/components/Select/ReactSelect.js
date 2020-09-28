@@ -16,7 +16,6 @@ function ReactSelect({ selectLists, onChange, selectValue }) {
 
     const onSelectChange = (selectedItems) => {
         onChange(selectedItems)
-        console.log(selectedItems)
     }
 
     return (
