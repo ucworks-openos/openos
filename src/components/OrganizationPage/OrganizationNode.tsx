@@ -6,10 +6,11 @@ import { EconnectType, EnodeGubun, EuserState } from "../../enum";
 type TOrganizationNodeProps = {
   data: TTreeNode;
   index: number;
-  toggle: () => void;
   selectedKeys: (string | number)[];
-  setSelectedKeys: (selectedKeys: (string | number)[]) => void;
   rightClickedKey: string | number;
+  setFinalSelectedKeys: (finalSelectedKeys: (string | number)[]) => void;
+  setSelectedKeys: (selectedKeys: (string | number)[]) => void;
+  setMessageModalVisible: (visible: any) => void;
 };
 
 type UserRowProps = {
@@ -21,10 +22,15 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
   const {
     data,
     index,
-    toggle,
+    // * selected노드 css 변경
     selectedKeys,
-    setSelectedKeys,
+    // * rightClicked노드 css 변경
     rightClickedKey,
+    // * 쪽지 보내기 창 팝업 시 final키 직접 변경
+    setFinalSelectedKeys,
+    // * 이미지 클릭 시 selectedKey 직접 변경
+    setSelectedKeys,
+    setMessageModalVisible,
   } = props;
   const [visible, setVisible] = useState<boolean>(false);
 
@@ -53,8 +59,8 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
 
   // ANCHOR handler
   const handleToggle = () => {
-    setSelectedKeys([...selectedKeys, data?.key]);
-    toggle();
+    setFinalSelectedKeys([data?.key]);
+    setMessageModalVisible((prev: boolean) => !prev);
   };
 
   const handleDetailUnVisible = () => {
@@ -157,7 +163,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
                     <div
                       className="btn-contact-action message"
                       title="쪽지"
-                      onClick={handleToggle}
+                      onMouseDown={handleToggle}
                     ></div>
                     <div
                       className="btn-contact-action remote"

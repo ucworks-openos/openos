@@ -67,7 +67,6 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
 
   // ANCHOR handler
   const handleToggle = () => {
-    console.log(`fuck`);
     setFinalSelectedKeys([data?.key]);
     setMessageModalVisible((prev: boolean) => !prev);
   };

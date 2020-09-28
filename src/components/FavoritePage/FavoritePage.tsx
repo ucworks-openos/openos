@@ -203,9 +203,6 @@ export default function FavoritePage() {
   }, []);
 
   // ANCHOR handler
-  const handleSendMessage = () => {
-    setMessageModalVisible(true);
-  };
 
   const handleModifyGroupVisible = async () => {
     const { v: targetV, i: targetI, list: targetList } = await find(
@@ -973,7 +970,13 @@ export default function FavoritePage() {
         <div onMouseLeave={handleUserContextMenuClose} tabIndex={1}>
           <li>
             <ul onClick={handleDeleteBuddy}>즐겨찾기에서 삭제</ul>
-            <ul onClick={handleSendMessage}>쪽지 보내기</ul>
+            <ul
+              onClick={() => {
+                setMessageModalVisible(true);
+              }}
+            >
+              쪽지 보내기
+            </ul>
             <ul>채팅 시작</ul>
           </li>
         </div>

@@ -31,6 +31,9 @@ export default function OrganizationPage() {
 
   const [selectedKeys, setSelectedKeys] = useState<(string | number)[]>([]);
   const [rightClickedKey, setRightClickedKey] = useState<string | number>(0);
+  const [finalSelectedKeys, setFinalSelectedKeys] = useState<
+    (string | number)[]
+  >([]);
 
   const {
     searchMode,
@@ -67,23 +70,21 @@ export default function OrganizationPage() {
 
   const leftPosition = useMemo(leftPositionCalculator, [pageX]);
 
-  const setFinalSelectedKeys = () => {
-    if (!rightClickedKey) return [];
-    // * 선택해둔 노드를 rightClick하지 않은 경우 rightClickedKey를 fianl로 보냄.
-    if (!selectedKeys.find((v: any) => v === rightClickedKey)) {
-      return [rightClickedKey];
-    } else {
-      return selectedKeys;
-    }
-  };
-
-  const finalSelectedKeys = useMemo(setFinalSelectedKeys, [rightClickedKey]);
-
   // ANCHOR effect
 
+  // ANCHOR effect
   useEffect(() => {
-    console.log(`selectedKEys:`, selectedKeys);
-  }, [selectedKeys]);
+    if (!rightClickedKey) {
+      setFinalSelectedKeys([]);
+      return;
+    }
+    // * 선택해둔 노드를 rightClick하지 않은 경우 rightClickedKey를 fianl로 보냄.
+    if (!selectedKeys.find((v: any) => v === rightClickedKey)) {
+      setFinalSelectedKeys([rightClickedKey]);
+    } else {
+      setFinalSelectedKeys(selectedKeys);
+    }
+  }, [rightClickedKey]);
 
   useEffect(() => {
     const initiate = async () => {
@@ -536,12 +537,11 @@ export default function OrganizationPage() {
               <Node
                 data={item}
                 index={index}
-                toggle={() => {
-                  setMessageModalVisible(true);
-                }}
                 selectedKeys={selectedKeys}
-                setSelectedKeys={setSelectedKeys}
                 rightClickedKey={rightClickedKey}
+                setSelectedKeys={setSelectedKeys}
+                setFinalSelectedKeys={setFinalSelectedKeys}
+                setMessageModalVisible={setMessageModalVisible}
               />
             }
           >
@@ -556,12 +556,11 @@ export default function OrganizationPage() {
             <Node
               data={item}
               index={index}
-              toggle={() => {
-                setMessageModalVisible(true);
-              }}
               selectedKeys={selectedKeys}
-              setSelectedKeys={setSelectedKeys}
               rightClickedKey={rightClickedKey}
+              setSelectedKeys={setSelectedKeys}
+              setFinalSelectedKeys={setFinalSelectedKeys}
+              setMessageModalVisible={setMessageModalVisible}
             />
           }
         />
@@ -629,7 +628,7 @@ export default function OrganizationPage() {
           closeModalFunction={() => {
             setMessageModalVisible(false);
           }}
-          // selectedNode={selectedNode}
+          selectedNode={finalSelectedKeys}
         />
       </Modal>
       <Modal
@@ -664,7 +663,13 @@ export default function OrganizationPage() {
             >
               즐겨찾기에 추가
             </ul>
-            <ul>쪽지 보내기</ul>
+            <ul
+              onClick={() => {
+                setMessageModalVisible(true);
+              }}
+            >
+              쪽지 보내기
+            </ul>
             <ul>채팅 시작</ul>
           </li>
         </div>
