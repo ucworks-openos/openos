@@ -5,9 +5,12 @@ import "./SideNavi.css";
 import NotificationControl from './NotificationControl';
 import { logout, getUserInfos } from "../../ipcCommunication/ipcCommon";
 
+import { logout } from "../../ipcCommunication/ipcCommon";
+import { useHistory } from "react-router-dom";
 
-function Sidebar(props) {
-  const [activePath, setActivePath] = useState("/favorite");
+function Sidebar() {
+  const history = useHistory();
+  const [activePath, setActivePath] = useState(history.location.pathname);
 
   useEffect(() => {
     getUserInfos([sessionStorage.getItem('loginId')]).then(
