@@ -82,7 +82,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
 
   const handleImageError = (image: any) => {
     image.target.onerror = null;
-    image.target.src = `/images/img_imgHolder.png`;
+    image.target.src = `./images/img_imgHolder.png`;
   };
 
   return (

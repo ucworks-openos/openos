@@ -12,7 +12,9 @@ const { combine, timestamp, label, printf, prettyPrint } = winston.format;
 //   verbose: 4,
 //   debug: 5,
 //   silly: 6,
-// }
+// }con
+
+global.LOG_PATH = process.env.USERPROFILE + '\\openOs\\logs';
 
 const myFormat = printf(({ level, message, label, timestamp }) => {
   return `${timestamp} [${label}] ${level}: ${message}`;    // log 출력 포맷 정의
@@ -22,7 +24,7 @@ const options = {
   // log파일
   file: {
     level: 'debug', // info
-    filename: `D:/ucware/logs/main-process.log`, // 로그파일을 남길 경로
+    filename: `${global.LOG_PATH}/main-process.log`, // 로그파일을 남길 경로
     handleExceptions: true,
     maxsize: (5242880 * 4), // 20MB
     maxFiles: 5,
@@ -31,7 +33,7 @@ const options = {
     defaultMeta: { service: 'user-serice' },
     format: combine(
       format.splat(),
-      label({ label: 'log' }),
+      label({ label: 'm-p' }),
       timestamp({format: 'YYYY-MM-DD HH:mm:ss.SSS'}),
       myFormat    // log 출력 포맷
     )

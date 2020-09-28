@@ -23,13 +23,15 @@ export const upgradeCheck = async () => {
 
 /** Test Action */
 export const testAction = (testArg) => {
-    console.log('testAction', testArg)
-
+    
     return new Promise(function(resolve, reject) {
         electron.ipcRenderer.on('res-testAction', (event, arg) => {
+            console.log('testAction res', arg)
             resolve(arg);
-          })
-          electron.ipcRenderer.send('testAction', testArg)
+        })
+
+        console.log('testAction', testArg)
+        electron.ipcRenderer.send('testAction', testArg)
       });
 }
 

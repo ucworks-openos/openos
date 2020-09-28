@@ -8,13 +8,10 @@ import moment from 'moment';
 import {getConfig, login} from '../ipcCommunication/ipcCommon'
 import {connectDS, upgradeCheck, testAction} from '../ipcCommunication/ipcTest'
 import { decryptMessage } from '../ipcCommunication/ipcMessage';
-import { setExpandedKeys } from '../../reducer/tree';
-import { Controller } from 'react-hook-form';
 import { uploadFile, downloadFile } from '../ipcCommunication/ipcFile';
 
 const electron = window.require("electron")
 const { remote } = window.require("electron")
-
 
 const GridWrapper = styled.div`
   display: grid;
@@ -41,8 +38,6 @@ function NetTestPage() {
   const [saveFile, setSaveFile] = useState('D:\\temp\\ifserver_download.log');
   const [svrFile, setSvrFile] = useState('_ucfile2020-09-25/ifserver.log.9');
 
-
-  remote.getGlobal('IS_DEV')
   const netLogArea = useRef(null);
   const localLogArea = useRef(null);
 
@@ -59,10 +54,13 @@ function NetTestPage() {
       appendNetLog("[PROGRESS] "+ JSON.stringify(data));
     });
     
+    async function loadConfig() {
+      let config = await getConfig();
+      setServerIp(config.server_ip);
+      setServerPort(config.server_port);  
+    }
 
-    let config = getConfig();
-    setServerIp(config.server_ip);
-    setServerPort(config.server_port);
+    loadConfig();
   }, []);
 
   //#region WriteLog ...
@@ -91,12 +89,9 @@ function NetTestPage() {
   }
   //#endregion WriteLog ...
 
-  function functionTest (e) {
-    appendLocalLog('=============== functionTest ', e);
-  }
-
   const handleTestFunction = (e) => {
     // renderer process (mainWindow)
+    console.log('handleTestFunction', e);
     
 
     testAction({ func1:'1111'}).then(function(resData){
