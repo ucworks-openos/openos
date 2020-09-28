@@ -7,31 +7,37 @@ import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
 import {
     getInitialChatRooms,
+    setCurrentChatRoomFromNoti
 } from "../../../redux/actions/chat_actions";
+const electron = window.require("electron")
 
-function ChatRooms() {
+function ChatRooms(props) {
     const dispatch = useDispatch();
     const chatRooms = useSelector(state => state.chats.chatRooms)
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
-
     useEffect(() => {
         dispatch(getInitialChatRooms())
     }, [])
 
+    useEffect(() => {
+        electron.ipcRenderer.on('notiTitleClick!', (event, sentInfo) => {
+            let roomKey = sentInfo[1]
+            dispatch(setCurrentChatRoomFromNoti(roomKey, chatRooms))
+        });
+    }, [chatRooms])
+
     const onChatRoomClick = (roomKey) => {
-        // console.log('roomKey', roomKey, 'chatRooms', chatRooms)
         dispatch(setCurrentChatRoom(roomKey, chatRooms))
     }
 
     const renderChatRoom = () => (
         chatRooms && chatRooms.map(room => {
-            console.log('room', room)
             let receieveIds = room && room.chat_entry_ids.split('|')
             let receievePeopleCounts = receieveIds && receieveIds.length
             const renderSendTo = receieveIds && receieveIds.map(user => {
                 return <span key={uuidv4()}>{user}{" "}</span>
             })
-
+            console.log('render curentRoo.room_key', currentChatRoom.room_key);
             const isCurrentChatRoom = room && room.room_key === currentChatRoom.room_key ? "current-chat" : "";
             // ${receievePeopleCounts >= 4 ? "n" : receievePeopleCounts} 
 
@@ -52,12 +58,12 @@ function ChatRooms() {
                             <div className="chat-room-name">
                                 {renderSendTo}
                             </div>
-                            {room.unread_count && room.unread_count !== "0"
+                            {/* {room.unread_count && room.unread_count !== "0"
                                 &&
                                 <div className="chat-counter unread">
                                     {room.unread_count}
                                 </div>
-                            }
+                            } */}
                         </div>
                         <div className="list-row 2">
                             <div className="last-chat">

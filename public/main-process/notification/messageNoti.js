@@ -68,7 +68,7 @@ function chatReceived(chatData) {
   let chatMessage = chatData.chatData;
   if (chatMessage.length > 10) chatMessage = chatMessage.substring(0, 10);
 
-  showAlert(notiType.NOTI_CHAT, chatData.roomKey, '대화메세지', chatMessage);
+  // showAlert(notiType.NOTI_CHAT, chatData.roomKey, '대화메세지', chatMessage);
   send('chatReceived', chatData)
   sendLog('Chat Received! ', JSON.stringify(chatData));
 }

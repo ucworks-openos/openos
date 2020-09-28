@@ -1,12 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import NavItem from "./SideNaviItem";
 import { items } from "./SideNaviLists";
 import "./SideNavi.css";
+import NotificationControl from './NotificationControl';
+import { logout, getUserInfos } from "../../ipcCommunication/ipcCommon";
 
-import { logout } from "../../ipcCommunication/ipcCommon";
 
-function Sidebar() {
+function Sidebar(props) {
   const [activePath, setActivePath] = useState("/favorite");
+
+  useEffect(() => {
+    getUserInfos([sessionStorage.getItem('loginId')]).then(
+      response => {
+        sessionStorage.setItem('loginName', response.data.items.node_item.user_name.value)
+      }
+    )
+  }, [])
+
 
   const onItemClick = (path) => {
     setActivePath(
@@ -45,6 +55,8 @@ function Sidebar() {
           />
         ))}
       </div>
+
+      <NotificationControl />
 
       <li
         style={{
