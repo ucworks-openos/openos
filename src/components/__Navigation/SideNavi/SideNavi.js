@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import NavItem from "./SideNaviItem";
 import { items } from "./SideNaviLists";
 import "./SideNavi.css";
 
 import { logout } from "../../ipcCommunication/ipcCommon";
+import { useHistory } from "react-router-dom";
 
 function Sidebar() {
-  const [activePath, setActivePath] = useState("/favorite");
-
+  const history = useHistory();
+  const [activePath, setActivePath] = useState(history.location.pathname);
   const onItemClick = (path) => {
     setActivePath(
       path

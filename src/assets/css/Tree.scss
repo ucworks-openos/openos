@@ -14,9 +14,6 @@
   border: 1px solid transparent;
   user-select: none;
   width: 100%;
-  &-focused:not(&-active-focused) {
-    border-color: cyan;
-  }
 
   // padding: 5px;
   .rc-tree-treenode {
@@ -59,16 +56,7 @@
         color: white;
       }
     }
-    &.drag-over-gap-top {
-      > .draggable {
-        // border-top: 2px red solid;
-      }
-    }
-    &.drag-over-gap-bottom {
-      > .draggable {
-        // border-bottom: 2px blue solid;
-      }
-    }
+
     &.filter-node {
       & > .rc-tree-node-content-wrapper {
         color: #a60000 !important;
@@ -79,6 +67,11 @@
       margin: 0;
       padding: 0 0 0 18px;
     }
+    // .rc-tree-node-selected .user-row {
+    //   background-color: #fff;
+    //   border: 1px solid #ebedf1;
+    //   opacity: 0.3;
+    // }
     .rc-tree-node-content-wrapper {
       display: inline-block;
       width: 100%;
