@@ -4,12 +4,16 @@ const isDev = require("electron-is-dev");
 const glob = require('glob');
 const BrowserWindow = electron.BrowserWindow;
 
+
+
 const { app, Tray, Menu, session } = require('electron')
 const { createLiteralTypeNode } = require("typescript");
 const isMac = process.platform === 'darwin';
 
+
 const { readConfig } = require("./main-process/configuration/site-config");
 const cmdConst = require("./main-process/net-command/command-const");
+const winston = require('./winston')
 
 const globalShortcut = electron.globalShortcut
 
@@ -196,6 +200,7 @@ global.DS_SEND_COMMAND = {}
 global.CS_SEND_COMMAND = {}
 global.PS_SEND_COMMAND = {}
 global.NS_SEND_COMMAND = {}
+global.FS_SEND_COMMAND = {}
 
 global.NS_CONN_CHECK;
 
@@ -225,6 +230,13 @@ var tray = null;
  * ready
  */
 app.on("ready", () => { //app.whenReady().then(() => { });
+
+
+  winston.info(' ')
+  winston.info(' ')
+  winston.info('===========================================================================================================================')
+  winston.info('===========  ready isDev:%s  root:%s   ============', isDev, global.ROOT_PATH);
+  winston.info('===========================================================================================================================')
 
 
   // Single Instance
@@ -307,11 +319,11 @@ app.on("ready", () => { //app.whenReady().then(() => { });
   //
   // win
 	globalShortcut.register('f5', function() {
-		global.MAIN_WINDOW.reload()
+		//global.MAIN_WINDOW.reload()
   })
    // mac
   globalShortcut.register('CommandOrControl+R', function() {
-		global.MAIN_WINDOW.reload()
+		//global.MAIN_WINDOW.reload()
   })
   //#endregion
 });
@@ -348,9 +360,9 @@ app.on('quit', function (evt) {
   tray.destroy();
   app.exit();
 
-  console.log('==================================================================')
-  console.log('===================  Application Exit! ===========================')
-  console.log('==================================================================')
+  winston.info('==================================================================')
+  winston.info('===================  Application Exit! ===========================')
+  winston.info('==================================================================')
 });
 
 /**

@@ -1,10 +1,13 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
-const { responseCmdProc } = require('../net-command/command-fs-res');
+const winston = require('../../winston')
+const { receiveCmdProc } = require('../net-command/command-fs-res');
 
 const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
+
+const BufUtil = require('../utils/utils-buffer')
 const CmdConst = require('../net-command/command-const');
 const CmdCodes = require('../net-command/command-code');
+
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
 var fsSock;
@@ -25,14 +28,14 @@ function connect () {
         fsSock.destroy();
     }
     
-    sendLog("Conncect MAIN_FS to " + JSON.stringify(global.SERVER_INFO.FS, null, 0))
+    winston.info("Conncect MAIN_FS to %s", global.SERVER_INFO.FS)
 
     return new Promise(function(resolve, reject){
         var tcpSock = require('net');  
         var client  = new tcpSock.Socket; 
          
         fsSock = client.connect(global.SERVER_INFO.FS.port, global.SERVER_INFO.FS.pubip, function() {
-            sendLog("Conncect MAIN_FS Completed to " + JSON.stringify(global.SERVER_INFO.FS, null, 0))
+            winston.info("Conncect MAIN_FS Completed to %s", global.SERVER_INFO.FS)
             global.SERVER_INFO.FS.isConnected = true;
 
             resolve(new ResData(true));
@@ -40,21 +43,21 @@ function connect () {
     
         // listen for incoming data
         fsSock.on("data", function(data){
-            readDataStream(data);
+            receiveDatasProc(data);
         })
         // 접속이 종료됬을때 메시지 출력
         fsSock.on('end', function(){
-            sendLog('FS Disconnected!');
+            winston.info('FS Disconnected!');
             global.SERVER_INFO.FS.isConnected = false;
         });
         // close
         fsSock.on('close', function(hadError){
-            sendLog("FS Close. hadError: " + hadError);
+            winston.info("FS Close. hadError: %s", hadError);
             global.SERVER_INFO.FS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         fsSock.on('error', function(err){
-            sendLog("FS Error: " + JSON.stringify(err));
+            winston.info("FS Error: %s", err);
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.FS.isConnected) {
@@ -65,7 +68,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         fsSock.on('timeout', function(){
-            sendLog('FS Connection timeout.');
+            winston.info('FS Connection timeout.');
             global.SERVER_INFO.FS.isConnected = false;
         });
     });
@@ -84,47 +87,69 @@ function close() {
  * 수신된 데이터를 Command형식으로 변환 합니다.
  * @param {Buffer}} rcvData 
  */
-function readDataStream(rcvData){  
-    console.log('\r\n++++++++++++++++++++++++++++++++++');
-    console.log('FS rcvData:', rcvData);
+function receiveDatasProc(rcvData){  
+    winston.debug('FS Received Data: %s',rcvData.length);
 
     if (!rcvCommand){
-        // 수신된 CommandHeader가 없다면 헤더를 만든다.
-        rcvCommand = new CommandHeader(rcvData.readInt32LE(0), rcvData.readInt32LE(4));
+        let dataLen = 0; // default file Command Size
+        if (global.FS_SEND_COMMAND) {
+            dataLen = global.FS_SEND_COMMAND.getResponseLength();
+        }
 
-        rcvCommand.data = rcvData.subarray(8);
+        // 수신된 CommandHeader가 없다면 헤더를 만든다.
+        let cmdLeft = BufUtil.getCommandHeader(rcvData, dataLen);
+        rcvCommand = cmdLeft.command;
+        rcvData = cmdLeft.leftBuf;
+
         if (global.FS_SEND_COMMAND) {
             rcvCommand.sendCmd = global.FS_SEND_COMMAND
-
-            // 파일서버의 경우 헤더에 전문길이를 주지않는 경우 있음 ㅜㅜ FS_UPLOADFILE
-            // 요청 커맨드에서 원하는 응답길이가 있다면 해당 응답길이만큼 받을수 있도록 한다.
-            if (global.FS_SEND_COMMAND.getResponseLength() > 0) {
-                rcvCommand.setResponseLength(global.FS_SEND_COMMAND.getResponseLength());
-            }
         }
+
+        winston.info('>> Receive Header %s', rcvCommand)
+
+        if (rcvCommand.readCnt == rcvCommand.getResponseLength()) {
+            receiveCmdProc(rcvCommand);
+        } else if (rcvCommand.readCnt > dataLen) {
+            winston.info('>> FS OVER READ !!! %s  %s', dataLen, rcvCommand)
+        }
+
+        // 남는거 없이 다 읽었다면 끝낸다.
+        winston.debug('>>>>>> First  Left rcvData  %s', rcvData.toString('hex'))
+        if (!rcvData || rcvData.length == 0) return;
+
     } else {
-        // 헤더가 있다면 데이터 길이만큼 다 받았는지 확인한 후 처리로 넘긴다.
-        rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData]);        
-    }
+        
+        // 또 받을 데이터 보다 더 들어 왔다면 자르고 남는것을 넘긴다.
+        let leftLen = rcvCommand.getResponseLength() - rcvCommand.readCnt;
 
-    if (!rcvCommand.readCnt) {
-        rcvCommand.readCnt = 0;
-    }
+        winston.debug('FS More Receive  %s, %s', leftLen, rcvCommand)
+        if (rcvData.length > leftLen) {
+            // 읽을 데이터 보다 더 들어 왔다.
+            rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData.slice(0, leftLen)]);
+            rcvCommand.addReadCount(leftLen);
 
-    rcvCommand.readCnt += rcvData.length;
-    console.log('Recive FS Command Data :', rcvCommand);
+            receiveCmdProc(rcvCommand);
+            rcvData = rcvData.slice(leftLen);
+            winston.debug('>>>>>>> AsIs Cmd Left rcvData %s', rcvData.toString('hex'))
+        } else {
+            // 필요한 데이터가 딱맞거나 작다면 그냥 다읽고 끝낸다.
+            rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData]);
+            rcvCommand.addReadCount(rcvData.length);
 
-    if (rcvCommand.getResponseLength() <= rcvCommand.readCnt) {
-        // 데이터를 모두 다 받았다.
-
-        var procCmd = rcvCommand;
-        rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
-        global.FS_SEND_COMMAND = null;
-
-        if (!responseCmdProc(procCmd)) {
-            console.log('Revceive FS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            if (rcvCommand.readCnt >= rcvCommand.getResponseLength()) {
+                
+                if (rcvCommand.readCnt > rcvCommand.getResponseLength()) winston.info('>> FS OVER READ !!! %s, %s',rcvData.length, rcvCommand); 
+                // 제대로 다 읽었다면 Cmd 처리    
+                receiveCmdProc(rcvCommand);
+            } 
+            
+            // 더 받을게 남았았음으로 다음에 오는 데이터를 받도록 넘어간다.
+            return;
         }
     }
+
+    winston.debug('FS More Read Datas........ %s', rcvData.length);
+    receiveDatasProc(rcvData)
 };
 
 /**
@@ -134,39 +159,34 @@ function readDataStream(rcvData){
  * @param {Buffer} dataBuf 
  */
 function writeCommand(cmdHeader, dataBuf = null) {
-    //try {
-        rcvCommand = null;
-        global.FS_SEND_COMMAND = null;
-        // Header Buffer
-        var codeBuf = Buffer.alloc(4);
-        var sizeBuf = Buffer.alloc(4);
+    rcvCommand = null;
+    global.FS_SEND_COMMAND = null;
+    // Header Buffer
+    var codeBuf = Buffer.alloc(4);
+    var sizeBuf = Buffer.alloc(4);
 
-        if (!dataBuf)
-            dataBuf = Buffer.alloc(0);
+    if (!dataBuf)
+        dataBuf = Buffer.alloc(0);
 
-        // Full Data Buffer
-        var cmdBuf = Buffer.concat([codeBuf, sizeBuf, dataBuf]);
-        cmdBuf = adjustBufferMultiple4(cmdBuf);
+    // Full Data Buffer
+    var cmdBuf = Buffer.concat([codeBuf, sizeBuf, dataBuf]);
+    //cmdBuf = adjustBufferMultiple4(cmdBuf);
 
-        // Command Code
-        codeBuf.writeInt32LE(cmdHeader.cmdCode);
-        codeBuf.copy(cmdBuf);
+    // Command Code
+    codeBuf.writeInt32LE(cmdHeader.cmdCode);
+    codeBuf.copy(cmdBuf);
 
-        // full Size
-        // 수동으로 헤더길이를 지정하는 경우, 사이즈를 계산하지 않는다.
-        if (cmdHeader.size <= 0) cmdHeader.size = cmdBuf.length;
-        
-        sizeBuf.writeInt32LE(cmdHeader.size);
-        sizeBuf.copy(cmdBuf, 4, 0);
+    // full Size
+    // 수동으로 헤더길이를 지정하는 경우, 사이즈를 계산하지 않는다.
+    if (cmdHeader.size <= 0) cmdHeader.size = cmdBuf.length;
+    
+    sizeBuf.writeInt32LE(cmdHeader.size);
+    sizeBuf.copy(cmdBuf, 4, 0);
 
-        fsSock.write(cmdBuf);
-        global.FS_SEND_COMMAND = cmdHeader
+    fsSock.write(cmdBuf);
+    global.FS_SEND_COMMAND = cmdHeader
 
-        console.log("write FS Command : ", global.FS_SEND_COMMAND);
-        console.log('-------------------------- \r\n');
-    // } catch (exception) {
-    //     sendLog("write FS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
-    // }
+    winston.debug("write FS Command : %s", global.FS_SEND_COMMAND);
  };
 
 module.exports = {

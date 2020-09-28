@@ -1,4 +1,6 @@
 
+const CommandHeader = require('../net-command/command-header');
+
 
 /**
  * 문자열 끝 코드를 제외하고 문자열을 가져옵니다. 
@@ -52,10 +54,40 @@ function getMultiple4DiffSize (size) {
     return (Math.ceil(size/4)*4) - size;
 }
 
+
+function getCommandHeader(dataBuf, readLength = 0) {
+    if (dataBuf.length < 8) return dataBuf;
+
+    let cmd = new CommandHeader(dataBuf.readInt32LE(0), dataBuf.readInt32LE(4));
+    
+    // 수신사이즈를 모른다면 헤더 정보를 활용한다.
+    if (0 >= readLength) readLength = cmd.size;
+
+    cmd.setResponseLength(readLength);
+
+    let leftBuf;
+    if (dataBuf.length > readLength) {
+        cmd.data = dataBuf.subarray(8, readLength); // 헤더 길이는 뺸다.
+        cmd.addReadCount(readLength); // Buf가 더 많음으로 읽는길이만큼 다 읽었다.
+
+        leftBuf = dataBuf.subarray(readLength);
+
+    } else {
+        //cmd.data = dataBuf.slice(8);
+        cmd.data = dataBuf.subarray(8);
+        cmd.addReadCount(dataBuf.length);
+
+        leftBuf = Buffer.alloc(0);
+    }
+
+    return {command:cmd, leftBuf:leftBuf}
+}
+
     
 module.exports = {
     getStringWithoutEndOfString: getStringWithoutEndOfString,
     adjustBufferMultiple4: adjustBufferMultiple4,
     getMultiple4Size: getMultiple4Size,
     getMultiple4DiffSize: getMultiple4DiffSize,
+    getCommandHeader: getCommandHeader
 }

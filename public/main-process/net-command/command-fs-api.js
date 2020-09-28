@@ -1,5 +1,7 @@
-const { sendLog, send } = require('../ipc/ipc-cmd-sender');
+const { send } = require('../ipc/ipc-cmd-sender');
 const fs = require('fs');
+
+const winston = require('../../winston')
 
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
@@ -10,7 +12,7 @@ const ResData = require('../ResData');
 const { ENCODE_TYPE_OTS, SESSION_KEY } = require('./command-const');
 const { downloadFile } = require('./file-downloader');
 
-
+const defaultFileCmdLength = 8+4+CmdConst.BUF_LEN_FILEDATA; // header(8) + gubun(4) + data(4096)
 
 async function reqDownloadFile(serverIp, serverPort, serverFileName, saveFilePath) {
     return downloadFile(serverIp, serverPort, serverFileName, saveFilePath,
@@ -22,7 +24,6 @@ async function reqDownloadFile(serverIp, serverPort, serverFileName, saveFilePat
 
         });
 }
-
 
 /**
  * 파일을 업로드 합니다.
@@ -37,7 +38,7 @@ async function reqUploadFile(uploadKey, filePath) {
 
         let fileLength = fs.statSync(filePath).size;
 
-        sendLog('reqUploadFile',uploadKey, filePath, fileLength);
+        winston.info('reqUploadFile %s, %s, %s',uploadKey, filePath, fileLength);
 
         let res = await fsAPI.connectFS();
 
@@ -69,7 +70,7 @@ async function reqUploadFile(uploadKey, filePath) {
         }
 
         // 4. 파일을 전송한다.
-        res = await uploadFileStream(res.data, uploadKey, filePath);
+        res = await uploadFileStream(uploadKey, filePath);
         if (!res.resCode) {
             close();
             return new ResData(false, res);
@@ -85,7 +86,7 @@ async function reqUploadFile(uploadKey, filePath) {
         // 서버 파일명이 온다.
         return res;
     } catch (err) {
-        sendLog('Upload File Fail!', uploadKey, filePath, err);
+        winston.info('Upload File Fail! %s %s %s', uploadKey, filePath, err);
         return new ResData(false, err);
     }
 }
@@ -113,7 +114,7 @@ function logout() {
  * @param {String} userId 
  */
 function loginReady(userId) {
-    sendLog('loginReady',userId);
+    winston.info('loginReady %s',userId);
     return new Promise(async function(resolve, reject) {
 
         var gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
@@ -122,9 +123,12 @@ function loginReady(userId) {
         userIdBuf.write(userId);
     
         let dataBuf = Buffer.concat([gubunBuf, userIdBuf]);
-        fsAPI.writeCommandFS(new CommandHeader(CmdCodes.FS_LOGINREADY, 0, function(resData){
+
+        let cmd = new CommandHeader(CmdCodes.FS_LOGINREADY, 0, function(resData){
             resolve(resData);
-        }), dataBuf);
+        });
+        cmd.setResponseLength(defaultFileCmdLength) // 파일 커맨드는 Read Length 가 고정된다.
+        fsAPI.writeCommandFS(cmd, dataBuf);
     });
 }
 
@@ -140,7 +144,7 @@ function loginReady(userId) {
  * @param {String} fileBaseName 
  */
 function uploadCheck(fileBaseName, fileLength) {
-    sendLog('uploadCheck',fileBaseName);
+    winston.info('uploadCheck %s',fileBaseName);
     return new Promise(async function(resolve, reject) {
 
         let fileCmd = CmdCodes.FS_UPLOADFILE;
@@ -156,9 +160,12 @@ function uploadCheck(fileBaseName, fileLength) {
         fileNameBuf.write(fileBaseName, global.ENC);
 
         let dataBuf = Buffer.concat([gubunBuf, fileNameBuf]);
-        fsAPI.writeCommandFS(new CommandHeader(fileCmd, 0, function(resData){
+
+        let cmd = new CommandHeader(fileCmd, 0, function(resData){
             resolve(resData);
-        }), dataBuf);
+        });
+        cmd.setResponseLength(defaultFileCmdLength) // 파일 커맨드는 Read Length 가 고정된다.
+        fsAPI.writeCommandFS(cmd, dataBuf);
     });
 }
 
@@ -176,20 +183,20 @@ function setUploadFileEncKey() {
         let encInfo = CryptoUtil.encryptText(ENCODE_TYPE_OTS, SESSION_KEY)
         let encKey = encInfo.encKey + CmdConst.SEP_PIPE + encInfo.cipherContent;
         let encKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_FILEDATA)
-        encKeyBuf.write(encKey, global.ENC);
 
-        sendLog('setUploadFileEncKey', encKey);
+        encKeyBuf.write(encKey, global.ENC);
+        winston.info('setUploadFileEncKey %s', encKey);
 
         let dataBuf = Buffer.concat([gubunBuf, encKeyBuf]);
-        fsAPI.writeCommandFS(new CommandHeader(CmdCodes.FS_UPLOADSEND, 0), dataBuf);
+        fsAPI.writeCommandFS(new CommandHeader(CmdCodes.FS_UPLOADSEND, 140), dataBuf);
         resolve(new ResData(true, encInfo));
     });
 }
 
 /** 4. 파일 데이터 전송 */
-function uploadFileStream(encInfo, uploadKey, filePath) {
+function uploadFileStream(uploadKey, filePath) {
 
-    sendLog('uploadFileStream',encInfo, uploadKey, filePath);
+    winston.info('uploadFileStream %s %s',uploadKey, filePath);
     return new Promise(async function(resolve, reject) {
         let gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
         gubunBuf.writeInt32LE(1);
@@ -199,26 +206,30 @@ function uploadFileStream(encInfo, uploadKey, filePath) {
          이를 방지하기 위해 Stream으로 읽어 처리
         */
 
-        var fileLength = fs.statSync(filePath).size;
-        var uploadedLength = 0;
+        let fileLength = fs.statSync(filePath).size;
+        let uploadedLength = 0;
+        let readFileLength = 0;
+
         const readStream = fs.createReadStream(filePath, {highWaterMark: CmdConst.BUF_LEN_FILEDATA});
         readStream.on('data', (chunk) => {
-            uploadedLength += chunk.length;
-            sendLog('send len :', chunk.length, uploadedLength, fileLength);
+            readFileLength = chunk.length;
+            uploadedLength += readFileLength
+            winston.info('send len : %s, %s, %s', readFileLength, uploadedLength, fileLength);
 
-            chunk = CryptoUtil.encryptBufferRC4(encInfo.encKey, chunk);
+            // 단순히 세션키로 암호화 한다.
+            //chunk = CryptoUtil.encryptBufferRC4(CmdConst.SESSION_KEY, chunk);
 
             // 읽은 길이가 DataLength보다 작다면 채워준다. // 무조건 맞춰야함
-            if (chunk.length < CmdConst.BUF_LEN_FILEDATA) {
-                let diffLen = CmdConst.BUF_LEN_FILEDATA - chunk.length;
+            if (readFileLength < CmdConst.BUF_LEN_FILEDATA) {
+                let diffLen = CmdConst.BUF_LEN_FILEDATA - readFileLength;
                 chunk = Buffer.concat([chunk, Buffer.alloc(diffLen)]);
             }
             
             let dataBuf = Buffer.concat([gubunBuf, chunk])
 
             // 송신/수신 데이터길이가 다르나, 전문에 길이데이터가 없음으로 따로 설정한다.
-            let cmd = new CommandHeader(CmdCodes.FS_UPLOADSEND, chunk.length);
-            cmd.setResponseLength(8+4+CmdConst.BUF_LEN_FILEDATA); // header(8) + gubun(4) + data(4096)
+            let cmd = new CommandHeader(CmdCodes.FS_UPLOADSEND, readFileLength);
+            cmd.setResponseLength(defaultFileCmdLength); 
             fsAPI.writeCommandFS(new CommandHeader(CmdCodes.FS_UPLOADSEND, chunk.length), dataBuf);
 
             // UI에서 진행률을 처리할수 있도록 전송되는 정보를 보내준다.
@@ -226,13 +237,13 @@ function uploadFileStream(encInfo, uploadKey, filePath) {
         });
         
         readStream.on('end', () => {
-            sendLog('file read end! file length:', uploadedLength, fileLength);
+            winston.info('file read end! file length:%s, %s', uploadedLength, fileLength);
             resolve(new ResData(true, 'file upload stream completed.'))
         })
 
         readStream.on('error', (err) => {
             // Exception을 만들지 않는다..
-            sendLog('uploadFileStream err', err)
+            winston.info('uploadFileStream err %s', err)
             resolve(new ResData(false, err));
         })
     });
@@ -240,7 +251,7 @@ function uploadFileStream(encInfo, uploadKey, filePath) {
 
 /** 5. 파일전송 완료 */
 function endUploadFile() {
-    sendLog('endUploadFile ')
+    winston.info('endUploadFile ')
 
     return new Promise(async function(resolve, reject) {
         // gubun ENCODE_TYPE_NO_SERVER => 3
@@ -250,7 +261,7 @@ function endUploadFile() {
         let dataBuf = Buffer.concat([gubunBuf, Buffer.alloc(CmdConst.BUF_LEN_FILEDATA)]);
 
         let cmd = new CommandHeader(CmdCodes.FS_UPLOADEND, 0, function(resData){
-            sendLog('endUploadFile resData', resData)
+            winston.info('endUploadFile resData, %s', resData)
             resolve(resData);
         });
         cmd.setResponseLength(8+4+CmdConst.BUF_LEN_FILEDATA);

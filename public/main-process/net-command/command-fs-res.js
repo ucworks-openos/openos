@@ -1,5 +1,6 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
 const { callCallback } = require('./command-utils');
+const winston = require('../../winston')
+
 const ResData = require('../ResData');
 
 var CmdCodes = require('./command-code');
@@ -7,18 +8,17 @@ var CmdConst = require('./command-const');
 const { getStringWithoutEndOfString } = require('../utils/utils-buffer');
 
 
-
 /**
  * 수신한 Command를 처리합니다. 
  * @param {CommandHeader} resCmd 
  */
-function responseCmdProc(resCmd) {
+function receiveCmdProc(resCmd) {
   if (!resCmd.sendCmd) {
-    sendLog('FS Request Command Empty! -  CMD: ' + resCmd.cmdCode);
+    winston.info('FS Request Command Empty! -  CMD: %s', resCmd);
     return;
   }
 
-  sendLog('FS Response -  RES_CMD: ' + resCmd.cmdCode);
+  winston.info('FS Command Proc -  RES_CMD: %s', resCmd.cmdCode);
 
   // 요청커맨드로 처리되는 방식과 받은 Command로 처리되는 방식으로 나눈다.
   
@@ -30,7 +30,7 @@ function responseCmdProc(resCmd) {
           callCallback(resCmd.sendCmd, new ResData(true));
           break;
         default:
-          sendLog('FS_LOGINREADY  Response Fail! -  ', resCmd.cmdCode);
+          winston.info('FS_LOGINREADY  Response Fail! - %s ', resCmd.cmdCode);
           callCallback(resCmd.sendCmd, new ResData(false, 'FS_LOGINREADY  Response Fail!'));
           break;
       }
@@ -45,7 +45,7 @@ function responseCmdProc(resCmd) {
           callCallback(resCmd.sendCmd, new ResData(true));
           break;
         default:
-          sendLog('FS_UPLOADFILE  Response Fail! -  ', resCmd.cmdCode);
+          winston.info('FS_UPLOADFILE  Response Fail! -  %s', resCmd.cmdCode);
           callCallback(resCmd.sendCmd, new ResData(false, 'FS_UPLOADFILE  Response Fail!'));
           break;
       }
@@ -60,7 +60,7 @@ function responseCmdProc(resCmd) {
           callCallback(resCmd.sendCmd, new ResData(true, gubun + '|' +dataStr));
           break;
         default:
-          sendLog('FS_UPLOADEND  Response Fail! -  ', resCmd.cmdCode);
+          winston.info('FS_UPLOADEND  Response Fail! -  %s', resCmd.cmdCode);
           callCallback(resCmd.sendCmd, new ResData(false, 'FS_UPLOADEND  Response Fail!'));
           break;
       }
@@ -80,7 +80,7 @@ function responseCmdProc(resCmd) {
           callCallback(resCmd.sendCmd, new ResData(true, Number(sizeStr)));
           break;
         default:
-          sendLog('FS_DOWNLOADFILE  Response Fail! -  ', resCmd.cmdCode);
+          winston.info('FS_DOWNLOADFILE  Response Fail! -  %s', resCmd.cmdCode);
           callCallback(resCmd.sendCmd, new ResData(false, 'FS_DOWNLOADFILE  Response Fail!'));
           break;
       }
@@ -98,7 +98,7 @@ function responseCmdProc(resCmd) {
       let rcvBuf = Buffer.from(resCmd.data);
       let dataStr = rcvBuf.toString('utf-8', 0);
       
-      sendLog('Unknown Response Command Receive: ' + resCmd.cmdCode); // + ' Data:' + dataStr);
+      winston.info('Unknown Response Command Receive: %s', resCmd.cmdCode); // + ' Data:' + dataStr);
     }
       return false;
     }
@@ -107,5 +107,5 @@ function responseCmdProc(resCmd) {
 }
 
 module.exports = {
-  responseCmdProc: responseCmdProc
+  receiveCmdProc: receiveCmdProc
 }

@@ -1,6 +1,8 @@
 const { sendLog, send } = require('../ipc/ipc-cmd-sender');
 const fs = require('fs');
 
+const winston = require('../../winston')
+
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
@@ -24,7 +26,7 @@ const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
  * @param {String} fileName   // 원하는 파일명. 없다면 빈값
  */
 function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handleProgress, handleOnError) {
-    sendLog('>> downloadFile', serverIp, serverPort, serverFileName, saveFilePath);
+    winston.info('>> downloadFile', serverIp, serverPort, serverFileName, saveFilePath);
 
     return new Promise(async function(resolve, reject) {   
 
@@ -81,18 +83,18 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
             fsSock.write(cmdBuf);
             sndCommand = cmdHeader
         
-            console.log("File Download Command Send: ", sndCommand);
-            console.log('-------------------------- \r\n');
+            winston.debug("File Download Command Send: %s", sndCommand);
+            winston.debug('-------------------------- \r\n');
         };
 
         // 받은 데이터 처리
         let receiveCommandProc = function (resCmd) {
-            var procCmd = rcvCommand;
             rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
             sndCommand = null;
 
-            //sendLog('File Download Response -  RES_CMD: ' + resCmd.cmdCode);
+            winston.debug('receiveCommandProc -  RCV_CMD: %s', resCmd);
             let gubun;
+            let readChunckLength = 0;
 
             // 요청에 의한 응답
             if (resCmd.sendCmd) {
@@ -102,7 +104,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                         switch(resCmd.cmdCode) {
                             case CmdCodes.FS_LOGINREADY:
                                 // 2. download check 파일다운로드 정보를 전달
-                                sendLog('2. downloadCheck',serverFileName);
+                                winston.debug('2. downloadCheck',serverFileName);
                                 gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
                                 gubunBuf.writeInt32LE(1);
 
@@ -115,7 +117,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
 
                                 break;
                             default:
-                                sendLog('FS_LOGINREADY  Response Fail! -  ', resCmd.cmdCode);
+                                winston.error('FS_LOGINREADY  Response Fail! -  ', resCmd.cmdCode);
                                 resolve(new ResData(false, 'FS_LOGINREADY  Response Fail! -  '+ resCmd.cmdCode));
                                 break;
                         }
@@ -126,20 +128,26 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                             case CmdCodes.FS_DOWNLOADREADY:
                                 gubun = resCmd.data.readInt32LE(0);
                                 let lengthStr = BufUtil.getStringWithoutEndOfString(resCmd.data, 4);
-                                fileLength = Number(lengthStr)
+                                fileLength = Number(lengthStr) - 140;
 
                                 // 3. encKey Reqeust
-                                sendLog('3. encKey Reqeust', fileLength);
+                                winston.debug('3. encKey Reqeust', fileLength);
                                 let gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
                                 gubunBuf.writeInt32LE(1);
 
+                                // 일단 기존 파일 지워 버린다.
+                                try {
+                                    fs.unlinkSync(saveFilePath);
+                                } catch (err) {
+                                    // handle the error
+                                }
                                 cmd = new CommandHeader(CmdCodes.FS_DOWNLOADSEND, 0);
                                 cmd.setResponseLength(fileCmdSize);
                                 writeCommand(cmd, Buffer.concat([gubunBuf, Buffer.alloc(CmdConst.BUF_LEN_FILEDATA)]));
 
                                 break;
                             default:
-                                sendLog('FS_DOWNLOADFILE  Response Fail! -  ', resCmd.cmdCode);
+                                winston.error('FS_DOWNLOADFILE  Response Fail! -  ', resCmd.cmdCode);
                                 resolve(new ResData(false, 'FS_DOWNLOADFILE  Response Fail! -  '+ resCmd.cmdCode));
                                 break;
                             }
@@ -147,29 +155,41 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
             
                     case CmdCodes.FS_DOWNLOADSEND:
                         // 인코딩 정보를 처리하기전에 데이터 수신을 방지하기 위해 
-                        fsSock.push(); 
-                        let temp = Buffer.from(resCmd.data);
-                        console.log('FS_DOWNLOADSEND ENC -- ', temp);
-                        console.log('FS_DOWNLOADSEND ENC -- ', temp.toString(global.ENC));
-
+                        
+                        
+                        //암호화 정보는 사용하지 않음으로 버린다.
                         gubun = resCmd.data.readInt32LE(0);
                         let encData = BufUtil.getStringWithoutEndOfString(resCmd.data, 4);
                         
-                        let spliterInx = encData.lastIndexOf(CmdConst.SEP_PIPE);
-                        let encKey = encData.substring(0, spliterInx-1);
-                        let cipherTxt = encData.substring(spliterInx+1);
-                        fileEncKey =  CryptoUtil.decryptMessage(encKey, cipherTxt);
+                        winston.debug('file encKey %s', {encData:encData});
+                        // let spliterInx = encData.lastIndexOf(CmdConst.SEP_PIPE);
+                        // let encKey = encData.substring(0, spliterInx-1);
+                        // let cipherTxt = encData.substring(spliterInx+1);
+                        // fileEncKey =  CryptoUtil.decryptMessage(encKey, cipherTxt);
+
+                        // try {
+                        //     // UI에서 진행률을 처
+                        //     chunk = resCmd.data.subarray(4);
+                        //     readChunckLength = writeToFile(chunk, resCmd.size);
+                        //     downloadedSize += readChunckLength
+
+                        //     handleProgress(serverFileName, downloadedSize, fileLength)
+                        //     winston.debug('FS_DOWNLOADSEND Downloading...%s  %s  %s', readChunckLength, downloadedSize, fileLength);
                         
-                        console.log('FS_DOWNLOADSEND ENC', encData, encKey, cipherTxt, fileEncKey);
+                        // } catch (err) {
+                        //     winston.error('file write error %s', err)
+                        //     resolve(new ResData(false, err));
+                        //     break;
+                        // }
                         
-    
-                        fsSock.resume(); // 다시 수신을 한다.
+                        //winston.debug('FS_DOWNLOADSEND ENC', encData, encKey, cipherTxt, fileEncKey);
+                        resolve(new ResData(true));
                         break;
                     default :
                         let rcvBuf = Buffer.from(resCmd.data);
                         let dataStr = rcvBuf.toString('utf-8', 0);
                         
-                        sendLog('FS_DOWNLOADSEND  Response Fail! - ' + resCmd.cmdCode + ' Data:' + dataStr);
+                        winston.error('FS_DOWNLOADSEND  Response Fail! - %s Data:%s', resCmd.cmdCode, dataStr);
                         resolve(new ResData(false, 'FS_DOWNLOADSEND  Response Fail! -  '+ resCmd.cmdCode));
                         break;
                 }
@@ -177,64 +197,65 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                 // 서버에서 보낸 파일정보를 수신한다.
                 switch(resCmd.cmdCode) {
                     case CmdCodes.FS_DOWNLOADSEND:
-                        chunk = Buffer.from( resCmd.data, 4);
-                        chunk = CryptoUtil.decryptBufferRC4(fileEncKey, chunk);
-                        downloadedSize += chunk.length;
-
-                        // UI에서 진행률을 처리할수 있도록 전송되는 정보를 보내준다.
-                        handleProgress(serverFileName, downloadedSize, fileLength)
-
-                        //sendLog('FS_DOWNLOADEND   Downloading...', chunkSize, downloadedSize, fileLength);
-
                         try {
-                            fs.appendFileSync(saveFilePath, chunk);
+                            // UI에서 진행률을 처
+                            chunk = resCmd.data.subarray(4);
+                            readChunckLength = writeToFile(chunk, resCmd.size);
+                            downloadedSize += readChunckLength
+
+                            handleProgress(serverFileName, downloadedSize, fileLength)
+                            winston.debug('FS_DOWNLOADSEND Downloading...%s %s %s', readChunckLength, downloadedSize, fileLength);
+                        
                         } catch (err) {
-                            sendLog('file write error', )
+                            winston.error('file write error %s', err)
+                            resolve(new ResData(false, err));
+                            break;
                         }
+
+                        resolve(new ResData(true));
 
                         break;
 
                     case CmdCodes.FS_DOWNLOADEND:
-                        let chunkSize = resCmd.size - (8+4) // 헤더+gubun 사이즈를 뺴고 데이터 사이즈를 가져온다.
-                        chunk = Buffer.from(resCmd.data, 4, chunkSize);
-                        chunk = CryptoUtil.decryptBufferRC4(fileEncKey, chunk);
-                        downloadedSize += chunk.length;
-
-                        sendLog('FS_DOWNLOADEND End Download', chunkSize, downloadedSize, fileLength);
-
                         try {
-                            fs.appendFileSync(saveFilePath, chunk);
+                            
+                            chunk = resCmd.data.subarray(4);
+                            let readLen = fileLength - downloadedSize; // 마지막 남은 사이즈를 받는다.
+                            readChunckLength = writeToFile(chunk, readLen);
+                            downloadedSize += readChunckLength
+
+                            // UI에서 진행률을 처리하기 위해
+                            handleProgress(serverFileName, downloadedSize, fileLength)
+                            winston.debug('FS_DOWNLOADEND End Download %s %s %s', readChunckLength, downloadedSize, fileLength);
+                        
                         } catch (err) {
-                            sendLog('file write error', )
-                            resolve(new ResData(false, err))
+                            winston.error('file write error  %s', err)
+                            resolve(new ResData(false, err));
+                            break;
                         }
 
-                        resolve(new ResData(true))
+                        resolve(new ResData(true));
                         break;
 
                     default:
-                        sendLog('File Receive  Response Fail! -  ', resCmd.cmdCode);
+                        winston.error('File Receive  Response Fail! -  %s', resCmd.cmdCode);
                         resolve(new ResData(false, 'File Receive Fail! -  '+ resCmd.cmdCode));
                         break;
-                    
-                    break;
                 }
             }
         }
 
         let receiveDatasProc = function(rcvData){
-            console.log('\r\n++++++++++++++++++++++++++++++++++');
-            console.log('FS rcvData:', rcvData);
-            console.log('\r\n');
-            let leftBuf;
-            if (!rcvCommand){
+             winston.debug('Received Data: %s',rcvData.length);
+
+             if (!rcvCommand){
                 let dataLen = fileCmdSize;
                 if (sndCommand) {
                     dataLen = sndCommand.getResponseLength();
                 }
 
                 // 수신된 CommandHeader가 없다면 헤더를 만든다.
-                let cmdLeft = getCommandHeader(rcvData, dataLen);
+                let cmdLeft = BufUtil.getCommandHeader(rcvData, dataLen);
                 rcvCommand = cmdLeft.command;
                 rcvData = cmdLeft.leftBuf;
 
@@ -242,10 +263,10 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                     rcvCommand.sendCmd = sndCommand
                 }
 
-                if (rcvCommand.readCnt == dataLen) {
+                if (rcvCommand.readCnt == rcvCommand.getResponseLength()) {
                     receiveCommandProc(rcvCommand);
                 } else if (rcvCommand.readCnt > dataLen) {
-                    console.log('>>  OVER READ !!!', dataLen, rcvCommand)
+                    winston.info('>>  OVER READ !!! %s  %s', dataLen, rcvCommand)
                 }
 
                 // 남는거 없이 다 읽었다면 끝낸다.
@@ -253,15 +274,18 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
 
             } else {
 
+                
                 // 또 받을 데이터 보다 더 들어 왔다면 자르고 남는것을 넘긴다.
                 let leftLen = rcvCommand.getResponseLength() - rcvCommand.readCnt;
 
+                winston.debug('More Receive  %s, %s', leftLen, rcvCommand)
                 if (rcvData.length > leftLen) {
                     // 읽을 데이터 보다 더 들어 왔다.
                     rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData.slice(0, leftLen)]);
                     rcvCommand.addReadCount(leftLen);
+
+                    receiveCommandProc(rcvCommand);
                     rcvData = rcvData.slice(leftLen);
-                    receiveCommandProc(cmd);
                 } else {
                     // 필요한 데이터가 딱맞거나 작다면 그냥 다읽고 끝낸다.
                     rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData]);
@@ -269,7 +293,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
 
                     if (rcvCommand.readCnt >= rcvCommand.getResponseLength()) {
                         
-                        if (rcvCommand.readCnt > rcvCommand.getResponseLength()) console.log('>>  OVER READ !!!',rcvData.length, rcvCommand); 
+                        if (rcvCommand.readCnt > rcvCommand.getResponseLength()) winston.info('>>  OVER READ !!! %s, %s',rcvData.length, rcvCommand); 
                         // 제대로 다 읽었다면 Cmd 처리    
                         receiveCommandProc(rcvCommand);
                     } 
@@ -279,21 +303,24 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                 }
             }
 
-            // 여기서 부터는 무조건 커맨드를 처리하고 남은 데이터를 처리한다.
-            while(rcvData && rcvData.length > 8) {
-                let cmdLeft = getCommandHeader(rcvData, fileCmdSize);
-                rcvCommand = cmdLeft.command;
-                rcvData = cmdLeft.leftBuf;
-                if (sndCommand) {
-                    rcvCommand.sendCmd = sndCommand
-                }
-
-                if (rcvCommand.readCnt == dataLen) {
-                    receiveCommandProc(procCmd);
-                }
-            }
+            winston.debug('More Read Datas........ %s', rcvData.length);
+            receiveDatasProc(rcvData)
         };
 
+        /** 지정 길이만큼 파일에 쓰고 길이를 반환한다. */
+        let writeToFile = function(fileBuf, dataLength) {
+            chunk = fileBuf.subarray(0, dataLength)
+            winston.debug('writeToFile buf %s', {len:chunk.length, buf:chunk});
+            //chunk = CryptoUtil.decryptBufferRC4(CmdConst.SESSION_KEY, chunk);
+            
+            try {
+                fs.appendFileSync(saveFilePath, chunk);
+            } catch (err) {
+                winston.error('file write error %s', err)
+            }
+
+            return chunk.length;
+        }
 
         //
         // Connection to file server
@@ -301,7 +328,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
             fsSock = await createSock(SVR.ip, SVR.port);
             isConnected = true;
         } catch (err) {
-            sendLog('SERVER CONNECT FAIL!', SVR, err)
+            winston.error('SERVER CONNECT FAIL! %s, %s', SVR, err)
             
             if (handleOnError) handleOnError(err)
             return false;
@@ -314,18 +341,19 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
 
         // 접속이 종료됬을때 메시지 출력
         fsSock.on('end', function(){
-            sendLog('File Download Disconnected!');
+            winston.warn('File Download Disconnected!');
             isConnected = false;
         });
         // close
         fsSock.on('close', function(hadError){
-            sendLog("File Download Close. hadError: " + hadError);
+            winston.warn("File Download Close. hadError: " + hadError);
             isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         fsSock.on('error', function(err){
             if (HandleOnClose) HandleOnClose(err);
             
+            winston.warn("File Download error.  %s", err);
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             isConnected = false;
         });
@@ -333,6 +361,8 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
         // connection에서 timeout이 발생하면 메시지 출력
         fsSock.on('timeout', function(){
             if (handleOnErr) handleOnErr(new Error('time out'));
+
+            winston.warn('time out');
             isConnected = false;
         });
 
@@ -344,7 +374,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
             // 4. download end
 
             // 1. Download Ready를 하면 응답에 따라 완료까지 모두 진행이 된다.
-            sendLog('1. download ready (login)',global.USER.userId);
+            winston.debug('1. download ready (login) %s',global.USER.userId);
             gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
             gubunBuf.writeInt32LE(1);
             fileDataBuf = Buffer.alloc(CmdConst.BUF_LEN_FILEDATA);
@@ -355,34 +385,13 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
             writeCommand(cmd, Buffer.concat([gubunBuf, fileDataBuf]));
 
         } catch (err) {
-            sendLog('Download File Fail!', serverIp, serverPort, serverFileName, saveFilePath, err);
+            winston.error('Download File Fail! %s %s %s %s %s', serverIp, serverPort, serverFileName, saveFilePath, err);
             resolve(new ResData(false, err));
         }
     });
 }
 
-// function getCommandHeader(dataBuf, cmdSize = 0) {
-//     if (dataBuf.length < 8) return dataBuf;
 
-//     let cmd = new CommandHeader(dataBuf.readInt32LE(0), dataBuf.readInt32LE(4));
-    
-//     // 수신사이즈를 모른다면 헤더 정보를 활용한다.
-//     if (cmdSize <= 0) cmdSize = cmd.size;
-
-//     cmd.setResponseLength(cmdSize);
-//     let leftBuf;
-//     if (dataBuf.length < cmdSize) {
-//         cmd.data = dataBuf.slice(8);
-//         leftBuf = Buffer.alloc(0);
-//     } else {
-//         cmd.data = dataBuf.slice(8, cmdSize - 8);
-//         leftBuf = dataBuf.slice(cmdSize);
-//     }
-
-//     cmd.addReadCount(cmdSize);
-//     console.log('Recive Command Data :', cmd);
-//     return {command:cmd, leftBuf:leftBuf}
-// }
 
 module.exports = {
     downloadFile: downloadFile

@@ -92,7 +92,7 @@ async function showAlert(notiType, notiId, title, message) {
   //notiWin.webContents.openDevTools();
   notiWin.menuBarVisible = false;
 
-  let notifyFile = `file://${global.ROOT_PATH}/notify.html`;
+  let notifyFile = `file://${__dirname}/notify.html`;
   console.log(`>>>>>>>>>>>  `, notifyFile);
   notiWin.webContents.on('did-finish-load', () => {
     console.log(`>>>>>>>>>>>   LOAD COMPLETED!`);

@@ -19,6 +19,8 @@ const { DATE_FORMAT } = require('../common/common-const');
 const CommandHeader = require('../net-command/command-header');
 const {funcTest} = require('./funcTest');
 
+const winston = require('../../winston')
+
 // testAction
 ipcMain.on('testAction', async (event, ...args) => {
   var resData = new ResData(true, '');
@@ -40,7 +42,7 @@ ipcMain.on('testAction', async (event, ...args) => {
   fuc('Hello')
   fuc('Hello')
 
-
+  winston.info('fff--- %s', fuc)
   return;
 
   let cmd = new CommandHeader(7000, 40, null);
@@ -121,7 +123,7 @@ ipcMain.on('testAction', async (event, ...args) => {
   })
   win.webContents.openDevTools();
 
-  let notifyFile = `file://${global.ROOT_PATH}/notify.html`;
+  let notifyFile = `file://${__dirname}/notify.html`;
   console.log(`>>>>>>>>>>>  `, notifyFile);
   win.webContents.on('did-finish-load', () => {
     

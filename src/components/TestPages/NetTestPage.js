@@ -39,7 +39,7 @@ function NetTestPage() {
   const [fileSvrIp, setFileSvrIp] = useState('');
   const [fileSvrPort, setFileSvrPort] = useState('');
   const [saveFile, setSaveFile] = useState('D:\\temp\\ifserver_download.log');
-  const [svrFile, setSvrFile] = useState('_ucfile2020-09-24/ifserver.log');
+  const [svrFile, setSvrFile] = useState('_ucfile2020-09-25/ifserver.log.9');
 
 
   remote.getGlobal('IS_DEV')

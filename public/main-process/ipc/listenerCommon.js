@@ -1,4 +1,6 @@
 const { ipcMain } = require('electron');
+const winston = require('../../winston')
+
 const dsAPI = require('../net-command/command-ds-api');
 const psAPI = require('../net-command/command-ps-api');
 const csAPI = require('../net-command/command-cs-api');
@@ -47,7 +49,7 @@ ipcMain.on('login', async (event, loginData) => {
     event.reply('res-login', new ResData(true, resData));
 
   } catch(err){
-    console.log('login fail! res:', err)
+    winston.debug('login fail! res:', err)
     event.reply('res-login', new ResData(false, err));
   };
 });
@@ -56,14 +58,14 @@ ipcMain.on('login', async (event, loginData) => {
 // logout
 ipcMain.on('logout', async (event, ...args) => {
   
-  console.log('``````````````````````````logout')
+  winston.debug('``````````````````````````logout')
 
   nsAPI.close();
   dsAPI.close();
   csAPI.close();
   psAPI.close();
 
-  console.log('``````````````````````````logout completed!')
+  winston.debug('``````````````````````````logout completed!')
 
   event.reply('res-logout', new ResData(true));
 });
@@ -73,7 +75,7 @@ ipcMain.on('getBuddyList', async (event, ...args) => {
   
   dsAPI.reqGetBuddyList(function(resData)
   {
-    console.log('getBuddyList res:', resData)
+    winston.debug('getBuddyList res:', resData)
     event.reply('res-getBuddyList', resData);
   }).catch(function(err) {
     event.reply('res-getBuddyList', new ResData(false, err));
@@ -86,7 +88,7 @@ ipcMain.on('getBaseOrg', async (event, ...args) => {
   
   psAPI.reqGetOrganization(global.ORG.orgGroupCode).then(function(resData)
   {
-    console.log('getBaseOrg res:', resData)
+    winston.debug('getBaseOrg res:', resData)
     event.reply('res-getBaseOrg', resData);
   }).catch(function(err) {
     event.reply('res-getBaseOrg', new ResData(false, err));
@@ -98,7 +100,7 @@ ipcMain.on('getBaseOrg', async (event, ...args) => {
 ipcMain.on('getChildOrg', async (event, orgGroupCode, groupCode, groupSeq) => {
   psAPI.reqGetOrgChild(orgGroupCode, groupCode, groupSeq).then(function(resData)
   {
-    console.log('getChildOrg res:', resData)
+    winston.debug('getChildOrg res:', resData)
     event.reply('res-getChildOrg', resData);
   }).catch(function(err) {
     event.reply('res-getChildOrg', new ResData(false, err));
@@ -110,7 +112,7 @@ ipcMain.on('getChildOrg', async (event, orgGroupCode, groupCode, groupSeq) => {
 ipcMain.on('getUserInfos', async (event, userIds) => {
   psAPI.reqGetUserInfos(userIds).then(function(resData)
   {
-    console.log('getUserInfos res:', resData)
+    //winston.debug('getUserInfos res:', resData)
     event.reply('res-getUserInfos', resData);
   }).catch(function(err) {
     event.reply('res-getUserInfos', new ResData(false, err));
@@ -122,7 +124,7 @@ ipcMain.on('getUserInfos', async (event, userIds) => {
 ipcMain.on('searchUsers', async (event, searchMode, searchText) => {
   psAPI.reqSearchUsers(searchMode, searchText).then(function(resData)
   {
-    console.log('searchUsers res:', resData)
+    winston.debug('searchUsers res:', resData)
     event.reply('res-searchUsers', resData);
   }).catch(function(err) {
     event.reply('res-searchUsers', new ResData(false, err));
@@ -134,7 +136,7 @@ ipcMain.on('searchUsers', async (event, searchMode, searchText) => {
 ipcMain.on('searchOrgUsers', async (event, orgGrgoupCode, searchText) => {
   psAPI.reqSearchOrgUsers(orgGrgoupCode, searchText).then(function(resData)
   {
-    console.log('searchOrgUsers res:', resData)
+    winston.debug('searchOrgUsers res:', resData)
     event.reply('res-searchOrgUsers', resData);
   }).catch(function(err) {
     event.reply('res-searchOrgUsers', new ResData(false, err));
@@ -145,7 +147,7 @@ ipcMain.on('searchOrgUsers', async (event, orgGrgoupCode, searchText) => {
 ipcMain.on('saveBuddyData', async (event, favoritData) => {
   nsAPI.reqSaveBuddyData(favoritData).then(function(resData)
   {
-    console.log('saveBuddyData res:', resData)
+    winston.debug('saveBuddyData res:', resData)
     event.reply('res-saveBuddyData', resData);
   }).catch(function(err) {
     event.reply('res-saveBuddyData', new ResData(false, err));
@@ -157,7 +159,7 @@ ipcMain.on('saveBuddyData', async (event, favoritData) => {
 ipcMain.on('changeStatus', async (event, status, force = false) => {
   nsAPI.reqChangeStatus(status, force).then(function(resData)
   {
-    console.log('changeStatus res:', resData)
+    winston.debug('changeStatus res:', resData)
     event.reply('res-changeStatus', resData);
   }).catch(function(err) {
     event.reply('res-changeStatus', new ResData(false, err));
@@ -169,7 +171,7 @@ ipcMain.on('changeStatus', async (event, status, force = false) => {
 ipcMain.on('setStatusMonitor', async (event, userIds) => {
   nsAPI.reqSetStatusMonitor(userIds).then(function(resData)
   {
-    console.log('setStatusMonitor res:', resData)
+    winston.debug('setStatusMonitor res:', resData)
     event.reply('res-setStatusMonitor', resData);
   }).catch(function(err) {
     event.reply('res-setStatusMonitor', new ResData(false, err));
