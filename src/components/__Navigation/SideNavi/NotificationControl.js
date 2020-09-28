@@ -137,7 +137,13 @@ function NotificationControl() {
 
 export default NotificationControl
 
-
+// let roomKey;
+// // SelectedUsers = ["jeen8337","inkyung"]
+// if (SelectedUsers.length === 2) {
+//     roomKey = SelectedUsers.sort().join("|")
+// } else {
+//     roomKey = LoggedInUserId + "_" + getUUID()
+// }
 
 
 

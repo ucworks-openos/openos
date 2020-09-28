@@ -37,7 +37,6 @@ function ChatRooms(props) {
             const renderSendTo = receieveIds && receieveIds.map(user => {
                 return <span key={uuidv4()}>{user}{" "}</span>
             })
-            console.log('render curentRoo.room_key', currentChatRoom.room_key);
             const isCurrentChatRoom = room && room.room_key === currentChatRoom.room_key ? "current-chat" : "";
             // ${receievePeopleCounts >= 4 ? "n" : receievePeopleCounts} 
 

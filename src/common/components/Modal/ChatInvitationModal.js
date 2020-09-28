@@ -86,6 +86,7 @@ function ChatInvitationModal(props) {
             chat_entry_ids: userIds,
             unread_count: 0,
             chat_content: "",
+            last_line_key: '9999999999999999',
             chat_send_name: loggedInUser.user_name.value,
             create_room_date: moment().format("YYYYMMDDHHmm"),
             chat_send_id: loggedInUser.user_id.value,

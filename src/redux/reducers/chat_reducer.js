@@ -20,13 +20,21 @@ export default function (state = {}, action) {
         case SET_CURRENT_CHAT_ROOM:
             return { ...state, currentChatRoom: action.payload[0] }
         case GET_INITIAL_CHAT_MESSAGES:
-            return { ...state, chatMessages: action.payload }
+            return {
+                ...state,
+                chatMessages: action.payload
+            }
         // case GET_MORE_CHATS_MESSAGES:
         //     return { ...state, chats: [...action.payload, ...state.chats], chatLength: action.payload.length, type: "normal" }
         case ADD_CHAT_ROOM:
+            let chatRooms = [...state.chatRooms]
+            let chatRoomsWithoutCurrentChatRoom = chatRooms.filter(c => c.room_key !== action.payload.room_key)
+
             return {
-                ...state, chatRooms: [action.payload, ...state.chatRooms],
-                currentChatRoom: action.payload, chatMessages: action.payload.chatLists
+                ...state,
+                chatRooms: [action.payload, ...chatRoomsWithoutCurrentChatRoom],
+                currentChatRoom: action.payload,
+                chatMessages: action.payload.chatLists
             }
         case MOVE_TO_CLICKED_CHAT_ROOM:
             return {
@@ -89,7 +97,7 @@ export default function (state = {}, action) {
             let newChatRooms = [state.currentChatRoom, ...newChatRoomsWithoutCurrentChatRoom]
             return {
                 ...state,
-                chatMessages: state.chatMessages.concat(action.payload),
+                chatMessages: [...state.chatMessages, action.payload],
                 chatRooms: newChatRooms, //현재 채팅룸을 가장 위로 올리기
                 currentChatRoom: state.currentChatRoom // 채팅룸 컨텐츠 정보 바꾸기
             };
