@@ -9,24 +9,28 @@ function ChatMessages() {
     const dispatch = useDispatch();
     const chatMessages = useSelector(state => state.chats.chatMessages)
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
-    const [chatMessagesWithUserInfos, setChatMessagesWithUserInfos] = useState([])
-    const messagesEndRef = useRef(null)
-    // console.log('chatMessages', chatMessages)
-    // console.log('currentChatRoom', currentChatRoom)
-
+    // const [chatMessagesWithUserInfos, setChatMessagesWithUserInfos] = useState([])
+    const messagesEndRef = useRef()
+  
     const scrollToBottom = () => {
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+        messagesEndRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+            inline: "start"
+        })
     };
 
     useEffect(() => {
-        scrollToBottom()
-    }, [chatMessages])
+        if (messagesEndRef.current) {
+            scrollToBottom();
+        }
+    }, [messagesEndRef, chatMessages])
 
-    useEffect(() => {
-        (chatMessages &&
-            getChatMessagesWithUserInfos()
-        )
-    }, [chatMessages])
+    // useEffect(() => {
+    //     (chatMessages &&
+    //         getChatMessagesWithUserInfos()
+    //     )
+    // }, [chatMessages])
 
     useEffect(() => {
         if (currentChatRoom) {
@@ -34,28 +38,24 @@ function ChatMessages() {
             //데이터 베이스에서 메시지를 가져오면 안됨.
             //근데  채팅을 몇번 하고 난 후에 다시 들어올때도  last_line_key가  undefined이기에 ... 
             //채팅 리스트들을 없앤다 .. 어떻게 해야 하나 ...?
-            if (currentChatRoom.last_line_key === undefined) {
-                setChatMessagesWithUserInfos([])
-            } else {
-                dispatch(getInitialChatMessages(currentChatRoom.room_key, currentChatRoom.last_line_key))
-            }
+            dispatch(getInitialChatMessages(currentChatRoom.last_line_key === undefined ? "" : currentChatRoom.room_key, currentChatRoom.last_line_key))
         }
     }, [currentChatRoom])
 
-    const getChatMessagesWithUserInfos = async () => {
-        let newChatMessages = [];
-        for (let index = 0; index < chatMessages.length; index++) {
-            const element = chatMessages[index];
-            // let userInfoResult = await getUserInfos([element.chat_send_id])
-            // console.log('userInfoResult.data.items', userInfoResult)
-            // element.userInfo = userInfoResult.data.items !== undefined ? userInfoResult.data.items.node_item : userInfoResult
-            newChatMessages.push(element)
-        }
-        setChatMessagesWithUserInfos(newChatMessages)
-    }
+    // const getChatMessagesWithUserInfos = async () => {
+    //     let newChatMessages = [];
+    //     for (let index = 0; index < chatMessages.length; index++) {
+    //         const element = chatMessages[index];
+    //         // let userInfoResult = await getUserInfos([element.chat_send_id])
+    //         // console.log('userInfoResult.data.items', userInfoResult)
+    //         // element.userInfo = userInfoResult.data.items !== undefined ? userInfoResult.data.items.node_item : userInfoResult
+    //         newChatMessages.push(element)
+    //     }
+    //     setChatMessagesWithUserInfos(newChatMessages)
+    // }
 
     const renderChatMessages = () => (
-        chatMessagesWithUserInfos && chatMessagesWithUserInfos.map((chat, index) => {
+        chatMessages && chatMessages.map((chat, index) => {
             // console.log('chat', chat)
             if (chat.chat_send_id === `${sessionStorage.getItem("loginId")}`) {
                 return (
@@ -102,11 +102,10 @@ function ChatMessages() {
             }
         })
     )
-    if (chatMessagesWithUserInfos) {
+    if (chatMessages) {
         return (
             <div className="chat-area">
                 {renderChatMessages()}
-                <br />
                 <div ref={messagesEndRef} />
             </div>
         )

@@ -54,9 +54,14 @@ export async function getInitialChatRooms() {
 
 export async function getInitialChatMessages(chatRoomId, lastLineKey) {
     let getChatListsResult = await getChatList(chatRoomId, lastLineKey, 10)
+    let request = [];
+    let getChatLists = getChatListsResult.data.table.row
+    if (getChatLists !== undefined) {
+        request = Array.isArray(getChatLists) ? getChatLists : [getChatLists]
+    }
     return {
         type: GET_INITIAL_CHAT_MESSAGES,
-        payload: Array.isArray(getChatListsResult.data.table.row) ? getChatListsResult.data.table.row : [getChatListsResult.data.table.row]
+        payload: request
     }
 }
 
@@ -72,7 +77,6 @@ export function addChatMessage(chatUsersId, chatMessage, isNewChat, chatRoomId =
         read_count: 0,
         chat_send_id: senderId
     }
-
     return {
         type: ADD_CHAT_MESSAGE,
         payload: request
@@ -135,15 +139,9 @@ export async function moveToClickedChatRoom(request) {
 
     let allChatRooms = [request, ...chatRoomsWithoutCurrenChatRoom]
     let currentChatRoom = request
-    console.log('allChatRooms', allChatRooms)
-    console.log('currentChatRoom', currentChatRoom)
-
     let realRequest = [];
     realRequest[0] = allChatRooms;
     realRequest[1] = currentChatRoom;
-
-
-    console.log('realRequest', realRequest)
     return {
         type: MOVE_TO_CLICKED_CHAT_ROOM,
         payload: realRequest
