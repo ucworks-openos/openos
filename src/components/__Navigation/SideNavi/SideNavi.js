@@ -1,17 +1,26 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
+
 import NavItem from "./SideNaviItem";
 import { items } from "./SideNaviLists";
 import "./SideNavi.css";
-
-import { logout } from "../../ipcCommunication/ipcCommon";
+import NotificationControl from './NotificationControl';
+import { logout, getUserInfos } from "../../ipcCommunication/ipcCommon";
+import { useHistory } from "react-router-dom";
 
 function Sidebar() {
-  const [activePath, setActivePath] = useState("/favorite");
+  const history = useHistory();
+  const [activePath, setActivePath] = useState(history.location.pathname);
+
+  useEffect(() => {
+    getUserInfos([sessionStorage.getItem('loginId')]).then(
+      response => {
+        sessionStorage.setItem('loginName', response.data.items.node_item.user_name.value)
+      }
+    )
+  }, [])
 
   const onItemClick = (path) => {
-
-    console.log('Action', path)
-
     setActivePath(
       path
     ); /* Sets activePath which causes rerender which causes CSS to change */
@@ -48,6 +57,8 @@ function Sidebar() {
           />
         ))}
       </div>
+
+      <NotificationControl />
 
       <li
         style={{

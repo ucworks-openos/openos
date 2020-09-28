@@ -9,31 +9,28 @@ type TOrganizationNodeProps = {
   data: TTreeNode;
   index: number;
   toggle: () => void;
-  setSelectedNode: (node: TTreeNode) => void;
+  selectedKeys: (string | number)[];
+  setSelectedKeys: (selectedKeys: (string | number)[]) => void;
+  rightClickedKey: string | number;
+};
+
+type UserRowProps = {
+  selected: boolean;
+  rightClicked: boolean;
 };
 
 export default function OrganizationNode(props: TOrganizationNodeProps) {
-  const { data, index, toggle, setSelectedNode } = props;
+  const {
+    data,
+    index,
+    toggle,
+    selectedKeys,
+    setSelectedKeys,
+    rightClickedKey,
+  } = props;
   const [visible, setVisible] = useState<boolean>(false);
 
-  const handleToggle = () => {
-    setSelectedNode(data);
-    toggle();
-  };
-
-  const handleViewDetail = () => {
-    setVisible(true);
-  };
-
-  const handleCloseDetail = () => {
-    setVisible(false);
-  };
-
-  const handleImageError = (image: any) => {
-    image.target.onerror = null;
-    image.target.src = `./images/img_imgHolder.png`;
-  };
-
+  // ANCHOR memo
   const connectTypeConverter = () => {
     const connectTypeMaybeArr: string | string[] = data?.connectType
       ? data?.connectType.split(`|`)
@@ -42,15 +39,57 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
     const connectType = arrayLike(connectTypeMaybeArr);
     return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
   };
-
   const connectType = useMemo(connectTypeConverter, []);
+
+  const setSelected = () => {
+    const selected = selectedKeys.indexOf(data?.key) > -1;
+    return selected;
+  };
+  const selected = useMemo(setSelected, [selectedKeys]);
+
+  const setRightClicked = () => {
+    const rightClicked = rightClickedKey === data?.key;
+    return rightClicked;
+  };
+  const rightClicked = useMemo(setRightClicked, [rightClickedKey]);
+
+  // ANCHOR handler
+  const handleToggle = () => {
+    setSelectedKeys([...selectedKeys, data?.key]);
+    toggle();
+  };
+
+  const handleDetailUnVisible = () => {
+    setVisible(false);
+  };
+
+  const handleImageError = (image: any) => {
+    image.target.onerror = null;
+    image.target.src = `./images/img_imgHolder.png`;
+  };
+
+  const handleDetailToggle = (e: any) => {
+    if (data?.gubun !== EnodeGubun.ORGANIZATION_USER) return false;
+    // * 프로필 사진 클릭 시 selectedKeys를 현재 노드의 키로 덮어씌움
+    if (selectedKeys.indexOf(data?.key) === -1) {
+      setSelectedKeys([data?.key]);
+    }
+    // 선택되지 않은 상태에서만 디테일 보이도록
+    setVisible((prev) => !prev);
+  };
 
   return (
     <>
       {data?.gubun === EnodeGubun.GROUP || data?.gubun === EnodeGubun.DUMMY ? (
         <StyledDepartment>{data?.title}</StyledDepartment>
       ) : (
-        <li className="user-row">
+        <UserRow
+          className={`user-row ${selected && `selected`} ${
+            rightClicked && `rightClicked`
+          }`}
+          selected={selected}
+          rightClicked={rightClicked}
+        >
           <div className="user-profile-state-wrap">
             <div className="user-pic-wrap">
               <img
@@ -61,8 +100,8 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
                 }
                 style={{ width: `48px`, height: `48px` }}
                 alt="user-profile-picture"
-                onClick={handleViewDetail}
-                onBlur={handleCloseDetail}
+                onClick={handleDetailToggle}
+                onBlur={handleDetailUnVisible}
                 tabIndex={index}
                 onError={handleImageError}
               />
@@ -71,7 +110,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
               ></div>
               {visible && (
                 <div className="user-info-container">
-                  <div className="btn-close" onClick={handleViewDetail}></div>
+                  <div className="btn-close" onClick={handleDetailToggle}></div>
                   <div className="user-profile-state-wrap">
                     <div className="user-pic-wrap">
                       <img
@@ -170,7 +209,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
             <div className="btn-quick message" onClick={handleToggle}></div>
             <div className="btn-quick call"></div>
           </div>
-        </li>
+        </UserRow>
       )}
     </>
   );
@@ -185,4 +224,14 @@ const StyledDepartment = styled.h6`
   border-bottom: 1px solid #dfe2e8;
   font-size: 14px;
   cursor: pointer;
+`;
+
+const UserRow = styled.li`
+  background-color: ${(props: UserRowProps) => props.selected && `#fff`};
+  border: ${(props: UserRowProps) =>
+    props.selected
+      ? `1px solid #ebedf1`
+      : props.rightClicked
+      ? `1px solid #e0e0e0`
+      : ``};
 `;

@@ -20,8 +20,19 @@ import { arrayLike, convertToUser } from "../../common/util";
 import { EconnectType, Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/Modal/MessageInputModal";
+import tree from "../../reducer/tree";
+import moment from "moment";
+import ModifyGroupModal from "../../common/components/Modal/ModifyGroupModal";
+import { flattenDiagnosticMessageText } from "typescript";
+
+type TgetBuddyTreeReturnTypes = {
+  buddyTree: TTreeNode[];
+  keyIds: string[];
+  userIds: string[];
+};
 
 export default function FavoritePage() {
+  // ANCHOR state
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
     false
   );
@@ -32,6 +43,9 @@ export default function FavoritePage() {
   const [addGroupModalVisible, setAddGroupModalVisible] = useState<boolean>(
     false
   );
+  const [modifyGroupModalVisible, setModifyGroupModalVisible] = useState<
+    boolean
+  >(false);
   const [isEditGroupTabOpen, setIsEditGroupTabOpen] = useState<boolean>(false);
   const {
     searchMode,
@@ -41,17 +55,39 @@ export default function FavoritePage() {
     setSearchKeyword,
     setSearchResult,
   } = useSearch({ type: `favorite` });
-  const {
-    treeData,
-    expandedKeys,
-    selectedNode,
-    setTreeData,
-    setExpandedKeys,
-    setSelectedNode,
-  } = useTree({
+  const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
     type: `favorite`,
   });
   const targetInfo = useStateListener();
+
+  const [selectedKeys, setSelectedKeys] = useState<(string | number)[]>([]);
+  const [rightClickedKey, setRightClickedKey] = useState<string | number>(0);
+
+  const [
+    departmentContextMenuVisible,
+    setDepartmentContextMenuVisible,
+  ] = useState<boolean>(false);
+  const [userContextMenuVisible, setUserContextMenuVisible] = useState<boolean>(
+    false
+  );
+
+  const [clickedNodeWidth, setClickedNodeWidth] = useState<number>(0);
+
+  const [pageX, setPageX] = useState<number>(0);
+
+  const [pageY, setPageY] = useState<number>(0);
+
+  const [finalSelectedKeys, setFinalSelectedKeys] = useState<
+    (string | number)[]
+  >([]);
+
+  // ANCHOR memo
+  const leftPositionCalculator = () => {
+    const percentage = Math.round((pageX / clickedNodeWidth) * 100);
+    return percentage > 100 ? pageX - (pageX - clickedNodeWidth) * 0.8 : pageX;
+  };
+
+  const leftPosition = useMemo(leftPositionCalculator, [pageX]);
 
   const connectTypeConverter = (connectTypeBundle: string) => {
     const connectTypeMaybeArr = connectTypeBundle
@@ -61,6 +97,19 @@ export default function FavoritePage() {
     const connectType = arrayLike(connectTypeMaybeArr);
     return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
   };
+
+  // ANCHOR effect
+  useEffect(() => {
+    if (!rightClickedKey) {
+      setFinalSelectedKeys([]);
+    }
+    // * 선택해둔 노드를 rightClick하지 않은 경우 rightClickedKey를 fianl로 보냄.
+    if (!selectedKeys.find((v: any) => v === rightClickedKey)) {
+      setFinalSelectedKeys([rightClickedKey]);
+    } else {
+      setFinalSelectedKeys(selectedKeys);
+    }
+  }, [rightClickedKey]);
 
   useEffect(() => {
     const initiate = async () => {
@@ -79,12 +128,6 @@ export default function FavoritePage() {
     };
     initiate();
   }, [targetInfo]);
-
-  type TgetBuddyTreeReturnTypes = {
-    buddyTree: TTreeNode[];
-    keyIds: string[];
-    userIds: string[];
-  };
 
   useEffect(() => {
     // 친구 + 개인 그룹 1deps로 가져오기.
@@ -159,96 +202,107 @@ export default function FavoritePage() {
     !treeData.length && initiate();
   }, []);
 
-  // 재귀함수 (children에 하위 노드 삽입)
-  const append = (
-    prev: TTreeNode[],
-    child: any,
-    userSchema: any
-  ): TTreeNode[] =>
-    prev.map((v: any) => {
-      // 즐겨찾기 밑에 a부서가 있다면, 아래 분기문에 잡힌다.
-      if (v.key === child.pid) {
-        // gubun: G (Group)
-        if (child.gubun === EnodeGubun.GROUP) {
-          return {
-            ...v,
-            children: [
-              ...v.children,
-              {
-                title: child.name,
-                key: child.id,
-                gubun: child.gubun,
-                children: [],
-                pid: child.pid,
-              },
-            ],
-          };
-        } else {
-          // gubun: U (User)
-          // userSchema에서 검색하여 상세 정보를 userV에 담는다.
-          const userV = userSchema?.find(
-            (v: any) => v.user_id.value === child.id
-          );
-          return {
-            ...v,
-            children: [
-              ...v.children,
-              {
-                title: child.name,
-                key: child.id,
-                gubun: child.gubun,
-                pid: child.pid,
-                ...(userV && convertToUser(userV)),
-              },
-            ],
-          };
-        }
-        //
-      } else if (v.children) {
-        return {
-          ...v,
-          children: append(
-            // 부서 내 사용자 이름 순 정렬
-            // v.children.sort((a: any, b: any) => {
-            //   if (a.gubun === `G` || b.gubun === `G`) {
-            //     return 0;
-            //   }
-            //   const nameA = a.userName.toUpperCase(); // ignore upper and lowercase
-            //   const nameB = b.userName.toUpperCase(); // ignore upper and lowercase
-            //   if (nameA < nameB) {
-            //     return -1;
-            //   }
-            //   if (nameA > nameB) {
-            //     return 1;
-            //   }
-            // }),
-            v.children,
-            child,
-            userSchema
-          ),
-        };
+  // ANCHOR handler
+  const handleModifyGroupVisible = async () => {
+    const { v: targetV, i: targetI, list: targetList } = await find(
+      treeData,
+      rightClickedKey.toString()
+    );
+
+    // * 최상위 그룹 수정 불가
+    if (!targetV.pid) {
+      handleDepartmentContextMenuClose();
+      return false;
+    } else {
+      setModifyGroupModalVisible(true);
+      handleDepartmentContextMenuClose();
+    }
+  };
+
+  const handleDeleteGroup = async () => {
+    const replica = [...treeData];
+    const { v: targetV, i: targetI, list: targetList } = await find(
+      replica,
+      rightClickedKey.toString()
+    );
+    // * 하위 부서만 삭제 가능
+    if (targetV.pid) {
+      targetList.splice(targetI, 1);
+      setTreeData(replica);
+    }
+    setFinalSelectedKeys([]);
+    handleDepartmentContextMenuClose();
+  };
+
+  const handleDeleteBuddy = async () => {
+    const replica = [...treeData];
+    for (const v of finalSelectedKeys) {
+      const { v: targetV, i: targetI, list: targetList } = await find(
+        replica,
+        v.toString()
+      );
+      targetList.splice(targetI, 1);
+    }
+    if (searchMode) {
+      const searchResultReplica = [...searchResult];
+      for (const v of finalSelectedKeys) {
+        const { v: targetV, i: targetI, list: targetList } = await find(
+          searchResultReplica,
+          v.toString()
+        );
+        targetList.splice(targetI, 1);
       }
-      return v;
-    });
+      setSearchResult(searchResultReplica);
+    }
+    setTreeData(replica);
+    // * 선택해둔 노드를 rightClick한 경우 selectedKeys 클리어. (선택하지 않은 노드를 rightClick한 경우에는 selectedKeys 그대로 놔둠)
+    if (selectedKeys.find((v: any) => v === rightClickedKey)) {
+      setSelectedKeys([]);
+    }
+    setFinalSelectedKeys([]);
+    handleUserContextMenuClose();
+  };
+
+  const handleDepartmentContextMenuClose = () => {
+    setDepartmentContextMenuVisible(false);
+  };
+
+  const handleUserContextMenuClose = () => {
+    setUserContextMenuVisible(false);
+    // * rightClicked시에만 생기는 특수 border는 contextMenu가 close될 때 같이 사라진다.
+    setRightClickedKey(``);
+  };
+
+  const handleRightClick = (info: any) => {
+    const {
+      node: { gubun, key: newSelectedkey },
+    } = info;
+
+    if (gubun !== EnodeGubun.FAVORITE_USER) {
+      // * 부서 클릭 시
+      setDepartmentContextMenuVisible(true);
+      setClickedNodeWidth(
+        info.event.nativeEvent.path.find((v: any) => v.localName === `div`)
+          .offsetWidth
+      );
+    } else {
+      // * 유저 클릭 시
+      // * 프로필 사진 클릭 시 작동 안함
+      if (info.event.nativeEvent.target.localName === `img`) return false;
+      setClickedNodeWidth(
+        info.event.nativeEvent.path.find((v: any) => v.localName === `li`)
+          .offsetWidth
+      );
+      setUserContextMenuVisible(true);
+    }
+    // TODO depth계산해서 node에 넣어준 후, pageX에 1depth당 +30px씩 증감해야 함
+    setRightClickedKey(newSelectedkey);
+    setPageX(info.event.pageX);
+    setPageY(info.event.pageY);
+  };
 
   const handleKeywordChange = (e: any) => {
     setSearchKeyword(e.target.value);
-  };
-
-  // 트리 펼침
-  const spread = (tree: TTreeNode[], list: TTreeNode[]) => {
-    tree.forEach((v: any) => {
-      list.push(v);
-      if (v.children) {
-        spread(v.children, list);
-      }
-    });
-
-    return list;
-  };
-
-  const toggleMessageModalVisible = () => {
-    setMessageModalVisible((prev: boolean) => !prev);
   };
 
   const handleSearch = (e: any) => {
@@ -289,31 +343,83 @@ export default function FavoritePage() {
     }
   };
 
-  const handleSelect = async ([selectedKeys]: (string | number)[]) => {
-    const { v } = await find(treeData, selectedKeys?.toString());
-    console.log(`selected Node: `, v);
-    setSelectedNode(v);
+  const handleSelect = async (_: any, e: any) => {
+    const {
+      nativeEvent: { shiftKey, metaKey, ctrlKey },
+      node: { key: newSelectedKey, gubun },
+    } = e;
+
+    if (gubun !== EnodeGubun.FAVORITE_USER) {
+      // * 이미 부서가 펼쳐져 있으면 expandedKeys에서 제외
+      if (expandedKeys.indexOf(newSelectedKey) > -1) {
+        setExpandedKeys(
+          expandedKeys.filter((v: string | number) => v !== newSelectedKey)
+        );
+        // * 부서가 펼쳐지지 않았다면 expandedKeys에 push
+      } else {
+        setExpandedKeys([...expandedKeys, newSelectedKey]);
+      }
+      return false;
+    }
+
+    // * 일반 클릭 시 클릭한 노드의 키로 selectedKeys를 덮어씌움.
+    if (!shiftKey && !metaKey && !ctrlKey) {
+      setSelectedKeys([newSelectedKey]);
+    }
+
+    // * ctrl키 (맥 os일 경우 cmd키) 클릭 시
+    if (!shiftKey && (metaKey || ctrlKey)) {
+      // * 이미 선택된 노드를 클릭 시 해당 노드의 키를 selectedKeys에서 제외
+      if (selectedKeys.indexOf(newSelectedKey) > -1) {
+        setSelectedKeys(
+          selectedKeys.filter((v: string | number) => v !== newSelectedKey)
+        );
+      } else {
+        // * 그 외의 경우 selectedKeys에 push
+        setSelectedKeys([...selectedKeys, newSelectedKey]);
+      }
+    }
+
+    if (shiftKey && !metaKey && !ctrlKey) {
+      // * 현재 조직도에서 유저 키만 모두 뽑아옴
+      const flatUserKeys = spread(searchMode ? searchResult : treeData, [])
+        .filter((v: TTreeNode) => v.gubun !== EnodeGubun.GROUP)
+        .map((v: TTreeNode) => v.key);
+
+      // * 마지막으로 selectedKeys에 push된 키/ flatUserKeys에서의 인덱스 ( 없을 시 flatUserKeys의 첫번째 키 )
+      const lastSelectedKey = selectedKeys[selectedKeys.length - 1];
+      let lastSelectedKeyIndex = flatUserKeys.indexOf(
+        lastSelectedKey?.toString()
+      );
+
+      if (lastSelectedKeyIndex === -1) {
+        lastSelectedKeyIndex = 0;
+      }
+
+      // * 클릭한 노드의 키의 flatUserKeys에서의 인덱스
+      const newSelectedKeyIndex = flatUserKeys.indexOf(
+        newSelectedKey?.toString()
+      );
+
+      // * 마지막으로 selectedKeys에 push된 키 ~ 클릭한 노드의 키를 모두 반환
+      let range = [];
+      if (lastSelectedKeyIndex - newSelectedKeyIndex < 0) {
+        range = flatUserKeys.slice(
+          lastSelectedKeyIndex,
+          newSelectedKeyIndex + 1
+        );
+      } else {
+        range = flatUserKeys.slice(
+          newSelectedKeyIndex,
+          lastSelectedKeyIndex + 1
+        );
+      }
+      setSelectedKeys([...new Set([...selectedKeys, ...range])]);
+    }
   };
 
-  const find = (
-    list: TTreeNode[],
-    key: string
-  ): Promise<{ v: TTreeNode; i: number; list: TTreeNode[] }> =>
-    new Promise((resolve) => {
-      for (let i = 0; i < list.length; i++) {
-        if (list[i].key === key) {
-          resolve({ v: list[i], i: i, list: list });
-        }
-        if (list[i].children) {
-          find(list[i].children!, key).then((result) => {
-            if (result) resolve(result);
-          });
-        }
-      }
-    });
-
   // drop event
-  const onDrop = async (info: any) => {
+  const handleDrop = async (info: any) => {
     if (!info.dragNode || !info.node) return false;
     const {
       dragNode: {
@@ -326,6 +432,15 @@ export default function FavoritePage() {
     const replica = [...treeData];
     const { v: dragV, i: dragI, list: dragList } = await find(replica, dragKey);
     const { v: dropV, i: dropI, list: dropList } = await find(replica, dropKey);
+
+    console.log(dropList);
+
+    const duplicated =
+      dropV?.gubun === EnodeGubun.GROUP
+        ? dropV?.children?.find((v: TTreeNode) => v.userId === dragV.userId)
+        : dropList.find((v: TTreeNode) => v.userId === dragV.userId);
+
+    if (duplicated) return false;
 
     // 그룹 -> 유저 드래그
     if (
@@ -354,6 +469,108 @@ export default function FavoritePage() {
   const handleExpand = (expandedKeys: (string | number)[]): void => {
     setExpandedKeys(expandedKeys);
   };
+
+  // ANCHOR etc
+  // 재귀함수 (children에 하위 노드 삽입)
+  const append = (
+    prev: TTreeNode[],
+    child: any,
+    userSchema: any
+  ): TTreeNode[] =>
+    prev.map((v: any) => {
+      // 즐겨찾기 밑에 a부서가 있다면, 아래 분기문에 잡힌다.
+      if (v.key === child.pid) {
+        // gubun: G (Group)
+        if (child.gubun === EnodeGubun.GROUP) {
+          return {
+            ...v,
+            children: [
+              ...v.children,
+              {
+                title: child.name,
+                key: child.id,
+                gubun: child.gubun,
+                children: [],
+                pid: child.pid,
+              },
+            ],
+          };
+        } else {
+          // gubun: U (User)
+          // userSchema에서 검색하여 상세 정보를 userV에 담는다.
+          const userV = userSchema?.find(
+            (v: any) => v.user_id.value === child.id
+          );
+          return {
+            ...v,
+            children: [
+              ...v.children,
+              {
+                title: child.name,
+                key: child.id.concat(`_`, moment().format(`YYYYMMDDHHmmssSSS`)),
+                gubun: child.gubun,
+                pid: child.pid,
+                ...(userV && convertToUser(userV)),
+              },
+            ],
+          };
+        }
+        //
+      } else if (v.children) {
+        return {
+          ...v,
+          children: append(
+            // 부서 내 사용자 이름 순 정렬
+            // v.children.sort((a: any, b: any) => {
+            //   if (a.gubun === `G` || b.gubun === `G`) {
+            //     return 0;
+            //   }
+            //   const nameA = a.userName.toUpperCase(); // ignore upper and lowercase
+            //   const nameB = b.userName.toUpperCase(); // ignore upper and lowercase
+            //   if (nameA < nameB) {
+            //     return -1;
+            //   }
+            //   if (nameA > nameB) {
+            //     return 1;
+            //   }
+            // }),
+            v.children,
+            child,
+            userSchema
+          ),
+        };
+      }
+      return v;
+    });
+
+  // 트리 펼침
+  const spread = (tree: TTreeNode[], list: TTreeNode[]) => {
+    tree.forEach((v: any) => {
+      list.push(v);
+      if (v.children) {
+        spread(v.children, list);
+      }
+    });
+
+    return list;
+  };
+
+  const find = (
+    list: TTreeNode[],
+    key: string
+  ): Promise<{ v: TTreeNode; i: number; list: TTreeNode[] }> =>
+    new Promise((resolve) => {
+      for (let i = 0; i < list.length; i++) {
+        if (list[i].key === key) {
+          resolve({ v: list[i], i: i, list: list });
+        }
+        if (list[i].children) {
+          find(list[i].children!, key).then((result) => {
+            if (result) resolve(result);
+          });
+        }
+      }
+    });
 
   const switcherGenerator = (data: any) => (
     <>
@@ -386,8 +603,12 @@ export default function FavoritePage() {
               <Node
                 data={item}
                 index={i}
-                toggle={toggleMessageModalVisible}
-                setSelectedNode={setSelectedNode}
+                toggle={() => {
+                  setMessageModalVisible(true);
+                }}
+                selectedKeys={selectedKeys}
+                setSelectedKeys={setSelectedKeys}
+                rightClickedKey={rightClickedKey}
               />
             }
           >
@@ -402,8 +623,12 @@ export default function FavoritePage() {
             <Node
               data={item}
               index={i}
-              toggle={toggleMessageModalVisible}
-              setSelectedNode={setSelectedNode}
+              toggle={() => {
+                setMessageModalVisible(true);
+              }}
+              selectedKeys={selectedKeys}
+              setSelectedKeys={setSelectedKeys}
+              rightClickedKey={rightClickedKey}
             />
           }
         />
@@ -433,6 +658,7 @@ export default function FavoritePage() {
     setIsEditGroupTabOpen(false);
   };
 
+  // ANCHOR return
   return (
     <div className="contents-wrap">
       <div className="page-title-wrap">
@@ -477,21 +703,6 @@ export default function FavoritePage() {
               isHamburgerButtonClicked ? "lnb-menu-wrap" : "lnb-menu-wrap-hide"
             }
           >
-            <li
-              className="lnb-menu-item go-to-add-group"
-              onClick={AddGroupModalOpen}
-            >
-              <h6>그룹 추가</h6>
-            </li>
-            <li
-              className="lnb-menu-item go-to-edit-group"
-              onClick={EditGroupTabOpen}
-            >
-              <h6>그룹 수정/삭제</h6>
-            </li>
-            <li className="lnb-menu-item go-to-edit-favorit">
-              <h6>즐겨찾기 대상 수정/삭제</h6>
-            </li>
             <li className="lnb-menu-item favorite-view-option">
               <h6>멤버 보기 옵션</h6>
               <ul>
@@ -659,11 +870,13 @@ export default function FavoritePage() {
             draggable
             showLine
             showIcon={false}
-            onDrop={onDrop}
+            onDrop={handleDrop}
             expandedKeys={expandedKeys}
             onExpand={handleExpand}
             onSelect={handleSelect}
             switcherIcon={switcherGenerator}
+            onRightClick={handleRightClick}
+            multiple
           >
             {renderTreeNodes(treeData)}
           </Tree>
@@ -675,6 +888,8 @@ export default function FavoritePage() {
             onExpand={handleExpand}
             switcherIcon={switcherGenerator}
             expandedKeys={[Efavorite.SEARCH_RESULT]}
+            onRightClick={handleRightClick}
+            multiple
           >
             {renderTreeNodes(searchResult)}
           </Tree>
@@ -685,31 +900,88 @@ export default function FavoritePage() {
       <Modal
         isOpen={addGroupModalVisible}
         onRequestClose={AddGroupModalClose}
-        style={addGroupModalCustomStyles}
+        style={commonModalStyles}
       >
         <AddGroupModal
-          show={addGroupModalVisible}
           closeModalFunction={AddGroupModalClose}
+          rightClickedKey={rightClickedKey}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={modifyGroupModalVisible}
+        onRequestClose={() => {
+          setModifyGroupModalVisible(false);
+        }}
+        style={commonModalStyles}
+      >
+        <ModifyGroupModal
+          closeModalFunction={() => {
+            setModifyGroupModalVisible(false);
+          }}
+          rightClickedKey={rightClickedKey}
         />
       </Modal>
 
       <Modal
         isOpen={messageModalVisible}
-        onRequestClose={toggleMessageModalVisible}
-        style={messageModalCustomStyles}
+        onRequestClose={() => {
+          setMessageModalVisible(false);
+        }}
+        style={commonModalStyles}
       >
         <MessageInputModal
-          closeModalFunction={toggleMessageModalVisible}
-          selectedNode={selectedNode}
+          closeModalFunction={() => {
+            setMessageModalVisible(false);
+          }}
+          // selectedNode={selectedNode}
         />
       </Modal>
+
+      <ContextMenu
+        style={{
+          top: pageY,
+          left: leftPosition,
+          display: departmentContextMenuVisible ? `block` : `none`,
+        }}
+      >
+        <div onMouseLeave={handleDepartmentContextMenuClose} tabIndex={1}>
+          <li>
+            <ul onClick={handleDeleteGroup}>그룹 삭제</ul>
+            <ul onClick={handleModifyGroupVisible}>그룹 수정</ul>
+            <ul
+              onClick={() => {
+                setAddGroupModalVisible(true);
+              }}
+            >
+              하위 그룹 추가
+            </ul>
+          </li>
+        </div>
+      </ContextMenu>
+
+      <ContextMenu
+        style={{
+          top: pageY,
+          left: leftPosition,
+          display: userContextMenuVisible ? `block` : `none`,
+        }}
+      >
+        <div onMouseLeave={handleUserContextMenuClose} tabIndex={1}>
+          <li>
+            <ul onClick={handleDeleteBuddy}>즐겨찾기에서 삭제</ul>
+            <ul>쪽지 보내기</ul>
+            <ul>채팅 시작</ul>
+          </li>
+        </div>
+      </ContextMenu>
     </div>
   );
 }
 
 Modal.setAppElement("#root");
 
-const messageModalCustomStyles = {
+const commonModalStyles = {
   content: {
     top: "50%",
     left: "50%",
@@ -721,20 +993,29 @@ const messageModalCustomStyles = {
   overlay: { zIndex: 1000 },
 };
 
-const addGroupModalCustomStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-  },
-};
-
 const Switcher = styled.div`
   background-color: #ebedf1;
   padding: 4px 8px;
   height: 30px;
   border-bottom: 1px solid #dfe2e8;
+`;
+
+const ContextMenu = styled.div`
+  position: absolute;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 0px 4px #dfe2e8;
+  user-select: none;
+
+  li ul {
+    /* background-clip: border-box; */
+    padding: 15px;
+
+    &:hover {
+      cursor: pointer;
+      background-color: #f5f6f8;
+      border-radius: 10px;
+      color: #11378d;
+    }
+  }
 `;

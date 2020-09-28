@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
-import axios from "axios";
+import React, { useState, useEffect, useMemo, HTMLFactory } from "react";
 import Tree, { TreeNode } from "rc-tree";
 import styled from "styled-components";
 import "../../assets/css/Tree.scss";
-import { useParams } from "react-router-dom";
 import Modal from "react-modal";
 import Node from "./OrganizationNode";
 import { EventDataNode, DataNode } from "rc-tree/lib/interface";
@@ -14,20 +12,26 @@ import {
   searchOrgUsers,
   setStatusMonitor,
 } from "../ipcCommunication/ipcCommon";
-import { CLIENT_RENEG_WINDOW } from "tls";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 import { arrayLike, convertToUser } from "../../common/util";
 import { EconnectType, Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/Modal/MessageInputModal";
+import AddToFavoriteModal from "../../common/components/Modal/AddToFavoriteModal";
 
 let _orgCode: string = ``;
 
 export default function OrganizationPage() {
+  // ANCHOR state
+
   const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
     type: `organization`,
   });
+
+  const [selectedKeys, setSelectedKeys] = useState<(string | number)[]>([]);
+  const [rightClickedKey, setRightClickedKey] = useState<string | number>(0);
+
   const {
     searchMode,
     searchKeyword,
@@ -36,20 +40,50 @@ export default function OrganizationPage() {
     setSearchKeyword,
     setSearchResult,
   } = useSearch({ type: `organization` });
-  const [selectedNode, setSelectedNode] = useState<TTreeNode | string[]>([]);
+
   const targetInfo = useStateListener();
+
+  const [addToFavoriteModalVisible, setAddToFavoriteModalVisible] = useState<
+    boolean
+  >(false);
+
   const [messageModalVisible, setMessageModalVisible] = useState<boolean>(
     false
   );
 
-  const connectTypeConverter = (connectTypeBundle: string) => {
-    const connectTypeMaybeArr = connectTypeBundle
-      ? connectTypeBundle.split(`|`)
-      : ``;
+  const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
 
-    const connectType = arrayLike(connectTypeMaybeArr);
-    return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
+  const [clickedNodeWidth, setClickedNodeWidth] = useState<number>(0);
+
+  const [pageX, setPageX] = useState<number>(0);
+
+  const [pageY, setPageY] = useState<number>(0);
+
+  // ANCHOR memo
+  const leftPositionCalculator = () => {
+    const percentage = Math.round((pageX / clickedNodeWidth) * 100);
+    return percentage > 100 ? pageX - (pageX - clickedNodeWidth) * 0.8 : pageX;
   };
+
+  const leftPosition = useMemo(leftPositionCalculator, [pageX]);
+
+  const setFinalSelectedKeys = () => {
+    if (!rightClickedKey) return [];
+    // * 선택해둔 노드를 rightClick하지 않은 경우 rightClickedKey를 fianl로 보냄.
+    if (!selectedKeys.find((v: any) => v === rightClickedKey)) {
+      return [rightClickedKey];
+    } else {
+      return selectedKeys;
+    }
+  };
+
+  const finalSelectedKeys = useMemo(setFinalSelectedKeys, [rightClickedKey]);
+
+  // ANCHOR effect
+
+  useEffect(() => {
+    console.log(`selectedKEys:`, selectedKeys);
+  }, [selectedKeys]);
 
   useEffect(() => {
     const initiate = async () => {
@@ -146,7 +180,7 @@ export default function OrganizationPage() {
       // root_node를 순회하며 최상위 키만 뽑아온다.
       const rootKeys = root.map((v: any) => v.key);
       // 모든 root_node는 하나의 org_code를 공유한다고 가정한다?
-      console.log(`root: `, root);
+
       setTreeData(root);
 
       setExpandedKeys(rootKeys);
@@ -155,49 +189,108 @@ export default function OrganizationPage() {
     !treeData.length && getRoot();
   }, []);
 
-  const getChild = async (groupCode: string) => {
+  // ANCHOR handler
+  const handleExpand = (expandedKeys: (string | number)[]): void => {
+    setExpandedKeys(expandedKeys);
+  };
+
+  const handleRightClick = (info: any) => {
     const {
-      data: {
-        root_node: { node_item: responseMaybeArr },
-      },
-    } = await getChildOrg(_orgCode, groupCode, -1);
+      node: { gubun, key: newSelectedkey },
+    } = info;
+    if (gubun !== EnodeGubun.ORGANIZATION_USER) return false;
+    // * 프로필 사진 클릭 시 작동 안함
+    if (info.event.nativeEvent.target.localName === `img`) return false;
+    setRightClickedKey(newSelectedkey);
+    setContextMenuVisible(true);
 
-    // 자식이 하나일 경우를 가정하여 배열로 감싼다.
-    const response = arrayLike(responseMaybeArr);
-    const children: TTreeNode[] = response
-      ?.filter((_: any, i: number) => i !== 0)
-      .map((v: any) => {
-        const defaultProps = {
-          gubun: v.gubun.value,
-          groupParentId: v.group_parent_id.value,
-          groupSeq: v.group_seq.value,
-          orgCode: v.org_code.value,
-        };
+    // TODO depth계산해서 node에 넣어준 후, pageX에 1depth당 +30px씩 증감해야 함
+    setClickedNodeWidth(
+      info.event.nativeEvent.path.find((v: any) => v.localName === `li`)
+        .offsetWidth
+    );
+    setPageX(info.event.pageX);
+    setPageY(info.event.pageY);
+  };
 
-        if (v.gubun.value === EnodeGubun.ORGANIZATION_USER) {
-          const userProps = {
-            key: v.user_id?.value,
-            title: v.user_name?.value,
-            ...convertToUser(v),
-          };
-          return Object.assign(defaultProps, userProps);
-        } else {
-          // 부서
-          const departmentProps = {
-            key: v.group_seq.value,
-            children: [],
-            title: v.group_name?.value,
-            groupCode: v.group_code.value,
-            groupName: v.group_name.value,
-          };
-          return Object.assign(defaultProps, departmentProps);
-        }
-      });
-    const monitorIds = response
-      .filter((v: any) => v.gubun?.value === EnodeGubun.ORGANIZATION_USER)
-      .map((v: any) => v.user_id.value);
-    setStatusMonitor(monitorIds);
-    return children;
+  const handleContextMenuClose = () => {
+    setContextMenuVisible(false);
+    // * rightClicked시에만 생기는 특수 border는 contextMenu가 close될 때 같이 사라진다.
+    setRightClickedKey(``);
+  };
+
+  const handleSelect = async (_: any, e: any) => {
+    const {
+      nativeEvent: { shiftKey, metaKey, ctrlKey },
+      node: { key: newSelectedKey, gubun },
+    } = e;
+
+    // * 부서 선택 시
+    if (gubun !== EnodeGubun.ORGANIZATION_USER) {
+      // * 이미 부서가 펼쳐져 있으면 expandedKeys에서 제외
+      if (expandedKeys.indexOf(newSelectedKey) > -1) {
+        setExpandedKeys(
+          expandedKeys.filter((v: string | number) => v !== newSelectedKey)
+        );
+        // * 부서가 펼쳐지지 않았다면 expandedKeys에 push
+      } else {
+        setExpandedKeys([...expandedKeys, newSelectedKey]);
+      }
+      return false;
+    }
+
+    // * 일반 클릭 시 클릭한 노드의 키로 selectedKeys를 덮어씌움.
+    if (!shiftKey && !metaKey && !ctrlKey) {
+      setSelectedKeys([newSelectedKey]);
+    }
+
+    // * ctrl키 (맥 os일 경우 cmd키) 클릭 시
+    if (!shiftKey && (metaKey || ctrlKey)) {
+      // * 이미 선택된 노드를 클릭 시 해당 노드의 키를 selectedKeys에서 제외
+      if (selectedKeys.indexOf(newSelectedKey) > -1) {
+        setSelectedKeys(
+          selectedKeys.filter((v: string | number) => v !== newSelectedKey)
+        );
+      } else {
+        // * 그 외의 경우 selectedKeys에 push
+        setSelectedKeys([...selectedKeys, newSelectedKey]);
+      }
+    }
+
+    if (shiftKey && !metaKey && !ctrlKey) {
+      // * 현재 조직도에서 유저 키만 모두 뽑아옴
+      const flatUserKeys = spread(searchMode ? searchResult : treeData, []);
+
+      // * 마지막으로 selectedKeys에 push된 키/ flatUserKeys에서의 인덱스 ( 없을 시 flatUserKeys의 첫번째 키 )
+      const lastSelectedKey = selectedKeys[selectedKeys.length - 1];
+      let lastSelectedKeyIndex = flatUserKeys.indexOf(
+        lastSelectedKey?.toString()
+      );
+
+      if (lastSelectedKeyIndex === -1) {
+        lastSelectedKeyIndex = 0;
+      }
+
+      // * 클릭한 노드의 키의 flatUserKeys에서의 인덱스
+      const newSelectedKeyIndex = flatUserKeys.indexOf(
+        newSelectedKey?.toString()
+      );
+
+      // * 마지막으로 selectedKeys에 push된 키 ~ 클릭한 노드의 키를 모두 반환
+      let range = [];
+      if (lastSelectedKeyIndex - newSelectedKeyIndex < 0) {
+        range = flatUserKeys.slice(
+          lastSelectedKeyIndex,
+          newSelectedKeyIndex + 1
+        );
+      } else {
+        range = flatUserKeys.slice(
+          newSelectedKeyIndex,
+          lastSelectedKeyIndex + 1
+        );
+      }
+      setSelectedKeys([...new Set([...selectedKeys, ...range])]);
+    }
   };
 
   const handleKeywordChange = (e: any) => {
@@ -209,6 +302,8 @@ export default function OrganizationPage() {
     const keyword = e.target.value;
 
     const getSearchResult = async () => {
+      // * 검색 시 selectedKeys 날림.
+      setSelectedKeys([]);
       const {
         data: {
           root_node: { node_item: responseMaybeArr },
@@ -281,6 +376,61 @@ export default function OrganizationPage() {
     }
   };
 
+  // ANCHOR etc
+  const connectTypeConverter = (connectTypeBundle: string) => {
+    const connectTypeMaybeArr = connectTypeBundle
+      ? connectTypeBundle.split(`|`)
+      : ``;
+
+    const connectType = arrayLike(connectTypeMaybeArr);
+    return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
+  };
+
+  const getChild = async (groupCode: string) => {
+    const {
+      data: {
+        root_node: { node_item: responseMaybeArr },
+      },
+    } = await getChildOrg(_orgCode, groupCode, -1);
+
+    // 자식이 하나일 경우를 가정하여 배열로 감싼다.
+    const response = arrayLike(responseMaybeArr);
+    const children: TTreeNode[] = response
+      ?.filter((_: any, i: number) => i !== 0)
+      .map((v: any) => {
+        const defaultProps = {
+          gubun: v.gubun.value,
+          groupParentId: v.group_parent_id.value,
+          groupSeq: v.group_seq.value,
+          orgCode: v.org_code.value,
+        };
+
+        if (v.gubun.value === EnodeGubun.ORGANIZATION_USER) {
+          const userProps = {
+            key: v.user_id?.value,
+            title: v.user_name?.value,
+            ...convertToUser(v),
+          };
+          return Object.assign(defaultProps, userProps);
+        } else {
+          // 부서
+          const departmentProps = {
+            key: v.group_seq.value,
+            children: [],
+            title: v.group_name?.value,
+            groupCode: v.group_code.value,
+            groupName: v.group_name.value,
+          };
+          return Object.assign(defaultProps, departmentProps);
+        }
+      });
+    const monitorIds = response
+      .filter((v: any) => v.gubun?.value === EnodeGubun.ORGANIZATION_USER)
+      .map((v: any) => v.user_id.value);
+    setStatusMonitor(monitorIds);
+    return children;
+  };
+
   // attach children
   const attach = (
     prev: TTreeNode[],
@@ -321,6 +471,7 @@ export default function OrganizationPage() {
       resolve();
     });
   };
+
   // find node (promise)
   // list is lexically binded with treedata
   const find = (
@@ -340,14 +491,18 @@ export default function OrganizationPage() {
       }
     });
 
-  const handleSelect = async ([selectedKeys]: (string | number)[]) => {
-    const { v } = await find(treeData, Number(selectedKeys));
-    setSelectedNode(v);
-  };
+  const spread = (tree: TTreeNode[], list: (string | number)[]) => {
+    tree.forEach((v: any) => {
+      if (v.gubun !== EnodeGubun.GROUP) {
+        list.push(v.key);
+      }
+      if (v.children) {
+        spread(v.children, list);
+      }
+    });
 
-  useEffect(() => {
-    console.log(`selected Node: `, selectedNode);
-  }, [selectedNode]);
+    return list;
+  };
 
   const switcherGenerator = (data: any) => (
     <>
@@ -370,10 +525,6 @@ export default function OrganizationPage() {
     </>
   );
 
-  const toggleMessageModalVisible = () => {
-    setMessageModalVisible((prev: boolean) => !prev);
-  };
-
   // need to be memorized
   const renderTreeNodes = (data: TTreeNode[]) => {
     return data.map((item, index) => {
@@ -385,8 +536,12 @@ export default function OrganizationPage() {
               <Node
                 data={item}
                 index={index}
-                toggle={toggleMessageModalVisible}
-                setSelectedNode={setSelectedNode}
+                toggle={() => {
+                  setMessageModalVisible(true);
+                }}
+                selectedKeys={selectedKeys}
+                setSelectedKeys={setSelectedKeys}
+                rightClickedKey={rightClickedKey}
               />
             }
           >
@@ -401,8 +556,12 @@ export default function OrganizationPage() {
             <Node
               data={item}
               index={index}
-              toggle={toggleMessageModalVisible}
-              setSelectedNode={setSelectedNode}
+              toggle={() => {
+                setMessageModalVisible(true);
+              }}
+              selectedKeys={selectedKeys}
+              setSelectedKeys={setSelectedKeys}
+              rightClickedKey={rightClickedKey}
             />
           }
         />
@@ -410,10 +569,7 @@ export default function OrganizationPage() {
     });
   };
 
-  const handleExpand = (expandedKeys: (string | number)[]): void => {
-    setExpandedKeys(expandedKeys);
-  };
-
+  // ANCHOR return
   return (
     <div className="contents-wrap">
       <div className="page-title-wrap">
@@ -441,6 +597,8 @@ export default function OrganizationPage() {
               onExpand={handleExpand}
               switcherIcon={switcherGenerator}
               expandedKeys={expandedKeys}
+              onRightClick={handleRightClick}
+              multiple
             >
               {renderTreeNodes(treeData)}
             </Tree>
@@ -452,6 +610,8 @@ export default function OrganizationPage() {
               onExpand={handleExpand}
               switcherIcon={switcherGenerator}
               expandedKeys={[Efavorite.SEARCH_RESULT]}
+              onRightClick={handleRightClick}
+              multiple
             >
               {renderTreeNodes(searchResult)}
             </Tree>
@@ -460,19 +620,60 @@ export default function OrganizationPage() {
       </main>
       <Modal
         isOpen={messageModalVisible}
-        onRequestClose={toggleMessageModalVisible}
-        style={messageModalCustomStyles}
+        onRequestClose={() => {
+          setMessageModalVisible(false);
+        }}
+        style={commonModalStyles}
       >
         <MessageInputModal
-          closeModalFunction={toggleMessageModalVisible}
-          selectedNode={selectedNode}
+          closeModalFunction={() => {
+            setMessageModalVisible(false);
+          }}
+          // selectedNode={selectedNode}
         />
       </Modal>
+      <Modal
+        isOpen={addToFavoriteModalVisible}
+        onRequestClose={() => {
+          setAddToFavoriteModalVisible(false);
+        }}
+        style={commonModalStyles}
+      >
+        <AddToFavoriteModal
+          closeModalFunction={() => {
+            setAddToFavoriteModalVisible(false);
+          }}
+          selectedKeys={finalSelectedKeys}
+          // * 즐겨찾기에 추가 후 selectedKeys 초기화를 위해 전달.
+          setSelectedKeys={setSelectedKeys}
+        />
+      </Modal>
+      <ContextMenu
+        style={{
+          top: pageY,
+          left: leftPosition,
+          display: contextMenuVisible ? `block` : `none`,
+        }}
+      >
+        <div onMouseLeave={handleContextMenuClose} tabIndex={1}>
+          <li>
+            <ul
+              onClick={() => {
+                setAddToFavoriteModalVisible(true);
+              }}
+            >
+              즐겨찾기에 추가
+            </ul>
+            <ul>쪽지 보내기</ul>
+            <ul>채팅 시작</ul>
+          </li>
+        </div>
+      </ContextMenu>
     </div>
   );
 }
 
-const messageModalCustomStyles = {
+const commonModalStyles = {
   content: {
     top: "50%",
     left: "50%",
@@ -489,4 +690,24 @@ const Switcher = styled.div`
   padding: 4px 8px;
   height: 30px;
   border-bottom: 1px solid #dfe2e8;
+`;
+
+const ContextMenu = styled.div`
+  position: absolute;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 0px 4px #dfe2e8;
+  user-select: none;
+
+  li ul {
+    background-clip: border-box;
+    padding: 15px;
+
+    &:hover {
+      cursor: pointer;
+      background-color: #f5f6f8;
+      border-radius: 10px;
+      color: #11378d;
+    }
+  }
 `;

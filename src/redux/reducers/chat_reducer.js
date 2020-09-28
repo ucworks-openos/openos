@@ -5,7 +5,9 @@ import {
     // GET_MORE_CHATS_MESSAGES,
     ADD_CHAT_MESSAGE,
     ADD_RECEIVED_CHAT,
-    ADD_CHAT_ROOM
+    ADD_CHAT_ROOM,
+    MOVE_TO_CLICKED_CHAT_ROOM,
+    SET_CURRENT_CHAT_ROOM_FROM_NOTI
 } from '../actions/types';
 
 export default function (state = {}, action) {
@@ -26,12 +28,17 @@ export default function (state = {}, action) {
                 ...state, chatRooms: [action.payload, ...state.chatRooms],
                 currentChatRoom: action.payload, chatMessages: action.payload.chatLists
             }
+        case MOVE_TO_CLICKED_CHAT_ROOM:
+            return {
+                ...state,
+                chatRooms: action.payload[0],
+                currentChatRoom: action.payload[1],
+                chatMessages: action.payload[1].chatLists
+            }
         case ADD_RECEIVED_CHAT:
             // 1. chatRooms       - 없다면 추가  - 있다면 컨텐츠 변경  - 순서 맨 위로 올리기 
             // 2. chatMessages    - 만약 currenChatRoom 이라면 추가 시키기, 아니라면 추가시키지 않아도 됨 ?    
-
             let newMessage = action.payload;
-            console.log('newMessage', newMessage)
             let roomKey = newMessage.roomKey
             let sendId = newMessage.sendId
             let sendName = newMessage.sendName
@@ -70,9 +77,6 @@ export default function (state = {}, action) {
                 isCurrentMessage = true
                 state.currentChatRoom.chat_contents = chatData
             }
-
-
-            console.log('currentChatRoom', state.currentChatRoom)
             return {
                 ...state,
                 chatRooms: newChatRoomsHa,
@@ -89,6 +93,10 @@ export default function (state = {}, action) {
                 chatRooms: newChatRooms, //현재 채팅룸을 가장 위로 올리기
                 currentChatRoom: state.currentChatRoom // 채팅룸 컨텐츠 정보 바꾸기
             };
+        case SET_CURRENT_CHAT_ROOM_FROM_NOTI:
+            return {
+                ...state, currentChatRoom: state.chatRooms[0]
+            }
         default:
             return state;
     }

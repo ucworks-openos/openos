@@ -444,6 +444,7 @@ a:hover,
 .page-title {
   display: inline-block;
   margin-right: 16px;
+  user-select: none;
 }
 .local-search-wrap {
   width: 10%;
@@ -473,10 +474,15 @@ a:hover,
   padding: 12px;
   align-items: center;
   border: 1px solid transparent;
+  user-select: none;
 }
-.user-row:hover {
+.user-row.duplicated{
+  opacity: 0.15;
+}
+.user-row:hover:not(.selected):not(.rightClicked):not(.addModal) {
   background-color: #fff;
   border: 1px solid #ebedf1;
+  opacity: 0.7;
 }
 .user-list-title {
   background-color: #ebedf1;
