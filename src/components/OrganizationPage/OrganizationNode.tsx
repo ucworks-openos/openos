@@ -1,7 +1,5 @@
 import React, { useEffect, useState, ImgHTMLAttributes, useMemo } from "react";
 import styled from "styled-components";
-import Modal from "react-modal";
-import MessageModal from "../../common/components/Modal/MessageModal";
 import { arrayLike } from "../../common/util";
 import { EconnectType, EnodeGubun, EuserState } from "../../enum";
 

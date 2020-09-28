@@ -6,9 +6,10 @@ import {
 } from '../../../redux/actions/message_actions';
 // import ReactSelect from '../../../common/components/Select/ReactSelect';
 // import { userLists } from '../../../redux/mock-datas/user-lists';
-import { searchUsers } from '../../../components/ipcCommunication/ipcCommon'
+import { getUserInfos, searchUsers } from '../../../components/ipcCommunication/ipcCommon'
 import './MessageInputModal.css';
 import Alert from 'react-bootstrap/Alert'
+import { arrayLike } from '../../util';
 
 function MessageInputModal(props) {
     const dispatch = useDispatch();
@@ -28,17 +29,13 @@ function MessageInputModal(props) {
     const [isUserSelected, setIsUserSelected] = useState(false);
 
     useEffect(() => {
-        const initiate = () => {
-            console.log(`selectedNode: `, props.selectedNode);
-            const extracted = {
-                user_id: {
-                    value: props.selectedNode.userId,
-                },
-                user_name: {
-                    value: props.selectedNode.userName,
-                }
-            }
-            setSelectedUsers([extracted]);
+        const initiate = async() => {
+            if (!props.selectedNode.length) return false;
+            // * 즐겨찾기에서 쪽지 보내기 시 키값이 `{userId}_{date}`로 들어오므로, 이를 잘라서 써야 함.
+            const userKeys = props.selectedNode.map(v => v.split(`_`)[0]);
+            const {data: {items: {node_item: responseMaybeArr}}} = await getUserInfos(userKeys);
+            const response = arrayLike(responseMaybeArr);
+            setSelectedUsers(response);
         }
         props.selectedNode && initiate();
     }, [props.selectedNode])

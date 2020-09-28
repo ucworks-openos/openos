@@ -6,18 +6,18 @@ import React, {
   SetStateAction,
 } from "react";
 import styled from "styled-components";
-import Modal from "react-modal";
-import MessageModal from "../../common/components/Modal/MessageModal";
+
 import { arrayLike } from "../../common/util";
 import { EconnectType, EnodeGubun, EuserState } from "../../enum";
 
 type TFavoriteNodeProps = {
   data: TTreeNode;
   index: number;
-  toggle: () => void;
   selectedKeys: (string | number)[];
-  setSelectedKeys: (selectedKeys: (string | number)[]) => void;
   rightClickedKey: string | number;
+  setFinalSelectedKeys: (finalSelectedKeys: (string | number)[]) => void;
+  setSelectedKeys: (selectedKeys: (string | number)[]) => void;
+  setMessageModalVisible: (visible: any) => void;
 };
 
 type UserRowProps = {
@@ -29,10 +29,15 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
   const {
     data,
     index,
-    toggle,
+    // * selected노드 css 변경
     selectedKeys,
-    setSelectedKeys,
+    // * rightClicked노드 css 변경
     rightClickedKey,
+    // * 쪽지 보내기 창 팝업 시 final키 직접 변경
+    setFinalSelectedKeys,
+    // * 이미지 클릭 시 selectedKey 직접 변경
+    setSelectedKeys,
+    setMessageModalVisible,
   } = props;
   const [visible, setVisible] = useState<boolean>(false);
 
@@ -62,8 +67,9 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
 
   // ANCHOR handler
   const handleToggle = () => {
-    setSelectedKeys([...selectedKeys, data?.key]);
-    toggle();
+    console.log(`fuck`);
+    setFinalSelectedKeys([data?.key]);
+    setMessageModalVisible((prev: boolean) => !prev);
   };
 
   const handleDetailToggle = (e: any) => {
@@ -76,7 +82,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
     setVisible((prev) => !prev);
   };
 
-  const handleCloseDetail = () => {
+  const handleCloseDetail = (e: any) => {
     setVisible(false);
   };
 
@@ -165,8 +171,8 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
                     <div className="btn-contact-action chat" title="채팅"></div>
                     <div
                       className="btn-contact-action message"
+                      onMouseDown={handleToggle}
                       title="쪽지"
-                      onClick={handleToggle}
                     ></div>
                     <div
                       className="btn-contact-action remote"
