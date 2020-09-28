@@ -4,9 +4,11 @@ import {
     GET_INITIAL_CHAT_MESSAGES,
     SET_CURRENT_CHAT_ROOM,
     GET_MORE_CHATS_MESSAGES,
+    MOVE_TO_CLICKED_CHAT_ROOM,
     ADD_CHAT_MESSAGE,
     ADD_CHAT_ROOM,
-    ADD_RECEIVED_CHAT
+    ADD_RECEIVED_CHAT,
+    SET_CURRENT_CHAT_ROOM_FROM_NOTI
 } from './types';
 import { getChatRoomList, sendChatMessage, getChatList } from '../../components/ipcCommunication/ipcMessage'
 import moment from 'moment';
@@ -23,11 +25,17 @@ function getUUID() {
 }
 
 export function setCurrentChatRoom(roomKey, chatRooms) {
-    const request = chatRooms.filter(c => c.room_key === roomKey)
-
+    let realRequest = chatRooms.filter(c => c.room_key === roomKey)
     return {
         type: SET_CURRENT_CHAT_ROOM,
-        payload: request
+        payload: realRequest
+    }
+}
+
+export async function setCurrentChatRoomFromNoti() {
+
+    return {
+        type: SET_CURRENT_CHAT_ROOM_FROM_NOTI
     }
 }
 
@@ -45,7 +53,7 @@ export async function getInitialChatRooms() {
 }
 
 export async function getInitialChatMessages(chatRoomId, lastLineKey) {
-    let getChatListsResult = await getChatList(chatRoomId, lastLineKey, 100)
+    let getChatListsResult = await getChatList(chatRoomId, lastLineKey, 10)
     return {
         type: GET_INITIAL_CHAT_MESSAGES,
         payload: Array.isArray(getChatListsResult.data.table.row) ? getChatListsResult.data.table.row : [getChatListsResult.data.table.row]
@@ -71,10 +79,7 @@ export function addChatMessage(chatUsersId, chatMessage, isNewChat, chatRoomId =
     }
 }
 
-
 export function addReceivedChat(newMessage) {
-
-    console.log('addReceivedChat newMessage', newMessage)
 
     return {
         type: ADD_RECEIVED_CHAT,
@@ -91,7 +96,7 @@ export async function addChatRoom(request) {
     if (request.user_counts === 2) {
         let chatRoomKey = request.selected_users.sort().join("|")
         request.room_key = chatRoomKey
-        let getChatListsResult = await getChatList(chatRoomKey, '9999999999999999', 100)
+        let getChatListsResult = await getChatList(chatRoomKey, '9999999999999999', 10)
         let chatData = getChatListsResult.data.table.row
         if (chatData) {
             request.chatLists = Array.isArray(getChatListsResult.data.table.row) ? getChatListsResult.data.table.row : [getChatListsResult.data.table.row]
@@ -103,12 +108,49 @@ export async function addChatRoom(request) {
         request.room_key = request.chat_send_id + "_" + getUUID()
         request.chatLists = []
     }
-    console.log('request', request)
     return {
         type: ADD_CHAT_ROOM,
         payload: request
     }
 }
+
+export async function moveToClickedChatRoom(request) {
+
+    let getChatListsResult = await getChatList(request.room_key, '9999999999999999', 10)
+    let chatData = getChatListsResult.data.table.row
+    if (chatData) {
+        request.chatLists = Array.isArray(getChatListsResult.data.table.row) ? getChatListsResult.data.table.row : [getChatListsResult.data.table.row]
+    } else {
+        request.chatLists = [];
+    }
+
+    const getChatRoomListResult = await getChatRoomList(0, 15)
+    let chatRooms = [];
+    let chatRoomListData = getChatRoomListResult.data.table.row
+    if (chatRoomListData !== undefined) {
+        chatRooms = Array.isArray(chatRoomListData) ? chatRoomListData : [chatRoomListData]
+    }
+
+    let chatRoomsWithoutCurrenChatRoom = chatRooms.filter(room => room.room_key !== request.room_key)
+
+    let allChatRooms = [request, ...chatRoomsWithoutCurrenChatRoom]
+    let currentChatRoom = request
+    console.log('allChatRooms', allChatRooms)
+    console.log('currentChatRoom', currentChatRoom)
+
+    let realRequest = [];
+    realRequest[0] = allChatRooms;
+    realRequest[1] = currentChatRoom;
+
+
+    console.log('realRequest', realRequest)
+    return {
+        type: MOVE_TO_CLICKED_CHAT_ROOM,
+        payload: realRequest
+    }
+}
+
+
 
 // export function getMoreChatMessages(bandId, page = 1) {
 //     const request = axios.get(`${SERVER_URI}:5000/api/talk?bandId=${bandId}&page=${page}`)

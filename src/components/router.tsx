@@ -37,6 +37,8 @@ function RouterPage() {
           <Route exact path="/about" component={AboutPage} />
           <Route exact path="/message" component={MessagePage} />
           <Route exact path="/chat" component={ChatPage} />
+          <Route exact path="/chat/:roomKey/:members" component={ChatPage} />
+          <Route exact path="/chat/:roomKey/:members/:message" component={ChatPage} />
           <Route exact path="/team-space" component={TeamSpacePage} />
           <Route exact path="/site-config" component={SiteConfigPage} />
           <Route exact path="/netTest" component={NetTestPage} />

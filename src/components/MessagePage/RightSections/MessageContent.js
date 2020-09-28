@@ -17,7 +17,7 @@ function MessageContent() {
         return (
             <div className="message-wrapper">
                 <MessageInfo />
-                <div class="message-area">
+                <div className="message-area">
                     <div dangerouslySetInnerHTML={{ __html: content.msg_content }} />
                 </div>
                 {/* 

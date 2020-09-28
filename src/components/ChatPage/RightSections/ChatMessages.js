@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react'
-import userThumbnail from "../../../assets/images/img_user-thumbnail.png";
 import { useDispatch, useSelector } from 'react-redux';
 import {
     getInitialChatMessages
@@ -33,7 +32,8 @@ function ChatMessages() {
         if (currentChatRoom) {
             //새로 만든 채팅방(전 데이터가 데이테베이스에 없는)은 아직 데이터베이스에서 없기 때문에 
             //데이터 베이스에서 메시지를 가져오면 안됨.
-            console.log('currentChatRoom.last_line_key', currentChatRoom.last_line_key)
+            //근데  채팅을 몇번 하고 난 후에 다시 들어올때도  last_line_key가  undefined이기에 ... 
+            //채팅 리스트들을 없앤다 .. 어떻게 해야 하나 ...?
             if (currentChatRoom.last_line_key === undefined) {
                 setChatMessagesWithUserInfos([])
             } else {
