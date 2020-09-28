@@ -5,6 +5,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "asar": "^3.0.3",
     "axios": "^0.19.2",
     "bootstrap": "^4.3.1",
     "cross-env": "6.0.2",
@@ -34,6 +35,7 @@
     "typescript": "^4.0.2",
     "update-electron-app": "^1.2.0",
     "uuid": "^8.3.0",
+    "winston": "^3.3.3",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {

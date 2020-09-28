@@ -155,9 +155,8 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
         psSock.write(cmdBuf);
         global.PS_SEND_COMMAND = cmdHeader;
 
-        console.log('\r\n-------------------------- ');
-        //sendLog("write Command ------ CMD: " + JSON.stringify(global.PS_SEND_COMMAND));
         console.log("write PS Command : ", global.PS_SEND_COMMAND);
+        console.log('-------------------------- \r\n');
     // } catch (exception) {
     //     sendLog("write PS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }

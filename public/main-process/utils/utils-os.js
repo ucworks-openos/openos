@@ -1,8 +1,9 @@
 
 const macaddress = require('macaddress');
 const uuid = require('uuid');
-const moment = require('moment')
-const os = require('os')
+const moment = require('moment');
+const os = require('os');
+
 const { screen, app } = require('electron');
 
 /**

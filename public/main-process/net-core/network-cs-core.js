@@ -148,9 +148,8 @@ function writeCommand(cmdHeader, dataBuf = null) {
         csSock.write(cmdBuf);
         global.CS_SEND_COMMAND = cmdHeader
 
-        console.log('\r\n-------------------------- ');
-        //sendLog("write Command ------ CMD: " + JSON.stringify(global.CS_SEND_COMMAND));
         console.log("write CS Command : ", global.CS_SEND_COMMAND);
+        console.log('-------------------------- \r\n');
     } catch (exception) {
         sendLog("write CS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     }

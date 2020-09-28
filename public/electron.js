@@ -1,13 +1,21 @@
 const electron = require("electron");
-const { app, Tray, Menu, session } = require('electron')
-const BrowserWindow = electron.BrowserWindow;
-const isMac = process.platform === 'darwin';
-
 const path = require("path");
 const isDev = require("electron-is-dev");
 const glob = require('glob');
+const BrowserWindow = electron.BrowserWindow;
+
+
+
+const { app, Tray, Menu, session } = require('electron')
 const { createLiteralTypeNode } = require("typescript");
-const { readConfig } = require(`${path.join(__dirname, '/../public/main-process/configuration/site-config')}`);
+const isMac = process.platform === 'darwin';
+
+
+const { readConfig } = require("./main-process/configuration/site-config");
+const cmdConst = require("./main-process/net-command/command-const");
+const winston = require('./winston')
+
+const globalShortcut = electron.globalShortcut
 
 // Main Context Menu
 const mainContextMenu = Menu.buildFromTemplate([
@@ -27,7 +35,10 @@ const mainContextMenu = Menu.buildFromTemplate([
       {
         label: 'OpenDevTool',
         accelerator: 'F12',
-        click: () => { mainWindow.webContents.openDevTools(); }
+        click: () => { 
+          mainWindow.webContents.openDevTools(); 
+          global.IS_DEV = true;
+        }
       }
     ]
   }
@@ -96,7 +107,8 @@ global.USER = {
 global.ENCRYPT = {
   pwdAlgorithm: 'RC4', //default rc4
   pwdCryptKey: '',
-  msgAlgorithm: 'NO',
+  msgAlgorithm: cmdConst.ENCODE_TYPE_NO,
+  fileAlgorithm: cmdConst.ENCODE_TYPE_NO
 }
 /**
  * 인증 정보
@@ -188,12 +200,20 @@ global.DS_SEND_COMMAND = {}
 global.CS_SEND_COMMAND = {}
 global.PS_SEND_COMMAND = {}
 global.NS_SEND_COMMAND = {}
+global.FS_SEND_COMMAND = {}
 
 global.NS_CONN_CHECK;
+
+global.BigFileLimit = 1024 * 1024 * 1024;
 
 global.TEMP = {
   buddyXml: ''
 }
+
+global.ROOT_PATH = __dirname;
+
+global.IS_DEV = isDev;
+
 
 //#endregion GLOBAL 설정 정보
 
@@ -205,15 +225,19 @@ global.TEMP = {
 var mainWindow = null;
 var tray = null;
 
-global.ROOT_PATH = __dirname;
-
 
 /**
  * ready
  */
 app.on("ready", () => { //app.whenReady().then(() => { });
 
-  global.IS_DEV = isDev;
+
+  winston.info(' ')
+  winston.info(' ')
+  winston.info('===========================================================================================================================')
+  winston.info('===========  ready isDev:%s  root:%s   ============', isDev, global.ROOT_PATH);
+  winston.info('===========================================================================================================================')
+
 
   // Single Instance
   let gotTheLock = app.requestSingleInstanceLock()
@@ -288,6 +312,20 @@ app.on("ready", () => { //app.whenReady().then(() => { });
   // })
 
   global.MAIN_WINDOW = mainWindow;
+
+  
+  //
+  //#region Shortcut
+  //
+  // win
+	globalShortcut.register('f5', function() {
+		//global.MAIN_WINDOW.reload()
+  })
+   // mac
+  globalShortcut.register('CommandOrControl+R', function() {
+		//global.MAIN_WINDOW.reload()
+  })
+  //#endregion
 });
 
 /**
@@ -322,9 +360,9 @@ app.on('quit', function (evt) {
   tray.destroy();
   app.exit();
 
-  console.log('==================================================================')
-  console.log('===================  Application Exit! ===========================')
-  console.log('==================================================================')
+  winston.info('==================================================================')
+  winston.info('===================  Application Exit! ===========================')
+  winston.info('==================================================================')
 });
 
 /**
