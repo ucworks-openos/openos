@@ -53,7 +53,7 @@ export default function HeaderNavi() {
 
   const handleImageError = (image: any) => {
     image.target.onerror = null;
-    image.target.src = `/images/img_imgHolder.png`;
+    image.target.src = `./images/img_imgHolder.png`;
   };
 
   return (

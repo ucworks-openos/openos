@@ -13,16 +13,25 @@ const GridWrapper = styled.div`
 `;
 
 function SiteConfigPage() {
+
   const [serverIp, setServerIp] = useState("");
   const [serverPort, setServerPort] = useState(0);
   const [clientVersion, setClientVersion] = useState(0);
 
   //initialize
   useEffect(() => {
-    let config = getConfig();
-    setServerIp(config.server_ip);
-    setServerPort(config.server_port);
-    setClientVersion(config.client_version);
+
+    async function loadConfig() {
+      let config = await getConfig();
+      console.log('site-config', config)
+
+      setServerIp(config.server_ip);
+      setServerPort(config.server_port);
+      setClientVersion(config.client_version);
+    }
+
+    loadConfig();
+    
   }, [])
 
 

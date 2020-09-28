@@ -6,16 +6,20 @@ const psAPI = require('../net-command/command-ps-api');
 const csAPI = require('../net-command/command-cs-api');
 const nsAPI = require('../net-command/command-ns-api');
 
-
 const ResData = require('../ResData');
 const commandConst = require('../net-command/command-const');
 
 
 /** login */ 
 ipcMain.on('login', async (event, loginData) => {
+
+  winston.debug('login Req : %s', loginData)
+
   try {
     // DS로 로그인 요청을 하고
     let resData = await dsAPI.reqLogin(loginData, true);
+
+    winston.debug('login Req : %s', resData)
 
     // CS로 인증 요청을 하고
     if (resData.resCode) {

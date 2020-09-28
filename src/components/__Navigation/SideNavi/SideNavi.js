@@ -9,6 +9,9 @@ function Sidebar() {
   const [activePath, setActivePath] = useState("/favorite");
 
   const onItemClick = (path) => {
+
+    console.log('Action', path)
+
     setActivePath(
       path
     ); /* Sets activePath which causes rerender which causes CSS to change */

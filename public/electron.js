@@ -1,10 +1,9 @@
 const electron = require("electron");
+
 const path = require("path");
 const isDev = require("electron-is-dev");
 const glob = require('glob');
 const BrowserWindow = electron.BrowserWindow;
-
-
 
 const { app, Tray, Menu, session } = require('electron')
 const { createLiteralTypeNode } = require("typescript");
@@ -24,14 +23,24 @@ const mainContextMenu = Menu.buildFromTemplate([
     label: app.name,
     submenu: [
       { role: 'hide' },
-      { role: 'quit' }
+      {
+        label: 'Exit',
+        click: async () => {
+          mainWindow.destroy(-1);
+        }
+      }
     ]
   }] : []),
   // { role: 'fileMenu' }
   {
     label: 'File',
     submenu: [
-      isMac ? { role: 'close' } : { role: 'quit' },
+      {
+        label: 'Exit',
+        click: async () => {
+          mainWindow.destroy(-1);
+        }
+      },
       {
         label: 'OpenDevTool',
         accelerator: 'F12',
@@ -50,7 +59,7 @@ const trayContextMenu = Menu.buildFromTemplate([
     label: 'Window',
     submenu: [
       {
-        label: 'Close',
+        label: 'Exit',
         click: async () => {
           mainWindow.destroy(-1);
         }
@@ -89,8 +98,6 @@ const trayContextMenu = Menu.buildFromTemplate([
  */
 //#region GLOBAL 설정 정보
 global.MAIN_WINDOW = null;
-
-global.ROOT_PATH = '';
 
 /**
  * 사용자 정보
@@ -210,9 +217,10 @@ global.TEMP = {
   buddyXml: ''
 }
 
-global.ROOT_PATH = __dirname;
+global.ROOT_PATH = require('fs').realpathSync('./');
+global.LOG_PATH;
 
-global.IS_DEV = isDev;
+global.IS_DEV = true;// isDev;
 
 
 //#endregion GLOBAL 설정 정보
@@ -222,21 +230,39 @@ global.IS_DEV = isDev;
  * Electron Applicatin Initialize
  *******************************************************************************************************/
 
+// //loadMainProcesses
+// winston.debug('loadfile : %s', path.join(__dirname, 'main-process/**/*.js'));
+// //const files = glob.sync(path.join(__dirname, '/../public/main-process/**/*.js'))''
+// const files = glob.sync(path.join(__dirname, 'main-process/**/*.js'))
+// files.forEach((file) => {
+//   winston.debug('loadfile... %s', file);
+//   require(file) 
+// })
+
+
 var mainWindow = null;
 var tray = null;
-
-
+  
 /**
  * ready
  */
 app.on("ready", () => { //app.whenReady().then(() => { });
-
+  
 
   winston.info(' ')
   winston.info(' ')
-  winston.info('===========================================================================================================================')
-  winston.info('===========  ready isDev:%s  root:%s   ============', isDev, global.ROOT_PATH);
-  winston.info('===========================================================================================================================')
+  winston.info('==================================================================')
+  winston.info('== IsDevMode:%s', isDev);
+  winston.info('== OS:%s VERSION:%s  USERNAME:%s', process.env.OS, process.getSystemVersion(), process.env.USERNAME);
+  winston.info('== COMPUTERNAME:%s  USERDOMAIN:%s', process.env.COMPUTERNAME, process.env.USERDOMAIN);
+  winston.info('== USERPROFILE:%s', process.env.USERPROFILE);
+  winston.info('== HOMEPATH:%s', process.env.HOMEPATH);
+  winston.info('== INIT_CWD:%s ', process.env.INIT_CWD);
+  winston.info('== LOG_PATH:%s', global.LOG_PATH);
+  winston.info('== ROOT_PATH:%s', global.ROOT_PATH );
+  winston.info('== AppPath:%s', app.getAppPath());
+  winston.info('== __dirname:%s', __dirname);
+  winston.info('==================================================================')
 
 
   // Single Instance
@@ -249,8 +275,12 @@ app.on("ready", () => { //app.whenReady().then(() => { });
   }
 
   //loadMainProcesses
-  const files = glob.sync(path.join(__dirname, '/../public/main-process/**/*.js'))
-  files.forEach((file) => { require(file) })
+  //winston.debug('loadfile : %s', path.join(__dirname, 'main-process/**/*.js'));
+  const files = glob.sync(path.join(__dirname, 'main-process/**/*.js'))
+  files.forEach((file) => {
+    //winston.debug('loadfile... %s', file);
+    require(file) 
+  })
 
   // App Main Context Menu
   Menu.setApplicationMenu(mainContextMenu);
@@ -287,7 +317,7 @@ app.on("ready", () => { //app.whenReady().then(() => { });
 
     isDev
       ? "http://localhost:3000"
-      : `file://${path.join(__dirname, "/../build/index.html")}`,
+      : `file://${path.join(__dirname, "index.html")}`,  //`file://${path.join(__dirname, "/../build/index.html")}`,
       options
   );
 
@@ -364,6 +394,22 @@ app.on('quit', function (evt) {
   winston.info('===================  Application Exit! ===========================')
   winston.info('==================================================================')
 });
+
+process.on("uncaughtException", (err) => {
+  const messageBoxOptions = {
+       type: "error",
+       title: "Error in Main process",
+       message: "Something failed"
+   };
+   
+   winston.error('main-process uncaughtException. $s', err)
+
+   // 바로 종료해 버린다.
+   if (MAIN_WINDOW) mainWindow.destroy(-1);
+   //throw err;
+});
+
+
 
 /**
  * window-all-closed

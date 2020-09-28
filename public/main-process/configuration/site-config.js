@@ -1,19 +1,22 @@
 const winston = require('../../winston')
+const fs = require('fs');
+const { SITE_CONFIG_FILE } = require('../common/common-const');
 
-const SITE_CONFIG_FILE = 'site.cfg';
 /**
  * 사이트 Config파일을 로드합니다.
  */
 function readConfig() {
 
-	try {
-		const fs = require('fs');
+	let configPath = require("path").join(global.ROOT_PATH, SITE_CONFIG_FILE);
 
-		let rawdata = fs.readFileSync(SITE_CONFIG_FILE);
+	try {
+
+		let rawdata = fs.readFileSync(configPath);
 		global.SITE_CONFIG = JSON.parse(rawdata);
+		winston.debug('site config read completed! %s\r\n %s', configPath,  global.SITE_CONFIG)
 
 	} catch (exception) {
-		winston.error("SiteConfig Load Fail! path:%s  %s", SITE_CONFIG_FILE, exception);
+		winston.error("SiteConfig Load Fail! path:%s  %s", configPath, exception);
 	}
 }
 

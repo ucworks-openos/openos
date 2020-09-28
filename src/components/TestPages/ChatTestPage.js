@@ -59,9 +59,13 @@ function FuncTestPage2() {
       appendChatMessage(chatMsg[0].sendName, chatMsg[0].chatData);
     });
 
-    let config = getConfig();
-    setServerIp(config.server_ip);
-    setServerPort(config.server_port);
+    async function loadConfig() {
+      let config = await getConfig();
+      setServerIp(config.server_ip);
+      setServerPort(config.server_port);  
+    }
+
+    loadConfig();
   }, []);
 
   //#region WriteLog ...
