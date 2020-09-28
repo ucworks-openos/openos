@@ -11,122 +11,122 @@ var CmdConst = require('./command-const');
 
 /**
  * 수신한 Command를 처리합니다. 
- * @param {CommandHeader} command 
+ * @param {CommandHeader} resCmd 
  */
-function responseCmdProc(command) {
-  if (!command.sendCmd) {
-    sendLog('PS Request Command Empty! -  CMD: ' + command.cmdCode);
+function responseCmdProc(resCmd) {
+  if (!resCmd.sendCmd) {
+    sendLog('PS Request Command Empty! -  CMD: ' + resCmd.cmdCode);
     return;
   }
 
-  sendLog('PS Response -  RES_CMD: ' + command.cmdCode);
+  sendLog('PS Response -  RES_CMD: ' + resCmd.cmdCode);
 
   // 요청커맨드로 처리되는 방식과 받은 Command로 처리되는 방식으로 나눈다.
   
-  switch(command.sendCmd.cmdCode) {
+  switch(resCmd.sendCmd.cmdCode) {
     case CmdCodes.PS_GET_BASE_CLASS:
-      if (command.cmdCode == CmdCodes.PS_GET_BASE_CLASS) {
+      if (resCmd.cmdCode == CmdCodes.PS_GET_BASE_CLASS) {
 
-        let xmlData = command.data.toString('utf-8', 0);
+        let xmlData = resCmd.data.toString('utf-8', 0);
         sendLog('PS_GET_BASE_CLASS  xml:', xmlData);
 
         parseXmlToJSON(xmlData).then(function(jsonData) {
-          callCallback(command.sendCmd, new ResData(true, jsonData));
+          callCallback(resCmd.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {
           console.log('PS_GET_BASE_CLASS  xml parse Error! str:', xmlData, err)
-          callCallback(command.sendCmd, new ResData(false, 'PS_GET_BASE_CLASS xml parse Error! ex:' + JSON.stringify(err)));
+          callCallback(resCmd.sendCmd, new ResData(false, 'PS_GET_BASE_CLASS xml parse Error! ex:' + JSON.stringify(err)));
         });
 
       } else {
-        callCallback(command.sendCmd, new ResData(false, 'PS_GET_BASE_CLASS  Response Fail!'));
+        callCallback(resCmd.sendCmd, new ResData(false, 'PS_GET_BASE_CLASS  Response Fail!'));
       }
       break;
 
     case CmdCodes.PS_GET_CHILD_CLASS:
-      if (command.cmdCode == CmdCodes.PS_GET_CHILD_CLASS) {
+      if (resCmd.cmdCode == CmdCodes.PS_GET_CHILD_CLASS) {
 
-        let xmlData = command.data.toString('utf-8', 0);
+        let xmlData = resCmd.data.toString('utf-8', 0);
         sendLog('PS_GET_CHILD_CLASS  xml:', xmlData);
 
         parseXmlToJSON(xmlData).then(function(jsonData) {
-          callCallback(command.sendCmd, new ResData(true, jsonData));
+          callCallback(resCmd.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {
           console.log('PS_GET_CHILD_CLASS  xml parse Error! str:', xmlData, err)
-          callCallback(command.sendCmd, new ResData(false, 'PS_GET_CHILD_CLASS  xml parse Error! ex:' + JSON.stringify(err)));
+          callCallback(resCmd.sendCmd, new ResData(false, 'PS_GET_CHILD_CLASS  xml parse Error! ex:' + JSON.stringify(err)));
         });
 
       } else {
-        callCallback(command.sendCmd, new ResData(false, 'PS_GET_CHILD_CLASS  Response Fail!'));
+        callCallback(resCmd.sendCmd, new ResData(false, 'PS_GET_CHILD_CLASS  Response Fail!'));
       }
       break;
 
     case CmdCodes.PS_GET_CONDICTION:
-      if (command.cmdCode == CmdCodes.PS_GET_CONDICTION) {
+      if (resCmd.cmdCode == CmdCodes.PS_GET_CONDICTION) {
 
-        let xmlData = command.data.toString('utf-8', 0);
+        let xmlData = resCmd.data.toString('utf-8', 0);
         sendLog('PS_GET_CONDICTION  xml:', xmlData);
 
         parseXmlToJSON(xmlData).then(function(jsonData) {
-          callCallback(command.sendCmd, new ResData(true, jsonData));
+          callCallback(resCmd.sendCmd, new ResData(true, jsonData));
           
         }).catch(function(err) {
           console.log('PS_GET_CONDICTION  xml parse Error! ', err)
-          callCallback(command.sendCmd, new ResData(false, 'PS_GET_CONDICTION  xml parse Error! ex:' + JSON.stringify(err)));
+          callCallback(resCmd.sendCmd, new ResData(false, 'PS_GET_CONDICTION  xml parse Error! ex:' + JSON.stringify(err)));
         });
       } else {
-        let rcvBuf = Buffer.from(command.data);
+        let rcvBuf = Buffer.from(resCmd.data);
         let dataStr = rcvBuf.toString('utf-8', 0);
         
-        sendLog('PS_GET_CONDICTION - Unknown Response Command Receive!!! : ' + command.cmdCode + ' Data:' + dataStr);  
+        sendLog('PS_GET_CONDICTION - Unknown Response Command Receive!!! : ' + resCmd.cmdCode + ' Data:' + dataStr);  
       }
       break;
     
     case CmdCodes.PS_GET_USERS_INFO:
-      if (command.cmdCode == CmdCodes.PS_GET_CONDICTION) { // ???  응답코드 무엇!!
+      if (resCmd.cmdCode == CmdCodes.PS_GET_CONDICTION) { // ???  응답코드 무엇!!
 
-        let xmlData = command.data.toString('utf-8', 0);
+        let xmlData = resCmd.data.toString('utf-8', 0);
         sendLog('PS_GET_USERS_INFO  xml:', xmlData);
         xmlData = "<items>" + xmlData + "</items>";
         parseXmlToJSON(xmlData).then(function(jsonData) {
-          callCallback(command.sendCmd, new ResData(true, jsonData));
+          callCallback(resCmd.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {
           console.log('PS_GET_USERS_INFO  xml parse Error! ', err)
-          callCallback(command.sendCmd, new ResData(false, 'PS_GET_USERS_INFO  xml parse Error! ex:' + JSON.stringify(err)));
+          callCallback(resCmd.sendCmd, new ResData(false, 'PS_GET_USERS_INFO  xml parse Error! ex:' + JSON.stringify(err)));
         });
       } else {
-        let rcvBuf = Buffer.from(command.data);
+        let rcvBuf = Buffer.from(resCmd.data);
         let dataStr = rcvBuf.toString('utf-8', 0);
         
-        sendLog('PS_GET_CONDICTION - Unknown Response Command Receive!!! : ' + command.cmdCode + ' Data:' + dataStr);  
+        sendLog('PS_GET_CONDICTION - Unknown Response Command Receive!!! : ' + resCmd.cmdCode + ' Data:' + dataStr);  
       }
       break;
     
     case CmdCodes.PS_GET_CLASS_USER: // 조직도 검색
-      if (command.cmdCode == CmdCodes.PS_GET_CLASS_USER) { 
+      if (resCmd.cmdCode == CmdCodes.PS_GET_CLASS_USER) { 
 
-        let xmlData = command.data.toString('utf-8', 0); 
+        let xmlData = resCmd.data.toString('utf-8', 0); 
         sendLog('PS_GET_CLASS_USER  xml:', xmlData);
         parseXmlToJSON(xmlData).then(function(jsonData) {
-          callCallback(command.sendCmd, new ResData(true, jsonData));
+          callCallback(resCmd.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {
           console.log('PS_GET_CLASS_USER  xml parse Error! ', err)
-          callCallback(command.sendCmd, new ResData(false, 'PS_GET_CLASS_USER  xml parse Error! ex:' + JSON.stringify(err)));
+          callCallback(resCmd.sendCmd, new ResData(false, 'PS_GET_CLASS_USER  xml parse Error! ex:' + JSON.stringify(err)));
         });
       } else {
-        let rcvBuf = Buffer.from(command.data);
+        let rcvBuf = Buffer.from(resCmd.data);
         let dataStr = rcvBuf.toString('utf-8', 0);
         
-        sendLog('PS_GET_CLASS_USER - Unknown Response Command Receive!!! : ' + command.cmdCode + ' Data:' + dataStr);  
+        sendLog('PS_GET_CLASS_USER - Unknown Response Command Receive!!! : ' + resCmd.cmdCode + ' Data:' + dataStr);  
       }
       break;
       break;
     
     default :
     {
-      let rcvBuf = Buffer.from(command.data);
+      let rcvBuf = Buffer.from(resCmd.data);
       let dataStr = rcvBuf.toString('utf-8', 0);
       
-      sendLog('Unknown Response Command Receive!!! : ' + command.cmdCode + ' Data:' + dataStr);
+      sendLog('Unknown Response Command Receive!!! : ' + resCmd.cmdCode + ' Data:' + dataStr);
     }
     return false;
   }

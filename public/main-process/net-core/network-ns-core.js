@@ -195,8 +195,8 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
         cmdHeader = null;
         if (resetConnCheck) startConnectionCheck();
         
-        //console.log('\r\n-------------------------- ');
-        sendLog("\r\nwrite NS Command ------ CMD ", JSON.stringify(global.NS_SEND_COMMAND));
+        console.log("write NS Command ------ CMD ", JSON.stringify(global.NS_SEND_COMMAND));
+        console.log('-------------------------- \r\n');
     // } catch (exception) {
     //     sendLog("write NS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }

@@ -7,6 +7,8 @@ module.exports = Object.freeze({
     ENCODE_TYPE_OTS         : 'OTS',  // 3=OTP+세션키(RC4) 로 암호화됨
     ENCODE_TYPE_OTS_AES256  : 'OTS_AES256',  // 4=OTP+세션키(AES256) 으로 암호화됨
     ENCODE_TYPE_NO          : 'NO',   // 암호화 하지 않음
+    ENCODE_TYPE_NO_SERVER   : 'NO_SERVER',   // 암호화 하지 않음
+    ENCODE_TYPE_MOBILE      : 'MOBILE',   // 암호화 하지 않음
 
     SEP_PIPE                : '|',
     SEP_CR                  : String.fromCharCode(13),
@@ -86,7 +88,9 @@ module.exports = Object.freeze({
     BUF_LEN_SQL_DATA        : 512 + 1,
     BUF_LEN_SQL_FIELD       : 50 + 1,
 
-    BUF_LEN_FONTNAME       : 100 + 1,
+    BUF_LEN_FONTNAME        : 100 + 1,
+
+    BUF_LEN_FILEDATA      : 4096,
 
     //#endregion COMMAND LENGTH
     

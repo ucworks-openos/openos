@@ -2,8 +2,8 @@ const { BrowserWindow} = require('electron');
 
 const { send, sendLog } = require('../ipc/ipc-cmd-sender');
 const { getDispSize } = require('../utils/utils-os');
+const cmdConst = require('../net-command/command-const');
 const notiType = require('../common/noti-type');
-//const notifier = require('node-notifier'); //https://github.com/mikaelbr/node-notifier
 
 var notiWin;
 
@@ -14,26 +14,11 @@ var notiWin;
 function messageReceived(msgData) {
 
   console.log('--------------- Received Message', msgData)
-  if (msgData.sendId != global.USER.userId) {
-    
-    
 
-      showAlert(notiType.NOTI_MESSAGE, msgData.key, '쪽지수신', msgData.subject);
-
-      /*
-      let options = {
-        title: 'Message Received',
-        message: msgData.subject,
-        sound: true, // Only Notification Center or Windows Toasters
-        wait: true // Wait with callback, until user action is taken against notification, does not apply to Windows Toasters as they always wait or notify-send as it does not support the wait option
-      }
-      new notifier.WindowsBalloon(options).notify(options);   // WIN O
-      notifier.notify(options, function (err, response) {
-            console.log('Notification Click!', err, response );
-        }
-      );
-      */
-
+  let destIds = msgData.allDestId.split(cmdConst.SEP_PIPE);
+  //if (msgData.sendId != global.USER.userId) {
+  if (destIds.includes(global.USER.userId)) {
+    showAlert(notiType.NOTI_MESSAGE, msgData.key, '쪽지수신', msgData.subject);
     sendLog('Message Received! ', JSON.stringify(msgData));
     send('messageReceived', msgData)
   }
@@ -82,6 +67,7 @@ function chatReceived(chatData) {
  */
 async function showAlert(notiType, notiId, title, message) {
 
+  console.log('showAlert', notiType, notiId, title, message);
   if (notiWin) {
     notiWin.destroy();
   }
@@ -106,7 +92,7 @@ async function showAlert(notiType, notiId, title, message) {
   //notiWin.webContents.openDevTools();
   notiWin.menuBarVisible = false;
 
-  let notifyFile = `file://${global.ROOT_PATH}/notify.html`;
+  let notifyFile = `file://${__dirname}/notify.html`;
   console.log(`>>>>>>>>>>>  `, notifyFile);
   notiWin.webContents.on('did-finish-load', () => {
     console.log(`>>>>>>>>>>>   LOAD COMPLETED!`);

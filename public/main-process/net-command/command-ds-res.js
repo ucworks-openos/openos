@@ -6,6 +6,7 @@ const ResData = require('../ResData');
 var CmdCodes = require('./command-code');
 var CmdConst = require('./command-const');
 const { getMultiple4Size } = require('../utils/utils-buffer');
+const { parseRuleInfo } = require('../configuration/envi-config');
 
 
 /**
@@ -83,110 +84,11 @@ function responseCmdProc(resCmd) {
           sInx += CmdConst.BUF_LEN_INT;
 
           let ruleXml = rcvBuf.toString(global.ENC, sInx).trim();
+          let resData = parseRuleInfo(ruleXml);
 
-          /*
-          let ruleEndInx = sInx + ruleSize;
-          let rcvRuleBuf = Buffer.alloc(ruleSize);
-          let rcvlastRuleBuf = Buffer.alloc(ruleSize);
-          rcvBuf.copy(rcvRuleBuf, 0, ruleStartInx - 10, ruleEndInx);
-          //rcvBuf.copy(rcvlastRuleBuf, 0, (ruleEndInx - 10), ruleEndInx);
-          let sampleRuleBuf = Buffer.from('<server_rule_info>', global.ENC);
-          //let samplelastRuleBuf = Buffer.from('</server_rule_info>', global.ENC);
+          console.log('get rule `````````````', resData);
 
-          console.log('buf size:', rcvBuf.length);
-          console.log('buf ruleStartInx:', ruleStartInx);
-          console.log('buf ruleEndInx:', ruleEndInx);
-
-          console.log('userId:', userId);
-          console.log('userPwd:', userPwd);
-          console.log('connIp:', connIp);
-          console.log('svrSize:', svrSize );
-          console.log('ruleSize:', ruleSize);
-
-          console.log('-----------------------------------------------------');
-          console.log('-----------------------------------------------------');
-          console.log('-----------  RCVBUF:', rcvRuleBuf);
-          //console.log('-----------  RCVLastBUF:', rcvlastRuleBuf);
-          console.log('-----------  SMPBUF:', sampleRuleBuf);
-          //console.log('-----------  SMPLastBUF:', samplelastRuleBuf);
-          console.log('-----------------------------------------------------');
-          console.log('-----------------------------------------------------');
-          console.log('-----------------------------------------------------');
-          */
-
-          parseXmlToJSON(ruleXml).then(function (result) {
-            try {
-              if (result.server_rule_info.function) {
-                result.server_rule_info.function.forEach(element => {
-                  //console.log('RULE ELEMENT:', element);
-                  switch (element.func_code) {
-                    case 'FUNC_ENCRYPT_2': // Message/Chat Encrypt Algorithm
-                      global.ENCRYPT.msgAlgorithm = element.func_value1;
-                      console.log('SET FUNC_ENCRYPT_3 :', element.func_value1)
-                      break;
-
-                    case 'FUNC_ENCRYPT_3': // Password Encrypt Algorithm
-                      global.ENCRYPT.pwdAlgorithm = element.func_value1;
-                      console.log('SET FUNC_ENCRYPT_3 :', element.func_value1)
-                      break;
-
-                    case 'FUNC_ENCRYPT_4': // Password Encrypt Key
-                      global.ENCRYPT.pwdCryptKey = element.func_value1;
-                      console.log('SET FUNC_ENCRYPT_4 :', element.func_value1)
-                      break;
-
-                    case 'FUNC_ORG_1': // ROOT ORG CODE
-                      global.ORG.org_1_root = element.func_value1;
-                      console.log('SET FUNC_ORG_1 :', element.func_value1)
-                      break;
-
-                    case 'FUNC_COMP_39':
-                        let options = element.func_value1.split(',');
-
-                        console.log('------------ element.func_value1', element.func_value1)
-                        console.log('------------ options', options);
-
-                        //let dicOption = {};
-                        options.forEach((element) => {
-                          let option = element.split('=');
-                          switch(option[0]) {
-                            case 'DB_KIND':
-                              global.FUNC_COMP_39.DB_KIND = option[1];
-                              break;
-
-                            case 'PER_MEM_TABLE':
-                              global.FUNC_COMP_39.PER_MEM_TABLE =  option[1];
-                              break;
-
-                            case 'PER_DISK_TABLE':
-                              global.FUNC_COMP_39.PER_DISK_TABLE =  option[1];
-                              break;
-                          }
-                          
-                          //dicOption[option[0]] = option[1];
-                        });
-
-                        // console.log('=========================  FNC_COMP_39')
-                        // // debug
-                        // for (let key in dicOption) {
-                        //   console.log('Key:' + key + " val:" + dicOption[key])
-                        // }
-
-                      break;
-                  }
-                });
-
-                console.log('RULE:', global.ENCRYPT)
-                callCallback(resCmd.sendCmd, new ResData(true));
-              }
-            } catch (err) {
-              callCallback(resCmd.sendCmd, new ResData(false, JSON.stringify(err)));
-              console.log('RULE PARSE ERR!!', err)
-            }
-          }).catch(function (err) {
-            sendLog('RULE parse error!  Ex: ' + err + '\r\ruleXml:' + ruleXml);
-            callCallback(resCmd.sendCmd, new ResData(false, JSON.stringify(err)));
-          });
+          callCallback(resCmd.sendCmd, resData);
           break;
 
         case CmdCodes.DS_NO_USERID:
