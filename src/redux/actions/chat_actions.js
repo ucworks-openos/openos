@@ -4,11 +4,13 @@ import {
     GET_INITIAL_CHAT_MESSAGES,
     SET_CURRENT_CHAT_ROOM,
     GET_MORE_CHATS_MESSAGES,
+    ADD_CHAT_ROOM_FROM_ORGANIZATION,
     MOVE_TO_CLICKED_CHAT_ROOM,
     ADD_CHAT_MESSAGE,
     ADD_CHAT_ROOM,
     ADD_RECEIVED_CHAT,
-    SET_CURRENT_CHAT_ROOM_FROM_NOTI
+    SET_CURRENT_CHAT_ROOM_FROM_NOTI,
+    EMPTY_CHAT_MESSAGE
 } from './types';
 import { getChatRoomList, sendChatMessage, getChatList } from '../../components/ipcCommunication/ipcMessage'
 import moment from 'moment';
@@ -53,12 +55,18 @@ export async function getInitialChatRooms() {
 }
 
 export async function getInitialChatMessages(chatRoomId, lastLineKey) {
+
+    console.log('chatRoomId', chatRoomId)
+
     let getChatListsResult = await getChatList(chatRoomId, lastLineKey, 10)
+    
     let request = [];
     let getChatLists = getChatListsResult.data.table.row
     if (getChatLists !== undefined) {
         request = Array.isArray(getChatLists) ? getChatLists : [getChatLists]
     }
+    console.log('getChatLists request', request)
+
     return {
         type: GET_INITIAL_CHAT_MESSAGES,
         payload: request
@@ -91,11 +99,57 @@ export function addReceivedChat(newMessage) {
     }
 }
 
+export function emptyChatMessages () {
+    return {
+        type: EMPTY_CHAT_MESSAGE
+    }
+}
+
 
 export async function addChatRoom(request) {
     // 여기서 체크해야할것은 만약 1:1 채팅이면 
     // 이미 만들어진 채팅 방이 있는지 체크해서 
     // 있다면 그 채팅방의 채팅 리스트를 보내주기 
+    if (request.user_counts === 2) {
+        let chatRoomKey = request.selected_users.sort().join("|")
+        request.room_key = chatRoomKey
+        let getChatListsResult = await getChatList(chatRoomKey, '9999999999999999', 10)
+        let chatData = getChatListsResult.data.table.row
+        if (chatData) {
+            request.chatLists = Array.isArray(getChatListsResult.data.table.row) ? getChatListsResult.data.table.row : [getChatListsResult.data.table.row]
+        } else {
+            request.chatLists = [];
+        }
+
+    } else {
+        request.room_key = request.chat_send_id + "_" + getUUID()
+        request.chatLists = []
+    }
+    return {
+        type: ADD_CHAT_ROOM,
+        payload: request
+    }
+}
+
+
+export async function addChatRoomFromOrganization(orgMembers) {
+    // 여기서 체크해야할것은 만약 1:1 채팅이면 
+    // 이미 만들어진 채팅 방이 있는지 체크해서 
+    // 있다면 그 채팅방의 채팅 리스트를 보내주기 
+    let finalSelectedKeys = orgMembers.split("|")
+    let newFinal = finalSelectedKeys
+    newFinal.push(sessionStorage.getItem(`loginId`))
+    const request = {
+        selected_users: finalSelectedKeys,
+        user_counts: newFinal.length,
+        chat_entry_ids: newFinal.join('|'),
+        unread_count: 0,
+        chat_content: "",
+        last_line_key: '9999999999999999',
+        chat_send_name: sessionStorage.getItem(`loginName`),
+        create_room_date: moment().format("YYYYMMDDHHmm"),
+        chat_send_id: sessionStorage.getItem(`loginId`),
+    };
 
     if (request.user_counts === 2) {
         let chatRoomKey = request.selected_users.sort().join("|")

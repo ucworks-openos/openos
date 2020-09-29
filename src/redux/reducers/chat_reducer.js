@@ -7,7 +7,8 @@ import {
     ADD_RECEIVED_CHAT,
     ADD_CHAT_ROOM,
     MOVE_TO_CLICKED_CHAT_ROOM,
-    SET_CURRENT_CHAT_ROOM_FROM_NOTI
+    SET_CURRENT_CHAT_ROOM_FROM_NOTI,
+    EMPTY_CHAT_MESSAGE
 } from '../actions/types';
 
 export default function (state = {}, action) {
@@ -29,7 +30,7 @@ export default function (state = {}, action) {
         case ADD_CHAT_ROOM:
             let chatRooms = [...state.chatRooms]
             let chatRoomsWithoutCurrentChatRoom = chatRooms.filter(c => c.room_key !== action.payload.room_key)
-
+            console.log('action.payload.chatLists', action.payload.chatLists)
             return {
                 ...state,
                 chatRooms: [action.payload, ...chatRoomsWithoutCurrentChatRoom],
@@ -42,6 +43,11 @@ export default function (state = {}, action) {
                 chatRooms: action.payload[0],
                 currentChatRoom: action.payload[1],
                 chatMessages: action.payload[1].chatLists
+            }
+        case EMPTY_CHAT_MESSAGE:
+            return {
+                ...state,
+                chatMessages: []
             }
         case ADD_RECEIVED_CHAT:
             // 1. chatRooms       - 없다면 추가  - 있다면 컨텐츠 변경  - 순서 맨 위로 올리기 

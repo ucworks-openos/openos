@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { isObject } from "util";
 
 const electron = window.require("electron");
 
