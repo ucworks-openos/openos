@@ -2,7 +2,7 @@
 const { remote } = window.require("electron")
 
 // Side Default Menu
-var sideItems = [
+var sideItemsBase = [
   {
     path:
       "/favorite" /* path is used as id to check which NavItem is active basically */,
@@ -77,6 +77,7 @@ function SideItemList() {
 
   console.log('-------', remote.getGlobal('IS_DEV'))
 
+  let sideItems = sideItemsBase;
   // Dev Mode SideMenu
   if (remote.getGlobal('IS_DEV')) {
     sideItems = sideItems.concat([{
