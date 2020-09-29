@@ -31,9 +31,7 @@ function MessageInputModal(props) {
     useEffect(() => {
         const initiate = async() => {
             if (!props.selectedNode.length) return false;
-            // * 즐겨찾기에서 쪽지 보내기 시 키값이 `{userId}_{date}`로 들어오므로, 이를 잘라서 써야 함.
-            const userKeys = props.selectedNode.map(v => v.slice(0, v.lastIndexOf(`_`)));
-            const {data: {items: {node_item: responseMaybeArr}}} = await getUserInfos(userKeys);
+            const {data: {items: {node_item: responseMaybeArr}}} = await getUserInfos(props.selectedNode);
             const response = arrayLike(responseMaybeArr);
             setSelectedUsers(response);
         }
