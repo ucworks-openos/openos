@@ -1,5 +1,4 @@
-const winston = require('../../winston')
-const { receiveCmdProc } = require('../net-command/command-fs-res');
+const winston = require('../../winston');
 
 const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
@@ -8,6 +7,7 @@ const BufUtil = require('../utils/utils-buffer')
 const CmdConst = require('../net-command/command-const');
 const CmdCodes = require('../net-command/command-code');
 
+const { receiveCmdProc } = require('../net-command/command-fs-res');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
 var fsSock;
@@ -47,17 +47,17 @@ function connect () {
         })
         // 접속이 종료됬을때 메시지 출력
         fsSock.on('end', function(){
-            winston.info('FS Disconnected!');
+            winston.warn('FS Disconnected!');
             global.SERVER_INFO.FS.isConnected = false;
         });
         // close
         fsSock.on('close', function(hadError){
-            winston.info("FS Close. hadError: %s", hadError);
+            winston.warn("FS Close. hadError: %s", hadError);
             global.SERVER_INFO.FS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         fsSock.on('error', function(err){
-            winston.info("FS Error: %s", err);
+            winston.error("FS Error: %s", err);
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.FS.isConnected) {
@@ -68,7 +68,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         fsSock.on('timeout', function(){
-            winston.info('FS Connection timeout.');
+            winston.warn('FS Connection timeout.');
             global.SERVER_INFO.FS.isConnected = false;
         });
     });

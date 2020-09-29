@@ -36,7 +36,7 @@ function ChatInvitationModal(props) {
                     let arr1 = selectedUsers
                     let arr2 = searchedUsers
                     //두개의 배열을 합친 다음에 겹치는 것들을 지우기
-                    //console.log(!arr1.find(f => f.user_id.value === user_id.value))  는 return boolean 이다. 그래서 true면 concat 되고 아니면 filtering 된다.
+                    //winston.info(!arr1.find(f => f.user_id.value === user_id.value))  는 return boolean 이다. 그래서 true면 concat 되고 아니면 filtering 된다.
                     //find은 원래 조건에 맞는 첫번째 아이템을 return 하는데 !arr.find 하므로써 같은게 있는것에 !반대를 하니깐 같은데 있을 때 false를 배출해줍니다. 
                     let arr3 = arr1.concat(arr2.filter(({ user_id }) => !arr1.find(f => f.user_id.value === user_id.value)));
                     setSelectedUsers(arr3)

@@ -1,4 +1,4 @@
-
+const winston = require('../../winston');
 const CommandHeader = require('../net-command/command-header');
 
 
@@ -30,7 +30,7 @@ function adjustBufferMultiple4(originBuf) {
     // Create Dummy Buffer. Set the length to a multiple of 4.
     var multiple4Len = getMultiple4Size(originBuf.length);
     if (multiple4Len != originBuf.length) {
-        //console.log("cmdBuf Diff size:" + (multiple4Len-cmdBuf.length) + ", DummySize:" + multiple4Len + ", BufferSize:" + cmdBuf.length);
+        //winston.info("cmdBuf Diff size:" + (multiple4Len-cmdBuf.length) + ", DummySize:" + multiple4Len + ", BufferSize:" + cmdBuf.length);
         var dummyBuf = Buffer.alloc(multiple4Len-originBuf.length);
         originBuf = Buffer.concat([originBuf, dummyBuf]);
     }

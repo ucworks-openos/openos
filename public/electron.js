@@ -1,20 +1,21 @@
 const electron = require("electron");
+const { app, Tray, Menu, session } = require('electron')
+
+const winston = require('./winston')
 
 const path = require("path");
 const isDev = require("electron-is-dev");
 const glob = require('glob');
-const BrowserWindow = electron.BrowserWindow;
 
-const { app, Tray, Menu, session } = require('electron')
-const { createLiteralTypeNode } = require("typescript");
-const isMac = process.platform === 'darwin';
-
-
-const { readConfig } = require("./main-process/configuration/site-config");
+const OsUtil = require('./main-process/utils/utils-os');
 const cmdConst = require("./main-process/net-command/command-const");
-const winston = require('./winston')
 
+const { createLiteralTypeNode } = require("typescript");
+const { readConfig } = require("./main-process/configuration/site-config");
+
+const BrowserWindow = electron.BrowserWindow;
 const globalShortcut = electron.globalShortcut
+const isMac = process.platform === 'darwin';
 
 // Main Context Menu
 const mainContextMenu = Menu.buildFromTemplate([
@@ -46,11 +47,17 @@ const mainContextMenu = Menu.buildFromTemplate([
         accelerator: 'F12',
         click: () => { 
           mainWindow.webContents.openDevTools(); 
-          global.IS_DEV = true;
+        }
+      },
+      {
+        label: 'dev tab',
+        click: () => { 
+          global.IS_DEV = !global.IS_DEV;
+          mainWindow.reload();
         }
       }
     ]
-  }
+  },
 ]);
 
 // Tray Context Menu
@@ -220,7 +227,7 @@ global.TEMP = {
 global.ROOT_PATH = require('fs').realpathSync('./');
 global.LOG_PATH;
 
-global.IS_DEV = true;// isDev;
+global.IS_DEV = isDev;
 
 
 //#endregion GLOBAL 설정 정보
@@ -246,22 +253,29 @@ var tray = null;
 /**
  * ready
  */
-app.on("ready", () => { //app.whenReady().then(() => { });
+app.on("ready", async () => { //app.whenReady().then(() => { });
   
 
   winston.info(' ')
   winston.info(' ')
   winston.info('==================================================================')
+  winston.info('== UCM MESSENGER START')
+  winston.info('==')
   winston.info('== IsDevMode:%s', isDev);
+  winston.info('== LOCAL_IP:%s  MAC_ADDRESS:%s', OsUtil.getIpAddress(), await OsUtil.getMacAddress());
   winston.info('== OS:%s VERSION:%s  USERNAME:%s', process.env.OS, process.getSystemVersion(), process.env.USERNAME);
   winston.info('== COMPUTERNAME:%s  USERDOMAIN:%s', process.env.COMPUTERNAME, process.env.USERDOMAIN);
-  winston.info('== USERPROFILE:%s', process.env.USERPROFILE);
-  winston.info('== HOMEPATH:%s', process.env.HOMEPATH);
-  winston.info('== INIT_CWD:%s ', process.env.INIT_CWD);
-  winston.info('== LOG_PATH:%s', global.LOG_PATH);
   winston.info('== ROOT_PATH:%s', global.ROOT_PATH );
-  winston.info('== AppPath:%s', app.getAppPath());
-  winston.info('== __dirname:%s', __dirname);
+
+  if (IS_DEV) {
+    winston.info('== USERPROFILE:%s', process.env.USERPROFILE);
+    winston.info('== HOMEPATH:%s', process.env.HOMEPATH);
+    winston.info('== INIT_CWD:%s ', process.env.INIT_CWD);
+    winston.info('== LOG_PATH:%s', global.LOG_PATH);
+    winston.info('== AppPath:%s', app.getAppPath());
+    winston.info('== __dirname:%s', __dirname);
+  }
+  
   winston.info('==================================================================')
 
 
@@ -396,21 +410,12 @@ app.on('quit', function (evt) {
 });
 
 process.on("uncaughtException", (err) => {
-  const messageBoxOptions = {
-       type: "error",
-       title: "Error in Main process",
-       message: "Something failed"
-   };
-   
-   winston.error('main-process uncaughtException. $s', err)
+   winston.error('main-process uncaughtException. %s', err)
 
    // 바로 종료해 버린다.
    if (MAIN_WINDOW) mainWindow.destroy(-1);
    //throw err;
 });
-
-
-
 /**
  * window-all-closed
  */

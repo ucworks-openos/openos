@@ -1,10 +1,11 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
-const { receive_command } = require('../net-command/command-res-proc');
+const winston = require('../../winston')
 
 const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
 const CmdConst = require('../net-command/command-const');
 const CmdCodes = require('../net-command/command-code');
+
+const { receive_command } = require('../net-command/command-res-proc');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
 var psSock;
@@ -25,17 +26,22 @@ function connect () {
         psSock.destroy();
     }
     
-    sendLog("Conncect MAIN_PS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
+    winston.info("Conncect MAIN_PS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
 
     return new Promise(function(resolve, reject){
         var tcpSock = require('net');  
         var client  = new tcpSock.Socket;  
-        psSock = client.connect(global.SERVER_INFO.PS.port, global.SERVER_INFO.PS.pubip, function() {
-            sendLog("Conncect MAIN_PS Completed to " + JSON.stringify(global.SERVER_INFO.PS, null, 0))
-            global.SERVER_INFO.PS.isConnected = true;
-    
-            resolve(new ResData(true));
-        });  
+
+        try {
+            psSock = client.connect(global.SERVER_INFO.PS.port, global.SERVER_INFO.PS.pubip, function() {
+                winston.info("Conncect MAIN_PS Completed to " + JSON.stringify(global.SERVER_INFO.PS, null, 0))
+                global.SERVER_INFO.PS.isConnected = true;
+        
+                resolve(new ResData(true));
+            });  
+        } catch (err) {
+            resolve(new ResData(false, err));
+        }
     
         // listen for incoming data
         psSock.on("data", function(data){
@@ -44,17 +50,17 @@ function connect () {
     
         // 접속이 종료됬을때 메시지 출력
         psSock.on('end', function(){
-            sendLog('PS Disconnected!');
+            winston.warn('PS Disconnected!');
             global.SERVER_INFO.PS.isConnected = false;
         });
         // 
         psSock.on('close', function(hadError){
-            sendLog("PS Close. hadError: " + hadError);
+            winston.warn("PS Close. hadError: " + hadError);
             global.SERVER_INFO.PS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         psSock.on('error', function(err){
-            sendLog("PS Error: " + JSON.stringify(err));
+            winston.error("PS Error: " + JSON.stringify(err));
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.PS.isConnected) {
@@ -66,7 +72,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         psSock.on('timeout', function(){
-            sendLog('PS Connection timeout.');
+            winston.warn('PS Connection timeout.');
             global.SERVER_INFO.PS.isConnected = false;
         });
     });
@@ -86,8 +92,8 @@ function close() {
  * @param {Buffer}} rcvData 
  */
 function readDataStream(rcvData){  
-    // console.log('\r\n++++++++++++++++++++++++++++++++++');
-    // console.log('PS rcvData:', rcvData);
+    // winston.info('\r\n++++++++++++++++++++++++++++++++++');
+    // winston.info('PS rcvData:', rcvData);
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
@@ -107,7 +113,7 @@ function readDataStream(rcvData){
     }
 
     rcvCommand.readCnt += rcvData.length;
-    // console.log('Recive PS Command Data :', rcvCommand);
+    // winston.info('Recive PS Command Data :', rcvCommand);
 
     if (rcvCommand.size <= rcvCommand.readCnt) {
         // 데이터를 모두 다 받았다.
@@ -117,7 +123,7 @@ function readDataStream(rcvData){
         global.PS_SEND_COMMAND = null;
 
         if (!receive_command(procCmd)) {
-            console.log('Revceive PS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            winston.info('Revceive PS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     }
 };
@@ -155,10 +161,9 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
         psSock.write(cmdBuf);
         global.PS_SEND_COMMAND = cmdHeader;
 
-        console.log("write PS Command : ", global.PS_SEND_COMMAND);
-        console.log('-------------------------- \r\n');
+        winston.info("write PS Command : ", global.PS_SEND_COMMAND);
     // } catch (exception) {
-    //     sendLog("write PS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
+    //     winston.info("write PS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }
  };
 

@@ -225,7 +225,7 @@ export async function moveToClickedChatRoom(request) {
 //         chatRoomWithMembers.push(chatRoomItem)
 //     })
 
-//     console.log('chatRoomWithMembers request: ', chatRoomWithMembers)
+//     winston.info('chatRoomWithMembers request: ', chatRoomWithMembers)
 
 //     return {
 //         type: GET_INITIAL_CHAT_ROOMS,

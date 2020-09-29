@@ -1,11 +1,13 @@
+const winston = require('../../winston');
+
 function callCallback (sendCmd, resData) {
     // Callback
     if (sendCmd && sendCmd.callback) {
-        //console.log('CallBack -- CMD:', command);  //JSON.stringify(command));
+        //winston.info('CallBack -- CMD:', command);  //JSON.stringify(command));
         sendCmd.callback(resData);
-        console.log('callback success! cmd:', sendCmd);
+        winston.info('callback success! cmd:', sendCmd);
     } else {
-        console.log('callback fail! cmd:', sendCmd);
+        winston.warn('callback fail! cmd:', sendCmd);
     }
 }
 

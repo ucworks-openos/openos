@@ -1,15 +1,16 @@
 
-const winston = require('../../winston')
+const winston = require('../../winston');
 
-const { callCallback } = require('./command-utils');
 const MsgNoti = require('../notification/messageNoti');
-const EncUtil = require('../utils/utils-crypto')
-const BufUtil = require('../utils/utils-buffer')
+const EncUtil = require('../utils/utils-crypto');
+const BufUtil = require('../utils/utils-buffer');
 
 const ResData = require('../ResData');
 const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
-const { getMultiple4Size, getMultiple4DiffSize } = require('../utils/utils-buffer');
+
+const { callCallback } = require('./command-utils');
+const { getMultiple4DiffSize } = require('../utils/utils-buffer');
 
 /**
  * 수신한 Command를 처리합니다. 
@@ -41,7 +42,7 @@ function receiveCmdProc(recvCmd) {
         {
           let rcvBuf = Buffer.from(recvCmd.data);
           let dataStr = rcvBuf.toString(global.ENC, 0);
-          winston.info('Response Command Receive Fail! : %s Data: %s', recvCmd.cmdCode, dataStr);
+          winston.warn('Response Command Receive Fail! : %s Data: %s', recvCmd.cmdCode, dataStr);
           callCallback(recvCmd.sendCmd, new ResData(false, 'Response Command Receive Fail! : ' + recvCmd.cmdCode));
           return false;
         }
@@ -202,7 +203,7 @@ function notifyCmdProc(recvCmd) {
       } else {
         let rcvBuf = Buffer.from(recvCmd.data);
         let dataStr = rcvBuf.toString(global.ENC, 0);
-        winston.info('Message Recive Fail!! Data:%s', dataStr);
+        winston.warn('Message Recive Fail!! Data:%s', dataStr);
       }
      
       break;
@@ -254,7 +255,7 @@ function notifyCmdProc(recvCmd) {
       } else {
         let rcvBuf = Buffer.from(recvCmd.data);
         let dataStr = rcvBuf.toString(global.ENC, 0);
-        winston.info('Message Recive Fail!! Data:%s', dataStr);
+        winston.warn('Message Recive Fail!! Data:%s', dataStr);
       }
       break;
      
@@ -277,7 +278,7 @@ function notifyCmdProc(recvCmd) {
       } else {
         let rcvBuf = Buffer.from(recvCmd.data);
         let dataStr = rcvBuf.toString(global.ENC, 0);
-        winston.info('NS_STATE_LIST Fail!! Data:%s', dataStr);
+        winston.warn('NS_STATE_LIST Fail!! Data:%s', dataStr);
       }
       break;
     
@@ -355,7 +356,7 @@ function notifyCmdProc(recvCmd) {
       let destId = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx);
       sInx += destIdSize;
 
-      winston.info('roomKey:' + roomKey
+      winston.debug('roomKey:' + roomKey
             + ', roomType:' + roomType
             + ', lineKey:' + lineKey
             + ', lineNumber:' + lineNumber

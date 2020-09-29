@@ -1,4 +1,4 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
+const winston = require('../../winston')
 
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
@@ -18,9 +18,9 @@ function close() {
  */
 function reqconnectCS () {
     csAPI.connectCS().then(function() {
-        sendLog('CS Connect Success!');
+        winston.info('CS Connect Success!');
     }).catch(function(err){
-        sendLog('CS Connect fale!' + JSON.stringify(err));
+        winston.error('CS Connect fale!' + JSON.stringify(err));
     })
 
 }
@@ -42,7 +42,7 @@ function reqCertifyCS(loginId, loginPass) {
                 cipherPwd = CryptoUtil.encryptRC4(global.ENCRYPT.pwdCryptKey, loginPass)
                 break;
             default:
-                sendLog('Unknown PWD Algorithm :' + global.ENCRYPT.pwdAlgorithm);
+                winston.error('Unknown PWD Algorithm :' + global.ENCRYPT.pwdAlgorithm);
                 break;
         }
 

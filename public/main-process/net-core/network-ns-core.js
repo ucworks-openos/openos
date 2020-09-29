@@ -1,10 +1,10 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
-const { receiveCmdProc } = require('../net-command/command-ns-res');
+const winston = require('../../winston');
 
 const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
 const CmdConst = require('../net-command/command-const');
 const CmdCodes = require('../net-command/command-code');
+const { receiveCmdProc } = require('../net-command/command-ns-res');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
 var nsSock;
@@ -24,13 +24,13 @@ function connect () {
         nsSock.destroy();
     }
     
-    sendLog("Conncect MAIN_NS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
+    winston.info("Conncect MAIN_NS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
 
     return new Promise(function(resolve, reject){
         var tcpSock = require('net');  
         var client  = new tcpSock.Socket;  
         nsSock = client.connect(global.SERVER_INFO.NS.port, global.SERVER_INFO.NS.pubip, function() {
-            sendLog("Conncect MAIN_NS Completed to " + JSON.stringify(global.SERVER_INFO.NS, null, 0))
+            winston.info("Conncect MAIN_NS Completed to " + JSON.stringify(global.SERVER_INFO.NS, null, 0))
             global.SERVER_INFO.NS.isConnected = true;
 
             startConnectionCheck()
@@ -45,7 +45,7 @@ function connect () {
     
         // 접속이 종료됬을때 메시지 출력
         nsSock.on('end', function(){
-            sendLog('NS Disconnected!');
+            winston.warn('NS Disconnected!');
             global.SERVER_INFO.NS.isConnected = false;
 
             // 연결이 종료되면 Connectin Check를 멈춘다.
@@ -53,12 +53,12 @@ function connect () {
         });
         // 
         nsSock.on('close', function(hadError){
-            sendLog("NS Close. hadError: " + hadError);
+            winston.warn("NS Close. hadError: " + hadError);
             global.SERVER_INFO.NS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         nsSock.on('error', function(err){
-            sendLog("NS Error: " + JSON.stringify(err));
+            winston.error("NS Error: " + JSON.stringify(err));
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.NS.isConnected) {
@@ -70,7 +70,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         nsSock.on('timeout', function(){
-            sendLog('NS Connection timeout.');
+            winston.warn('NS Connection timeout.');
             global.SERVER_INFO.NS.isConnected = false;
         });
     });
@@ -92,10 +92,10 @@ function close() {
 function readDataStream(rcvData){  
     let dataBuff = rcvData;
 
-    //console.log('\r\n++++++++++++++++++++++++++++++++++');
-    //console.log('NS rcvData:', rcvData.toString('hex', 0));
-    // sendLog('NS rcvData Str:', rcvData.toString('utf-8', 0))
-    // sendLog('NS rcvData Hex:', rcvData.toString('hex', 0))
+    //winston.info('\r\n++++++++++++++++++++++++++++++++++');
+    //winston.info('NS rcvData:', rcvData.toString('hex', 0));
+    // winston.info('NS rcvData Str:', rcvData.toString('utf-8', 0))
+    // winston.info('NS rcvData Hex:', rcvData.toString('hex', 0))
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
@@ -112,8 +112,8 @@ function readDataStream(rcvData){
     }
 
     // 받은 데이터가 전문의 길이 값보다 더크다면 다음 커맨드가 붙어왔을수 있다.
-     console.log('rcvCommand ----------------------', rcvCommand)
-     console.log('recvData : data Size  -----------------', rcvData.length , dataBuff.length)
+     winston.info('rcvCommand ----------------------', rcvCommand)
+     winston.info('recvData : data Size  -----------------', rcvData.length , dataBuff.length)
 
     // 기존데이터 + 받은 데이터 길이가 사이즈보다 넘는다면, 이후 커맨드까지 같이 받은것이다.
     if (rcvCommand.readCnt + dataBuff.length > rcvCommand.size) {
@@ -126,9 +126,9 @@ function readDataStream(rcvData){
         rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
         global.NS_SEND_COMMAND = null;
 
-        //console.log(' >> Recived NS Command Data more :', procCmd);
+        //winston.info(' >> Recived NS Command Data more :', procCmd);
         if (!receiveCmdProc(procCmd)) {
-            console.log('Revceive NS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            winston.info('Revceive NS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
 
         // 새로 전문을 받는다.
@@ -140,21 +140,21 @@ function readDataStream(rcvData){
         rcvCommand.readCnt += dataBuff.length;
     }    
         
-    //console.log('rcvCommand.readCnt : Command.Size : rcvCommand.readCnt  -----------------', rcvData.length , dataBuff.length, rcvCommand.readCnt)
+    //winston.info('rcvCommand.readCnt : Command.Size : rcvCommand.readCnt  -----------------', rcvData.length , dataBuff.length, rcvCommand.readCnt)
     if (rcvCommand.size <= rcvCommand.readCnt) {
         // 데이터를 모두 다 받았다.
         var procCmd = rcvCommand;
         rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
         global.NS_SEND_COMMAND = null;
 
-        //console.log(' >> Recived NS Command Data :', procCmd);
+        //winston.info(' >> Recived NS Command Data :', procCmd);
         if (!receiveCmdProc(procCmd)) {
-            sendLog('Revceive NS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            winston.info('Revceive NS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     } else {
-        // console.log('\r\n >> Reading data ..........................');
-        // console.log('NS rcvData:', rcvData);
-        // console.log('NS rcvData toStr:', rcvData.toString('utf-8', 0));
+        // winston.info('\r\n >> Reading data ..........................');
+        // winston.info('NS rcvData:', rcvData);
+        // winston.info('NS rcvData toStr:', rcvData.toString('utf-8', 0));
     }
 };
 
@@ -195,10 +195,9 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
         cmdHeader = null;
         if (resetConnCheck) startConnectionCheck();
         
-        console.log("write NS Command ------ CMD ", JSON.stringify(global.NS_SEND_COMMAND));
-        console.log('-------------------------- \r\n');
+        winston.info("write NS Command ------ CMD ", JSON.stringify(global.NS_SEND_COMMAND));
     // } catch (exception) {
-    //     sendLog("write NS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
+    //     winston.info("write NS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }
  };
 
@@ -217,7 +216,7 @@ function startConnectionCheck() {
         }
     }, CmdConst.SESSION_CHECK_INTERVAL);
 
-    sendLog('STATR_NS_CONNECTION_CHECK.')
+    winston.info('STATR_NS_CONNECTION_CHECK.')
 }
 
 

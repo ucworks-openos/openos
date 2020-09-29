@@ -1,10 +1,11 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
-const { callCallback } = require('./command-utils');
-const { parseXmlToJSON } = require('../utils/utils-xmlParser')
+const winston = require('../../winston')
 const ResData = require('../ResData');
 
 var CmdCodes = require('./command-code');
 var CmdConst = require('./command-const');
+
+const { callCallback } = require('./command-utils');
+const { parseXmlToJSON } = require('../utils/utils-xmlParser')
 const { getMultiple4Size } = require('../utils/utils-buffer');
 const { parseRuleInfo } = require('../configuration/envi-config');
 
@@ -15,11 +16,11 @@ const { parseRuleInfo } = require('../configuration/envi-config');
  */
 function responseCmdProc(resCmd) {
   if (!resCmd.sendCmd) {
-    sendLog('Reqeust Command Empty! -  CMD: ' + resCmd.cmdCode);
+    winston.warn('Reqeust Command Empty! -  CMD: ' + resCmd.cmdCode);
     return;
   }
 
-  sendLog('DS Response -  RES_CMD: ' + resCmd.cmdCode);
+  winston.info('DS Response -  RES_CMD: ' + resCmd.cmdCode);
 
   // 요청커맨드로 처리되는 방식과 받은 Command로 처리되는 방식으로 나눈다.
 
@@ -28,7 +29,7 @@ function responseCmdProc(resCmd) {
 
       if (resCmd.cmdCode == CmdCodes.DS_SUCCESS) {
         var serverInfoXml = resCmd.data.toString(global.ENC, 4);
-        console.log('ServerInfo: ', serverInfoXml);
+        winston.debug('ServerInfo: ', serverInfoXml);
 
         parseXmlToJSON(serverInfoXml).then(function (result) {
 
@@ -46,15 +47,15 @@ function responseCmdProc(resCmd) {
 
           callCallback(resCmd.sendCmd, new ResData(true));
         }).catch(function (err) {
-          sendLog('ServerInfo parse error!  Ex: ' + err);
+          winston.error('ServerInfo parse error!  Ex: ' + err);
           callCallback(resCmd.sendCmd, new ResData(false, JSON.stringify(err)));
         });
 
-        sendLog('ServerInfo: ' + JSON.stringify(global.SERVER_INFO));
-        sendLog('authMethod: ' + global.USER.authMethod);
+        winston.info('ServerInfo: ' + JSON.stringify(global.SERVER_INFO));
+        winston.info('authMethod: ' + global.USER.authMethod);
       } else {
         callCallback(resCmd.sendCmd, new ResData(false));
-        sendLog('DS_GET_SERVER_INFO  Response Fail! -  ', resCmd.cmdCode);
+        winston.warn('DS_GET_SERVER_INFO  Response Fail! -  ', resCmd.cmdCode);
       }
 
       break;
@@ -86,13 +87,13 @@ function responseCmdProc(resCmd) {
           let ruleXml = rcvBuf.toString(global.ENC, sInx).trim();
           let resData = parseRuleInfo(ruleXml);
 
-          console.log('get rule `````````````', resData);
+          winston.info('get rule :', resData);
 
           callCallback(resCmd.sendCmd, resData);
           break;
 
         case CmdCodes.DS_NO_USERID:
-          sendLog('GET_RULE RES: DS_NO_USERID');
+          winston.warn('GET_RULE RES: DS_NO_USERID');
           callCallback(resCmd.sendCmd, new ResData(false, 'DS_NO_USERID'));
           break;
       }
@@ -103,7 +104,7 @@ function responseCmdProc(resCmd) {
         if (resCmd.data) {
           const rcvBuf = Buffer.from(resCmd.data);
           var serverInfoXml = rcvBuf.toString('utf-8', 4);
-          sendLog('ServerInfo: ' + serverInfoXml);
+          winston.debug('ServerInfo: ' + serverInfoXml);
 
           parseXmlToJSON(serverInfoXml).then(function (result) {
 
@@ -112,26 +113,27 @@ function responseCmdProc(resCmd) {
             // 버전이 동일하다면 로그인시 서버정보를 다시 받아오기 때문에 의미없고
             // 업그레이드시 대상 서버를 확인하기 위해 정보를 적용한다.
             if (global.SITE_CONFIG.client_version != check_version) {
-              sendLog("CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version);
+              winston.info("CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version);
             }
 
             callCallback(resCmd.sendCmd, new ResData(true, "CLIENT UPDTE REQUIRED!! CHECK VERSION:" + check_version));
           }).catch(function (err) {
+            winston.error("CLIENT UPDTE REQUIRED!! ERROR", err);
             callCallback(resCmd.sendCmd, new ResData(false, JSON.stringify(err)));
           });
         }
       } else {
-        sendLog('DS_UPGRADE_CHECK  Response Fail! -  ', resCmd.cmdCode);
+        winston.warn('DS_UPGRADE_CHECK  Response Fail! -  ', resCmd.cmdCode);
         callCallback(resCmd.sendCmd, new ResData(false, 'DS_UPGRADE_CHECK  Response Fail! :' + resCmd.cmdCode))
       }
       break;
 
     case CmdCodes.DS_HANDSHAKE:
-      console.log('DS_HANDSHAKE data :', resCmd.data)
+      winston.debug('DS_HANDSHAKE data :', resCmd.data)
       if (resCmd.data) {
 
         global.USER.userId = resCmd.data.toString(global.ENC, 0, CmdConst.BUF_LEN_USERID).trim(),
-          sendLog('DS_HANDSHAKE USERID :' + global.USER.userId);
+          winston.info('DS_HANDSHAKE USERID :' + global.USER.userId);
         global.CERT = {
           pukCertKey: resCmd.data.toString(global.ENC, CmdConst.BUF_LEN_USERID, CmdConst.BUF_LEN_PUKCERTKEY).trim(),
           challenge: resCmd.data.toString(global.ENC, CmdConst.BUF_LEN_USERID + CmdConst.BUF_LEN_PUKCERTKEY, CmdConst.BUF_LEN_CHALLENGE).trim(),
@@ -139,8 +141,6 @@ function responseCmdProc(resCmd) {
         }
 
         callCallback(resCmd.sendCmd, new ResData(true));
-        //console.log('DS_HANDSHAKE :', handShakeRes)
-        sendLog('DS_HANDSHAKE CERT :' + JSON.stringify(global.CERT));
       } else {
         callCallback(resCmd.sendCmd, new ResData(false, 'Response Data Empty!'));
       }
@@ -150,7 +150,7 @@ function responseCmdProc(resCmd) {
       switch (resCmd.cmdCode) {
         case CmdCodes.DS_GET_BUDDY_DATA_OK:
           // ?? 그냥 끝낸다.
-          sendLog('DS_GET_BUDDY_DATA_OK!!');
+          winston.info('DS_GET_BUDDY_DATA_OK!!');
           callCallback(resCmd.sendCmd, new ResData(false, 'res:DS_GET_BUDDY_DATA_OK'));
           break;
 
@@ -161,22 +161,20 @@ function responseCmdProc(resCmd) {
           let userName = rcvBuf.toString(global.ENC, 0, CmdConst.BUF_LEN_USERID);
           let buddyDataXml = rcvBuf.toString(global.ENC, CmdConst.BUF_LEN_USERID);
 
-          sendLog('buddyDataXml', buddyDataXml)
+          winston.debug('buddyDataXml', buddyDataXml)
           global.TEMP.buddyXml = buddyDataXml;
 
           parseXmlToJSON(buddyDataXml).then(function (result) {
-            console.log('Buddy Data Parse Success!:', result);
-            sendLog('Buddy Data Receive:' + result);
             callCallback(resCmd.sendCmd, new ResData(true, result));
           }).catch(function (err) {
-            sendLog('Buddy parse error!  Ex: ', err, buddyDataXml);
+            winston.error('Buddy parse error!  Ex: ', err, buddyDataXml);
             callCallback(resCmd.sendCmd, new ResData(false, 'Buddy parse error!  Ex: ' + JSON.stringify(err)));
           });
 
           break;
 
         default:
-          console.log('Unknown Response Code!  Cmd: ', resCmd);
+          winston.warn('Unknown Response Code!  Cmd: ', resCmd);
           callCallback(resCmd.sendCmd, new ResData(false, 'Unknown Response Code!  Cmd: ' + resCmd.cmdCode));
           break;
       }
@@ -187,7 +185,7 @@ function responseCmdProc(resCmd) {
         let rcvBuf = Buffer.from(resCmd.data);
         let dataStr = rcvBuf.toString(global.ENC, 0);
 
-        sendLog('Unknown Send Command Response Receive! ReqCmd: ' + resCmd.sendCmd.cmdCode + ' ResCmd:' + resCmd.cmdCode); // + ' Data:' + dataStr);
+        winston.warn('Unknown Send Command Response Receive! ReqCmd: ' + resCmd.sendCmd.cmdCode + ' ResCmd:' + resCmd.cmdCode); // + ' Data:' + dataStr);
       }
       return false;
       break;

@@ -8,7 +8,7 @@ function RightPanel() {
 
     const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(false);
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
-    // console.log('currentChatRoom', currentChatRoom)
+    // winston.info('currentChatRoom', currentChatRoom)
     const clickHamburgerButton = () => {
         setIsHamburgerButtonClicked(!isHamburgerButtonClicked);
     };

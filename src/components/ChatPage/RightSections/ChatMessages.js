@@ -48,7 +48,7 @@ function ChatMessages() {
     //     for (let index = 0; index < chatMessages.length; index++) {
     //         const element = chatMessages[index];
     //         // let userInfoResult = await getUserInfos([element.chat_send_id])
-    //         // console.log('userInfoResult.data.items', userInfoResult)
+    //         // winston.info('userInfoResult.data.items', userInfoResult)
     //         // element.userInfo = userInfoResult.data.items !== undefined ? userInfoResult.data.items.node_item : userInfoResult
     //         newChatMessages.push(element)
     //     }
@@ -57,7 +57,7 @@ function ChatMessages() {
 
     const renderChatMessages = () => (
         chatMessages && chatMessages.map((chat, index) => {
-            // console.log('chat', chat)
+            // winston.info('chat', chat)
             if (chat.chat_send_id === `${sessionStorage.getItem("loginId")}`) {
                 return (
                     <div key={index} className="speech-row speech-my">

@@ -5,7 +5,6 @@ const { reqConnectDS, reqUpgradeCheckDS, } = require('../net-command/command-ds-
 const { reqGetCondition } = require('../net-command/command-ps-api');
 const FetchAPI = require('../net-command/command-fetch-api');
 
-const { sendLog } = require('./ipc-cmd-sender');
 const ResData = require('../ResData');
 const CryptoUtil = require('../utils/utils-crypto');
 const OsUtil = require('../utils/utils-os');
@@ -24,7 +23,7 @@ const winston = require('../../winston')
 // testAction
 ipcMain.on('testAction', async (event, ...args) => {
   var resData = new ResData(true, '');
-  sendLog('testAction', args);
+  winston.info('testAction', args);
 
   let t1 = new funcTest('1', '1-1');
   let t2 = new funcTest('2', '2-2');
@@ -36,7 +35,7 @@ ipcMain.on('testAction', async (event, ...args) => {
 
   
   let fuc = function (Hello) {
-    console.log(Hello, tmp);
+    winston.info(Hello, tmp);
   };
   
   fuc('Hello')
@@ -48,7 +47,7 @@ ipcMain.on('testAction', async (event, ...args) => {
   let cmd = new CommandHeader(7000, 40, null);
   cmd.setName('Hello');
 
-  sendLog('--------------------------------', JSON.stringify(cmd));
+  winston.info('--------------------------------', JSON.stringify(cmd));
 
   return;
 
@@ -56,12 +55,12 @@ ipcMain.on('testAction', async (event, ...args) => {
   let testBuf = Buffer.from('안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요', 'utf8');
 
   let encKey = CryptoUtil.randomPassword(4);
-  console.log('BUF_ENC', testBuf)
+  winston.info('BUF_ENC', testBuf)
   let encBuf = CryptoUtil.encryptBufferRC4(encKey, testBuf);
-  console.log('BUF_ENC ENCRYPTO', encBuf)
+  winston.info('BUF_ENC ENCRYPTO', encBuf)
   let decBuf = CryptoUtil.decryptBufferRC4(encKey, encBuf);
-  console.log('BUF_ENC DECRYPTO', decBuf)
-  console.log('BUF_ENC', decBuf.toString('utf8'));
+  winston.info('BUF_ENC DECRYPTO', decBuf)
+  winston.info('BUF_ENC', decBuf.toString('utf8'));
 
 
 
@@ -77,7 +76,7 @@ ipcMain.on('testAction', async (event, ...args) => {
     defaultId: 0,
     cancelId: 1
   })
-  console.log('question', choice)
+  winston.info('question', choice)
   */
 
   await app.whenReady();
@@ -100,11 +99,11 @@ ipcMain.on('testAction', async (event, ...args) => {
       }
     }
 
-    console.log('disp', disp)
-    console.log('x y ++', x, y)
+    winston.info('disp', disp)
+    winston.info('x y ++', x, y)
   })
 
-  console.log('x y', x, y)
+  winston.info('x y', x, y)
 
   let win = new BrowserWindow({
     //title: '알림테스트',
@@ -124,10 +123,10 @@ ipcMain.on('testAction', async (event, ...args) => {
   win.webContents.openDevTools();
 
   let notifyFile = `file://${__dirname}/notify.html`;
-  console.log(`>>>>>>>>>>>  `, notifyFile);
+  winston.info(`>>>>>>>>>>>  `, notifyFile);
   win.webContents.on('did-finish-load', () => {
     
-    console.log(`>>>>>>>>>>>   LOAD COMPLETED!`);
+    winston.info(`>>>>>>>>>>>   LOAD COMPLETED!`);
     win.webContents.executeJavaScript(`
         document.getElementById("title").innerHTML += 'HELLO'
         document.getElementById("msg").innerHTML += 'FIGHTING!'
@@ -136,7 +135,7 @@ ipcMain.on('testAction', async (event, ...args) => {
   win.loadURL(notifyFile)
 
   // setTimeout(()=> {
-  //   console.log('>>>>>  notify')
+  //   winston.info('>>>>>  notify')
   // win.webContents.send('notify', "Hello w");
   // }, 1000);
   
@@ -148,7 +147,7 @@ ipcMain.on('testAction', async (event, ...args) => {
   
   return;
 
-  sendLog('DATE>>', OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS));
+  winston.info('DATE>>', OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS));
 
   //nsAPI.reqGetStatus(1, 'bslee');
   //return;
@@ -199,10 +198,10 @@ ipcMain.on('testAction', async (event, ...args) => {
 
 
   // let pwd4 = CryptoUtil.randomPassword(4);
-  // sendLog('Random Pwd 4', pwd4.length, pwd4);
+  // winston.info('Random Pwd 4', pwd4.length, pwd4);
 
   // let pwd32 = CryptoUtil.randomPassword(32);
-  // sendLog('Random Pwd 32', pwd32.length, pwd32);
+  // winston.info('Random Pwd 32', pwd32.length, pwd32);
 
   /////////////////////////////
   // RC4
@@ -211,10 +210,10 @@ ipcMain.on('testAction', async (event, ...args) => {
   let txt = '김영대1234567890'
 
   let encTxt = CryptoUtil.encryptRC4(key, txt)
-  sendLog('ENC: ' + encTxt);
+  winston.info('ENC: ' + encTxt);
 
   let decTxt = CryptoUtil.decryptRC4(key, encTxt);
-  sendLog('DES: ' + decTxt);
+  winston.info('DES: ' + decTxt);
 
   resolve(new ResData(true, decTxt));
   
@@ -224,16 +223,16 @@ ipcMain.on('testAction', async (event, ...args) => {
   let txt = 'This is just an example 홍길동 12345'
 
   let encTxt = CryptoUtil.encryptAES256(key, txt)
-  sendLog('ENC: ' + encTxt);
+  winston.info('ENC: ' + encTxt);
 
   let decTxt = CryptoUtil.decryptAES256(key, encTxt);
-  sendLog('DES: ' + decTxt);
+  winston.info('DES: ' + decTxt);
 
   resolve(new ResData(true, 'Call Success!'));
   */
 
 
-  console.log('testFunction res:', resData)
+  winston.info('testFunction res:', resData)
   event.reply('res-testAction', resData);
 });
 
@@ -241,10 +240,10 @@ ipcMain.on('testAction', async (event, ...args) => {
 ipcMain.on('connectDS', async (event, ...args) => {
 
   reqConnectDS().then(function (resData) {
-    console.log('DS CONNECTIN SUCCESS! res:', resData)
+    winston.info('DS CONNECTIN SUCCESS! res:', resData)
     event.reply('res-connectDS', resData);
   }).catch(function (err) {
-    console.log('DS CONNECTIN FAIL!', err)
+    winston.info('DS CONNECTIN FAIL!', err)
     event.reply('res-connectDS', new ResData(false, err));
   });
 
@@ -254,7 +253,7 @@ ipcMain.on('connectDS', async (event, ...args) => {
 ipcMain.on('upgradeCheck', async (event, ...args) => {
 
   reqUpgradeCheckDS(function (resData) {
-    console.log('upgradeCheck res:', resData)
+    winston.info('upgradeCheck res:', resData)
     event.reply('res-upgradeCheck', resData);
   });
 

@@ -62,14 +62,12 @@ ipcMain.on('login', async (event, loginData) => {
 // logout
 ipcMain.on('logout', async (event, ...args) => {
   
-  winston.debug('``````````````````````````logout')
-
   nsAPI.close();
   dsAPI.close();
   csAPI.close();
   psAPI.close();
 
-  winston.debug('``````````````````````````logout completed!')
+  winston.debug('logout completed!')
 
   event.reply('res-logout', new ResData(true));
 });
