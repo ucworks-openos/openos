@@ -356,7 +356,7 @@ function reqSaveBuddyData(buddyData) {
             return;
         }
 
-        if (!userIds) {
+        if (!buddyData) {
             reject(new Error('Empty Target!'));
             return;
         }

@@ -123,3 +123,12 @@ export const setStatusMonitor = async (userIds) => {
     electron.ipcRenderer.send("setStatusMonitor", userIds);
   });
 };
+
+export const saveBuddyData = async (xml) => {
+  return new Promise((resolve, reject) => {
+    electron.ipcRenderer.on(`res-saveBuddyData`, (event, arg) => {
+      resolve(arg);
+    });
+    electron.ipcRenderer.send(`saveBuddyData`, xml);
+  });
+};

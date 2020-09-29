@@ -54,7 +54,6 @@ export default function AddGroupModal(props: TaddGroupModal) {
   ): Promise<{ v: TTreeNode; i: number; list: TTreeNode[] }> =>
     new Promise((resolve) => {
       for (let i = 0; i < list.length; i++) {
-        console.log(`list[i].key: ${list[i].key} vs key: ${key}`);
         if (list[i].key === key) {
           resolve({ v: list[i], i: i, list: list });
         }

@@ -13,6 +13,7 @@ import {
   setStatusMonitor,
   getUserInfos,
   searchOrgUsers,
+  saveBuddyData,
 } from "../ipcCommunication/ipcCommon";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
@@ -23,6 +24,9 @@ import MessageInputModal from "../../common/components/Modal/MessageInputModal";
 import tree from "../../reducer/tree";
 import moment from "moment";
 import ModifyGroupModal from "../../common/components/Modal/ModifyGroupModal";
+import xml2js from "xml2js";
+import { flattenDiagnosticMessageText } from "typescript";
+import { ConsoleTransportOptions } from "winston/lib/winston/transports";
 
 type TgetBuddyTreeReturnTypes = {
   buddyTree: TTreeNode[];
@@ -99,6 +103,41 @@ export default function FavoritePage() {
 
   // ANCHOR effect
   useEffect(() => {
+    const initiate = () => {
+      const flatten = spread(treeData, []);
+
+      if (flatten.length < 2) return false;
+
+      console.log(flatten);
+
+      const processed = flatten.map((v: TTreeNode) => ({
+        gubun: v.gubun,
+        id:
+          v.gubun === EnodeGubun.GROUP
+            ? v.key
+            : v.key.slice(0, v.key.lastIndexOf(`_`)),
+        level: 0,
+        name: v.title,
+        pid: v.pid,
+      }));
+
+      const requestBody = {
+        contacts: {
+          name: "",
+          type: "P",
+          node: processed,
+        },
+      };
+
+      console.log(`request body: `, requestBody);
+
+      const xml = new xml2js.Builder().buildObject(requestBody);
+      saveBuddyData(xml);
+    };
+    initiate();
+  }, [treeData]);
+
+  useEffect(() => {
     if (!rightClickedKey) {
       setFinalSelectedKeys([]);
       return;
@@ -137,6 +176,7 @@ export default function FavoritePage() {
           contacts: { node: responseMaybeArr },
         },
       } = await getBuddyList();
+
       const response = arrayLike(responseMaybeArr);
       // 친구 id만 추출
       const userIds = response
@@ -501,7 +541,7 @@ export default function FavoritePage() {
           // gubun: U (User)
           // userSchema에서 검색하여 상세 정보를 userV에 담는다.
           const userV = userSchema?.find(
-            (v: any) => v.user_id.value === child.id
+            (v: any) => v.user_id?.value === child?.id
           );
           return {
             ...v,

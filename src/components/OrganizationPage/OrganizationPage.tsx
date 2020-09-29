@@ -19,12 +19,17 @@ import { EconnectType, Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/Modal/MessageInputModal";
 import AddToFavoriteModal from "../../common/components/Modal/AddToFavoriteModal";
+import moment from "moment";
+import { useDispatch } from "react-redux";
+import { addChatRoom } from "../../redux/actions/chat_actions";
+import { useHistory } from "react-router-dom";
 
 let _orgCode: string = ``;
 
 export default function OrganizationPage() {
   // ANCHOR state
-
+  const history = useHistory();
+  const dispatch = useDispatch();
   const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
     type: `organization`,
   });
@@ -191,6 +196,22 @@ export default function OrganizationPage() {
   }, []);
 
   // ANCHOR handler
+  const handleChat = () => {
+    const chatRoomBody = {
+      selected_users: finalSelectedKeys,
+      user_counts: finalSelectedKeys.length,
+      chat_entry_ids: finalSelectedKeys.join(`|`),
+      unread_count: 0,
+      chat_content: "",
+      chat_send_name: sessionStorage.getItem(`loginName`),
+      create_room_date: moment().format("YYYYMMDDHHmm"),
+      chat_send_id: sessionStorage.getItem(`loginId`),
+    };
+
+    dispatch(addChatRoom(chatRoomBody));
+    history.push(`/chat`);
+  };
+
   const handleExpand = (expandedKeys: (string | number)[]): void => {
     setExpandedKeys(expandedKeys);
   };
@@ -670,7 +691,7 @@ export default function OrganizationPage() {
             >
               쪽지 보내기
             </ul>
-            <ul>채팅 시작</ul>
+            <ul onClick={handleChat}>채팅 시작</ul>
           </li>
         </div>
       </ContextMenu>
