@@ -1,5 +1,4 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
-
+const winston = require('../../winston');
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
@@ -19,9 +18,9 @@ function close() {
  */
 function reqConnectDS () {
     return dsCore.connectDS().then(function() {
-        sendLog('DS Connect Success!');
+        winston.info('DS Connect Success!');
     }).catch(function(err){
-        sendLog('DS Connect fale!' + JSON.stringify(err));
+        winston.error('DS Connect fale!' + JSON.stringify(err));
     })
 }
 
@@ -51,7 +50,7 @@ function reqLogin (loginData) {
             reject(new Error(JSON.stringify(resData)));
             return;
         }
-        sendLog('LOG IN STEP 1 --- GetServerInfo COMPLETED!' + JSON.stringify(resData));
+        winston.debug('LOG IN STEP 1 --- GetServerInfo COMPLETED!' + JSON.stringify(resData));
 
         // GetUserRules
         resData = await reqGetUserRules(loginData.loginId, loginData.loginPwd);
@@ -59,7 +58,7 @@ function reqLogin (loginData) {
             reject(new Error(JSON.stringify(resData)));
             return;
         }
-        sendLog('LOG IN STEP 2 --- GetUserRules COMPLETED!' + JSON.stringify(resData));
+        winston.debug('LOG IN STEP 2 --- GetUserRules COMPLETED!' + JSON.stringify(resData));
 
         // HandshackDS
         resData = await reqHandshackDS(loginData.loginId);
@@ -67,7 +66,7 @@ function reqLogin (loginData) {
             reject(new Error(JSON.stringify(resData)));
             return;
         }
-        sendLog('LOG IN STEP 3 --- HandshackDS COMPLETED!' + JSON.stringify(resData));
+        winston.debug('LOG IN STEP 3 --- HandshackDS COMPLETED!' + JSON.stringify(resData));
 
         // SetSessionDS
         resData = await reqSetSessionDS(loginData.loginId);
@@ -75,7 +74,7 @@ function reqLogin (loginData) {
             reject(new Error(JSON.stringify(resData)));
             return;
         }
-        sendLog('LOG IN STEP 4 --- SetSessionDS COMPLETED!' + JSON.stringify(resData));
+        winston.debug('LOG IN STEP 4 --- SetSessionDS COMPLETED!' + JSON.stringify(resData));
 
         // 마지막 인증까지 완료되었다면 저장한다. 
         global.USER.userId = loginData.loginId;
@@ -169,7 +168,6 @@ async function reqGetUserRules(userId, userPwd) {
         passBuf.write(userPwd, global.ENC);
 
         let localInfo = OsUtil.getIpAddress() + CmdConst.SEP_PIPE + OsUtil.getMacAddress();
-        console.log('-------  MAC ADDRESS', localInfo)
 
         //FC_local_ip + SEP + FC_local_mac_addr
         connIpBuf.write(localInfo, global.ENC);

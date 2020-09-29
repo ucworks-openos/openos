@@ -1,10 +1,10 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
-const { fetchResProc } = require('../net-command/command-fetch-res');
+const winston = require('../../winston');
 
 const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
 const CmdConst = require('../net-command/command-const');
 const CmdCodes = require('../net-command/command-code');
+const { fetchResProc } = require('../net-command/command-fetch-res');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
 
@@ -26,13 +26,13 @@ function connect () {
         fetchSock.destroy();
     }
     
-    sendLog("Conncect FETCH to " + JSON.stringify(global.SITE_CONFIG.FETCH, null, 0))
+    winston.info("Conncect FETCH to " + JSON.stringify(global.SITE_CONFIG.FETCH, null, 0))
 
     return new Promise(function(resolve, reject){
         var tcpSock = require('net');  
         var client  = new tcpSock.Socket;  
         fetchSock = client.connect(global.SERVER_INFO.FETCH.port, global.SERVER_INFO.FETCH.pubip, function() {
-            sendLog("Conncect FETCH Completed to " + JSON.stringify(global.SERVER_INFO.FETCH, null, 0))
+            winston.info("Conncect FETCH Completed to " + JSON.stringify(global.SERVER_INFO.FETCH, null, 0))
             global.SERVER_INFO.FETCH.isConnected = true;
     
             resolve(new ResData(true));
@@ -45,17 +45,17 @@ function connect () {
     
         // 접속이 종료됬을때 메시지 출력
         fetchSock.on('end', function(){
-            sendLog('FETCH Disconnected!');
+            winston.warn('FETCH Disconnected!');
             global.SERVER_INFO.FETCH.isConnected = false;
         });
         // 
         fetchSock.on('close', function(hadError){
-            sendLog("FETCH Close. hadError: " + hadError);
+            winston.warn("FETCH Close. hadError: " + hadError);
             global.SERVER_INFO.FETCH.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         fetchSock.on('error', function(err){
-            sendLog("FETCH Error: " + JSON.stringify(err));
+            winston.error("FETCH Error: " + JSON.stringify(err));
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.FETCH.isConnected) {
@@ -66,7 +66,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         fetchSock.on('timeout', function(){
-            sendLog('FETCH Connection timeout.');
+            winston.warn('FETCH Connection timeout.');
             global.SERVER_INFO.FETCH.isConnected = false;
         });
     });
@@ -86,8 +86,8 @@ function close() {
  * @param {Buffer}} rcvData 
  */
 function readDataStream(rcvData){  
-    // console.log('\r\n++++++++++++++++++++++++++++++++++');
-    // console.log('FETCH rcvData:', rcvData);
+    // winston.info('\r\n++++++++++++++++++++++++++++++++++');
+    // winston.info('FETCH rcvData:', rcvData);
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
@@ -107,7 +107,7 @@ function readDataStream(rcvData){
     }
 
     rcvCommand.readCnt += rcvData.length;
-    // console.log('Recive FETCH Command Data :', rcvCommand);
+    // winston.info('Recive FETCH Command Data :', rcvCommand);
 
     if (rcvCommand.size <= rcvCommand.readCnt) {
         // 데이터를 모두 다 받았다.
@@ -117,7 +117,7 @@ function readDataStream(rcvData){
         global.FETCH_SEND_COMMAND = null;
 
         if (!fetchResProc(procCmd)) {
-            console.log('Revceive FETCH Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            winston.info('Revceive FETCH Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     }
 };
@@ -155,10 +155,9 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
         fetchSock.write(cmdBuf);
         global.FETCH_SEND_COMMAND = cmdHeader;
 
-        console.log("write FETCH Command : ", global.FETCH_SEND_COMMAND);
-        console.log('-------------------------- \r\n');
+        winston.info("write FETCH Command : ", global.FETCH_SEND_COMMAND);
     // } catch (exception) {
-    //     sendLog("write FETCH Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
+    //     winston.info("write FETCH Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }
  };
 

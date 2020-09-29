@@ -1,6 +1,4 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
-const { callCallback } = require('./command-utils');
-const { parseXmlToJSON } = require('../utils/utils-xmlParser')
+const winston = require('../../winston');
 const BufUtil = require('../utils/utils-buffer')
 
 const ResData = require('../ResData');
@@ -8,6 +6,8 @@ const ResData = require('../ResData');
 var CmdCodes = require('./command-code');
 var CmdConst = require('./command-const');
 
+const { callCallback } = require('./command-utils');
+const { parseXmlToJSON } = require('../utils/utils-xmlParser')
 
 /**
  * 수신한 Command를 처리합니다. 
@@ -15,12 +15,12 @@ var CmdConst = require('./command-const');
  */
 function responseCmdProc(recvCmd) {
   if (!recvCmd.sendCmd) {
-    sendLog('FETCH Request Command Empty! -  CMD: ' + recvCmd.cmdCode);
+    winston.warn('FETCH Request Command Empty! -  CMD: ' + recvCmd.cmdCode);
     return;
   }
 
-  sendLog('FETCH Response -  RES_CMD: ' + recvCmd.cmdCode);
-  console.log('RESCMD-', recvCmd)
+  winston.info('FETCH Response -  RES_CMD: ' + recvCmd.cmdCode);
+  winston.debug('RESCMD-', recvCmd)
 
   // 요청커맨드로 처리되는 방식과 받은 Command로 처리되는 방식으로 나눈다.
   
@@ -54,11 +54,11 @@ function responseCmdProc(recvCmd) {
         let result = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx); // 그냥 남은거 다 받는다.
         sInx += resultSize;
 
-        console.log('FETCH_SQL_REQUEST  xml ', result)
+        winston.debug('FETCH_SQL_REQUEST  xml ', result)
         parseXmlToJSON(result).then(function(jsonData) {
           callCallback(recvCmd.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {
-          console.log('FETCH_SQL_REQUEST  xml parse Error! str:', result, err)
+          winston.error('FETCH_SQL_REQUEST  xml parse Error! str:', result, err)
           callCallback(recvCmd.sendCmd, new ResData(false, 'FETCH_SQL_REQUEST xml parse Error! ex:' + JSON.stringify(err)));
         });
 
@@ -72,7 +72,7 @@ function responseCmdProc(recvCmd) {
       let rcvBuf = Buffer.from(recvCmd.data);
       let dataStr = rcvBuf.toString('utf-8', 0);
       
-      sendLog('Unknown Response Command Receive!!! : ' + recvCmd.cmdCode + ' Data:' + dataStr);
+      winston.error('Unknown Response Command Receive!!! : ' + recvCmd.cmdCode + ' Data:' + dataStr);
     }
     return false;
   }

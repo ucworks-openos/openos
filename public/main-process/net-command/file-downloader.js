@@ -1,7 +1,5 @@
-const { sendLog, send } = require('../ipc/ipc-cmd-sender');
+const winston = require('../../winston');
 const fs = require('fs');
-
-const winston = require('../../winston')
 
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
@@ -11,6 +9,7 @@ const BufUtil = require('../utils/utils-buffer')
 
 const ResData = require('../ResData');
 
+const { send } = require('../ipc/ipc-cmd-sender');
 const { createSock } = require('../utils/utils-net');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
@@ -84,7 +83,6 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
             sndCommand = cmdHeader
         
             winston.debug("File Download Command Send: %s", sndCommand);
-            winston.debug('-------------------------- \r\n');
         };
 
         // 받은 데이터 처리
@@ -353,7 +351,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
         fsSock.on('error', function(err){
             if (HandleOnClose) HandleOnClose(err);
             
-            winston.warn("File Download error.  %s", err);
+            winston.error("File Download error.  %s", err);
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             isConnected = false;
         });

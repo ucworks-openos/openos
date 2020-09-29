@@ -1,8 +1,6 @@
-
-var crypto = require('crypto');
-
+const winston = require('../../winston');
+const crypto = require('crypto');
 const CmdConst = require('../net-command/command-const');
-const { sendLog } = require('../ipc/ipc-cmd-sender');
 
 /**
  * 지정된 길이의 임의 비밀번호를 발생합니다.
@@ -33,8 +31,8 @@ function encryptRC4(key, text) {
         var cipher = crypto.createCipheriv('rc4', keyHash,'');
         return cipher.update(text, 'utf8', 'hex');
     } catch (err) {
-        console.log('encryptRC4 Err! ', key, text, err);
-        sendLog('encryptRC4 Ex', err);
+        winston.info('encryptRC4 Err! ', key, text, err);
+        winston.info('encryptRC4 Ex', err);
     }
     
     return '';
@@ -46,8 +44,8 @@ function encryptBufferRC4(key, buf) {
         var cipher = crypto.createCipheriv('rc4', keyHash,'');
         return Buffer.concat([cipher.update(buf),cipher.final()]);
     } catch (err) {
-        console.log('encryptRC4 Err! ', key, buf, err);
-        sendLog('encryptRC4 Ex', err);
+        winston.info('encryptRC4 Err! ', key, buf, err);
+        winston.info('encryptRC4 Ex', err);
     }
 }
 
@@ -58,7 +56,7 @@ function encryptBufferRC4(key, buf) {
  */
 function decryptRC4(key, ciphertext) {
 
-    //console.log('[decryptRC4] -----------------  key:' + key + ', ciphertext :' + ciphertext + '')
+    //winston.info('[decryptRC4] -----------------  key:' + key + ', ciphertext :' + ciphertext + '')
     //var keyHash = crypto.createHash('sha256').update(key).digest();
     var keyHash = Buffer.from(key, global.ENC);
     var decipher = crypto.createDecipheriv('rc4', keyHash,'' );
@@ -149,7 +147,7 @@ function encryptText(encAlgorithm, message, isLogging = false) {
     let cipherContent = '';
     let encKey = '';
 
-    if (isLogging) console.log('encryptMessage', encAlgorithm, message)
+    if (isLogging) winston.info('encryptMessage', encAlgorithm, message)
 
     switch(encAlgorithm) {
         case CmdConst.ENCODE_TYPE_OTS:
@@ -181,7 +179,7 @@ function encryptText(encAlgorithm, message, isLogging = false) {
             break;
     }
 
-    if (isLogging) console.log('encryptMessage', encKey, cipherContent)
+    if (isLogging) winston.info('encryptMessage', encKey, cipherContent)
 
     return {cipherContent:cipherContent, encKey:encKey};
 }
@@ -193,7 +191,7 @@ function encryptText(encAlgorithm, message, isLogging = false) {
  * @returns {String} decrypt message
  */
 function decryptMessage(encryptKey, cipherContent, isLogging = false) {
-    if (isLogging) console.log('decryptMessage', encryptKey, cipherContent)
+    if (isLogging) winston.info('decryptMessage', encryptKey, cipherContent)
 
     let encArr = encryptKey.split(CmdConst.SEP_PIPE);
     let encMode = encArr[0];
@@ -203,16 +201,16 @@ function decryptMessage(encryptKey, cipherContent, isLogging = false) {
     switch(encMode) {
       case CmdConst.ENCODE_TYPE_OTS:
         encKey = decryptRC4(CmdConst.SESSION_KEY, encKey);
-        if (isLogging) console.log('decryptMessage decKey', encMode, encKey, cipherContent)
+        if (isLogging) winston.info('decryptMessage decKey', encMode, encKey, cipherContent)
 
         message = decryptRC4(encKey, cipherContent);
-        if (isLogging) console.log('decryptMessage decMsg', encMode, cipherContent, message)
+        if (isLogging) winston.info('decryptMessage decMsg', encMode, cipherContent, message)
         break;
       case CmdConst.ENCODE_TYPE_OTS_AES256:
         encKey = decryptAES256(CmdConst.SESSION_KEY_AES256, encKey);
-        if (isLogging) console.log('decryptMessage decKey', encMode, encKey, cipherContent)
+        if (isLogging) winston.info('decryptMessage decKey', encMode, encKey, cipherContent)
         message = decryptAES256(encKey, cipherContent);
-        if (isLogging) console.log('decryptMessage decMsg', encMode, cipherContent, message)
+        if (isLogging) winston.info('decryptMessage decMsg', encMode, cipherContent, message)
         break;
 
       default:

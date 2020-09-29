@@ -6,12 +6,12 @@ let value2;
 let value3;
 
 function funcTest(val1, val2) {
-    console.log('==========  funcTest before', value1, value2, value3)
+    winston.info('==========  funcTest before', value1, value2, value3)
 
     value1 = val1;
     value2 = val2;
     value3 = OsUtil.getUUID();
-    console.log('==========  funcTest before', value1, value2, value3)
+    winston.info('==========  funcTest before', value1, value2, value3)
 
 
     

@@ -1,5 +1,4 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
-
+const winston = require('../../winston');
 const CommandHeader = require('./command-header');
 const ResData = require('../ResData');
 
@@ -17,9 +16,9 @@ const { DATE_FORMAT } = require('../common/common-const');
  */
 function reqconnectFETCH () {
     fetchCore.connectFETCH().then(function() {
-        sendLog('FETCH Connect Success!');
+        winston.info('FETCH Connect Success!');
     }).catch(function(err){
-        sendLog('FETCH Connect fale!' + JSON.stringify(err));
+        winston.error('FETCH Connect fale!' + JSON.stringify(err));
     })
 }
 
@@ -48,7 +47,7 @@ function reqMessageList(msgType, rowOffset = 0, rowLimit = 100) {
 
         case 'MSG_ALL':  // 쿼리가 없다.
         default:
-            sendLog('Unknown Message Direction! direction:' + msgDirection)
+            winston.warn('Unknown Message Direction! direction:' + msgDirection)
             return new Error('Unknown Message Direction! direction:' + msgDirection);
     }
 
@@ -169,9 +168,9 @@ function selectToServer(query, queryKey) {
         let queryBuf = Buffer.from(query, global.ENC);
         querySizeBuf.writeInt32LE(queryBuf.length);
         
-        sendLog('QUERY global.DB_KIND ', global.FUNC_COMP_39.DB_KIND);
-        sendLog('QUERY KEY', queryKey);
-        sendLog('QUERY ', queryBuf.length, query);
+        winston.info('QUERY global.DB_KIND ', global.FUNC_COMP_39.DB_KIND);
+        winston.info('QUERY KEY', queryKey);
+        winston.debug('QUERY ', queryBuf.length, query);
 
         var stringBuf = Buffer.concat([userIdBuf, keyBuf, nameBuf, whereBuf, whereKindBuf]);
         stringBuf = adjustBufferMultiple4(stringBuf);

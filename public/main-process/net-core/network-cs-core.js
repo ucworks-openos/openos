@@ -1,8 +1,8 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
-const { receive_command } = require('../net-command/command-res-proc');
+const winston = require('../../winston');
 
 const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
+const { receive_command } = require('../net-command/command-res-proc');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
 var csSock;
@@ -23,13 +23,13 @@ function connect () {
         csSock.destroy();
     }
     
-    sendLog("Conncect MAIN_CS to " + JSON.stringify(global.SERVER_INFO.CS, null, 0))
+    winston.info("Conncect MAIN_CS to " + JSON.stringify(global.SERVER_INFO.CS, null, 0))
 
     return new Promise(function(resolve, reject){
         var tcpSock = require('net');  
         var client  = new tcpSock.Socket;  
         csSock = client.connect(global.SERVER_INFO.CS.port, global.SERVER_INFO.CS.pubip, function() {
-            sendLog("Conncect MAIN_CS Completed to " + JSON.stringify(global.SERVER_INFO.CS, null, 0))
+            winston.info("Conncect MAIN_CS Completed to " + JSON.stringify(global.SERVER_INFO.CS, null, 0))
             global.SERVER_INFO.CS.isConnected = true;
 
             resolve(new ResData(true));
@@ -42,17 +42,17 @@ function connect () {
 
         // 접속이 종료됬을때 메시지 출력
         csSock.on('end', function(){
-            sendLog('CS Disconnected!');
+            winston.warn('CS Disconnected!');
             global.SERVER_INFO.CS.isConnected = false;
         });
         // 
         csSock.on('close', function(hadError){
-            sendLog("CS Close. hadError: " + hadError);
+            winston.warn("CS Close. hadError: " + hadError);
             global.SERVER_INFO.CS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         csSock.on('error', function(err){
-            sendLog("CS Error: " + JSON.stringify(err));
+            winston.error("CS Error: " + JSON.stringify(err));
 
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.CS.isConnected) {
@@ -63,7 +63,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         csSock.on('timeout', function(){
-            sendLog('CS Connection timeout.');
+            winston.warn('CS Connection timeout.');
             global.SERVER_INFO.CS.isConnected = false;
         });
     });
@@ -83,8 +83,8 @@ function close() {
  * @param {Buffer} rcvData 
  */
 function readDataStream(rcvData){  
-    console.log('\r\n++++++++++++++++++++++++++++++++++');
-    console.log('CS rcvData:', rcvData);
+    winston.info('\r\n++++++++++++++++++++++++++++++++++');
+    winston.info('CS rcvData:', rcvData);
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
@@ -104,7 +104,7 @@ function readDataStream(rcvData){
     }
 
     rcvCommand.readCnt += rcvData.length;
-    console.log('Recive CS Command Data :', rcvCommand);
+    winston.info('Recive CS Command Data :', rcvCommand);
 
     if (rcvCommand.size <= rcvCommand.readCnt) {
         // 데이터를 모두 다 받았다.
@@ -113,7 +113,7 @@ function readDataStream(rcvData){
         rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
 
         if (!receive_command(procCmd)) {
-            console.log('Revceive CS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            winston.info('Revceive CS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     }
 };
@@ -148,10 +148,9 @@ function writeCommand(cmdHeader, dataBuf = null) {
         csSock.write(cmdBuf);
         global.CS_SEND_COMMAND = cmdHeader
 
-        console.log("write CS Command : ", global.CS_SEND_COMMAND);
-        console.log('-------------------------- \r\n');
+        winston.info("write CS Command : ", global.CS_SEND_COMMAND);
     } catch (exception) {
-        sendLog("write CS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
+        winston.info("write CS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     }
  };
 

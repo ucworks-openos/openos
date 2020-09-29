@@ -1,10 +1,12 @@
+const winston = require('../../winston');
+
 async function createSock(ip, port) {
     return new Promise(function(resolve, reject) {
         let tcpSock = require('net');  
         let client  = new tcpSock.Socket; 
 
         let connectedSock = client.connect(Number(port), ip, function() {
-            console.log("Conncect Completed to " + ip + ' : ' + port )
+            winston.info("Conncect Completed to " + ip + ' : ' + port )
             resolve(connectedSock)
         });  
 

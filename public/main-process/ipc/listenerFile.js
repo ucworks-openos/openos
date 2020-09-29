@@ -8,7 +8,7 @@ ipcMain.on('downloadFile', (event, serverIp, serverPort, serverFileName, saveFil
 
   fsAPI.reqDownloadFile(serverIp, serverPort, serverFileName, saveFilePath).then(function(resData)
   {
-    console.log('downloadFile res:', resData)
+    winston.info('downloadFile res:', resData)
     event.reply('res-downloadFile', resData);
   }).catch(function(err) {
     event.reply('res-downloadFile', new ResData(false, err));
@@ -22,7 +22,7 @@ ipcMain.on('uploadFile', (event, fileKey, filePath) => {
 
   fsAPI.reqUploadFile(fileKey, filePath).then(function(resData)
   {
-    console.log('uploadFile res:', resData)
+    winston.info('uploadFile res:', resData)
     event.reply('res-uploadFile', resData);
   }).catch(function(err) {
     event.reply('res-uploadFile', new ResData(false, err));

@@ -52,10 +52,10 @@ async function parseRuleInfo(ruleXml) {
                     //dicOption[option[0]] = option[1];
                     });
 
-                    // console.log('=========================  FNC_COMP_39')
+                    // winston.info('=========================  FNC_COMP_39')
                     // // debug
                     // for (let key in dicOption) {
-                    //   console.log('Key:' + key + " val:" + dicOption[key])
+                    //   winston.info('Key:' + key + " val:" + dicOption[key])
                     // }
 
                     break;

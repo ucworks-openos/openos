@@ -1,6 +1,7 @@
+const winston = require('../../winston')
 const { BrowserWindow} = require('electron');
 
-const { send, sendLog } = require('../ipc/ipc-cmd-sender');
+const { send } = require('../ipc/ipc-cmd-sender');
 const { getDispSize } = require('../utils/utils-os');
 const cmdConst = require('../net-command/command-const');
 const notiType = require('../common/noti-type');
@@ -13,13 +14,13 @@ var notiWin;
  */
 function messageReceived(msgData) {
 
-  console.log('--------------- Received Message', msgData)
+  winston.info('--------------- Received Message', msgData)
 
   let destIds = msgData.allDestId.split(cmdConst.SEP_PIPE);
   //if (msgData.sendId != global.USER.userId) {
   if (destIds.includes(global.USER.userId)) {
     showAlert(notiType.NOTI_MESSAGE, msgData.key, '쪽지수신', msgData.subject);
-    sendLog('Message Received! ', JSON.stringify(msgData));
+    winston.info('Message Received! ', JSON.stringify(msgData));
     send('messageReceived', msgData)
   }
 }
@@ -29,7 +30,7 @@ function messageReceived(msgData) {
  * @param {CountData} cntData 
  */
 function unreadCountReceived(cntData) {
-    sendLog('unreadCount Received! ', JSON.stringify(cntData));
+    winston.info('unreadCount Received! ', JSON.stringify(cntData));
     send('unreadCountReceived', cntData)
 }
 
@@ -40,7 +41,7 @@ function unreadCountReceived(cntData) {
  * @param {Number} connType 접속 유형
  */
 function userStatusChanged(userId, status, connType) {
-  sendLog('userStatusChanged! ', userId, status, connType);
+  winston.info('userStatusChanged! ', userId, status, connType);
   send('userStatusChanged', userId, status, connType)
 
 }
@@ -55,7 +56,7 @@ function chatReceived(chatData) {
 
   // showAlert(notiType.NOTI_CHAT, chatData.roomKey, '대화메세지', chatMessage);
   send('chatReceived', chatData)
-  sendLog('Chat Received! ', JSON.stringify(chatData));
+  winston.debug('Chat Received! ', JSON.stringify(chatData));
 }
 
 /**
@@ -67,7 +68,7 @@ function chatReceived(chatData) {
  */
 async function showAlert(notiType, notiId, title, message) {
 
-  console.log('showAlert', notiType, notiId, title, message);
+  winston.info('showAlert', notiType, notiId, title, message);
   if (notiWin) {
     notiWin.destroy();
   }
@@ -93,9 +94,9 @@ async function showAlert(notiType, notiId, title, message) {
   notiWin.menuBarVisible = false;
 
   let notifyFile = `file://${__dirname}/notify.html`;
-  console.log(`>>>>>>>>>>>  `, notifyFile);
+  winston.info(`>>>>>>>>>>>  `, notifyFile);
   notiWin.webContents.on('did-finish-load', () => {
-    console.log(`>>>>>>>>>>>   LOAD COMPLETED!`);
+    winston.info(`>>>>>>>>>>>   LOAD COMPLETED!`);
     notiWin.webContents.executeJavaScript(`
         document.getElementById("notiType").value = '${notiType}';
         document.getElementById("notiId").value = '${notiId}';

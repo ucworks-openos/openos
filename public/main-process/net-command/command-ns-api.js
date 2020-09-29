@@ -1,4 +1,4 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
+const winston = require('../../winston')
 
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
@@ -23,7 +23,7 @@ function close() {
 function reqconnectNS () {
     return new Promise(async function(resolve, reject) {
         nsCore.connectNS().then(function() {
-            sendLog('NS Connect Success!');
+            winston.info('NS Connect Success!');
 
             reqSignInNS().then(function(resData){
                 resolve(resData);
@@ -32,7 +32,7 @@ function reqconnectNS () {
             })
 
         }).catch(function(err){
-            sendLog('NS Connect fale!' + JSON.stringify(err));
+            winston.err('NS Connect fale!', err);
             reject(err);
         })
     });
@@ -81,7 +81,7 @@ function reqSignInNS() {
                         + CmdConst.SEP + CmdConst.SEP 
                         + global.SITE_CONFIG.client_version + CmdConst.SEP + OsUtil.getOsInfo;
 
-        //console.log('NS CONNECTION SIGN-IN :', userOsInfo)    
+        //winston.debug('NS CONNECTION SIGN-IN :', userOsInfo)    
         var userOsInfoBuf = Buffer.from(userOsInfo, global.ENC);
 
 
@@ -152,7 +152,6 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
 
         // Message Data
         let cipherData = CryptoUtil.encryptMessage(message, true);
-        console.log('cipherData', cipherData)
 
         let cipherContentBuf = Buffer.from(cipherData.cipherContent, global.ENC);
         cipherContentSizeBuf.writeInt32LE(cipherContentBuf.length);
@@ -183,7 +182,7 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
             , destIdsBuf]);
 
 
-        console.log('[SEND MESSAGE] -------  encryptKey,  cipherContent', cipherData);
+        winston.info('[SEND MESSAGE] -------  encryptKey,  cipherContent', cipherData);
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_SEND_MSG, 0), dataBuf);
     });
 }
@@ -195,7 +194,7 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
  */
 function reqDeleteMessage(msgGubun, msgKeys) {
     return new Promise(async function(resolve, reject) {
-        console.log('----------- msgKeys', msgKeys)
+        winston.info('----------- msgKeys', msgKeys)
 
         if (!global.SERVER_INFO.NS.isConnected) {
             reject(new Error('NS IS NOT CONNECTED!'));
@@ -310,7 +309,7 @@ function reqGetStatus(status, userId) {
             , senderIdBuf
         ]);
 
-        console.log('[CHANGE_STATUS] ', status, global.USER.userId)
+        winston.info('[CHANGE_STATUS] ', status, global.USER.userId)
 
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_GET_STATE, 0), dataBuf);
     });
@@ -333,12 +332,10 @@ function reqSetStatusMonitor(userIds) {
             return;
         }
 
-        console.log('[NOTIFY_USERS] userIds:', userIds)
+        winston.info('[NOTIFY_USERS] userIds:', userIds)
 
         var data = userIds.join(CmdConst.SEP_PIPE);
         var dataBuf = Buffer.from(data, global.ENC);
-
-        console.log('[NOTIFY_USERS] ', data)
 
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_NOTIFY_FRIENDS, 0), dataBuf);
     });
@@ -361,7 +358,7 @@ function reqSaveBuddyData(buddyData) {
             return;
         }
 
-        console.log('[SAVE BUDDY] buddyData:', buddyData)
+        winston.info('[SAVE BUDDY] buddyData:', buddyData)
 
         let idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
         idBuf.write(global.USER.userId);
@@ -419,7 +416,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message) {
         let idDatas = userIds.join(CmdConst.SEP_PIPE);
         // encrypt Message
         let encData = CryptoUtil.encryptMessage(message);
-        sendLog('Chat Enc Data', encData);
+        winston.info('Chat Enc Data', encData);
 
         /*********************** */
 
@@ -427,7 +424,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message) {
         let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         roomKeyBuf.write(roomKey, global.ENC);
         roomKeyBuf = adjustBufferMultiple4(roomKeyBuf);
-        sendLog('roomKey', roomKey , roomKeyBuf.length);
+        winston.info('roomKey', roomKey , roomKeyBuf.length);
 
         // roomType
         let roomTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
@@ -436,7 +433,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message) {
         let lineKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         lineKeyBuf.write(lineKey, global.ENC);
         lineKeyBuf = adjustBufferMultiple4(lineKeyBuf);
-        sendLog('lineKey', lineKey, lineKeyBuf.length)
+        winston.info('lineKey', lineKey, lineKeyBuf.length)
 
         let lineNumberBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
         lineNumberBuf.writeInt32LE(1);
@@ -453,7 +450,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message) {
         let multiple4Length = getMultiple4Size(CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP);
         let bufLen = CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP;
         ipBuf = Buffer.concat([ipBuf, Buffer.alloc(multiple4Length - bufLen)])
-        sendLog('sendDate + IP', sendDate, ipBuf.length-CmdConst.BUF_LEN_IP)
+        winston.info('sendDate + IP', sendDate, ipBuf.length-CmdConst.BUF_LEN_IP)
 
         let portBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
 
@@ -466,7 +463,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message) {
         let fontNameBuf = Buffer.alloc(CmdConst.BUF_LEN_FONTNAME); //fontName
         fontNameBuf.write(fontName, global.ENC);
         fontNameBuf = adjustBufferMultiple4(fontNameBuf)
-        sendLog('fontName', fontName, fontNameBuf.length)
+        winston.info('fontName', fontName, fontNameBuf.length)
 
 
         let sendIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
@@ -487,17 +484,14 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message) {
         let chatKeySizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);    // chatkey_size
         let chatKeyBuf = Buffer.from(roomKey + CmdConst.SEP_PIPE + idDatas);
         chatKeySizeBuf.writeInt32LE(chatKeyBuf.length);
-        console.log("chatKeyBuf.length", chatKeyBuf.length)
 
         let chatDataSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);   // chatdata_size
         let chatDataBuf = Buffer.from(encData.cipherContent);
         chatDataSizeBuf.writeInt32LE(chatDataBuf.length);
-        console.log("chatDataBuf.length", chatDataBuf.length)
 
         let destIdSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);     // destid_size
         let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_PIPE + 'TestChattingRoom');
         destIdSizeBuf.writeInt32LE(destIdBuf.length);
-        console.log("destIdBuf", idDatas, destIdBuf.length)
 
         var dataBuf = Buffer.concat([roomKeyBuf,roomTypeBuf,lineKeyBuf,lineNumberBuf,lineNumberBuf,sendDateBuf,ipBuf,portBuf,
                     fontSizeBuf,fontStyleBuf,fontColorBuf,fontNameBuf,

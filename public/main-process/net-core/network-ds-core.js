@@ -1,10 +1,11 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
-const { receive_command } = require('../net-command/command-res-proc');
+const winston = require('../../winston')
 
 const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
 const CmdConst = require('../net-command/command-const');
 const CmdCodes = require('../net-command/command-code');
+
+const { receive_command } = require('../net-command/command-res-proc');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
 var dsSock;
@@ -25,14 +26,14 @@ function connect () {
         dsSock.destroy();
     }
     
-    sendLog("Conncect MAIN_DS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
+    winston.info("Conncect MAIN_DS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
 
     return new Promise(function(resolve, reject){
         var tcpSock = require('net');  
         var client  = new tcpSock.Socket; 
          
         dsSock = client.connect(global.SITE_CONFIG.server_port, global.SITE_CONFIG.server_ip, function() {
-            sendLog("Conncect MAIN_DS Completed to " + JSON.stringify(global.SITE_CONFIG, null, 0))
+            winston.info("Conncect MAIN_DS Completed to " + JSON.stringify(global.SITE_CONFIG, null, 0))
             global.SERVER_INFO.DS.isConnected = true;
 
             resolve(new ResData(true));
@@ -44,17 +45,17 @@ function connect () {
         })
         // 접속이 종료됬을때 메시지 출력
         dsSock.on('end', function(){
-            sendLog('DS Disconnected!');
+            winston.warn('DS Disconnected!');
             global.SERVER_INFO.DS.isConnected = false;
         });
         // close
         dsSock.on('close', function(hadError){
-            sendLog("DS Close. hadError: " + hadError);
+            winston.warn("DS Close. hadError: " + hadError);
             global.SERVER_INFO.DS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         dsSock.on('error', function(err){
-            sendLog("DS Error: " + JSON.stringify(err));
+            winston.error("DS Error: " + JSON.stringify(err));
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.DS.isConnected) {
@@ -65,7 +66,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         dsSock.on('timeout', function(){
-            sendLog('DS Connection timeout.');
+            winston.warn('DS Connection timeout.');
             global.SERVER_INFO.DS.isConnected = false;
         });
     });
@@ -85,8 +86,8 @@ function close() {
  * @param {Buffer}} rcvData 
  */
 function readDataStream(rcvData){  
-    console.log('\r\n++++++++++++++++++++++++++++++++++');
-    console.log('DS rcvData:', rcvData);
+    winston.info('\r\n++++++++++++++++++++++++++++++++++');
+    winston.info('DS rcvData:', rcvData);
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
@@ -106,7 +107,7 @@ function readDataStream(rcvData){
     }
 
     rcvCommand.readCnt += rcvData.length;
-    console.log('Recive DS Command Data :', rcvCommand);
+    winston.info('Recive DS Command Data :', rcvCommand);
 
     if (rcvCommand.size <= rcvCommand.readCnt) {
         // 데이터를 모두 다 받았다.
@@ -116,7 +117,7 @@ function readDataStream(rcvData){
         global.DS_SEND_COMMAND = null;
 
         if (!receive_command(procCmd)) {
-            console.log('Revceive DS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            winston.info('Revceive DS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     }
 };
@@ -154,10 +155,9 @@ function writeCommand(cmdHeader, dataBuf = null) {
         dsSock.write(cmdBuf);
         global.DS_SEND_COMMAND = cmdHeader
 
-        console.log("write DS Command : ", global.DS_SEND_COMMAND);
-        console.log('-------------------------- \r\n');
+        winston.info("write DS Command : ", global.DS_SEND_COMMAND);
     // } catch (exception) {
-    //     sendLog("write DS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
+    //     winston.info("write DS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }
  };
 

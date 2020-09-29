@@ -1,4 +1,4 @@
-const { sendLog } = require('../ipc/ipc-cmd-sender');
+const winston = require('../../winston')
 
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
@@ -10,9 +10,9 @@ const psCore = require('../net-core/network-ps-core');
  */
 function reqconnectPS () {
     psCore.connectPS().then(function() {
-        sendLog('PS Connect Success!');
+        winston.info('PS Connect Success!');
     }).catch(function(err){
-        sendLog('PS Connect fale!' + JSON.stringify(err));
+        winston.err('PS Connect fale!' + JSON.stringify(err));
     })
 }
 
@@ -48,7 +48,7 @@ function reqGetCondition(userId) {
         let idData = 'ID' + CmdConst.SEP_PIPE + userId;
         var dataBuf = Buffer.from(idData, global.ENC);
 
-        console.log('PS_GET_CONDICTION ------  ', idData)
+        winston.info('PS_GET_CONDICTION ------  ', idData)
         psCore.writeCommandPS(new CommandHeader(CmdCodes.PS_GET_CONDICTION, 0, function(resData){
             resolve(resData);
         }), dataBuf);
@@ -99,7 +99,7 @@ function reqGetOrgChild(orgGroupCode, groupCode, groupSeq) {
             return;
         }
 
-        console.log('reqGetOrgChild ----' , orgGroupCode, groupCode, groupSeq);
+        winston.info('reqGetOrgChild ----' , orgGroupCode, groupCode, groupSeq);
 
         var orgGroupCodeBuf = Buffer.alloc(CmdConst.BUF_LEN_ORG_GROUP_CODE);
         var groupCodeBuf = Buffer.alloc(CmdConst.BUF_LEN_GROUP_CODE);
@@ -137,7 +137,7 @@ function reqGetUserInfos(userIds) {
             idDatas += idDatas?CmdConst.SEP_CR+userId:userId;
           });
 
-        console.log('reqUserInfos ----' , idDatas);
+        winston.info('reqUserInfos ----' , idDatas);
 
         var dataBuf = Buffer.from(idDatas, global.ENC);
         psCore.writeCommandPS(new CommandHeader(CmdCodes.PS_GET_USERS_INFO, 0, function(resData){
@@ -164,7 +164,7 @@ function reqSearchUsers(searchMode, searchText) {
         }
 
         let data = searchMode + CmdConst.SEP_PIPE + searchText;
-        console.log('reqSearchUsers ----' , data);
+        winston.info('reqSearchUsers ----' , data);
         var dataBuf = Buffer.from(data, global.ENC);
         psCore.writeCommandPS(new CommandHeader(CmdCodes.PS_GET_CONDICTION, 0, function(resData){
             resolve(resData);
