@@ -188,9 +188,18 @@ export default function FavoritePage() {
       // 사용자 상세 정보가 하림일 경우를 가정하여 배열로 감쌈.
       const userSchema = arrayLike(userSchemaMaybeArr);
 
-      Object.assign(userSchema[userSchema.length - 1], {
-        ...userSchema[userSchema.length - 1],
-        isLast: true,
+      const processed = userSchema.map((v: any, i: number) => {
+        if (i === userSchema.length - 1) {
+          return {
+            ...v,
+            isLast: true,
+          };
+        } else {
+          return {
+            ...v,
+            isLast: false,
+          };
+        }
       });
 
       // 즐겨찾기 트리 생성
@@ -209,7 +218,7 @@ export default function FavoritePage() {
           ];
         } else {
           // 재귀함수 (children에 하위 노드 삽입)
-          return append(prev, cur, userSchema);
+          return append(prev, cur, processed);
         }
       }, []);
 

@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 
 import NavItem from "./SideNaviItem";
 import SideItemList from "./SideNaviLists";
 import "./SideNavi.css";
-import NotificationControl from './NotificationControl';
+import NotificationControl from "./NotificationControl";
 import { logout, getUserInfos } from "../../ipcCommunication/ipcCommon";
 import { useHistory } from "react-router-dom";
 
@@ -13,12 +12,13 @@ function Sidebar() {
   const [activePath, setActivePath] = useState(history.location.pathname);
 
   useEffect(() => {
-    getUserInfos([sessionStorage.getItem('loginId')]).then(
-      response => {
-        sessionStorage.setItem('loginName', response.data.items.node_item.user_name.value)
-      }
-    )
-  }, [])
+    getUserInfos([sessionStorage.getItem("loginId")]).then((response) => {
+      sessionStorage.setItem(
+        "loginName",
+        response.data.items.node_item.user_name.value
+      );
+    });
+  }, []);
 
   const onItemClick = (path) => {
     setActivePath(
@@ -41,7 +41,7 @@ function Sidebar() {
         {SideItemList().map((item, i) => (
           /* Return however many NavItems in array to be rendered */
           <NavItem
-            key={item.name}
+            key={i}
             path={item.path}
             name={item.name}
             css={item.css}
