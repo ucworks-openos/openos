@@ -1,15 +1,14 @@
+
 const electron = window.require("electron");
 
 /** Config를 불러옵니다. */
 export const getConfig = () => {
-  //return electron.ipcRenderer.sendSync('getConfig', '');
   return new Promise(function(resolve, reject) {
     electron.ipcRenderer.on('res-getConfig', (event, arg) => {
       resolve(arg);
     })
     
     electron.ipcRenderer.send('getConfig', '')
-    //require("electron").ipcRenderer.send('getConfig', '')
   });
 }
 
