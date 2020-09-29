@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 
 import NavItem from "./SideNaviItem";
-import { items } from "./SideNaviLists";
+import SideItemList from "./SideNaviLists";
 import "./SideNavi.css";
 import NotificationControl from './NotificationControl';
 import { logout, getUserInfos } from "../../ipcCommunication/ipcCommon";
@@ -38,7 +38,7 @@ function Sidebar() {
   return (
     <nav className="gnb">
       <div className="menu-wrap">
-        {items.map((item, i) => (
+        {SideItemList().map((item, i) => (
           /* Return however many NavItems in array to be rendered */
           <NavItem
             key={item.name}

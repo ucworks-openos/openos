@@ -1,4 +1,8 @@
-export const items = [
+
+const { remote } = window.require("electron")
+
+// Side Default Menu
+var sideItems = [
   {
     path:
       "/favorite" /* path is used as id to check which NavItem is active basically */,
@@ -63,32 +67,49 @@ export const items = [
     key: 9,
     className: "menu-item favorite current-menu",
   },
-  {
-    path: "/netTest",
-    name: "NetTestPage",
-    css: "fas fa-hashtag",
-    key: 10,
-    className: "menu-item favorite current-menu",
-  },
-  {
-    path: "/funcTest",
-    name: "FuncTestPage",
-    css: "fas fa-hashtag",
-    key: 11,
-    className: "menu-item favorite current-menu",
-  },
-  {
-    path: "/funcTest2",
-    name: "FuncTestPage2",
-    css: "fas fa-hashtag",
-    key: 12,
-    className: "menu-item favorite current-menu",
-  },
-  {
-    path: "/chatTestPage",
-    name: "ChatTestPage",
-    css: "fas fa-hashtag",
-    key: 13,
-    className: "menu-item favorite current-menu",
-  },
-];
+  
+]
+
+/**
+ * 좌측 메뉴를 만들어 준다.
+ */
+function SideItemList() {
+
+  console.log('-------', remote.getGlobal('IS_DEV'))
+
+  // Dev Mode SideMenu
+  if (remote.getGlobal('IS_DEV')) {
+    sideItems = sideItems.concat([{
+      path: "/netTest",
+      name: "NetTestPage",
+      css: "fas fa-hashtag",
+      key: 10,
+      className: "menu-item favorite current-menu",
+    },
+    {
+      path: "/funcTest",
+      name: "FuncTestPage",
+      css: "fas fa-hashtag",
+      key: 11,
+      className: "menu-item favorite current-menu",
+    },
+    {
+      path: "/funcTest2",
+      name: "FuncTestPage2",
+      css: "fas fa-hashtag",
+      key: 12,
+      className: "menu-item favorite current-menu",
+    },
+    {
+      path: "/chatTestPage",
+      name: "ChatTestPage",
+      css: "fas fa-hashtag",
+      key: 13,
+      className: "menu-item favorite current-menu",
+    },]);
+  }
+  
+  return sideItems;
+}
+
+export default SideItemList;
