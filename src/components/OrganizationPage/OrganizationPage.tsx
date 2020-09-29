@@ -74,9 +74,6 @@ export default function OrganizationPage() {
   };
 
   const leftPosition = useMemo(leftPositionCalculator, [pageX]);
-
-  // ANCHOR effect
-
   // ANCHOR effect
   useEffect(() => {
     if (!rightClickedKey) {
@@ -102,7 +99,7 @@ export default function OrganizationPage() {
       targetList?.splice(targetI, 1, {
         ...target,
         userState: Number(state),
-        connectType: connectTypeConverter(connectType),
+        connectType,
       });
       setTreeData(replica);
     };
@@ -197,7 +194,9 @@ export default function OrganizationPage() {
 
   // ANCHOR handler
   const handleChat = () => {
-    window.location.hash = `#/chat_from_organization/${finalSelectedKeys.join(`|`)}`;
+    window.location.hash = `#/chat_from_organization/${finalSelectedKeys.join(
+      `|`
+    )}`;
   };
 
   const handleExpand = (expandedKeys: (string | number)[]): void => {
@@ -387,15 +386,6 @@ export default function OrganizationPage() {
   };
 
   // ANCHOR etc
-  const connectTypeConverter = (connectTypeBundle: string) => {
-    const connectTypeMaybeArr = connectTypeBundle
-      ? connectTypeBundle.split(`|`)
-      : ``;
-
-    const connectType = arrayLike(connectTypeMaybeArr);
-    return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
-  };
-
   const getChild = async (groupCode: string) => {
     const {
       data: {
@@ -518,20 +508,20 @@ export default function OrganizationPage() {
     <>
       {(data?.gubun === EnodeGubun.GROUP ||
         data?.gubun === EnodeGubun.DUMMY) && (
-          <Switcher>
-            {!data?.expanded ? (
-              <img
-                src="/images/icon_toggle_plus.png"
-                style={{ minWidth: `20px`, height: `21px` }}
-              />
-            ) : (
-                <img
-                  src="/images/icon_toggle_min.png"
-                  style={{ minWidth: `20px`, height: `21px` }}
-                />
-              )}
-          </Switcher>
-        )}
+        <Switcher>
+          {!data?.expanded ? (
+            <img
+              src="/images/icon_toggle_plus.png"
+              style={{ minWidth: `20px`, height: `21px` }}
+            />
+          ) : (
+            <img
+              src="/images/icon_toggle_min.png"
+              style={{ minWidth: `20px`, height: `21px` }}
+            />
+          )}
+        </Switcher>
+      )}
     </>
   );
 
@@ -611,19 +601,19 @@ export default function OrganizationPage() {
               {renderTreeNodes(treeData)}
             </Tree>
           ) : (
-              <Tree
-                showLine
-                showIcon={false}
-                onSelect={handleSelect}
-                onExpand={handleExpand}
-                switcherIcon={switcherGenerator}
-                expandedKeys={[Efavorite.SEARCH_RESULT]}
-                onRightClick={handleRightClick}
-                multiple
-              >
-                {renderTreeNodes(searchResult)}
-              </Tree>
-            )}
+            <Tree
+              showLine
+              showIcon={false}
+              onSelect={handleSelect}
+              onExpand={handleExpand}
+              switcherIcon={switcherGenerator}
+              expandedKeys={[Efavorite.SEARCH_RESULT]}
+              onRightClick={handleRightClick}
+              multiple
+            >
+              {renderTreeNodes(searchResult)}
+            </Tree>
+          )}
         </div>
       </main>
       <Modal
