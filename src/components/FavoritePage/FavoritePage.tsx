@@ -27,6 +27,9 @@ import ModifyGroupModal from "../../common/components/Modal/ModifyGroupModal";
 import xml2js from "xml2js";
 import { flattenDiagnosticMessageText } from "typescript";
 import { ConsoleTransportOptions } from "winston/lib/winston/transports";
+import { useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addChatRoom } from "../../redux/actions/chat_actions";
 
 type TgetBuddyTreeReturnTypes = {
   buddyTree: TTreeNode[];
@@ -36,6 +39,8 @@ type TgetBuddyTreeReturnTypes = {
 
 export default function FavoritePage() {
   // ANCHOR state
+  const history = useHistory();
+  const dispatch = useDispatch();
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
     false
   );
@@ -92,23 +97,12 @@ export default function FavoritePage() {
 
   const leftPosition = useMemo(leftPositionCalculator, [pageX]);
 
-  const connectTypeConverter = (connectTypeBundle: string) => {
-    const connectTypeMaybeArr = connectTypeBundle
-      ? connectTypeBundle.split(`|`)
-      : ``;
-
-    const connectType = arrayLike(connectTypeMaybeArr);
-    return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
-  };
-
   // ANCHOR effect
   useEffect(() => {
     const initiate = () => {
       const flatten = spread(treeData, []);
 
       if (flatten.length < 2) return false;
-
-      console.log(flatten);
 
       const processed = flatten.map((v: TTreeNode) => ({
         gubun: v.gubun,
@@ -129,7 +123,7 @@ export default function FavoritePage() {
         },
       };
 
-      console.log(`request body: `, requestBody);
+      console.log(`change detected. request body: `, requestBody);
 
       const xml = new xml2js.Builder().buildObject(requestBody);
       saveBuddyData(xml);
@@ -154,16 +148,15 @@ export default function FavoritePage() {
     const initiate = async () => {
       const [targetId, state, connectType] = targetInfo;
       const replica = [...treeData];
-      const { v: target, i: targetI, list: targetList } = await find(
+      const response = await changeState(
         replica,
-        targetId
+        targetId,
+        Number(state),
+        connectType
       );
-      targetList?.splice(targetI, 1, {
-        ...target,
-        userState: Number(state),
-        connectType: connectTypeConverter(connectType),
-      });
-      setTreeData(replica);
+      if (response) {
+        setTreeData(replica);
+      }
     };
     initiate();
   }, [targetInfo]);
@@ -194,6 +187,12 @@ export default function FavoritePage() {
       } = await getUserInfos(userIds);
       // 사용자 상세 정보가 하림일 경우를 가정하여 배열로 감쌈.
       const userSchema = arrayLike(userSchemaMaybeArr);
+
+      Object.assign(userSchema[userSchema.length - 1], {
+        ...userSchema[userSchema.length - 1],
+        isLast: true,
+      });
+
       // 즐겨찾기 트리 생성
       const root = response.reduce((prev: TTreeNode[], cur: any, i: number) => {
         // pid (parent id)가 없을 경우 최상위 노드의 자식에 삽입
@@ -243,6 +242,26 @@ export default function FavoritePage() {
   }, []);
 
   // ANCHOR handler
+
+  const handleChat = () => {
+    const processed = finalSelectedKeys.map((v: string | number) =>
+      v.toString().slice(0, v.toString().lastIndexOf(`_`))
+    );
+    const chatRoomBody = {
+      selected_users: processed,
+      user_counts: processed.length,
+      chat_entry_ids: processed.join(`|`),
+      unread_count: 0,
+      chat_content: "",
+      last_line_key: "9999999999999999",
+      chat_send_name: sessionStorage.getItem(`loginName`),
+      create_room_date: moment().format("YYYYMMDDHHmm"),
+      chat_send_id: sessionStorage.getItem(`loginId`),
+    };
+
+    dispatch(addChatRoom(chatRoomBody));
+    history.push(`/chat`);
+  };
 
   const handleModifyGroupVisible = async () => {
     const { v: targetV, i: targetI, list: targetList } = await find(
@@ -552,6 +571,7 @@ export default function FavoritePage() {
                 key: child.id.concat(`_`, moment().format(`YYYYMMDDHHmmssSSS`)),
                 gubun: child.gubun,
                 pid: child.pid,
+                isLast: userV?.isLast,
                 ...(userV && convertToUser(userV)),
               },
             ],
@@ -613,6 +633,33 @@ export default function FavoritePage() {
         }
       }
     });
+
+  const changeState = (
+    list: any,
+    userId: string,
+    state: number,
+    connectType: string
+  ) => {
+    return new Promise((resolve) => {
+      for (let i = 0; i < list.length; i++) {
+        if (list[i].userId === userId) {
+          list[i] = {
+            ...list[i],
+            userState: state,
+            connectType,
+          };
+        }
+        if (list[i].isLast) resolve(true);
+        if (list[i].children) {
+          changeState(list[i].children!, userId, state, connectType).then(
+            (result) => {
+              if (result) resolve(result);
+            }
+          );
+        }
+      }
+    });
+  };
 
   const switcherGenerator = (data: any) => (
     <>
@@ -1017,7 +1064,7 @@ export default function FavoritePage() {
             >
               쪽지 보내기
             </ul>
-            <ul>채팅 시작</ul>
+            <ul onClick={handleChat}>채팅 시작</ul>
           </li>
         </div>
       </ContextMenu>

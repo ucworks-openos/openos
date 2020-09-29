@@ -74,9 +74,6 @@ export default function OrganizationPage() {
   };
 
   const leftPosition = useMemo(leftPositionCalculator, [pageX]);
-
-  // ANCHOR effect
-
   // ANCHOR effect
   useEffect(() => {
     if (!rightClickedKey) {
@@ -102,7 +99,7 @@ export default function OrganizationPage() {
       targetList?.splice(targetI, 1, {
         ...target,
         userState: Number(state),
-        connectType: connectTypeConverter(connectType),
+        connectType,
       });
       setTreeData(replica);
     };
@@ -203,6 +200,7 @@ export default function OrganizationPage() {
       chat_entry_ids: finalSelectedKeys.join(`|`),
       unread_count: 0,
       chat_content: "",
+      last_line_key: "9999999999999999",
       chat_send_name: sessionStorage.getItem(`loginName`),
       create_room_date: moment().format("YYYYMMDDHHmm"),
       chat_send_id: sessionStorage.getItem(`loginId`),
@@ -399,15 +397,6 @@ export default function OrganizationPage() {
   };
 
   // ANCHOR etc
-  const connectTypeConverter = (connectTypeBundle: string) => {
-    const connectTypeMaybeArr = connectTypeBundle
-      ? connectTypeBundle.split(`|`)
-      : ``;
-
-    const connectType = arrayLike(connectTypeMaybeArr);
-    return connectType.map((v: any) => EconnectType[Number(v)]).join(` `);
-  };
-
   const getChild = async (groupCode: string) => {
     const {
       data: {

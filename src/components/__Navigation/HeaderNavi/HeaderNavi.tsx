@@ -47,11 +47,12 @@ export default function HeaderNavi() {
 
   const handleStatusChange = (e: any) => {
     const { code, name } = e.target.dataset;
+    console.log(`changed Code: `, code);
     setMyInfo((prev) => ({
       ...prev,
       userState: code,
     }));
-    changeStatus(code, true);
+    changeStatus(code - 1, true);
   };
 
   const handleImageError = (image: any) => {
@@ -198,57 +199,57 @@ export default function HeaderNavi() {
                 <i className="current-user-action-icon"></i>로그인 상태 변경
                 <ul className="change-state-wrap">
                   <li
-                    onClick={handleStatusChange}
-                    data-code="0"
+                    onMouseDown={handleStatusChange}
+                    data-code="1"
                     data-name="online"
                   >
                     <i className="user-state online"></i>온라인
                   </li>
                   <li
-                    onClick={handleStatusChange}
-                    data-code="1"
+                    onMouseDown={handleStatusChange}
+                    data-code="2"
                     data-name="absence"
                   >
                     <i className="user-state absence"></i>자리 비움
                   </li>
                   <li
-                    onClick={handleStatusChange}
-                    data-code="2"
+                    onMouseDown={handleStatusChange}
+                    data-code="3"
                     data-name="otherWork"
                   >
                     <i className="user-state otherWork"></i>다른 용무중
                   </li>
                   <li
-                    onClick={handleStatusChange}
-                    data-code="3"
+                    onMouseDown={handleStatusChange}
+                    data-code="4"
                     data-name="workingOutside"
                   >
                     <i className="user-state workingOutside"></i>외근
                   </li>
                   <li
-                    onClick={handleStatusChange}
-                    data-code="4"
+                    onMouseDown={handleStatusChange}
+                    data-code="5"
                     data-name="onCall"
                   >
                     <i className="user-state onCall"></i>통화중
                   </li>
                   <li
-                    onClick={handleStatusChange}
-                    data-code="5"
+                    onMouseDown={handleStatusChange}
+                    data-code="6"
                     data-name="atTable"
                   >
                     <i className="user-state atTable"></i>식사중
                   </li>
                   <li
-                    onClick={handleStatusChange}
-                    data-code="6"
+                    onMouseDown={handleStatusChange}
+                    data-code="7"
                     data-name="inMeeting"
                   >
                     <i className="user-state inMeeting"></i>회의중
                   </li>
                   <li
-                    onClick={handleStatusChange}
-                    data-code="7"
+                    onMouseDown={handleStatusChange}
+                    data-code="8"
                     data-name="offline"
                   >
                     <i className="user-state offline"></i>오프라인
