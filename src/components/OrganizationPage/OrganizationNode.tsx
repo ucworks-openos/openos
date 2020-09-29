@@ -69,7 +69,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
 
   const handleImageError = (image: any) => {
     image.target.onerror = null;
-    image.target.src = `/images/img_imgHolder.png`;
+    image.target.src = `./images/img_imgHolder.png`;
   };
 
   const handleDetailToggle = (e: any) => {
