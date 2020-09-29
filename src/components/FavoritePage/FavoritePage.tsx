@@ -247,20 +247,7 @@ export default function FavoritePage() {
     const processed = finalSelectedKeys.map((v: string | number) =>
       v.toString().slice(0, v.toString().lastIndexOf(`_`))
     );
-    const chatRoomBody = {
-      selected_users: processed,
-      user_counts: processed.length,
-      chat_entry_ids: processed.join(`|`),
-      unread_count: 0,
-      chat_content: "",
-      last_line_key: "9999999999999999",
-      chat_send_name: sessionStorage.getItem(`loginName`),
-      create_room_date: moment().format("YYYYMMDDHHmm"),
-      chat_send_id: sessionStorage.getItem(`loginId`),
-    };
-
-    dispatch(addChatRoom(chatRoomBody));
-    history.push(`/chat`);
+    window.location.hash = `#/chat_from_organization/${processed.join(`|`)}`;
   };
 
   const handleModifyGroupVisible = async () => {
