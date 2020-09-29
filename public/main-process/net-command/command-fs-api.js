@@ -1,7 +1,5 @@
-const { send } = require('../ipc/ipc-cmd-sender');
+const winston = require('../../winston');
 const fs = require('fs');
-
-const winston = require('../../winston')
 
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
@@ -11,6 +9,7 @@ const fsAPI = require('../net-core/network-fs-core');
 const ResData = require('../ResData');
 const { ENCODE_TYPE_OTS, SESSION_KEY } = require('./command-const');
 const { downloadFile } = require('./file-downloader');
+const { send } = require('../ipc/ipc-cmd-sender');
 
 const defaultFileCmdLength = 8+4+CmdConst.BUF_LEN_FILEDATA; // header(8) + gubun(4) + data(4096)
 
@@ -86,7 +85,7 @@ async function reqUploadFile(uploadKey, filePath) {
         // 서버 파일명이 온다.
         return res;
     } catch (err) {
-        winston.info('Upload File Fail! %s %s %s', uploadKey, filePath, err);
+        winston.error('Upload File Fail! %s %s %s', uploadKey, filePath, err);
         return new ResData(false, err);
     }
 }
@@ -214,7 +213,6 @@ function uploadFileStream(uploadKey, filePath) {
         readStream.on('data', (chunk) => {
             readFileLength = chunk.length;
             uploadedLength += readFileLength
-            winston.info('send len : %s, %s, %s', readFileLength, uploadedLength, fileLength);
 
             // 단순히 세션키로 암호화 한다.
             //chunk = CryptoUtil.encryptBufferRC4(CmdConst.SESSION_KEY, chunk);
@@ -243,7 +241,7 @@ function uploadFileStream(uploadKey, filePath) {
 
         readStream.on('error', (err) => {
             // Exception을 만들지 않는다..
-            winston.info('uploadFileStream err %s', err)
+            winston.error('uploadFileStream err %s', err)
             resolve(new ResData(false, err));
         })
     });

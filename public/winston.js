@@ -1,9 +1,12 @@
 const winston = require('winston');            // winston lib
 const process = require('process');
+const util = require('util')
+const path = require("path")
 
 const { format } = require('winston')
 const { combine, timestamp, label, printf, prettyPrint } = winston.format;
- 
+
+
 // const levels = {
 //   error: 0,
 //   warn: 1,
@@ -15,9 +18,11 @@ const { combine, timestamp, label, printf, prettyPrint } = winston.format;
 // }con
 
 global.LOG_PATH = process.env.USERPROFILE + '\\openOs\\logs';
+const arrayPrepareStackTrace = (err, stack) => { return stack }
 
 const myFormat = printf(({ level, message, label, timestamp }) => {
-  return `${timestamp} [${label}] ${level}: ${message}`;    // log 출력 포맷 정의
+
+  return `[${level}] ${timestamp} ${message}`;    // log 출력 포맷 정의
 });
 
 const options = {
@@ -66,4 +71,37 @@ if(process.env.NODE_ENV !== 'production'){
   logger.add(new winston.transports.Console(options.console)) // 개발 시 console로도 출력
 }
  
-module.exports = logger;
+function getPreviousStackInfo() {
+  let priorPrepareStackTrace = Error.prepareStackTrace;
+    Error.prepareStackTrace = arrayPrepareStackTrace;
+    let stacks = (new Error()).stack;
+    Error.prepareStackTrace = priorPrepareStackTrace;
+    if (stacks) {
+      return util.format('[%s:%s %s]> ',
+        path.basename(stacks[2].getFileName()),
+        stacks[2].getLineNumber(),
+        stacks[2].getFunctionName()?stacks[2].getFunctionName():' ');
+    }
+
+    return '[ unknown ]> '
+};
+
+//module.exports = logger;
+module.exports = {
+  debug(msg, ...vars) {
+    logger.debug(util.format(getPreviousStackInfo() + msg, ...vars), '');
+  }, 
+  info(msg, ...vars) {
+    logger.info(util.format(getPreviousStackInfo() + msg, ...vars), '');
+  },
+  warn(msg, ...vars) {
+    logger.warn(util.format(getPreviousStackInfo() + msg, ...vars), '');
+  }, 
+  err(msg, ...vars) {
+    error(msg, ...vars);
+  },
+  error(msg, ...vars) {
+    logger.error(util.format(getPreviousStackInfo() + msg, ...vars), '');
+  }, 
+  
+}

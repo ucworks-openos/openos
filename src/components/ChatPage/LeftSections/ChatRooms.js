@@ -515,19 +515,19 @@ export default ChatRooms
 //         const chatRoomEl = chatRooms[index];
 //         const memberIds = chatRoomEl.chat_entry_ids.split('|')
 //         let userInfos = [];
-//         console.log('  index', index)
+//         winston.info('  index', index)
 
 //         for (let index = 0; index < memberIds.length; index++) {
 //             const memberEl = memberIds[index];
-//             console.log(' memberIds index', index, memberIds[index])
+//             winston.info(' memberIds index', index, memberIds[index])
 //             let userInfoResult = await getUserInfos(memberEl)
 
 //             // userInfos.push(userInfoResult.data.items !== undefined ? userInfoResult.data.items.node_item : userInfoResult)
 //         }
 //         chatRoomEl.userInfo = userInfos
 //         newChatRooms.push(chatRoomEl)
-//         // console.log('chatrooms.lenfksm', chatRooms.length)
-//         // console.log('chatROoms', index)
+//         // winston.info('chatrooms.lenfksm', chatRooms.length)
+//         // winston.info('chatROoms', index)
 //     }
 //     setChatRoomsWithUserInfos(newChatRooms)
 // }
