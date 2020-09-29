@@ -13,9 +13,10 @@ function Sidebar() {
 
   useEffect(() => {
     getUserInfos([sessionStorage.getItem("loginId")]).then((response) => {
+      console.log(response);
       sessionStorage.setItem(
         "loginName",
-        response.data.items.node_item.user_name.value
+        response?.data?.items?.node_item.user_name.value
       );
     });
   }, []);
