@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import "./ChatPage.css"
 import LeftPanel from "./LeftSections/LeftPanel";
 import RightPanel from "./RightSections/RightPanel";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
     getLogginedInUserInfo
 } from "../../redux/actions/user_actions";
 import {
-    moveToClickedChatRoom
+    emptyChatMessages,
+    moveToClickedChatRoom,
+    addChatRoomFromOrganization
 } from '../../redux/actions/chat_actions';
 import moment from 'moment';
 
@@ -16,6 +18,8 @@ function ChatPage(props) {
     const roomKey = props.match.params["roomKey"];
     const members = props.match.params["members"];
     const message = props.match.params["message"];
+    const orgMembers = props.match.params["orgMembers"];
+    const chatRooms = useSelector(state => state.chats.chatRooms)
 
     useEffect(() => {
         dispatch(getLogginedInUserInfo(sessionStorage.getItem("loginId")))
@@ -37,6 +41,18 @@ function ChatPage(props) {
         }
 
     }, [roomKey])
+
+
+    useEffect(() => {
+        if (chatRooms) {
+            if (orgMembers) {
+                // dispatch(emptyChatMessages())
+                setTimeout(() => {
+                    dispatch(addChatRoomFromOrganization(orgMembers))
+                }, 300);
+            }
+        }
+    }, [orgMembers])
 
     return (
         <div className="contents-wrap-chat">

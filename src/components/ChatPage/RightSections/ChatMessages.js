@@ -11,7 +11,7 @@ function ChatMessages() {
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
     // const [chatMessagesWithUserInfos, setChatMessagesWithUserInfos] = useState([])
     const messagesEndRef = useRef()
-  
+
     const scrollToBottom = () => {
         messagesEndRef.current.scrollIntoView({
             behavior: "smooth",
@@ -38,7 +38,8 @@ function ChatMessages() {
             //데이터 베이스에서 메시지를 가져오면 안됨.
             //근데  채팅을 몇번 하고 난 후에 다시 들어올때도  last_line_key가  undefined이기에 ... 
             //채팅 리스트들을 없앤다 .. 어떻게 해야 하나 ...?
-            dispatch(getInitialChatMessages(currentChatRoom.last_line_key === undefined ? "" : currentChatRoom.room_key, currentChatRoom.last_line_key))
+            console.log('getInitialChatMessages getInitialChatMessages getInitialChatMessages',currentChatRoom.room_key ,currentChatRoom)
+            dispatch(getInitialChatMessages(currentChatRoom.room_key, currentChatRoom.last_line_key))
         }
     }, [currentChatRoom])
 
@@ -102,6 +103,7 @@ function ChatMessages() {
             }
         })
     )
+    { console.log('chatMessages', chatMessages) }
     if (chatMessages) {
         return (
             <div className="chat-area">
