@@ -13,6 +13,7 @@ import {
   setStatusMonitor,
   getUserInfos,
   searchOrgUsers,
+  saveBuddyData,
 } from "../ipcCommunication/ipcCommon";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
@@ -23,7 +24,9 @@ import MessageInputModal from "../../common/components/Modal/MessageInputModal";
 import tree from "../../reducer/tree";
 import moment from "moment";
 import ModifyGroupModal from "../../common/components/Modal/ModifyGroupModal";
+import xml2js from "xml2js";
 import { flattenDiagnosticMessageText } from "typescript";
+import { ConsoleTransportOptions } from "winston/lib/winston/transports";
 
 type TgetBuddyTreeReturnTypes = {
   buddyTree: TTreeNode[];
@@ -61,7 +64,7 @@ export default function FavoritePage() {
   const targetInfo = useStateListener();
 
   const [selectedKeys, setSelectedKeys] = useState<(string | number)[]>([]);
-  const [rightClickedKey, setRightClickedKey] = useState<string | number>(0);
+  const [rightClickedKey, setRightClickedKey] = useState<string | number>(``);
 
   const [
     departmentContextMenuVisible,
@@ -100,8 +103,44 @@ export default function FavoritePage() {
 
   // ANCHOR effect
   useEffect(() => {
+    const initiate = () => {
+      const flatten = spread(treeData, []);
+
+      if (flatten.length < 2) return false;
+
+      console.log(flatten);
+
+      const processed = flatten.map((v: TTreeNode) => ({
+        gubun: v.gubun,
+        id:
+          v.gubun === EnodeGubun.GROUP
+            ? v.key
+            : v.key.slice(0, v.key.lastIndexOf(`_`)),
+        level: 0,
+        name: v.title,
+        pid: v.pid,
+      }));
+
+      const requestBody = {
+        contacts: {
+          name: "",
+          type: "P",
+          node: processed,
+        },
+      };
+
+      console.log(`request body: `, requestBody);
+
+      const xml = new xml2js.Builder().buildObject(requestBody);
+      saveBuddyData(xml);
+    };
+    initiate();
+  }, [treeData]);
+
+  useEffect(() => {
     if (!rightClickedKey) {
       setFinalSelectedKeys([]);
+      return;
     }
     // * 선택해둔 노드를 rightClick하지 않은 경우 rightClickedKey를 fianl로 보냄.
     if (!selectedKeys.find((v: any) => v === rightClickedKey)) {
@@ -137,6 +176,7 @@ export default function FavoritePage() {
           contacts: { node: responseMaybeArr },
         },
       } = await getBuddyList();
+
       const response = arrayLike(responseMaybeArr);
       // 친구 id만 추출
       const userIds = response
@@ -152,7 +192,7 @@ export default function FavoritePage() {
           items: { node_item: userSchemaMaybeArr },
         },
       } = await getUserInfos(userIds);
-      // 사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
+      // 사용자 상세 정보가 하림일 경우를 가정하여 배열로 감쌈.
       const userSchema = arrayLike(userSchemaMaybeArr);
       // 즐겨찾기 트리 생성
       const root = response.reduce((prev: TTreeNode[], cur: any, i: number) => {
@@ -203,6 +243,7 @@ export default function FavoritePage() {
   }, []);
 
   // ANCHOR handler
+
   const handleModifyGroupVisible = async () => {
     const { v: targetV, i: targetI, list: targetList } = await find(
       treeData,
@@ -433,34 +474,35 @@ export default function FavoritePage() {
     const { v: dragV, i: dragI, list: dragList } = await find(replica, dragKey);
     const { v: dropV, i: dropI, list: dropList } = await find(replica, dropKey);
 
-    console.log(dropList);
-
-    const duplicated =
-      dropV?.gubun === EnodeGubun.GROUP
-        ? dropV?.children?.find((v: TTreeNode) => v.userId === dragV.userId)
-        : dropList.find((v: TTreeNode) => v.userId === dragV.userId);
-
-    if (duplicated) return false;
-
-    // 그룹 -> 유저 드래그
+    // * 그룹 -> 유저 드래그시 드롭 중지
     if (
       dragV.gubun === EnodeGubun.GROUP &&
       dropV.gubun === EnodeGubun.FAVORITE_USER
     ) {
       return false;
     }
-    // 유저 -> 유저 드래그
+    // * 유저 -> 유저 드래그
     if (dropV.gubun === EnodeGubun.FAVORITE_USER) {
+      // * 드롭 부서에 같은 유저가 있다면 드롭 중지
+      if (dragV.pid !== dropV.pid) {
+        if (dropList.find((v: TTreeNode) => v.userId === dragV.userId))
+          return false;
+      }
       dragList.splice(dragI, 1);
-      dropList.splice(dropI, 0, dragV);
+      dropList.splice(dropI, 0, { ...dragV, pid: dropV.pid });
     } else {
-      dragList.splice(dragI, 1);
-      // 그룹 -> 그룹 드래그 시 최하위로 삽입
+      // * 그룹 -> 그룹 드래그 시 최하위로 삽입
       if (dragV.gubun === EnodeGubun.GROUP) {
-        dropV.children?.push(dragV);
+        dragList.splice(dragI, 1);
+        dropV.children?.push({ ...dragV, pid: dropV.pid });
       } else {
-        // 유저 -> 그룹 드래그 시 최상위로 삽입
-        dropV.children?.unshift(dragV);
+        // * 유저 -> 부서
+        // * 부서 내 같은 유저가 있다면 드롭 중지
+        if (dropV?.children?.find((v: TTreeNode) => v.userId === dragV.userId))
+          return false;
+        // * 최상위로 삽입
+        dragList.splice(dragI, 1);
+        dropV.children?.unshift({ ...dragV, pid: dropV.key });
       }
     }
     setTreeData(replica);
@@ -499,7 +541,7 @@ export default function FavoritePage() {
           // gubun: U (User)
           // userSchema에서 검색하여 상세 정보를 userV에 담는다.
           const userV = userSchema?.find(
-            (v: any) => v.user_id.value === child.id
+            (v: any) => v.user_id?.value === child?.id
           );
           return {
             ...v,
@@ -603,12 +645,11 @@ export default function FavoritePage() {
               <Node
                 data={item}
                 index={i}
-                toggle={() => {
-                  setMessageModalVisible(true);
-                }}
                 selectedKeys={selectedKeys}
-                setSelectedKeys={setSelectedKeys}
                 rightClickedKey={rightClickedKey}
+                setSelectedKeys={setSelectedKeys}
+                setFinalSelectedKeys={setFinalSelectedKeys}
+                setMessageModalVisible={setMessageModalVisible}
               />
             }
           >
@@ -623,12 +664,11 @@ export default function FavoritePage() {
             <Node
               data={item}
               index={i}
-              toggle={() => {
-                setMessageModalVisible(true);
-              }}
               selectedKeys={selectedKeys}
-              setSelectedKeys={setSelectedKeys}
               rightClickedKey={rightClickedKey}
+              setSelectedKeys={setSelectedKeys}
+              setFinalSelectedKeys={setFinalSelectedKeys}
+              setMessageModalVisible={setMessageModalVisible}
             />
           }
         />
@@ -934,7 +974,7 @@ export default function FavoritePage() {
           closeModalFunction={() => {
             setMessageModalVisible(false);
           }}
-          // selectedNode={selectedNode}
+          selectedNode={finalSelectedKeys}
         />
       </Modal>
 
@@ -970,7 +1010,13 @@ export default function FavoritePage() {
         <div onMouseLeave={handleUserContextMenuClose} tabIndex={1}>
           <li>
             <ul onClick={handleDeleteBuddy}>즐겨찾기에서 삭제</ul>
-            <ul>쪽지 보내기</ul>
+            <ul
+              onClick={() => {
+                setMessageModalVisible(true);
+              }}
+            >
+              쪽지 보내기
+            </ul>
             <ul>채팅 시작</ul>
           </li>
         </div>
