@@ -73,17 +73,18 @@ function ChatInvitationModal(props) {
             }, 2000)
             return;
         }
-        //자기 자신도 선택된 사람에 포함해서 넣어주기 
-        selectedUsers.push(loggedInUser)
+        let entryUsers = selectedUsers
+        // entryUsers에는 자기 자신도 포함해서 넣어주기 
+        entryUsers.push(loggedInUser)
 
         let userIdArray = [];
         selectedUsers.map(user => userIdArray.push(user.user_id.value))
         //보내줘야 하는 형식으로 유저 ID들을 만들어 보내주기
-        let userIds = selectedUsers.map(user => user.user_id.value).join("|")
+        let chatEntryIds = entryUsers.map(user => user.user_id.value).join("|")
         const chatRoomBody = {
             selected_users: userIdArray,
-            user_counts: selectedUsers.length,
-            chat_entry_ids: userIds,
+            user_counts: chatEntryIds.length,
+            chat_entry_ids: chatEntryIds,
             unread_count: 0,
             chat_content: "",
             last_line_key: '9999999999999999',

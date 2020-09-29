@@ -197,19 +197,7 @@ export default function OrganizationPage() {
 
   // ANCHOR handler
   const handleChat = () => {
-    const chatRoomBody = {
-      selected_users: finalSelectedKeys,
-      user_counts: finalSelectedKeys.length,
-      chat_entry_ids: finalSelectedKeys.join(`|`),
-      unread_count: 0,
-      chat_content: "",
-      chat_send_name: sessionStorage.getItem(`loginName`),
-      create_room_date: moment().format("YYYYMMDDHHmm"),
-      chat_send_id: sessionStorage.getItem(`loginId`),
-    };
-
-    dispatch(addChatRoom(chatRoomBody));
-    history.push(`/chat`);
+    window.location.hash = `#/chat_from_organization/${finalSelectedKeys.join(`|`)}`;
   };
 
   const handleExpand = (expandedKeys: (string | number)[]): void => {
@@ -530,20 +518,20 @@ export default function OrganizationPage() {
     <>
       {(data?.gubun === EnodeGubun.GROUP ||
         data?.gubun === EnodeGubun.DUMMY) && (
-        <Switcher>
-          {!data?.expanded ? (
-            <img
-              src="/images/icon_toggle_plus.png"
-              style={{ minWidth: `20px`, height: `21px` }}
-            />
-          ) : (
-            <img
-              src="/images/icon_toggle_min.png"
-              style={{ minWidth: `20px`, height: `21px` }}
-            />
-          )}
-        </Switcher>
-      )}
+          <Switcher>
+            {!data?.expanded ? (
+              <img
+                src="/images/icon_toggle_plus.png"
+                style={{ minWidth: `20px`, height: `21px` }}
+              />
+            ) : (
+                <img
+                  src="/images/icon_toggle_min.png"
+                  style={{ minWidth: `20px`, height: `21px` }}
+                />
+              )}
+          </Switcher>
+        )}
     </>
   );
 
@@ -623,19 +611,19 @@ export default function OrganizationPage() {
               {renderTreeNodes(treeData)}
             </Tree>
           ) : (
-            <Tree
-              showLine
-              showIcon={false}
-              onSelect={handleSelect}
-              onExpand={handleExpand}
-              switcherIcon={switcherGenerator}
-              expandedKeys={[Efavorite.SEARCH_RESULT]}
-              onRightClick={handleRightClick}
-              multiple
-            >
-              {renderTreeNodes(searchResult)}
-            </Tree>
-          )}
+              <Tree
+                showLine
+                showIcon={false}
+                onSelect={handleSelect}
+                onExpand={handleExpand}
+                switcherIcon={switcherGenerator}
+                expandedKeys={[Efavorite.SEARCH_RESULT]}
+                onRightClick={handleRightClick}
+                multiple
+              >
+                {renderTreeNodes(searchResult)}
+              </Tree>
+            )}
         </div>
       </main>
       <Modal
