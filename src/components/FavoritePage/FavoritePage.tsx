@@ -97,6 +97,18 @@ export default function FavoritePage() {
 
   const leftPosition = useMemo(leftPositionCalculator, [pageX]);
 
+  // *  finalSelectedKeys가 변경된 후, key에서 날짜를 빼준 후, 중복값을 제거해서 쪽지 쓰기 컴포넌트로 넘겨준다.
+  const setFinalFinalSelectedKeys = () => {
+    const processed = finalSelectedKeys.map((v: string | number) =>
+      v.toString().slice(0, v.toString().lastIndexOf(`_`))
+    );
+    return [...new Set([...processed])];
+  };
+
+  const finalFinalSelectedKeys = useMemo(setFinalFinalSelectedKeys, [
+    finalSelectedKeys,
+  ]);
+
   // ANCHOR effect
   useEffect(() => {
     const initiate = () => {
@@ -1017,7 +1029,7 @@ export default function FavoritePage() {
           closeModalFunction={() => {
             setMessageModalVisible(false);
           }}
-          selectedNode={finalSelectedKeys}
+          selectedNode={finalFinalSelectedKeys}
         />
       </Modal>
 

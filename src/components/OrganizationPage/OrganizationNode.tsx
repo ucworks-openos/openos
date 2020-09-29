@@ -34,11 +34,6 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
   } = props;
   const [visible, setVisible] = useState<boolean>(false);
 
-  useEffect(() => {
-    console.log(`user name: `, data?.userName);
-    console.log(`user state: `, data?.userState);
-  }, []);
-
   // ANCHOR memo
   const connectTypeConverter = () => {
     const connectTypeMaybeArr: string | string[] = data?.connectType
