@@ -25,8 +25,8 @@ export default function HeaderNavi() {
   useEffect(() => {
     const initiate = async () => {
       await delay();
+      if (!sessionStorage.getItem(`loginId`)) return false;
       const profile = await getProfile(sessionStorage.getItem(`loginId`)!);
-      console.log(`my profile: `, profile);
       setMyInfo(profile);
     };
     initiate();
