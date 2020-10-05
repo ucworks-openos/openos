@@ -300,9 +300,10 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   // App Main Context Menu
   Menu.setApplicationMenu(mainContextMenu);
 
+  const iconPath = '';
   try {
     // Tray Context Menu
-    const iconPath = isMac ? path.join(__dirname, 'icon.png') : path.join(__dirname, 'icon.ico');
+    iconPath = isMac ? path.join(__dirname, 'icon.png') : path.join(__dirname, 'icon.ico');
     tray = new Tray(iconPath)
   } catch(err) {
     winston.error('Tray Icon CreateFail! ', iconPath)
@@ -325,7 +326,7 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
     width: 800,
     height: 750,
     webPreferences: { nodeIntegration: true },
-    ...(isMac ? {} : { icon: path.join(__dirname, 'icon.ico') }),
+    ...(iconPath ? {icon: iconPath} : {} ),
   });
 
   // 로딩표시 없이 바로 띄우기 위해
