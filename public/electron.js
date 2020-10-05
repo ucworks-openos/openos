@@ -256,7 +256,6 @@ var tray = null;
  */
 app.on("ready", async () => { //app.whenReady().then(() => { });
   
-
   winston.info(' ')
   winston.info(' ')
   winston.info('==================================================================')
@@ -264,7 +263,7 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   winston.info('==')
   winston.info('== IsDevMode:%s', isDev);
   winston.info('== LOCAL_IP:%s  MAC_ADDRESS:%s', OsUtil.getIpAddress(), await OsUtil.getMacAddress());
-  winston.info('== OS:%s VERSION:%s  USERNAME:%s', getOsInfo(), process.getSystemVersion(), process.env.USERNAME);
+  winston.info('== PLATFORM:%s OS:%s VERSION:%s  USERNAME:%s', process.platform, getOsInfo(), process.getSystemVersion(), process.env.USERNAME);
   winston.info('== COMPUTERNAME:%s  USERDOMAIN:%s', process.env.COMPUTERNAME, process.env.USERDOMAIN);
   winston.info('== ROOT_PATH:%s', global.ROOT_PATH );
 
@@ -305,13 +304,13 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   try {
     // Tray Context Menu
     tray = new Tray(iconPath)
+    tray.setToolTip('uc Messenger Application ')
+    tray.setContextMenu(trayContextMenu)
   } catch(err) {
     winston.error('Tray Icon CreateFail! ', iconPath)
   }
-  
 
-  tray.setToolTip('uc Messenger Application ')
-  tray.setContextMenu(trayContextMenu)
+  
 
   // tray.on('click', () => {
   //   mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
@@ -409,7 +408,7 @@ app.on("activate", () => {
 app.on('quit', function (evt) {
   session.defaultSession.clearStorageData();
 
-  tray.destroy();
+  if (tray) tray.destroy();
   app.exit();
 
   winston.info('==================================================================')
