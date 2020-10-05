@@ -59,3 +59,7 @@ export const delay = (ms: number = 1000) => {
     }, ms);
   });
 };
+
+export const getRandomNumber = () => {
+  return Math.round(Math.random() * 100000000);
+};

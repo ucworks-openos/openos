@@ -3,6 +3,7 @@ import "../../../assets/css/Modal.css";
 import { EnodeGubun } from "../../../enum";
 import useTree from "../../../hooks/useTree";
 import moment from "moment";
+import { getRandomNumber } from "../../util";
 
 type TaddGroupModal = {
   closeModalFunction: () => void;
@@ -29,7 +30,7 @@ export default function AddGroupModal(props: TaddGroupModal) {
     const newGroup = {
       children: [],
       gubun: EnodeGubun.GROUP,
-      key: `GROUP_1_${moment().format(`YYYYMMDDHHmmssSSS`)}`,
+      key: `GROUP_1_${getRandomNumber()}`,
       pid: targetV.key,
       title: inputValue,
     };
