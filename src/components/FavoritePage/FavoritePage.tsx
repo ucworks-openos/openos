@@ -17,7 +17,12 @@ import {
 } from "../ipcCommunication/ipcCommon";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
-import { arrayLike, convertToUser, getRandomNumber } from "../../common/util";
+import {
+  arrayLike,
+  convertToUser,
+  find,
+  getRandomNumber,
+} from "../../common/util";
 import { EconnectType, Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/Modal/MessageInputModal";
@@ -249,10 +254,9 @@ export default function FavoritePage() {
   // ANCHOR handler
 
   const handleChat = () => {
-    const processed = finalSelectedKeys.map((v: string | number) =>
-      v.toString().slice(0, v.toString().lastIndexOf(`_`))
-    );
-    window.location.hash = `#/chat_from_organization/${processed.join(`|`)}`;
+    window.location.hash = `#/chat_from_organization/${finalFinalSelectedKeys.join(
+      `|`
+    )}`;
   };
 
   const handleModifyGroupVisible = async () => {
@@ -607,23 +611,6 @@ export default function FavoritePage() {
 
     return list;
   };
-
-  const find = (
-    list: TTreeNode[],
-    key: string
-  ): Promise<{ v: TTreeNode; i: number; list: TTreeNode[] }> =>
-    new Promise((resolve) => {
-      for (let i = 0; i < list.length; i++) {
-        if (list[i].key === key) {
-          resolve({ v: list[i], i: i, list: list });
-        }
-        if (list[i].children) {
-          find(list[i].children!, key).then((result) => {
-            if (result) resolve(result);
-          });
-        }
-      }
-    });
 
   const changeState = (
     list: any,

@@ -63,3 +63,20 @@ export const delay = (ms: number = 1000) => {
 export const getRandomNumber = () => {
   return Math.round(Math.random() * 100000000);
 };
+
+export const find = (
+  list: TTreeNode[],
+  key: number | string
+): Promise<{ v: TTreeNode; i: number; list: TTreeNode[] }> =>
+  new Promise((resolve) => {
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].key === key) {
+        resolve({ v: list[i], i: i, list: list });
+      }
+      if (list[i].children) {
+        find(list[i].children!, key).then((result) => {
+          if (result) resolve(result);
+        });
+      }
+    }
+  });
