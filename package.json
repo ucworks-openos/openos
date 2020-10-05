@@ -70,7 +70,8 @@
     "copyright": "Copyright © year ${author}",
     "files": [
       "build/**/*",
-      "node_modules/**/*"
+      "node_modules/**/*",
+      "site.cfg"
     ],
     "directories": {
       "buildResources": "public"

@@ -12,6 +12,7 @@ const cmdConst = require("./main-process/net-command/command-const");
 
 const { createLiteralTypeNode } = require("typescript");
 const { readConfig } = require("./main-process/configuration/site-config");
+const { getOsInfo } = require("./main-process/utils/utils-os");
 
 const BrowserWindow = electron.BrowserWindow;
 const globalShortcut = electron.globalShortcut
@@ -263,7 +264,7 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   winston.info('==')
   winston.info('== IsDevMode:%s', isDev);
   winston.info('== LOCAL_IP:%s  MAC_ADDRESS:%s', OsUtil.getIpAddress(), await OsUtil.getMacAddress());
-  winston.info('== OS:%s VERSION:%s  USERNAME:%s', process.env.OS, process.getSystemVersion(), process.env.USERNAME);
+  winston.info('== OS:%s VERSION:%s  USERNAME:%s', getOsInfo(), process.getSystemVersion(), process.env.USERNAME);
   winston.info('== COMPUTERNAME:%s  USERDOMAIN:%s', process.env.COMPUTERNAME, process.env.USERDOMAIN);
   winston.info('== ROOT_PATH:%s', global.ROOT_PATH );
 
@@ -299,9 +300,15 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   // App Main Context Menu
   Menu.setApplicationMenu(mainContextMenu);
 
-  // Tray Context Menu
-  const iconPath = isMac ? path.join(__dirname, 'icon.png') : path.join(__dirname, 'icon.ico');
-  tray = new Tray(iconPath)
+  try {
+    // Tray Context Menu
+    const iconPath = isMac ? path.join(__dirname, 'icon.png') : path.join(__dirname, 'icon.ico');
+    tray = new Tray(iconPath)
+  } catch(err) {
+    winston.error('Tray Icon CreateFail! ', iconPath)
+  }
+  
+
   tray.setToolTip('uc Messenger Application ')
   tray.setContextMenu(trayContextMenu)
 
