@@ -13,15 +13,15 @@ const cmdConst = require("./main-process/net-command/command-const");
 const { createLiteralTypeNode } = require("typescript");
 const { readConfig } = require("./main-process/configuration/site-config");
 const { getOsInfo } = require("./main-process/utils/utils-os");
+const { PLATFORM } = require("./main-process/common/common-const");
 
 const BrowserWindow = electron.BrowserWindow;
 const globalShortcut = electron.globalShortcut
-const isMac = process.platform === 'darwin';
 
 // Main Context Menu
 const mainContextMenu = Menu.buildFromTemplate([
   // { role: 'appMenu' }
-  ...(isMac ? [{
+  ...(global.MY_PLATFORM === PLATFORM.MAC ? [{
     label: app.name,
     submenu: [
       { role: 'hide' },
@@ -105,6 +105,14 @@ const trayContextMenu = Menu.buildFromTemplate([
  * GLOBAL 정보는 선언을 하고 사용한다. (중앙관리)
  */
 //#region GLOBAL 설정 정보
+
+global.MY_PLATFORM = process.platform;
+
+global.ROOT_PATH = require('fs').realpathSync('./');
+global.LOG_PATH;
+
+global.IS_DEV = isDev;
+
 global.MAIN_WINDOW = null;
 
 /**
@@ -225,10 +233,6 @@ global.TEMP = {
   buddyXml: ''
 }
 
-global.ROOT_PATH = require('fs').realpathSync('./');
-global.LOG_PATH;
-
-global.IS_DEV = isDev;
 
 
 //#endregion GLOBAL 설정 정보
@@ -263,7 +267,7 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   winston.info('==')
   winston.info('== IsDevMode:%s', isDev);
   winston.info('== LOCAL_IP:%s  MAC_ADDRESS:%s', OsUtil.getIpAddress(), await OsUtil.getMacAddress());
-  winston.info('== PLATFORM:%s OS:%s VERSION:%s  USERNAME:%s', process.platform, getOsInfo(), process.getSystemVersion(), process.env.USERNAME);
+  winston.info('== PLATFORM:%s OS:%s VERSION:%s  USERNAME:%s', global.MY_PLATFORM, getOsInfo(), process.getSystemVersion(), process.env.USERNAME);
   winston.info('== COMPUTERNAME:%s  USERDOMAIN:%s', process.env.COMPUTERNAME, process.env.USERDOMAIN);
   winston.info('== ROOT_PATH:%s', global.ROOT_PATH );
 
@@ -300,14 +304,29 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   Menu.setApplicationMenu(mainContextMenu);
 
   //const iconPath = isMac ? path.join(__dirname, 'icon.png') : path.join(__dirname, 'icon.ico');
-  const iconPath = isMac ? path.join(__dirname, 'icon.icns') : path.join(__dirname, 'icon.ico');
+  let iconPath = '';
+  switch(global.MY_PLATFORM) {
+    case PLATFORM.MAC:
+      iconPath = path.join(__dirname, 'icon.icns');
+      break;
+    
+    case PLATFORM.LINUX:
+      iconPath = path.join(__dirname, 'icon.png');
+      break;
+
+    case PLATFORM.WIN:
+    default:
+      iconPath = path.join(__dirname, 'icon.ico');
+      break;
+  }
+
   try {
     // Tray Context Menu
-    tray = new Tray(iconPath)
-    tray.setToolTip('uc Messenger Application ')
-    tray.setContextMenu(trayContextMenu)
+    tray = new Tray(iconPath);
+    tray.setToolTip('uc Messenger Application ');
+    tray.setContextMenu(trayContextMenu);
   } catch(err) {
-    winston.error('Tray Icon CreateFail! ', iconPath)
+    winston.error('Tray Icon CreateFail! ', iconPath);
   }
 
   
@@ -325,7 +344,8 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
     width: 800,
     height: 750,
     webPreferences: { nodeIntegration: true },
-    ...(isMac ? {} : { icon: iconPath }),
+    icon: iconPath,
+    ... {},
   });
 
   // 로딩표시 없이 바로 띄우기 위해
