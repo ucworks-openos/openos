@@ -307,7 +307,7 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   let iconPath = '';
   switch(global.MY_PLATFORM) {
     case PLATFORM.MAC:
-      iconPath = path.join(__dirname, 'icon.icns');
+      iconPath = path.join(__dirname, 'icon.png');
       break;
     
     case PLATFORM.LINUX:
