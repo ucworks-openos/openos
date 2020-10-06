@@ -35,7 +35,13 @@ function reqLogin (loginData) {
       
         // connect
         if (!global.SERVER_INFO.DS.isConnected) {
-            await dsCore.connectDS();
+            try {
+                await dsCore.connectDS();
+            } catch (err) {
+                reject(err);    
+                return;
+            }
+            
         }
 
         if (!global.SERVER_INFO.DS.isConnected) 

@@ -14,10 +14,11 @@ const commandConst = require('../net-command/command-const');
 ipcMain.on('login', async (event, loginData) => {
 
   winston.debug('login Req : %s', loginData)
+  let resData;
 
   try {
     // DS로 로그인 요청을 하고
-    let resData = await dsAPI.reqLogin(loginData, true);
+    resData = await dsAPI.reqLogin(loginData, true);
 
     winston.debug('login Req : %s', resData)
 
@@ -53,7 +54,7 @@ ipcMain.on('login', async (event, loginData) => {
     event.reply('res-login', new ResData(true, resData));
 
   } catch(err){
-    winston.debug('login fail! res:', err)
+    winston.error('login fail! res:', resData, err)
     event.reply('res-login', new ResData(false, err));
   };
 });

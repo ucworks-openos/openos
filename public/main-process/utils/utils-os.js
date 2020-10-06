@@ -39,7 +39,7 @@ function getOsPlatForm(){
 }
 
 function getOsInfo() {
-    return os.platform + '-' + os.release();
+    return  require('util').format('%s(%s)-%s', os.platform, os.type(), os.release());
 }
 
 function getOsHostName() {

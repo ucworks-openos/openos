@@ -2,6 +2,12 @@ module.exports = Object.freeze({
     // Site Config 파일 명
     SITE_CONFIG_FILE: 'site.cfg',
 
+    PLATFORM: {
+        MAC: 'darwin',
+        LINUX: 'linux',
+        WIN: 'win32'
+    },
+
     /** 쪽지 구분 */ 
     MSG_GUBUN: {
         SEND:'SEND',   //보낸쪽지
