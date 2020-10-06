@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { getUserInfos } from "../../../components/ipcCommunication/ipcCommon";
 import { EnodeGubun } from "../../../enum";
 import useTree from "../../../hooks/useTree";
-import { arrayLike, convertToUser, delay } from "../../util";
+import { arrayLike, convertToUser, delay, getRandomNumber } from "../../util";
 import Node from "../AddToFavoriteTreeNode";
 import moment from "moment";
 
@@ -37,7 +37,7 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
       // * 가져온 정보를 가공. 이 때 selectedKeys 유저가 Favorite 유저와 중복됟 시 중복 표기 해 줌.
       const result = userSchema.map((v: any) => ({
         title: v.user_name.value,
-        key: v.user_id.value?.concat(`_`, moment().format(`YYYYMMDDHHmmssSSS`)),
+        key: v.user_id.value?.concat(`_`, getRandomNumber()),
         gubun: EnodeGubun.FAVORITE_USER,
         ...(v && convertToUser(v)),
       }));

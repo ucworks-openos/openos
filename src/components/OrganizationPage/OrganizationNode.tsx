@@ -82,6 +82,10 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
     setVisible((prev) => !prev);
   };
 
+  const handleChat = () => {
+    window.location.hash = `#/chat_from_organization/${data?.userId}`;
+  };
+
   return (
     <>
       {data?.gubun === EnodeGubun.GROUP || data?.gubun === EnodeGubun.DUMMY ? (
@@ -159,7 +163,11 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
                     </div>
                   </div>
                   <div className="go-to-contact-action">
-                    <div className="btn-contact-action chat" title="채팅"></div>
+                    <div
+                      className="btn-contact-action chat"
+                      title="채팅"
+                      onMouseDown={handleChat}
+                    ></div>
                     <div
                       className="btn-contact-action message"
                       title="쪽지"
@@ -209,7 +217,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
             </div>
           </div>
           <div className="user-quick-action-wrap">
-            <div className="btn-quick chat"></div>
+            <div className="btn-quick chat" onClick={handleChat}></div>
             <div className="btn-quick message" onClick={handleToggle}></div>
             <div className="btn-quick call"></div>
           </div>

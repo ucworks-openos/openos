@@ -11,6 +11,18 @@ function Sidebar() {
   const history = useHistory();
   const [activePath, setActivePath] = useState(history.location.pathname);
 
+  window.onhashchange = () => {
+    const {
+      location: { pathname },
+    } = history;
+
+    setActivePath(
+      pathname.indexOf(`_`) > -1
+        ? pathname.slice(0, pathname.indexOf(`_`))
+        : pathname
+    );
+  };
+
   useEffect(() => {
     getUserInfos([sessionStorage.getItem("loginId")]).then((response) => {
       console.log(response);

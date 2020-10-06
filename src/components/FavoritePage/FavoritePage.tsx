@@ -17,7 +17,12 @@ import {
 } from "../ipcCommunication/ipcCommon";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
-import { arrayLike, convertToUser } from "../../common/util";
+import {
+  arrayLike,
+  convertToUser,
+  find,
+  getRandomNumber,
+} from "../../common/util";
 import { EconnectType, Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/Modal/MessageInputModal";
@@ -114,6 +119,7 @@ export default function FavoritePage() {
     const initiate = () => {
       const flatten = spread(treeData, []);
 
+      // * 트리 데이터가 없으면 동기화 중지
       if (flatten.length < 2) return false;
 
       const processed = flatten.map((v: TTreeNode) => ({
@@ -135,7 +141,10 @@ export default function FavoritePage() {
         },
       };
 
-      console.log(`change detected. request body: `, requestBody);
+      console.log(
+        `something changed on favorite tree. request body: `,
+        requestBody
+      );
 
       const xml = new xml2js.Builder().buildObject(requestBody);
       saveBuddyData(xml);
@@ -157,18 +166,12 @@ export default function FavoritePage() {
   }, [rightClickedKey]);
 
   useEffect(() => {
-    const initiate = async () => {
+    const initiate = () => {
       const [targetId, state, connectType] = targetInfo;
       const replica = [...treeData];
-      const response = await changeState(
-        replica,
-        targetId,
-        Number(state),
-        connectType
-      );
-      if (response) {
-        setTreeData(replica);
-      }
+      changeState(replica, targetId, Number(state), connectType);
+
+      setTreeData(replica);
     };
     initiate();
   }, [targetInfo]);
@@ -200,20 +203,6 @@ export default function FavoritePage() {
       // 사용자 상세 정보가 하림일 경우를 가정하여 배열로 감쌈.
       const userSchema = arrayLike(userSchemaMaybeArr);
 
-      const processed = userSchema.map((v: any, i: number) => {
-        if (i === userSchema.length - 1) {
-          return {
-            ...v,
-            isLast: true,
-          };
-        } else {
-          return {
-            ...v,
-            isLast: false,
-          };
-        }
-      });
-
       // 즐겨찾기 트리 생성
       const root = response.reduce((prev: TTreeNode[], cur: any, i: number) => {
         // pid (parent id)가 없을 경우 최상위 노드의 자식에 삽입
@@ -230,7 +219,7 @@ export default function FavoritePage() {
           ];
         } else {
           // 재귀함수 (children에 하위 노드 삽입)
-          return append(prev, cur, processed);
+          return append(prev, cur, userSchema);
         }
       }, []);
 
@@ -265,10 +254,9 @@ export default function FavoritePage() {
   // ANCHOR handler
 
   const handleChat = () => {
-    const processed = finalSelectedKeys.map((v: string | number) =>
-      v.toString().slice(0, v.toString().lastIndexOf(`_`))
-    );
-    window.location.hash = `#/chat_from_organization/${processed.join(`|`)}`;
+    window.location.hash = `#/chat_from_organization/${finalFinalSelectedKeys.join(
+      `|`
+    )}`;
   };
 
   const handleModifyGroupVisible = async () => {
@@ -576,10 +564,9 @@ export default function FavoritePage() {
               ...v.children,
               {
                 title: child.name,
-                key: child.id.concat(`_`, moment().format(`YYYYMMDDHHmmssSSS`)),
+                key: child.id.concat(`_`, getRandomNumber()),
                 gubun: child.gubun,
                 pid: child.pid,
-                isLast: userV?.isLast,
                 ...(userV && convertToUser(userV)),
               },
             ],
@@ -625,48 +612,25 @@ export default function FavoritePage() {
     return list;
   };
 
-  const find = (
-    list: TTreeNode[],
-    key: string
-  ): Promise<{ v: TTreeNode; i: number; list: TTreeNode[] }> =>
-    new Promise((resolve) => {
-      for (let i = 0; i < list.length; i++) {
-        if (list[i].key === key) {
-          resolve({ v: list[i], i: i, list: list });
-        }
-        if (list[i].children) {
-          find(list[i].children!, key).then((result) => {
-            if (result) resolve(result);
-          });
-        }
-      }
-    });
-
   const changeState = (
     list: any,
     userId: string,
     state: number,
     connectType: string
   ) => {
-    return new Promise((resolve) => {
-      for (let i = 0; i < list.length; i++) {
-        if (list[i].userId === userId) {
-          list[i] = {
-            ...list[i],
-            userState: state,
-            connectType,
-          };
-        }
-        if (list[i].isLast) resolve(true);
-        if (list[i].children) {
-          changeState(list[i].children!, userId, state, connectType).then(
-            (result) => {
-              if (result) resolve(result);
-            }
-          );
-        }
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].userId === userId) {
+        list[i] = {
+          ...list[i],
+          userState: state,
+          connectType,
+        };
       }
-    });
+
+      if (list[i].children) {
+        changeState(list[i].children!, userId, state, connectType);
+      }
+    }
   };
 
   const switcherGenerator = (data: any) => (

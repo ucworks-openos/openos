@@ -66,9 +66,13 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
   const rightClicked = useMemo(setRightClicked, [rightClickedKey]);
 
   // ANCHOR handler
-  const handleToggle = () => {
+  const handleMessageModal = () => {
     setFinalSelectedKeys([data?.key]);
     setMessageModalVisible((prev: boolean) => !prev);
+  };
+
+  const handleChat = () => {
+    window.location.hash = `#/chat_from_organization/${data?.userId}`;
   };
 
   const handleDetailToggle = (e: any) => {
@@ -167,10 +171,14 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
                     </div>
                   </div>
                   <div className="go-to-contact-action">
-                    <div className="btn-contact-action chat" title="채팅"></div>
+                    <div
+                      className="btn-contact-action chat"
+                      title="채팅"
+                      onMouseDown={handleChat}
+                    ></div>
                     <div
                       className="btn-contact-action message"
-                      onMouseDown={handleToggle}
+                      onMouseDown={handleMessageModal}
                       title="쪽지"
                     ></div>
                     <div
@@ -217,8 +225,11 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
             </div>
           </div>
           <div className="user-quick-action-wrap">
-            <div className="btn-quick chat"></div>
-            <div className="btn-quick message" onClick={handleToggle}></div>
+            <div className="btn-quick chat" onClick={handleChat}></div>
+            <div
+              className="btn-quick message"
+              onClick={handleMessageModal}
+            ></div>
             <div className="btn-quick call"></div>
           </div>
         </UserRow>
