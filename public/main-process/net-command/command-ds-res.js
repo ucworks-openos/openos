@@ -14,7 +14,7 @@ const { parseRuleInfo } = require('../configuration/envi-config');
  * 수신한 Command를 처리합니다. 
  * @param {CommandHeader} resCmd 
  */
-function responseCmdProc(resCmd) {
+async function responseCmdProc(resCmd) {
   if (!resCmd.sendCmd) {
     winston.warn('Reqeust Command Empty! -  CMD: ' + resCmd.cmdCode);
     return;
@@ -85,7 +85,7 @@ function responseCmdProc(resCmd) {
           sInx += CmdConst.BUF_LEN_INT;
 
           let ruleXml = rcvBuf.toString(global.ENC, sInx).trim();
-          let resData = parseRuleInfo(ruleXml);
+          let resData = await parseRuleInfo(ruleXml);
 
           winston.info('get rule :', resData);
 

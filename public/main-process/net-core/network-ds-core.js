@@ -55,7 +55,7 @@ function connect () {
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         dsSock.on('error', function(err){
-            winston.error("DS Error: " + JSON.stringify(err));
+            winston.error("DS Error: ", err);
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.DS.isConnected) {
