@@ -119,12 +119,12 @@ if (!global.IS_DEV) {
   switch(global.MY_PLATFORM) {
     case PLATFORM.MAC:
     case PLATFORM.LINUX:
-      global.LOG_PATH = path.join(process.env.HOME, 'openOs', 'logs');
+      global.LOG_PATH = path.join(process.env.HOME, 'OpenOS', 'logs');
       break;
   
     case PLATFORM.WIN:
     default:
-      global.LOG_PATH = path.join(process.env.USERPROFILE, 'openOs', 'logs');
+      global.LOG_PATH = path.join(process.env.USERPROFILE, 'OpenOS', 'logs');
       break;
   }
 }
