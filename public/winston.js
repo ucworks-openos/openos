@@ -18,8 +18,6 @@ const { combine, timestamp, label, printf, prettyPrint } = winston.format;
 // }con
 
 
-
-
 const arrayPrepareStackTrace = (err, stack) => { return stack }
 
 const myFormat = printf(({ level, message, label, timestamp }) => {
