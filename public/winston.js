@@ -33,7 +33,6 @@ function getLogger() {
 
   if (logger) return logger;
 
-  
   let options = {
     // log파일
     file: {

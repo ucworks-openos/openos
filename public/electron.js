@@ -110,8 +110,24 @@ global.IS_DEV = isDev;
 global.MY_PLATFORM = process.platform;
 
 global.ROOT_PATH = require('fs').realpathSync('./');
-global.LOG_PATH = global.IS_DEV ?  '/logs' : global.ROOT_PATH + '\\logs';
-global.IS_DEV
+
+// LOG PATH
+if (!global.IS_DEV) {
+  global.LOG_PATH = global.ROOT_PATH + '\\logs';
+} else {
+  // 개발모드 일때는 로그경로를 밖으로 뺀다.
+  switch(global.MY_PLATFORM) {
+    case PLATFORM.MAC:
+    case PLATFORM.LINUX:
+      global.LOG_PATH = process.env.HOME + '\\openOs\\logs';
+      break;
+  
+    case PLATFORM.WIN:
+    default:
+      global.LOG_PATH =process.env.USERPROFILE + '\\openOs\\logs';
+      break;
+  }
+}
 
 global.MAIN_WINDOW = null;
 
@@ -269,7 +285,7 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   winston.info('== LOCAL_IP:%s  MAC_ADDRESS:%s', OsUtil.getIpAddress(), await OsUtil.getMacAddress());
   winston.info('== PLATFORM:%s OS:%s VERSION:%s  USERNAME:%s', global.MY_PLATFORM, getOsInfo(), process.getSystemVersion(), process.env.USERNAME);
   winston.info('== COMPUTERNAME:%s USERDOMAIN:%s LANG:%s', process.env.COMPUTERNAME, process.env.USERDOMAIN, process.env.LANG);
-  winston.info('== ROOT_PATH:%s PWD:%s', global.ROOT_PATH,  process.env.PWD);
+  winston.info('== ROOT_PATH:%s PWD:%s HOME:%s', global.ROOT_PATH, process.env.PWD, process.env.HOME);
 
   if (IS_DEV) {
     winston.info('== USERPROFILE:%s', process.env.USERPROFILE);
