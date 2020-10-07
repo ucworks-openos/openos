@@ -106,12 +106,12 @@ const trayContextMenu = Menu.buildFromTemplate([
  */
 //#region GLOBAL 설정 정보
 
+global.IS_DEV = isDev;
 global.MY_PLATFORM = process.platform;
 
 global.ROOT_PATH = require('fs').realpathSync('./');
-global.LOG_PATH;
-
-global.IS_DEV = isDev;
+global.LOG_PATH = global.IS_DEV ?  '/logs' : global.ROOT_PATH + '\\logs';
+global.IS_DEV
 
 global.MAIN_WINDOW = null;
 
@@ -268,8 +268,8 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   winston.info('== IsDevMode:%s', isDev);
   winston.info('== LOCAL_IP:%s  MAC_ADDRESS:%s', OsUtil.getIpAddress(), await OsUtil.getMacAddress());
   winston.info('== PLATFORM:%s OS:%s VERSION:%s  USERNAME:%s', global.MY_PLATFORM, getOsInfo(), process.getSystemVersion(), process.env.USERNAME);
-  winston.info('== COMPUTERNAME:%s  USERDOMAIN:%s', process.env.COMPUTERNAME, process.env.USERDOMAIN);
-  winston.info('== ROOT_PATH:%s', global.ROOT_PATH );
+  winston.info('== COMPUTERNAME:%s USERDOMAIN:%s LANG:%s', process.env.COMPUTERNAME, process.env.USERDOMAIN, process.env.LANG);
+  winston.info('== ROOT_PATH:%s PWD:%s', global.ROOT_PATH,  process.env.PWD);
 
   if (IS_DEV) {
     winston.info('== USERPROFILE:%s', process.env.USERPROFILE);
