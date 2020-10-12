@@ -1,7 +1,7 @@
 
 const winston = require('../../winston');
 
-const MsgNoti = require('../notification/messageNoti');
+const MsgNoti = require('../notification/notificationWindow');
 const EncUtil = require('../utils/utils-crypto');
 const BufUtil = require('../utils/utils-buffer');
 
