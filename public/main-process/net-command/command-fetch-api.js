@@ -129,11 +129,19 @@ async function reqGetChatList(roomId, lastLineKey = '9999999999999999', rowLimit
     
     let res = await selectToServer(query, queryKey);
 
-    winston.debug('!!!!!!!!!!!!!!!!!!!!!!!!!!!!! chatData----------', res.data.table.row)
-    
-    res.data.table.row.forEach((chat) => {
-        chat.chat_contents = decryptMessage(chat.chat_encrypt_key, chat.chat_contents, true);
-    });
+    try {
+        if (Array.isArray(res.data.table.row)) {
+            res.data.table.row.forEach((chat) => {
+                chat.chat_contents = decryptMessage(chat.chat_encrypt_key, chat.chat_contents, true);
+            });
+        } else if (res.data.table.row){
+            // 대화 내용이 1개밖에 없는 경우
+            res.data.table.row.chat_contents = decryptMessage(res.data.table.row.chat_encrypt_key, res.data.table.row.chat_contents, true);
+        }
+        
+    } catch (err) {
+        winston.err('chatList decrypt content fail!', res, err)
+    }
 
     return res;
 }
