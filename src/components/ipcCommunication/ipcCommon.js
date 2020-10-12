@@ -2,13 +2,8 @@ const electron = window.require("electron");
 
 /** Config를 불러옵니다. */
 export const getConfig = () => {
-<<<<<<< HEAD
   return new Promise(function(resolve, reject) {
     electron.ipcRenderer.once('res-getConfig', (event, arg) => {
-=======
-  return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.on("res-getConfig", (event, arg) => {
->>>>>>> d1f64c3d7993e7e2029527b736e2143f34258574
       resolve(arg);
     });
 
@@ -29,11 +24,7 @@ export const login = (loginId, loginPwd) => {
       loginPwd: loginPwd,
     };
 
-<<<<<<< HEAD
     electron.ipcRenderer.once('res-login', (event, arg) => {
-=======
-    electron.ipcRenderer.on("res-login", (event, arg) => {
->>>>>>> d1f64c3d7993e7e2029527b736e2143f34258574
       console.log("LOGIN REQUEST res:", arg);
       resolve(arg);
     });
