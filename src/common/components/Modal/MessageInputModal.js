@@ -119,6 +119,7 @@ function MessageInputModal(props) {
         }
         let recvIds = selectedUsers.map(user => user.user_id.value).join('|')
         let recvNames = selectedUsers.map(user => user.user_name.value).join(',')
+        
         dispatch(addMessage(recvIds, recvNames, title,
             content.trim().length === 0 ? `<p>${title}</>` : content, currentMessageListType, loggedInUser.user_name.value))
         setContent("")
@@ -143,7 +144,10 @@ function MessageInputModal(props) {
 
     return (
         <div >
-
+            <>
+            <div>fuckyou</div>
+            {props.selectedNode.map((v) => <div>{v}</div>)}
+            </>
             <h5 class="modal-title write-message">쪽지 쓰기</h5>
             <div class="write-row to-ppl-wrap">
                 <input type="text"

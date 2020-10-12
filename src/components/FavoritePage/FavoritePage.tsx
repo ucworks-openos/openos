@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, Children } from "react";
 import styled from "styled-components";
 import "./FavoritePage.css";
 import "../../assets/css/Tree.scss";
@@ -12,8 +12,6 @@ import {
   getBuddyList,
   setStatusMonitor,
   getUserInfos,
-  searchOrgUsers,
-  saveBuddyData,
 } from "../ipcCommunication/ipcCommon";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
@@ -22,31 +20,21 @@ import {
   convertToUser,
   find,
   getRandomNumber,
+  syncronize,
 } from "../../common/util";
-import { EconnectType, Efavorite, EnodeGubun } from "../../enum";
+import { Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/Modal/MessageInputModal";
-import tree from "../../reducer/tree";
-import moment from "moment";
 import ModifyGroupModal from "../../common/components/Modal/ModifyGroupModal";
-import xml2js from "xml2js";
-import { flattenDiagnosticMessageText } from "typescript";
-import { ConsoleTransportOptions } from "winston/lib/winston/transports";
-import { useHistory } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { addChatRoom } from "../../redux/actions/chat_actions";
-import { loggers } from "winston";
 
 type TgetBuddyTreeReturnTypes = {
   buddyTree: TTreeNode[];
-  keyIds: string[];
   userIds: string[];
+  groupIds: string[];
 };
 
 export default function FavoritePage() {
   // ANCHOR state
-  const history = useHistory();
-  const dispatch = useDispatch();
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
     false
   );
@@ -116,42 +104,6 @@ export default function FavoritePage() {
   ]);
 
   // ANCHOR effect
-  useEffect(() => {
-    const initiate = () => {
-      const flatten = spread(treeData, []);
-
-      // * 트리 데이터가 없으면 동기화 중지
-      if (flatten.length < 2) return false;
-
-      const processed = flatten.map((v: TTreeNode) => ({
-        gubun: v.gubun,
-        id:
-          v.gubun === EnodeGubun.GROUP
-            ? v.key
-            : v.key.slice(0, v.key.lastIndexOf(`_`)),
-        level: 0,
-        name: v.title,
-        pid: v.pid,
-      }));
-
-      const requestBody = {
-        contacts: {
-          name: "",
-          type: "P",
-          node: processed,
-        },
-      };
-
-      console.log(
-        `something changed on favorite tree. request body: `,
-        requestBody
-      );
-
-      const xml = new xml2js.Builder().buildObject(requestBody);
-      saveBuddyData(xml);
-    };
-    initiate();
-  }, [treeData]);
 
   useEffect(() => {
     if (!rightClickedKey) {
@@ -178,7 +130,6 @@ export default function FavoritePage() {
   }, [targetInfo]);
 
   useEffect(() => {
-    // 친구 + 개인 그룹 1deps로 가져오기.
     const getBuddyTree = async (): Promise<TgetBuddyTreeReturnTypes> => {
       const {
         data: {
@@ -186,48 +137,72 @@ export default function FavoritePage() {
         },
       } = await getBuddyList();
 
+      // * response가 하나일 경우를 가정하여 배열로 감쌈.
       const response = arrayLike(responseMaybeArr);
-      // 친구 id만 추출
-      const userIds = response
+      // * 친구 id만 추출하기 위해 hierarchy object -> flat array로 convert
+      const flatten = spread(response, []);
+      const userIds = flatten
         .filter((v: any) => v.gubun === EnodeGubun.FAVORITE_USER)
         .map((v: any) => v.id);
-      // 개인 그룹만 추출 (id 없을 시 name으로 추출)
-      const keyIds = response
+      const groupIds = flatten
         .filter((v: any) => v.gubun === EnodeGubun.GROUP)
-        .map((v: any) => (v.id ? v.id : v.name));
-      // 로그인 id + 추출한 친구 id로 사용자 상세 정보 가져오기
+        .map((v: any) => v.id);
+
       const {
         data: {
           items: { node_item: userSchemaMaybeArr },
         },
       } = await getUserInfos(userIds);
-      // 사용자 상세 정보가 하림일 경우를 가정하여 배열로 감쌈.
-      const userSchema = arrayLike(userSchemaMaybeArr);
 
-      // 즐겨찾기 트리 생성
-      const root = response.reduce((prev: TTreeNode[], cur: any, i: number) => {
-        // pid (parent id)가 없을 경우 최상위 노드의 자식에 삽입
-        if (!cur.pid) {
-          return [
-            ...prev,
-            {
-              gubun: cur.gubun,
-              title: cur.name,
-              key: cur.id ? cur.id : cur.name,
-              pid: cur.pid,
-              children: [],
-            },
-          ];
-        } else {
-          // 재귀함수 (children에 하위 노드 삽입)
-          return append(prev, cur, userSchema);
-        }
-      }, []);
+      // * 사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
+      // * 해쉬맵에 사용자 상세정보 매핑
+      const userSchema = arrayLike(userSchemaMaybeArr).reduce(
+        (prev: any, cur: any, i: number) => {
+          prev[cur.user_id?.value] = convertToUser(cur);
+          return prev;
+        },
+        {}
+      );
+
+      // * gubun, name, id ->  gubun, title, key, children 등 트리 형식으로 convert
+      const convertResponseToTree = (tree: any) => {
+        return tree.map((v: any) => {
+          if (v.gubun === EnodeGubun.GROUP) {
+            const spareRandomKey = getRandomNumber();
+            return {
+              gubun: v.gubun,
+              id: v.id ? v.id : `GROUP_${spareRandomKey}`,
+              level: v.level ? v.level : `0`,
+              name: v.name,
+              pid: v.pid,
+              title: v.name,
+              key: v.id ? v.id : `GROUP_${spareRandomKey}`,
+              children: convertResponseToTree(arrayLike(v.node)),
+            };
+          } else {
+            return {
+              gubun: v.gubun,
+              id: v.id,
+              level: v.level,
+              name: v.name,
+              pid: v.pid,
+              title: v.name,
+              key: v.id.concat(`_`, getRandomNumber()),
+              ...userSchema[v.id],
+            };
+          }
+        });
+      };
+
+      const root = convertResponseToTree(response);
 
       // 즐겨찾기 없을 경우 생성.
       const spareRoot: TTreeNode[] = [
         {
           gubun: EnodeGubun.GROUP,
+          id: Efavorite.FAVORITE,
+          level: "0",
+          name: Efavorite.FAVORITE,
           title: Efavorite.FAVORITE,
           key: Efavorite.FAVORITE,
           pid: undefined,
@@ -237,28 +212,21 @@ export default function FavoritePage() {
 
       return {
         buddyTree: root.length ? root : spareRoot,
-        keyIds: keyIds.length ? keyIds : [Efavorite.FAVORITE],
         userIds,
+        groupIds,
       };
     };
 
     const initiate = async () => {
-      try {
-        const { buddyTree, keyIds, userIds } = await getBuddyTree();
-
-        setTreeData(buddyTree);
-        setExpandedKeys(keyIds);
-        setStatusMonitor(userIds);
-      } catch (err) {
-        console.log('initiate ', err)
-      }
-      
+      const { buddyTree, userIds, groupIds } = await getBuddyTree();
+      setTreeData(buddyTree);
+      setStatusMonitor(userIds);
+      setExpandedKeys(groupIds);
     };
     !treeData.length && initiate();
   }, []);
 
   // ANCHOR handler
-
   const handleChat = () => {
     window.location.hash = `#/chat_from_organization/${finalFinalSelectedKeys.join(
       `|`
@@ -291,6 +259,7 @@ export default function FavoritePage() {
     if (targetV.pid) {
       targetList.splice(targetI, 1);
       setTreeData(replica);
+      syncronize(replica);
     }
     setFinalSelectedKeys([]);
     handleDepartmentContextMenuClose();
@@ -317,6 +286,7 @@ export default function FavoritePage() {
       setSearchResult(searchResultReplica);
     }
     setTreeData(replica);
+    syncronize(replica);
     // * 선택해둔 노드를 rightClick한 경우 selectedKeys 클리어. (선택하지 않은 노드를 rightClick한 경우에는 selectedKeys 그대로 놔둠)
     if (selectedKeys.find((v: any) => v === rightClickedKey)) {
       setSelectedKeys([]);
@@ -495,6 +465,9 @@ export default function FavoritePage() {
     const { v: dragV, i: dragI, list: dragList } = await find(replica, dragKey);
     const { v: dropV, i: dropI, list: dropList } = await find(replica, dropKey);
 
+    console.log(`dragV: `, dragV);
+    console.log(`dropV: `, dropV);
+
     // * 그룹 -> 유저 드래그시 드롭 중지
     if (
       dragV.gubun === EnodeGubun.GROUP &&
@@ -526,6 +499,7 @@ export default function FavoritePage() {
         dropV.children?.unshift({ ...dragV, pid: dropV.key });
       }
     }
+    syncronize(replica);
     setTreeData(replica);
   };
 
@@ -533,85 +507,13 @@ export default function FavoritePage() {
     setExpandedKeys(expandedKeys);
   };
 
-  // ANCHOR etc
-  // 재귀함수 (children에 하위 노드 삽입)
-  const append = (
-    prev: TTreeNode[],
-    child: any,
-    userSchema: any
-  ): TTreeNode[] =>
-    prev.map((v: any) => {
-      // 즐겨찾기 밑에 a부서가 있다면, 아래 분기문에 잡힌다.
-      if (v.key === child.pid) {
-        // gubun: G (Group)
-        if (child.gubun === EnodeGubun.GROUP) {
-          return {
-            ...v,
-            children: [
-              ...v.children,
-              {
-                title: child.name,
-                key: child.id,
-                gubun: child.gubun,
-                children: [],
-                pid: child.pid,
-              },
-            ],
-          };
-        } else {
-          // gubun: U (User)
-          // userSchema에서 검색하여 상세 정보를 userV에 담는다.
-          const userV = userSchema?.find(
-            (v: any) => v.user_id?.value === child?.id
-          );
-          return {
-            ...v,
-            children: [
-              ...v.children,
-              {
-                title: child.name,
-                key: child.id.concat(`_`, getRandomNumber()),
-                gubun: child.gubun,
-                pid: child.pid,
-                ...(userV && convertToUser(userV)),
-              },
-            ],
-          };
-        }
-        //
-      } else if (v.children) {
-        return {
-          ...v,
-          children: append(
-            // 부서 내 사용자 이름 순 정렬
-            // v.children.sort((a: any, b: any) => {
-            //   if (a.gubun === `G` || b.gubun === `G`) {
-            //     return 0;
-            //   }
-            //   const nameA = a.userName.toUpperCase(); // ignore upper and lowercase
-            //   const nameB = b.userName.toUpperCase(); // ignore upper and lowercase
-            //   if (nameA < nameB) {
-            //     return -1;
-            //   }
-            //   if (nameA > nameB) {
-            //     return 1;
-            //   }
-            // }),
-            v.children,
-            child,
-            userSchema
-          ),
-        };
-      }
-      return v;
-    });
-
   // 트리 펼침
   const spread = (tree: TTreeNode[], list: TTreeNode[]) => {
     tree.forEach((v: any) => {
       list.push(v);
-      if (v.children) {
-        spread(v.children, list);
+      const children = v.children ? v.children : v.node;
+      if (children) {
+        spread(arrayLike(children), list);
       }
     });
 
@@ -659,9 +561,8 @@ export default function FavoritePage() {
     </>
   );
 
-  // need to be memorized
   const renderTreeNodes = (data: TTreeNode[]) => {
-    return data.map((item, i) => {
+    return data.map((item, index) => {
       if (item.children) {
         return (
           <TreeNode
@@ -669,7 +570,7 @@ export default function FavoritePage() {
             title={
               <Node
                 data={item}
-                index={i}
+                index={index}
                 selectedKeys={selectedKeys}
                 rightClickedKey={rightClickedKey}
                 setSelectedKeys={setSelectedKeys}
@@ -688,7 +589,7 @@ export default function FavoritePage() {
           title={
             <Node
               data={item}
-              index={i}
+              index={index}
               selectedKeys={selectedKeys}
               rightClickedKey={rightClickedKey}
               setSelectedKeys={setSelectedKeys}

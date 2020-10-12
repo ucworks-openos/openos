@@ -10,12 +10,16 @@ declare global {
     key: string | Efavorite;
     gubun: EnodeGubun;
     pid?: string;
+    id?: string;
+    level?: string;
+    name?: string;
 
     groupParentId?: string;
     groupSeq?: string;
 
     // 부서
     children?: TTreeNode[];
+    node?: TTreeNode[];
     groupCode?: string;
     groupName?: string;
   };
