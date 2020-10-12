@@ -65,7 +65,7 @@ function getLogger() {
   }
 
   logger = new winston.createLogger({
-    level: 'info',
+    level: 'debug',
     format: combine(format.json(), timestamp(), prettyPrint()),
     transports: [
       new winston.transports.File(options.file) // 중요! 위에서 선언한 option으로 로그 파일 관리 모듈 transport

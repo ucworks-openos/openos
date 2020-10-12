@@ -10,6 +10,7 @@ const SqlConst = require('./command-const-sql');
 const fetchCore = require('../net-core/network-fetch-core');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 const { DATE_FORMAT } = require('../common/common-const');
+const { decryptMessage } = require('../utils/utils-crypto');
 
 /**
  * 서버로 접속요청 합니다.
@@ -117,7 +118,7 @@ function reqChatRoomList( rowOffset = 0, rowLimit = 100) {
 /**
  * 이전대화 목록 조회
  */
-function reqGetChatList(roomId, lastLineKey = '9999999999999999', rowLimit = 30) {
+async function reqGetChatList(roomId, lastLineKey = '9999999999999999', rowLimit = 30) {
     
     let queryKey = 'GET_TBL_CHAT_RECV_LINE_' + global.USER.userId + '_' + OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
     let query = SqlConst.SQL_select_tbl_chat_recv_line_server_redis;
@@ -126,7 +127,15 @@ function reqGetChatList(roomId, lastLineKey = '9999999999999999', rowLimit = 30)
     query = query.replace(':LINE_KEY:', lastLineKey);
     query = query.replace(':ROW_LIMIT:', rowLimit);
     
-    return selectToServer(query, queryKey)
+    let res = await selectToServer(query, queryKey);
+
+    winston.debug('!!!!!!!!!!!!!!!!!!!!!!!!!!!!! chatData----------', res.data.table.row)
+    
+    res.data.table.row.forEach((chat) => {
+        chat.chat_contents = decryptMessage(chat.chat_encrypt_key, chat.chat_contents, true);
+    });
+
+    return res;
 }
 
 
