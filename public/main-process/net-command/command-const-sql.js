@@ -51,7 +51,7 @@ module.exports = Object.freeze({
     '   AND (a.line_key < \':LINE_KEY:\')  '+
     '   AND (a.room_key = b.room_key) '+
     '   AND (a.line_key = b.line_key) '+
-    ' ORDER BY a.line_key DESC                '+
+    ' ORDER BY a.line_key ASC'+
     ' LIMIT :ROW_LIMIT: ', // OFFSET :from_rows ';
 
     
