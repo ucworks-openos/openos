@@ -3,7 +3,7 @@ import "../../../assets/css/Modal.css";
 import { EnodeGubun } from "../../../enum";
 import useTree from "../../../hooks/useTree";
 import moment from "moment";
-import { getRandomNumber } from "../../util";
+import { getRandomNumber, syncronize } from "../../util";
 
 type TaddGroupModal = {
   closeModalFunction: () => void;
@@ -33,6 +33,9 @@ export default function AddGroupModal(props: TaddGroupModal) {
       key: `GROUP_1_${getRandomNumber()}`,
       pid: targetV.key,
       title: inputValue,
+      id: `GROUP_1_${getRandomNumber()}`,
+      level: `${targetV.level + 1}`,
+      name: inputValue,
     };
 
     Object.assign(targetV, {
@@ -41,6 +44,7 @@ export default function AddGroupModal(props: TaddGroupModal) {
     });
 
     setTreeData(replica);
+    syncronize(replica);
     setExpandedKeys([...expandedKeys, newGroup.key]);
     closeModalFunction();
   };
@@ -52,7 +56,7 @@ export default function AddGroupModal(props: TaddGroupModal) {
   const find = (
     list: TTreeNode[],
     key: string
-  ): Promise<{ v: TTreeNode; i: number; list: TTreeNode[] }> =>
+  ): Promise<{ v: any; i: number; list: any[] }> =>
     new Promise((resolve) => {
       for (let i = 0; i < list.length; i++) {
         if (list[i].key === key) {

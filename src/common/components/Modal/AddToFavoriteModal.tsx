@@ -5,7 +5,14 @@ import styled from "styled-components";
 import { getUserInfos } from "../../../components/ipcCommunication/ipcCommon";
 import { EnodeGubun } from "../../../enum";
 import useTree from "../../../hooks/useTree";
-import { arrayLike, convertToUser, delay, getRandomNumber } from "../../util";
+import {
+  arrayLike,
+  convertToUser,
+  delay,
+  find,
+  getRandomNumber,
+  syncronize,
+} from "../../util";
 import Node from "../AddToFavoriteTreeNode";
 import moment from "moment";
 
@@ -39,6 +46,9 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
         title: v.user_name.value,
         key: v.user_id.value?.concat(`_`, getRandomNumber()),
         gubun: EnodeGubun.FAVORITE_USER,
+        id: v.user_id.value,
+        level: "0",
+        name: v.user_name.value,
         ...(v && convertToUser(v)),
       }));
 
@@ -56,24 +66,25 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
     } = e;
 
     // * 선택한 부서의 자식노드를 가져옴.
-    const { v, children } = await findChildren(
-      treeData,
-      newSelectedKey?.toString()
-    );
+    const {
+      v: { children },
+    } = await find(treeData, newSelectedKey);
 
+    // TODO 시간복잡도가 O(n^2)이므로 hashmap을 사용한 튜닝이 요구됨
     // * selectedUserInfos 중에서 이미 선택한 부서에 들어가있는지 user_id로 판단. 중복되면 duplicated값 세팅.
-    const duplicatedTested = selectedUserInfos.map((v: TTreeNode) => ({
+    const someoneMaybeDuplicated = selectedUserInfos.map((v: TTreeNode) => ({
       ...v,
-      duplicated: children.find(
-        (childV: TTreeNode) => v.userId === childV.userId
-      )
+      duplicated: children?.find((childV: TTreeNode) => {
+        return v.id == childV.id;
+      })
         ? true
         : false,
     }));
-    setSelectedUserInfos(duplicatedTested);
+
+    setSelectedUserInfos(someoneMaybeDuplicated);
 
     // * 만일 selectedUserInfos의 유저들이 선택한 부서에 모두 들어가있다면, 클릭 못하도록 selectedKey를 날려버린다.
-    if (!duplicatedTested.find((v: any) => v.duplicated === false)) {
+    if (!someoneMaybeDuplicated.find((v: any) => v.duplicated === false)) {
       setSelectedKey(``);
     } else {
       setSelectedKey(newSelectedKey);
@@ -88,45 +99,27 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
     await delay();
     // * 현재 트리에서 선택한 부서와 부서의 자식 배열을 찾음.
     const replica = [...treeData];
-    const { v: parent, children } = await findChildren(
-      replica,
-      selectedKey?.toString()
-    );
+    const { v } = await find(replica, selectedKey);
 
     // * selectedUserKeys 유저 배열에서 중복 데이터 제거 후 선택 부서 key를 넣어줌
     const result = selectedUserInfos
-      .filter((v: any) => !v.duplicated)
-      .map((v: any) => ({
-        ...v,
-        pid: parent.key,
+      .filter((userV: any) => !userV.duplicated)
+      .map((userV: any) => ({
+        ...userV,
+        pid: v.key,
       }));
 
     // * replica를 변경.
-    children.unshift(...result);
+    v.children?.unshift(...result);
     setTreeData(replica);
+    syncronize(replica);
     // * 페이즈 2 (완료 페이지)로 이동.
     setPhaze(2);
+
     setSelectedKeys([]);
   };
 
   // ANCHOR etc
-  const findChildren = (
-    list: TTreeNode[],
-    key: string
-  ): Promise<{ v: any; children: any }> =>
-    new Promise((resolve) => {
-      for (let i = 0; i < list.length; i++) {
-        if (list[i].key === key) {
-          resolve({ v: list[i], children: list[i].children! });
-        }
-        if (list[i].children) {
-          findChildren(list[i].children!, key).then((result) => {
-            if (result) resolve(result);
-          });
-        }
-      }
-    });
-
   const switcherGenerator = (data: any) => (
     <>
       {data?.gubun === EnodeGubun.GROUP && (

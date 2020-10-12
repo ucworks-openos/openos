@@ -79,7 +79,20 @@ function getLogger() {
 
   return logger;
 }
-
+ 
+let logger = new winston.createLogger({
+  level: 'info',
+  format: combine(format.json(), timestamp(), prettyPrint()),
+  transports: [
+    new winston.transports.File(options.file) // 중요! 위에서 선언한 option으로 로그 파일 관리 모듈 transport
+  ],
+  exitOnError: false, 
+});
+ 
+if(process.env.NODE_ENV !== 'production'){
+  // logger.add(new winston.transports.Console(options.console)) // 개발 시 console로도 출력
+}
+ 
 function getPreviousStackInfo() {
   let priorPrepareStackTrace = Error.prepareStackTrace;
     Error.prepareStackTrace = arrayPrepareStackTrace;
