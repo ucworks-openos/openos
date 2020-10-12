@@ -104,15 +104,31 @@ function reqGetMessageDetail(msgKey) {
 /**
  * 대화방 목록 조회
  */
-function reqChatRoomList( rowOffset = 0, rowLimit = 100) {
+async function reqChatRoomList( rowOffset = 0, rowLimit = 100) {
     
     let queryKey = 'GET_CHAT_COLLRECT_' + global.USER.userId + '_' + OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
     let query = SqlConst.SQL_select_tbl_chat_collect_server;
     query = query.replace(':USER_ID:', global.USER.userId);
     query = query.replace(':ROW_LIMIT:', rowLimit);
     query = query.replace(':ROW_OFFSET:', rowOffset);
+
     
-    return selectToServer(query, queryKey)
+    let res = await selectToServer(query, queryKey);
+
+    try {
+        if (Array.isArray(res.data.table.row)) {
+            res.data.table.row.forEach((chat) => {
+                chat.chat_contents = decryptMessage(chat.chat_encrypt_key, chat.chat_contents);
+            });
+        } else if (res.data.table.row){
+            // 대화 내용이 1개밖에 없는 경우
+            res.data.table.row.chat_contents = decryptMessage(res.data.table.row.chat_encrypt_key, res.data.table.row.chat_contents, true);
+        }
+        
+    } catch (err) {
+        winston.err('chatList decrypt content fail!', res, err)
+    }
+    return res
 }
 
 /**
@@ -132,7 +148,7 @@ async function reqGetChatList(roomId, lastLineKey = '9999999999999999', rowLimit
     try {
         if (Array.isArray(res.data.table.row)) {
             res.data.table.row.forEach((chat) => {
-                chat.chat_contents = decryptMessage(chat.chat_encrypt_key, chat.chat_contents, true);
+                chat.chat_contents = decryptMessage(chat.chat_encrypt_key, chat.chat_contents);
             });
         } else if (res.data.table.row){
             // 대화 내용이 1개밖에 없는 경우

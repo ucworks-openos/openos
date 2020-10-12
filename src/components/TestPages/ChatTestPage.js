@@ -50,11 +50,11 @@ function FuncTestPage2() {
   useEffect(() => {
     console.log("FuncTestPage Init");
 
-    electron.ipcRenderer.on('net-log', (event, msg, ...args) => {
+    electron.ipcRenderer.once('net-log', (event, msg, ...args) => {
       appendNetLog(msg, args);
     });
 
-    electron.ipcRenderer.on('chatReceived', (event, chatMsg) => {
+    electron.ipcRenderer.once('chatReceived', (event, chatMsg) => {
       console.log(chatMsg[0]);
       appendChatMessage(chatMsg[0].sendName, chatMsg[0].chatData);
     });

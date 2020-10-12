@@ -8,6 +8,9 @@ const notiType = require('../common/noti-type');
 
 var notiWin;
 
+const notiHeight = 155;
+const notiWidth = 375;
+
 /**
  * 쪽지 수신 알림을 처리합니다.
  * @param {MessageData} msgData 
@@ -19,7 +22,7 @@ function messageReceived(msgData) {
   let destIds = msgData.allDestId.split(cmdConst.SEP_PIPE);
   //if (msgData.sendId != global.USER.userId) {
   if (destIds.includes(global.USER.userId)) {
-    showAlert(notiType.NOTI_MESSAGE, msgData.key, '쪽지수신', msgData.subject);
+    showAlert(notiType.NOTI_MESSAGE, msgData.key, '쪽지수신', msgData.subject, 'senderName', 'allMem');
     winston.info('Message Received! ', JSON.stringify(msgData));
     send('messageReceived', msgData)
   }
@@ -43,7 +46,6 @@ function unreadCountReceived(cntData) {
 function userStatusChanged(userId, status, connType) {
   winston.info('userStatusChanged! ', userId, status, connType);
   send('userStatusChanged', userId, status, connType)
-
 }
 
 /**
@@ -51,12 +53,8 @@ function userStatusChanged(userId, status, connType) {
  */
 function chatReceived(chatData) {
 
-  let chatMessage = chatData.chatData;
-  if (chatMessage.length > 10) chatMessage = chatMessage.substring(0, 10);
-
-  // showAlert(notiType.NOTI_CHAT, chatData.roomKey, '대화메세지', chatMessage);
-  send('chatReceived', chatData)
   winston.debug('Chat Received! ', JSON.stringify(chatData));
+  send('chatReceived', chatData)
 }
 
 /**
@@ -66,9 +64,9 @@ function chatReceived(chatData) {
  * @param {String} title 
  * @param {String} message 
  */
-async function showAlert(notiType, notiId, title, message) {
+async function showAlert(notiType, notiId, title, message, sendName, allMembers) {
 
-  winston.info('showAlert', notiType, notiId, title, message);
+  winston.info('showAlert',notiType, notiId, title, message, sendName, allMembers);
   if (notiWin) {
     notiWin.destroy();
   }
@@ -77,8 +75,8 @@ async function showAlert(notiType, notiId, title, message) {
   let dispSize = await getDispSize();
 
   notiWin = new BrowserWindow({
-    x: dispSize.width - 300, y: dispSize.height - 200,
-    width: 300, height: 200,
+    x: dispSize.width - notiWidth, y: dispSize.height - notiHeight,
+    width: notiWidth, height: notiHeight,
     //backgroundColor: '#2e2029',
     modal: true,
     resizable: false,
@@ -98,13 +96,18 @@ async function showAlert(notiType, notiId, title, message) {
   notiWin.webContents.on('did-finish-load', () => {
     winston.info(`>>>>>>>>>>>   LOAD COMPLETED!`);
     notiWin.webContents.executeJavaScript(`
-        document.getElementById("notiType").value = '${notiType}';
-        document.getElementById("notiId").value = '${notiId}';
-        document.getElementById("title").innerHTML += '${title}';
-        document.getElementById("msg").innerHTML += '${message}'
+      document.getElementById("notiType").value = '${notiType}';
+      document.getElementById("notiId").value = '${notiId}';
+      document.getElementById("title").innerHTML += '${title}';
+      document.getElementById("msg").innerHTML += '${message}';
+      document.getElementById("allMembers").value += '${allMembers}';
+      document.getElementById("sendName").innerHTML += '${sendName}';
+      document.getElementById("message").value += '${message}';
     `);
   })
   notiWin.loadURL(notifyFile)
+    .then(() => {})
+    .catch((err) => {winston.err('showAlert fail!', err)});
 }
 
 module.exports = {

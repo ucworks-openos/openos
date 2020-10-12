@@ -47,7 +47,7 @@ function FuncTestPage() {
   useEffect(() => {
     console.log("FuncTestPage Init");
 
-    electron.ipcRenderer.on('net-log', (event, msg, ...args) => {
+    electron.ipcRenderer.once('net-log', (event, msg, ...args) => {
       appendNetLog(msg, args);
     });
 

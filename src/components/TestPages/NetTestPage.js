@@ -46,11 +46,11 @@ function NetTestPage() {
   useEffect(() => {
     console.log("NetTestPage Init");
 
-    electron.ipcRenderer.on('net-log', (event, data) => {
+    electron.ipcRenderer.once('net-log', (event, data) => {
       appendNetLog(data);
     });
 
-    electron.ipcRenderer.on('upload-file-progress', (event, data) => {
+    electron.ipcRenderer.once('upload-file-progress', (event, data) => {
       appendNetLog("[PROGRESS] "+ JSON.stringify(data));
     });
     

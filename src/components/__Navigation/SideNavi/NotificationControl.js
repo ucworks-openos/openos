@@ -95,7 +95,7 @@ function NotificationControl() {
 
     //알림 Initiator 
     useEffect(() => {
-        electron.ipcRenderer.on('chatReceived', (event, chatMsg) => {
+        electron.ipcRenderer.once('chatReceived', (event, chatMsg) => {
 
             console.log('------ chatReceived', chatMsg);
             //채팅을 시작할 때 알림 1번, 채팅을 보낼 때 알림 1번, 두개를 나눠준다.
@@ -121,7 +121,7 @@ function NotificationControl() {
     }, [])
 
     useEffect(() => {
-        electron.ipcRenderer.on('notiTitleClick!', (event, sentInfo) => {
+        electron.ipcRenderer.once('notiTitleClick!', (event, sentInfo) => {
             // let notiType = sentInfo[0]
             let message = sentInfo[3]
             let roomKey = sentInfo[1]

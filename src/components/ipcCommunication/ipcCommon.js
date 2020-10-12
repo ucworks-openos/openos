@@ -2,8 +2,8 @@ const electron = window.require("electron");
 
 /** Config를 불러옵니다. */
 export const getConfig = () => {
-  return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.on("res-getConfig", (event, arg) => {
+  return new Promise(function(resolve, reject) {
+    electron.ipcRenderer.once('res-getConfig', (event, arg) => {
       resolve(arg);
     });
 
@@ -24,7 +24,7 @@ export const login = (loginId, loginPwd) => {
       loginPwd: loginPwd,
     };
 
-    electron.ipcRenderer.on("res-login", (event, arg) => {
+    electron.ipcRenderer.once('res-login', (event, arg) => {
       console.log("LOGIN REQUEST res:", arg);
       resolve(arg);
     });
@@ -37,7 +37,7 @@ export const login = (loginId, loginPwd) => {
 /** 로그아웃 요청을 합니다. */
 export const logout = () => {
   return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.on("res-logout", (event, arg) => {
+    electron.ipcRenderer.once("res-logout", (event, arg) => {
       resolve(arg);
     });
 
@@ -48,7 +48,7 @@ export const logout = () => {
 /** getFavorite */
 export const getBuddyList = async () => {
   return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.on("res-getBuddyList", (event, arg) => {
+    electron.ipcRenderer.once("res-getBuddyList", (event, arg) => {
       console.log("---getBuddyList----------", arg);
       resolve(arg);
     });
@@ -59,7 +59,7 @@ export const getBuddyList = async () => {
 /** getFavorite */
 export const getBaseOrg = async () => {
   return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.on("res-getBaseOrg", (event, arg) => {
+    electron.ipcRenderer.once("res-getBaseOrg", (event, arg) => {
       resolve(arg);
     });
     electron.ipcRenderer.send("getBaseOrg", "");
@@ -71,7 +71,7 @@ export const getChildOrg = async (orgGroupCode, groupCode, groupSeq) => {
   console.log("getChildOrg:", orgGroupCode, groupCode, groupSeq);
 
   return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.on("res-getChildOrg", (event, arg) => {
+    electron.ipcRenderer.once("res-getChildOrg", (event, arg) => {
       resolve(arg);
     });
     electron.ipcRenderer.send("getChildOrg", orgGroupCode, groupCode, groupSeq);
@@ -81,7 +81,7 @@ export const getChildOrg = async (orgGroupCode, groupCode, groupSeq) => {
 /** getUserInfos */
 export const getUserInfos = async (userIds) => {
   return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.on("res-getUserInfos", (event, arg) => {
+    electron.ipcRenderer.once("res-getUserInfos", (event, arg) => {
       resolve(arg);
     });
     electron.ipcRenderer.send("getUserInfos", userIds);
@@ -91,7 +91,7 @@ export const getUserInfos = async (userIds) => {
 /** searchUsers */
 export const searchUsers = async (searchMode, searchText) => {
   return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.on("res-searchUsers", (event, arg) => {
+    electron.ipcRenderer.once("res-searchUsers", (event, arg) => {
       resolve(arg);
     });
     electron.ipcRenderer.send("searchUsers", searchMode, searchText);
@@ -101,7 +101,7 @@ export const searchUsers = async (searchMode, searchText) => {
 /** searchOrgUsers */
 export const searchOrgUsers = async (orgGroupCode, searchText) => {
   return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.on("res-searchOrgUsers", (event, arg) => {
+    electron.ipcRenderer.once("res-searchOrgUsers", (event, arg) => {
       resolve(arg);
     });
     electron.ipcRenderer.send("searchOrgUsers", orgGroupCode, searchText);
@@ -113,7 +113,7 @@ export const changeStatus = async (status, force = false) => {
   console.log("changeStatus:", status, force);
 
   return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.on("res-changeStatus", (event, arg) => {
+    electron.ipcRenderer.once("res-changeStatus", (event, arg) => {
       resolve(arg);
     });
     electron.ipcRenderer.send("changeStatus", status, force);
@@ -125,7 +125,7 @@ export const setStatusMonitor = async (userIds) => {
   console.log("setStatusMonitor:", userIds);
 
   return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.on("res-setStatusMonitor", (event, arg) => {
+    electron.ipcRenderer.once("res-setStatusMonitor", (event, arg) => {
       resolve(arg);
     });
     electron.ipcRenderer.send("setStatusMonitor", userIds);
@@ -135,7 +135,7 @@ export const setStatusMonitor = async (userIds) => {
 export const saveBuddyData = async (xml) => {
   console.log("saveBuddyData: ", xml);
   return new Promise((resolve, reject) => {
-    electron.ipcRenderer.on(`res-saveBuddyData`, (event, arg) => {
+    electron.ipcRenderer.once(`res-saveBuddyData`, (event, arg) => {
       resolve(arg);
     });
     electron.ipcRenderer.send(`saveBuddyData`, xml);

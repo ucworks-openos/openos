@@ -30,7 +30,7 @@ function Home(props) {
     }
   };
 
-  // electron.ipcRenderer.on('res-login', (event, data) => {
+  // electron.ipcRenderer.once('res-login', (event, data) => {
   //   alert('Login Response! ' + JSON.stringify(data))
   //   localStorage.setItem('isLoginElectronApp', true)
   //   window.location.hash = '#/favorite';

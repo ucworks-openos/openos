@@ -3,7 +3,7 @@ const electron = window.require("electron")
 /** sendMessage */
 export const sendMessage = async (recvIds, recvNames, subject, message) => {
   return new Promise(function(resolve, reject) {
-      electron.ipcRenderer.on('res-sendMessage', (event, arg) => {
+      electron.ipcRenderer.once('res-sendMessage', (event, arg) => {
           resolve(arg);
         })
         electron.ipcRenderer.send('sendMessage', recvIds, recvNames, subject, message)
@@ -13,7 +13,7 @@ export const sendMessage = async (recvIds, recvNames, subject, message) => {
 /** getMessage */
 export const getMessage = async (msgType, rowOffset = 0, rowLimit = 100) => {
   return new Promise(function(resolve, reject) {
-      electron.ipcRenderer.on('res-getMessage', (event, arg) => {
+      electron.ipcRenderer.once('res-getMessage', (event, arg) => {
           resolve(arg);
         })
         electron.ipcRenderer.send('getMessage', msgType, rowOffset, rowLimit)
@@ -23,7 +23,7 @@ export const getMessage = async (msgType, rowOffset = 0, rowLimit = 100) => {
 /** getMessageDetail */
 export const getMessageDetail = async (msgKey) => {
   return new Promise(function(resolve, reject) {
-      electron.ipcRenderer.on('res-getMessageDetail', (event, arg) => {
+      electron.ipcRenderer.once('res-getMessageDetail', (event, arg) => {
           resolve(arg);
         })
         electron.ipcRenderer.send('getMessageDetail', msgKey)
@@ -33,7 +33,7 @@ export const getMessageDetail = async (msgKey) => {
 /** deleteMessage */
 export const deleteMessage = async (msgBubun, msgKeys) => {
   return new Promise(function(resolve, reject) {
-      electron.ipcRenderer.on('res-deleteMessage', (event, arg) => {
+      electron.ipcRenderer.once('res-deleteMessage', (event, arg) => {
           resolve(arg);
         })
         electron.ipcRenderer.send('deleteMessage', msgBubun, msgKeys)
@@ -43,7 +43,7 @@ export const deleteMessage = async (msgBubun, msgKeys) => {
 /** getChatRoomList */
 export const getChatRoomList = async (rowOffset = 0, rowLimit = 100) => {
   return new Promise(function(resolve, reject) {
-      electron.ipcRenderer.on('res-getChatRoomList', (event, arg) => {
+      electron.ipcRenderer.once('res-getChatRoomList', (event, arg) => {
           resolve(arg);
         })
         electron.ipcRenderer.send('getChatRoomList', rowOffset, rowLimit)
@@ -53,7 +53,7 @@ export const getChatRoomList = async (rowOffset = 0, rowLimit = 100) => {
 /** getChatRoomList */
 export const sendChatMessage = async (chatUserIds, chatMessage, roomKey = null) => {
   return new Promise(function(resolve, reject) {
-      electron.ipcRenderer.on('res-sendChatMessage', (event, arg) => {
+      electron.ipcRenderer.once('res-sendChatMessage', (event, arg) => {
           resolve(arg);
         })
         electron.ipcRenderer.send('sendChatMessage', chatUserIds, chatMessage, roomKey)
@@ -64,7 +64,7 @@ export const sendChatMessage = async (chatUserIds, chatMessage, roomKey = null) 
 /** getChatList */
 export const getChatList = async (roomId, lastLineKey = '9999999999999999', rowLimit = 30) => {
   return new Promise(function(resolve, reject) {
-      electron.ipcRenderer.on('res-getChatList', (event, arg) => {
+      electron.ipcRenderer.once('res-getChatList', (event, arg) => {
           resolve(arg);
         })
         electron.ipcRenderer.send('getChatList', roomId, lastLineKey, rowLimit)
@@ -74,7 +74,7 @@ export const getChatList = async (roomId, lastLineKey = '9999999999999999', rowL
 /** decryptMessage */
 export const decryptMessage = async (endKey, cipherMessage) => {
   return new Promise(function(resolve, reject) {
-      electron.ipcRenderer.on('res-decryptMessage', (event, arg) => {
+      electron.ipcRenderer.once('res-decryptMessage', (event, arg) => {
           resolve(arg);
       });
 
