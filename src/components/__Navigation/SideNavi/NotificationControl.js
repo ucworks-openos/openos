@@ -96,6 +96,8 @@ function NotificationControl() {
     //알림 Initiator 
     useEffect(() => {
         electron.ipcRenderer.on('chatReceived', (event, chatMsg) => {
+
+            console.log('------ chatReceived', chatMsg);
             //채팅을 시작할 때 알림 1번, 채팅을 보낼 때 알림 1번, 두개를 나눠준다.
             //그래서 첫 알림은 무시해주기 
             let divideChatData = chatMsg[0].chatData.split("|")
