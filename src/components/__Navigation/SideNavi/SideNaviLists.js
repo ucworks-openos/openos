@@ -72,7 +72,6 @@ var sideItemsBase = [
  * 좌측 메뉴를 만들어 준다.
  */
 function SideItemList() {
-  console.log("-------", remote.getGlobal("IS_DEV"));
 
   let sideItems = sideItemsBase;
   // Dev Mode SideMenu

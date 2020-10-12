@@ -109,6 +109,6 @@ module.exports = {
     getLogger().error(util.format(getPreviousStackInfo() + msg, ...vars), '');
   }, 
   err(msg, ...vars) {
-    error(msg, ...vars);
+    getLogger().error(util.format(getPreviousStackInfo() + msg, ...vars), '');
   },
 }
