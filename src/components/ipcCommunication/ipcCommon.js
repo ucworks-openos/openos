@@ -1,16 +1,15 @@
-
 const electron = window.require("electron");
 
 /** Config를 불러옵니다. */
 export const getConfig = () => {
-  return new Promise(function(resolve, reject) {
-    electron.ipcRenderer.on('res-getConfig', (event, arg) => {
+  return new Promise(function (resolve, reject) {
+    electron.ipcRenderer.on("res-getConfig", (event, arg) => {
       resolve(arg);
-    })
-    
-    electron.ipcRenderer.send('getConfig', '')
+    });
+
+    electron.ipcRenderer.send("getConfig", "");
   });
-}
+};
 
 /** Config를 저장합니다.. */
 export const saveConfig = (configData) => {
@@ -19,20 +18,19 @@ export const saveConfig = (configData) => {
 
 /** 로그인 요청을 합니다. */
 export const login = (loginId, loginPwd) => {
-
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     let reqData = {
       loginId: loginId,
       loginPwd: loginPwd,
     };
 
-    electron.ipcRenderer.on('res-login', (event, arg) => {
+    electron.ipcRenderer.on("res-login", (event, arg) => {
       console.log("LOGIN REQUEST res:", arg);
       resolve(arg);
-    })
-    
+    });
+
     console.log("LOGIN REQUEST ipc:", reqData);
-    electron.ipcRenderer.send('login', reqData)
+    electron.ipcRenderer.send("login", reqData);
   });
 };
 
@@ -135,6 +133,7 @@ export const setStatusMonitor = async (userIds) => {
 };
 
 export const saveBuddyData = async (xml) => {
+  console.log("saveBuddyData: ", xml);
   return new Promise((resolve, reject) => {
     electron.ipcRenderer.on(`res-saveBuddyData`, (event, arg) => {
       resolve(arg);

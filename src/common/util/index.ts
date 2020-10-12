@@ -80,3 +80,44 @@ export const find = (
       }
     }
   });
+
+export const syncronize = (tree: TTreeNode[]) => {
+  // * gubun, name, id ->  gubun, title, key, children 등 트리 형식으로 convert
+  const convertTreeToResponse = (tree: any) => {
+    return tree.map((v: any) => {
+      if (v.children) {
+        return {
+          gubun: v.gubun,
+          id: v.id,
+          level: v.level,
+          name: v.name,
+          pid: v.pid,
+          node: convertTreeToResponse(v.children),
+        };
+      }
+      return {
+        gubun: v.gubun,
+        id: v.id,
+        level: v.level,
+        name: v.name,
+        pid: v.pid,
+      };
+    });
+  };
+
+  const requestBody = {
+    contacts: {
+      name: "",
+      type: "P",
+      node: convertTreeToResponse(tree),
+    },
+  };
+
+  const {
+    saveBuddyData,
+  } = require("../../components/ipcCommunication/ipcCommon");
+  const xml2js = require("xml2js");
+  const xml = new xml2js.Builder().buildObject(requestBody);
+
+  saveBuddyData(xml);
+};

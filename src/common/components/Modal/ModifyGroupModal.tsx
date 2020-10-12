@@ -4,6 +4,7 @@ import { EnodeGubun } from "../../../enum";
 import useTree from "../../../hooks/useTree";
 import moment from "moment";
 import { getInitialChatMessages } from "../../../redux/actions/chat_actions";
+import { syncronize } from "../../util";
 
 type TaddGroupModal = {
   closeModalFunction: () => void;
@@ -43,9 +44,11 @@ export default function ModifyGroupModal(props: TaddGroupModal) {
     Object.assign(targetV, {
       ...targetV,
       title: inputValue,
+      name: inputValue,
     });
 
     setTreeData(replica);
+    syncronize(replica);
     closeModalFunction();
   };
 

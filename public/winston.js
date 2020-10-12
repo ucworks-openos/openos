@@ -68,7 +68,7 @@ let logger = new winston.createLogger({
 });
  
 if(process.env.NODE_ENV !== 'production'){
-  logger.add(new winston.transports.Console(options.console)) // 개발 시 console로도 출력
+  // logger.add(new winston.transports.Console(options.console)) // 개발 시 console로도 출력
 }
  
 function getPreviousStackInfo() {
