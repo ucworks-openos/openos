@@ -35,6 +35,7 @@ import { ConsoleTransportOptions } from "winston/lib/winston/transports";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addChatRoom } from "../../redux/actions/chat_actions";
+import { loggers } from "winston";
 
 type TgetBuddyTreeReturnTypes = {
   buddyTree: TTreeNode[];
@@ -242,11 +243,16 @@ export default function FavoritePage() {
     };
 
     const initiate = async () => {
-      const { buddyTree, keyIds, userIds } = await getBuddyTree();
+      try {
+        const { buddyTree, keyIds, userIds } = await getBuddyTree();
 
-      setTreeData(buddyTree);
-      setExpandedKeys(keyIds);
-      setStatusMonitor(userIds);
+        setTreeData(buddyTree);
+        setExpandedKeys(keyIds);
+        setStatusMonitor(userIds);
+      } catch (err) {
+        console.log('initiate ', err)
+      }
+      
     };
     !treeData.length && initiate();
   }, []);
