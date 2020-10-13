@@ -144,10 +144,6 @@ function MessageInputModal(props) {
 
     return (
         <div >
-            <>
-            <div>fuckyou</div>
-            {props.selectedNode.map((v) => <div>{v}</div>)}
-            </>
             <h5 class="modal-title write-message">쪽지 쓰기</h5>
             <div class="write-row to-ppl-wrap">
                 <input type="text"

@@ -263,7 +263,7 @@ export default function HeaderNavi() {
               </div>
               <div
                 className="current-user-action btn-sign-out"
-                onClick={handleLogout}
+                onMouseDown={handleLogout}
               >
                 <i className="current-user-action-icon"></i>로그아웃
               </div>

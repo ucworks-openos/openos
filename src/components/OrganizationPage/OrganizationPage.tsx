@@ -4,7 +4,7 @@ import styled from "styled-components";
 import "../../assets/css/Tree.scss";
 import Modal from "react-modal";
 import Node from "./OrganizationNode";
-import { EventDataNode, DataNode } from "rc-tree/lib/interface";
+import { EventDataNode } from "rc-tree/lib/interface";
 import {
   getBaseOrg,
   getChildOrg,
@@ -14,15 +14,20 @@ import {
 } from "../../common/ipcCommunication/ipcCommon";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
-import { arrayLike, convertToUser, find } from "../../common/util";
-import { EconnectType, Efavorite, EnodeGubun } from "../../enum";
+import {
+  arrayLike,
+  convertToUser,
+  find,
+  getRandomNumber,
+} from "../../common/util";
+import { Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/Modal/MessageInputModal";
 import AddToFavoriteModal from "../../common/components/Modal/AddToFavoriteModal";
-import moment from "moment";
+import AddGroupToFavoriteModal from "../../common/components/Modal/AddGroupToFavoriteModal";
 import { useDispatch } from "react-redux";
-import { addChatRoom } from "../../redux/actions/chat_actions";
 import { useHistory } from "react-router-dom";
+import tree from "../../reducer/tree";
 
 let _orgCode: string = ``;
 
@@ -33,7 +38,7 @@ export default function OrganizationPage() {
   const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
     type: `organization`,
   });
-
+  const [selectedGroupInfo, setSelectedGroupInfo] = useState({});
   const [selectedKeys, setSelectedKeys] = useState<(string | number)[]>([]);
   const [rightClickedKey, setRightClickedKey] = useState<string | number>(0);
   const [finalSelectedKeys, setFinalSelectedKeys] = useState<
@@ -51,6 +56,10 @@ export default function OrganizationPage() {
 
   const targetInfo = useStateListener();
 
+  const [
+    addGroupToFavoriteModalVisible,
+    setAddGroupToFavoriteModalVisible,
+  ] = useState<boolean>(false);
   const [addToFavoriteModalVisible, setAddToFavoriteModalVisible] = useState<
     boolean
   >(false);
@@ -59,7 +68,12 @@ export default function OrganizationPage() {
     false
   );
 
-  const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
+  const [userContextMenuVisible, setUserContextMenuVisible] = useState<boolean>(
+    false
+  );
+  const [groupContextMenuVisible, setGroupContextMenuVisible] = useState<
+    boolean
+  >(false);
 
   const [clickedNodeWidth, setClickedNodeWidth] = useState<number>(0);
 
@@ -74,6 +88,19 @@ export default function OrganizationPage() {
   };
 
   const leftPosition = useMemo(leftPositionCalculator, [pageX]);
+
+  // *  finalSelectedKeys가 변경된 후, key에서 날짜를 빼준 후, 중복값을 제거해서 쪽지 쓰기 컴포넌트로 넘겨준다.
+  const setFinalFinalSelectedKeys = () => {
+    const processed = finalSelectedKeys.map((v: string | number) =>
+      v.toString().slice(0, v.toString().lastIndexOf(`_`))
+    );
+    return [...new Set([...processed])];
+  };
+
+  const finalFinalSelectedKeys = useMemo(setFinalFinalSelectedKeys, [
+    finalSelectedKeys,
+  ]);
+
   // ANCHOR effect
   useEffect(() => {
     if (!rightClickedKey) {
@@ -125,7 +152,6 @@ export default function OrganizationPage() {
             .map((v: any) => v.user_id.value)
         )
         .reduce((prev: any, cur: any) => [...prev, ...cur], []);
-
       // root_node를 순회하며 각 root_node내의 node_item배열을 node_item객체로 변환한다.
       const root: TTreeNode[] = response.map((v: any) =>
         v.node_item.reduce((prev: any, cur: any, i: number): TTreeNode => {
@@ -152,7 +178,7 @@ export default function OrganizationPage() {
                   ...prev.children,
                   {
                     title: cur.user_name?.value,
-                    key: cur.user_id?.value,
+                    key: cur.user_id?.value?.concat(`_`, getRandomNumber()),
                     ...convertToUser(cur),
                   },
                 ],
@@ -193,8 +219,52 @@ export default function OrganizationPage() {
   }, []);
 
   // ANCHOR handler
+  const handleSendGroupMessage = async () => {
+    const { v } = await find(treeData, rightClickedKey);
+
+    const {
+      data: {
+        root_node: { node_item: response },
+      },
+    } = await getChildOrg(v.orgCode, v.groupCode, -1);
+
+    // * final키가 변경되면 자동으로 마지막 _{randomKey}를 제거하기 때문에, _를 마지막에 붙여준다.
+    const userIds = arrayLike(response)
+      .filter((v: any) => v.gubun.value === EnodeGubun.ORGANIZATION_USER)
+      .map((v: any) => v.user_id.value?.concat(`_`));
+
+    setFinalSelectedKeys(userIds);
+    setMessageModalVisible(true);
+  };
+
+  const handleSendGroupChat = async () => {
+    const { v } = await find(treeData, rightClickedKey);
+
+    const {
+      data: {
+        root_node: { node_item: response },
+      },
+    } = await getChildOrg(v.orgCode, v.groupCode, -1);
+
+    // * final키가 변경되면 자동으로 마지막 _{randomKey}를 제거하기 때문에, _를 마지막에 붙여준다.
+    const userIds = arrayLike(response)
+      .filter((v: any) => v.gubun.value === EnodeGubun.ORGANIZATION_USER)
+      .map((v: any) => v.user_id.value);
+
+    window.location.hash = `#/chat_from_organization/${userIds.join(`|`)}`;
+  };
+
+  const handleAddGroupToFavorite = async () => {
+    const { v } = await find(treeData, rightClickedKey);
+    setSelectedGroupInfo({
+      orgCode: v.orgCode,
+      groupCode: v.groupCode,
+    });
+    setAddGroupToFavoriteModalVisible(true);
+  };
+
   const handleChat = () => {
-    window.location.hash = `#/chat_from_organization/${finalSelectedKeys.join(
+    window.location.hash = `#/chat_from_organization/${finalFinalSelectedKeys.join(
       `|`
     )}`;
   };
@@ -205,25 +275,43 @@ export default function OrganizationPage() {
 
   const handleRightClick = (info: any) => {
     const {
-      node: { gubun, key: newSelectedkey },
+      node: { gubun, key: newSelectedKey },
     } = info;
-    if (gubun !== EnodeGubun.ORGANIZATION_USER) return false;
-    // * 프로필 사진 클릭 시 작동 안함
-    if (info.event.nativeEvent.target.localName === `img`) return false;
-    setRightClickedKey(newSelectedkey);
-    setContextMenuVisible(true);
+    if (gubun === EnodeGubun.ORGANIZATION_USER) {
+      // * 유저 클릭 시
+      // * 프로필 사진 클릭 시 작동 안함
+      if (info.event.nativeEvent.target.localName === `img`) return false;
+      setRightClickedKey(newSelectedKey);
+      setUserContextMenuVisible(true);
+      setClickedNodeWidth(
+        info.event.nativeEvent.path.find((v: any) => v.localName === `li`)
+          .offsetWidth
+      );
 
-    // TODO depth계산해서 node에 넣어준 후, pageX에 1depth당 +30px씩 증감해야 함
-    setClickedNodeWidth(
-      info.event.nativeEvent.path.find((v: any) => v.localName === `li`)
-        .offsetWidth
-    );
+      // TODO depth계산해서 node에 넣어준 후, pageX에 1depth당 +30px씩 증감해야 함
+    } else {
+      // * 부서 클릭 시
+      setClickedNodeWidth(
+        info.event.nativeEvent.path.find(
+          (v: any) => v.classList[0] === `rc-tree-treenode`
+        ).offsetWidth
+      );
+      setRightClickedKey(newSelectedKey);
+      setGroupContextMenuVisible(true);
+    }
+
     setPageX(info.event.pageX);
     setPageY(info.event.pageY);
   };
 
-  const handleContextMenuClose = () => {
-    setContextMenuVisible(false);
+  const handleUserContextMenuClose = () => {
+    setUserContextMenuVisible(false);
+    // * rightClicked시에만 생기는 특수 border는 contextMenu가 close될 때 같이 사라진다.
+    setRightClickedKey(``);
+  };
+
+  const handleGroupContextMenuClose = () => {
+    setGroupContextMenuVisible(false);
     // * rightClicked시에만 생기는 특수 border는 contextMenu가 close될 때 같이 사라진다.
     setRightClickedKey(``);
   };
@@ -357,7 +445,7 @@ export default function OrganizationPage() {
       // 상세정보 useSchema에 매핑.
       const userSchema = secondResponse.map((v: any) => ({
         title: v.user_name?.value,
-        key: v.user_id.value,
+        key: v.user_id.value?.concat(`_`, getRandomNumber()),
         gubun: v.gubun.value,
         ...convertToUser(v),
       }));
@@ -407,7 +495,7 @@ export default function OrganizationPage() {
 
         if (v.gubun.value === EnodeGubun.ORGANIZATION_USER) {
           const userProps = {
-            key: v.user_id?.value,
+            key: v.user_id?.value?.concat(`_`, getRandomNumber()),
             title: v.user_name?.value,
             ...convertToUser(v),
           };
@@ -608,7 +696,7 @@ export default function OrganizationPage() {
           closeModalFunction={() => {
             setMessageModalVisible(false);
           }}
-          selectedNode={finalSelectedKeys}
+          selectedNode={finalFinalSelectedKeys}
         />
       </Modal>
       <Modal
@@ -622,36 +710,65 @@ export default function OrganizationPage() {
           closeModalFunction={() => {
             setAddToFavoriteModalVisible(false);
           }}
-          selectedKeys={finalSelectedKeys}
-          // * 즐겨찾기에 추가 후 selectedKeys 초기화를 위해 전달.
-          setSelectedKeys={setSelectedKeys}
+          selectedKeys={finalFinalSelectedKeys}
+        />
+      </Modal>
+      <Modal
+        isOpen={addGroupToFavoriteModalVisible}
+        onRequestClose={() => {
+          setAddGroupToFavoriteModalVisible(false);
+        }}
+        style={commonModalStyles}
+      >
+        <AddGroupToFavoriteModal
+          closeModalFunction={() => {
+            setAddGroupToFavoriteModalVisible(false);
+          }}
+          selectedGroupInfo={selectedGroupInfo}
         />
       </Modal>
       <ContextMenu
         style={{
           top: pageY,
           left: leftPosition,
-          display: contextMenuVisible ? `block` : `none`,
+          display: groupContextMenuVisible ? `block` : `none`,
         }}
       >
-        <div onMouseLeave={handleContextMenuClose} tabIndex={1}>
-          <li>
-            <ul
+        <div onMouseLeave={handleGroupContextMenuClose} tabIndex={1}>
+          <ul>
+            <li onClick={handleAddGroupToFavorite}>
+              즐겨찾기에 그룹 멤버 추가
+            </li>
+            <li onClick={handleSendGroupMessage}>그룹 쪽지 발송</li>
+            <li onClick={handleSendGroupChat}>그룹 채팅 시작</li>
+          </ul>
+        </div>
+      </ContextMenu>
+      <ContextMenu
+        style={{
+          top: pageY,
+          left: leftPosition,
+          display: userContextMenuVisible ? `block` : `none`,
+        }}
+      >
+        <div onMouseLeave={handleUserContextMenuClose} tabIndex={1}>
+          <ul>
+            <li
               onClick={() => {
                 setAddToFavoriteModalVisible(true);
               }}
             >
               즐겨찾기에 추가
-            </ul>
-            <ul
+            </li>
+            <li
               onClick={() => {
                 setMessageModalVisible(true);
               }}
             >
               쪽지 보내기
-            </ul>
-            <ul onClick={handleChat}>채팅 시작</ul>
-          </li>
+            </li>
+            <li onClick={handleChat}>채팅 시작</li>
+          </ul>
         </div>
       </ContextMenu>
     </div>
@@ -684,7 +801,7 @@ const ContextMenu = styled.div`
   box-shadow: 0px 0px 4px #dfe2e8;
   user-select: none;
 
-  li ul {
+  ul li {
     background-clip: border-box;
     padding: 15px;
 
