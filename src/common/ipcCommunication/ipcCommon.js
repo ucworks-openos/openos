@@ -132,6 +132,10 @@ export const setStatusMonitor = async (userIds) => {
   });
 };
 
+/**
+ * saveBuddyData
+ * @param {*} xml 
+ */
 export const saveBuddyData = async (xml) => {
   console.log("saveBuddyData: ", xml);
   return new Promise((resolve, reject) => {

@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import NavItem from "./SideNaviItem";
 import SideItemList from "./SideNaviLists";
 import "./SideNavi.css";
-import NotificationControl from "./NotificationControl";
-import { logout, getUserInfos } from "../../ipcCommunication/ipcCommon";
+import NotificationControl from "../../../common/NotificationControl";
+import { logout, getUserInfos } from "../../../common/ipcCommunication/ipcCommon";
 import { useHistory } from "react-router-dom";
 
 function Sidebar() {

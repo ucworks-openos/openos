@@ -11,7 +11,7 @@ import {
   getUserInfos,
   searchOrgUsers,
   setStatusMonitor,
-} from "../ipcCommunication/ipcCommon";
+} from "../../common/ipcCommunication/ipcCommon";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 import { arrayLike, convertToUser, find } from "../../common/util";

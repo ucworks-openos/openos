@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Button, InputGroup, FormControl } from 'react-bootstrap';
 
-import {getConfig, saveConfig} from '../ipcCommunication/ipcCommon'
+import {getConfig, saveConfig} from '../../common/ipcCommunication/ipcCommon'
 
 const GridWrapper = styled.div`
   display: grid;

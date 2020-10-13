@@ -6,8 +6,8 @@ import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
 import {getConfig, login, getBuddyList, getBaseOrg, getChildOrg, changeStatus, setStatusMonitor,
-  getUserInfos} from '../ipcCommunication/ipcCommon'
-import {sendMessage} from '../ipcCommunication/ipcMessage'
+  getUserInfos} from '../../common/ipcCommunication/ipcCommon'
+import {sendMessage} from '../../common/ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")
 
@@ -24,20 +24,20 @@ function FuncTestPage() {
   const [serverPort, setServerPort] = useState(0);
   const [netLog, setNetLog] = useState("");
   const [localLog, setLocalLog] = useState("");
-  const [loginId, setloginId] = useState("bslee");
-  const [loginPwd, setloginPwd] = useState("1111");
+  const [loginId, setloginId] = useState("kitt1");
+  const [loginPwd, setloginPwd] = useState("1234");
   const [orgGroupCode, setOrgGroupCode] = useState("ORG001");
   const [groupCode, setGroupCode] = useState("D698");
   const [groupSeq, setGroupSeq] = useState(-1);
 
-  const [msgRecvIds, setMsgRecvIds] = useState("bslee|proju");
+  const [msgRecvIds, setMsgRecvIds] = useState("kitt1|proju");
   const [msgText, setMsgText] = useState('Input Message');
 
   const [status, setStatus] = useState(2);
 
   const [statusTarget, setStatusTarget] = useState('proju')
 
-  const [infoUserIds, setInfoUserIds] = useState("bslee,proju");
+  const [infoUserIds, setInfoUserIds] = useState("kitt1,proju");
 
   const netLogArea = useRef(null);
   const localLogArea = useRef(null);

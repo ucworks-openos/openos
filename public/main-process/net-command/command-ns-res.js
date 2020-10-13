@@ -1,7 +1,7 @@
 
 const winston = require('../../winston');
 
-const MsgNoti = require('../notification/notificationWindow');
+const MsgNoti = require('../notification/noti-manager');
 const EncUtil = require('../utils/utils-crypto');
 const BufUtil = require('../utils/utils-buffer');
 
@@ -99,26 +99,26 @@ function notifyCmdProc(recvCmd) {
         let encryptKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_ENCRYPT);
         sInx += CmdConst.BUF_LEN_ENCRYPT;
 
-        let key = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_KEY).trim();               // 메세지 키 (전송시 키를 발생하여 수신시 해당 키로 데이터베이스에 저장한다.)
+        let key = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_KEY);               // 메세지 키 (전송시 키를 발생하여 수신시 해당 키로 데이터베이스에 저장한다.)
         sInx += CmdConst.BUF_LEN_KEY;
 
-        let gubun = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_GUBUN).trim();             // 메시지 구분 >> 일반(COMMON), 수신확인(CONFIRM))
+        let gubun = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_GUBUN);             // 메시지 구분 >> 일반(COMMON), 수신확인(CONFIRM))
         sInx += CmdConst.BUF_LEN_GUBUN;
 
-        let subject = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_SUBJECT).trim();           // 제목
+        let subject = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_SUBJECT);           // 제목
         sInx += CmdConst.BUF_LEN_SUBJECT;
 
         //let sendId = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_USERID).trim();            // 보낸사람 ID
         let sendId = BufUtil.getStringWithoutEndOfString(recvCmd.data,  sInx, CmdConst.BUF_LEN_USERID);            // 보낸사람 ID
         sInx += CmdConst.BUF_LEN_USERID;
 
-        let sendName = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_USERNAME).trim();          // 보낸사람 이름
+        let sendName = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_USERNAME);          // 보낸사람 이름
         sInx += CmdConst.BUF_LEN_USERNAME;
 
-        let sendDate = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_SEND_DATE).trim();          // 보낸일자/시간
+        let sendDate = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_SEND_DATE);          // 보낸일자/시간
         sInx += CmdConst.BUF_LEN_SEND_DATE;
 
-        let resDate = recvCmd.data.toString(global.ENC, sInx, sInx + CmdConst.BUF_LEN_RES_DATE).trim();           // 예비용
+        let resDate = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_RES_DATE);           // 예비용
         sInx += CmdConst.BUF_LEN_RES_DATE;
 
         let resGubun = recvCmd.data.readInt32LE(sInx);          //?
@@ -146,38 +146,38 @@ function notifyCmdProc(recvCmd) {
         // 추가 데이터 수신
         let resData = '';
         if (resSize > 0) {
-          resData = recvCmd.data.toString(global.ENC, sInx, sInx + resSize).trim();
+          resData = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, resSize);
           sInx += resSize;
         }
 
         let message = '';
         if (cipherContentSize > 0) {
-          let cipherContents = recvCmd.data.toString(global.ENC, sInx, sInx + cipherContentSize).trim();
+          let cipherContents = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, cipherContentSize);
           message = EncUtil.decryptMessage(encryptKey, cipherContents)
           sInx += cipherContentSize;
         }
 
         let fileData = '';
         if (fileSize > 0) {
-          fileData = recvCmd.data.toString(global.ENC, sInx, sInx + fileSize).trim();
+          fileData = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, fileSize);
           sInx += fileSize;
         }
 
         let destName = '';
         if (destNameSize > 0) {
-          destName = recvCmd.data.toString(global.ENC, sInx, sInx + destNameSize).trim();
+          destName = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, destNameSize);
           sInx += destNameSize;
         }
 
         let allDestId = '';
         if (allDestIdSize > 0) {
-          allDestId = recvCmd.data.toString(global.ENC, sInx, sInx + allDestIdSize).trim();
+          allDestId = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, allDestIdSize);
           sInx += allDestIdSize;
         }
 
         let destIds = '';
         if (destIdSize > 0) {
-          destIds = recvCmd.data.toString(global.ENC, sInx, sInx + destIdSize).trim();
+          destIds = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, destIdSize);
           sInx += destIdSize;
         }
         
@@ -212,7 +212,7 @@ function notifyCmdProc(recvCmd) {
       if (recvCmd.data) {
         let sInx = 0;
 
-        let userId = recvCmd.data.toString(global.ENC, sInx, CmdConst.BUF_LEN_USERID).trim();
+        let userId = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_USERID);
         sInx += CmdConst.BUF_LEN_USERID;
 
         let msgCnt = recvCmd.data.readInt32LE(sInx);
@@ -350,7 +350,7 @@ function notifyCmdProc(recvCmd) {
       sInx += chatKeySize;
 
       let chatData = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, chatDataSize);
-      chatData = EncUtil.decryptMessage(encryptKey, chatData, true);
+      chatData = EncUtil.decryptMessage(encryptKey, chatData);
       sInx += chatDataSize;
 
       let destId = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx);

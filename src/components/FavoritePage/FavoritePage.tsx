@@ -12,7 +12,7 @@ import {
   getBuddyList,
   setStatusMonitor,
   getUserInfos,
-} from "../ipcCommunication/ipcCommon";
+} from "../../common/ipcCommunication/ipcCommon";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 import {

@@ -11,7 +11,8 @@
       ipcRenderer
     } = require("electron");
 
-    ipcRenderer.once('notify', (event, message) => {
+    // test code
+    ipcRenderer.once('notify-alert', (event, message) => {
       alert(`Received ${message} from main process`);
     });
 
@@ -19,8 +20,8 @@
       ipcRenderer.send('notiTitleClick',
         document.getElementById("notiType").value,
         document.getElementById("notiId").value,
-        document.getElementById("allMembers").value,
-        document.getElementById("message").value);
+        document.getElementById("tag").value);
+
       window.top.close();
     }
   </script>
@@ -47,9 +48,9 @@
     </div>
     <div class="noti-message-wrap" onclick='titleClick();'>
       <div class="noti-info">
-        <span class="from" id="sendName"></span>님이 <span class="what" id='title'></span>을 보냈습니다.
+        <span class="from" id="senderName"></span>님이 <span class="what" id='title'></span>을(를) 보냈습니다.
       </div>
-      <div id='msg' class="noti-content" onclick='titleClick();'>
+      <div id='message' class="noti-content" onclick='titleClick();'>
         <!-- 네~ 알겠습니다~ 그럼 일정은 어떻게 변경하는게 좋으신가요? -->
       </div>
     </div>
@@ -58,9 +59,7 @@
 
   <input type="hidden" id='notiType' />
   <input type="hidden" id='notiId' />
-  <input type="hidden" id='title'>
-  <input type="hidden" id='allMembers'>
-  <input type="hidden" id='message'>
+  <input type="hidden" id='tag'>
 
 </body>
 
