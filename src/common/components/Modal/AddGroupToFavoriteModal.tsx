@@ -2,7 +2,10 @@ import Tree, { TreeNode } from "rc-tree";
 import React, { useEffect, useMemo, useState } from "react";
 import Modal from "react-modal";
 import styled from "styled-components";
-import { getUserInfos } from "../../../components/ipcCommunication/ipcCommon";
+import {
+  getChildOrg,
+  getUserInfos,
+} from "../../../components/ipcCommunication/ipcCommon";
 import { EnodeGubun } from "../../../enum";
 import useTree from "../../../hooks/useTree";
 import {
@@ -17,13 +20,13 @@ import Node from "../AddToFavoriteTreeNode";
 import moment from "moment";
 
 type TaddToFavoriteModalProps = {
-  selectedKeys: (string | number)[];
+  selectedGroupInfo: any;
   closeModalFunction: () => void;
 };
 
 export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
   // ANCHOR state
-  const { closeModalFunction, selectedKeys } = props;
+  const { closeModalFunction, selectedGroupInfo } = props;
   const { treeData, setTreeData } = useTree({ type: `favorite` });
   const [selectedKey, setSelectedKey] = useState<string | number>(1);
   const [selectedUserInfos, setSelectedUserInfos] = useState<TTreeNode[]>([]);
@@ -32,24 +35,28 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
   // ANCHOR effect
   useEffect(() => {
     const initiate = async () => {
-      // * selectedKeys 배열로 유저 정보를 가져옴.
+      console.log(`selectedGroupInfo:`, selectedGroupInfo);
+
       const {
         data: {
-          items: { node_item: userSchemaMaybeArr },
+          root_node: { node_item: response },
         },
-      } = await getUserInfos(selectedKeys);
-      // *  사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
-      const userSchema = arrayLike(userSchemaMaybeArr);
-      // * 가져온 정보를 가공. 이 때 selectedKeys 유저가 Favorite 유저와 중복됟 시 중복 표기 해 줌.
-      const result = userSchema.map((v: any) => ({
-        title: v.user_name.value,
-        key: v.user_id.value?.concat(`_`, getRandomNumber()),
-        gubun: EnodeGubun.FAVORITE_USER,
-        id: v.user_id.value,
-        level: "0",
-        name: v.user_name.value,
-        ...(v && convertToUser(v)),
-      }));
+      } = await getChildOrg(
+        selectedGroupInfo.orgCode,
+        selectedGroupInfo.groupCode,
+        -1
+      );
+      const result = arrayLike(response)
+        .filter((v: any) => v.gubun.value === EnodeGubun.ORGANIZATION_USER)
+        .map((v: any) => ({
+          title: v.user_name.value,
+          key: v.user_id.value?.concat(`_`, getRandomNumber()),
+          gubun: EnodeGubun.FAVORITE_USER,
+          id: v.user_id.value,
+          level: "0",
+          name: v.user_name.value,
+          ...(v && convertToUser(v)),
+        }));
 
       await delay();
       setSelectedUserInfos(result);
