@@ -4,6 +4,7 @@ import { showChatNoti } from "./ipcCommunication/ipcMessage";
 import {
     addReceivedChat
 } from "../redux/actions/chat_actions";
+import { writeLog } from "./ipcCommunication/ipcCommon";
 
 const electron = window.require("electron");
 
@@ -58,9 +59,12 @@ function NotificationControl() {
 
     // 알림창 선택
     useEffect(() => {
+
+        writeLog('NotiContronLoad-----------');
         electron.ipcRenderer.on('notiTitleClick!', (event, sentInfo) => {
 
-            
+            writeLog('notiTitleClick', sentInfo);
+            return;
 
 
             // let notiType = sentInfo[0]

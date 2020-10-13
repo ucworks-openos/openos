@@ -1,5 +1,13 @@
 const electron = window.require("electron");
 
+/**
+ * write FileLog
+ * @param {*} xml 
+ */
+export const writeLog = (msg, ...args) => {
+  electron.ipcRenderer.send(`writeLog`, msg, ...args);
+};
+
 /** Config를 불러옵니다. */
 export const getConfig = () => {
   return new Promise(function(resolve, reject) {

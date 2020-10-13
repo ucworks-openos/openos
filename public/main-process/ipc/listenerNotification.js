@@ -26,6 +26,5 @@ ipcMain.on('showChatNoti', async (event, chatMsg) => {
  * 알림창에서 수신된 메세지를 다시 Randerer로 돌려준다.
  */
 ipcMain.on('notiTitleClick', async (event, notiType, notiId, tag) => {
-  winston.info('notiTitleClick', notiType, notiId, tag)
   send('notiTitleClick!', notiType, notiId, tag)
 });
