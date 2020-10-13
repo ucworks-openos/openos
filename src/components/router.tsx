@@ -45,10 +45,12 @@ function RouterPage() {
           <Route exact path="/message" component={MessagePage} />
           <Route exact path="/chat" component={ChatPage} />
           <Route exact path="/call" component={CallPage} />
+
           <Route exact path="/chat/:roomKey/:members" component={ChatPage} />
           <Route
             exact
-            path="/chat/:roomKey/:members/:message"
+            // path="/chat/:roomKey/:members/:message"
+            path="/chat/:roomKey"
             component={ChatPage}
           />
           <Route
@@ -56,6 +58,7 @@ function RouterPage() {
             path="/chat_from_organization/:orgMembers"
             component={ChatPage}
           />
+
           <Route exact path="/team-space" component={TeamSpacePage} />
           <Route exact path="/site-config" component={SiteConfigPage} />
           <Route exact path="/netTest" component={NetTestPage} />

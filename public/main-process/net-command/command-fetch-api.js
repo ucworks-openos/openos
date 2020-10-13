@@ -11,6 +11,7 @@ const fetchCore = require('../net-core/network-fetch-core');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 const { DATE_FORMAT } = require('../common/common-const');
 const { decryptMessage } = require('../utils/utils-crypto');
+const { realpathSync } = require('fs');
 
 /**
  * 서버로 접속요청 합니다.
@@ -122,9 +123,34 @@ async function reqChatRoomList( rowOffset = 0, rowLimit = 100) {
             });
         } else if (res.data.table.row){
             // 대화 내용이 1개밖에 없는 경우
-            res.data.table.row.chat_contents = decryptMessage(res.data.table.row.chat_encrypt_key, res.data.table.row.chat_contents, true);
+            res.data.table.row.chat_contents = decryptMessage(res.data.table.row.chat_encrypt_key, res.data.table.row.chat_contents);
         }
         
+    } catch (err) {
+        winston.err('chatList decrypt content fail!', res, err)
+    }
+    return res
+}
+
+/**
+ * 대화방 조회
+ */
+async function reqChatRoomByRoomKey(roomKey) {
+    
+    let queryKey = 'GET_CHAT_COLLRECT_' + global.USER.userId + '_' + OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
+    let query = SqlConst.SQL_select_tbl_chat_room_server;
+    query = query.replace(':CAHT_ROOM_KEY:', roomKey);
+    query = query.replace(':USER_ID:', global.USER.userId);
+
+    
+    let res = await selectToServer(query, queryKey);
+
+    try {
+        if (res.data.table.row){
+            // 대화 내용이 1개밖에 없는 경우
+            res.data.table.row.chat_contents = decryptMessage(res.data.table.row.chat_encrypt_key, res.data.table.row.chat_contents);
+            res.data = res.data.table.row;
+        }
     } catch (err) {
         winston.err('chatList decrypt content fail!', res, err)
     }
@@ -152,7 +178,7 @@ async function reqGetChatList(roomId, lastLineKey = '9999999999999999', rowLimit
             });
         } else if (res.data.table.row){
             // 대화 내용이 1개밖에 없는 경우
-            res.data.table.row.chat_contents = decryptMessage(res.data.table.row.chat_encrypt_key, res.data.table.row.chat_contents, true);
+            res.data.table.row.chat_contents = decryptMessage(res.data.table.row.chat_encrypt_key, res.data.table.row.chat_contents);
         }
         
     } catch (err) {
@@ -219,6 +245,7 @@ module.exports = {
     reqMessageList: reqMessageList,
     reqGetMessageDetail: reqGetMessageDetail,
     reqChatRoomList: reqChatRoomList,
+    reqChatRoomByRoomKey: reqChatRoomByRoomKey,
     reqGetChatList: reqGetChatList,
     close: close
 }

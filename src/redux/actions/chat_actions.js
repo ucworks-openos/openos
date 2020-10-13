@@ -42,6 +42,7 @@ export async function setCurrentChatRoomFromNoti() {
 }
 
 export async function getInitialChatRooms() {
+    
     const getChatRoomListResult = await getChatRoomList(0, 100)
     let request = [];
     let chatRoomListData = getChatRoomListResult.data.table.row

@@ -63,6 +63,10 @@ function responseCmdProc(recvCmd) {
         });
 
       } else {
+        let rcvBuf = Buffer.from(recvCmd.data);
+        let dataStr = rcvBuf.toString('utf-8', 0);
+        
+        winston.error('FETCH_SQL_REQUEST  Response Fail! : ' + recvCmd.cmdCode + ' Data:' + dataStr);
         callCallback(recvCmd.sendCmd, new ResData(false, 'FETCH_SQL_REQUEST  Response Fail!'));
       }
       break;
