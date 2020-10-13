@@ -2,7 +2,7 @@ import axios from 'axios';
 import {
     GET_LOGGED_IN_USER_INFO
 } from './types';
-import { getUserInfos } from '../../components/ipcCommunication/ipcCommon'
+import { getUserInfos } from '../../common/ipcCommunication/ipcCommon'
 
 export async function getLogginedInUserInfo(userId) {
     let request = await getUserInfos([userId])

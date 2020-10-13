@@ -71,6 +71,11 @@ export const getChatList = async (roomId, lastLineKey = '9999999999999999', rowL
     });
 }
 
+/** showChatNoti */
+export const showChatNoti = (chatMsg) => {
+      electron.ipcRenderer.send('showChatNoti', chatMsg)
+}
+
 /** decryptMessage */
 export const decryptMessage = async (endKey, cipherMessage) => {
   return new Promise(function(resolve, reject) {

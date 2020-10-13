@@ -8,8 +8,8 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
-import { getConfig, login } from '../ipcCommunication/ipcCommon'
-import { getChatRoomList, sendChatMessage, getChatList } from '../ipcCommunication/ipcMessage'
+import { getConfig, login } from '../../common/ipcCommunication/ipcCommon'
+import { getChatRoomList, sendChatMessage, getChatList } from '../../common/ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")
 const { remote } = window.require("electron")
@@ -30,11 +30,11 @@ function FuncTestPage2() {
   const [serverPort, setServerPort] = useState(0);
   const [netLog, setNetLog] = useState("");
   const [chatMessages, setChatMessages] = useState("");
-  const [loginId, setloginId] = useState("bslee");
-  const [loginPwd, setloginPwd] = useState("1111");
+  const [loginId, setloginId] = useState("kitt1");
+  const [loginPwd, setloginPwd] = useState("1234");
 
   const [targetUserIds, setTargetUserIds] = useState("proju,bucky2,smileajw1004");
-  const [chatRoomId, setChatRoomId] = useState("bslee_40b431b5fea09b109bb25e57379646fe");
+  const [chatRoomId, setChatRoomId] = useState("kitt1_40b431b5fea09b109bb25e57379646fe");
   const [lastLineKey, setLastLineKey] = useState("1600333476156745"); //9999999999999999
 
   const [chatMessage, setChatMessage] = useState("Hello Chat");
