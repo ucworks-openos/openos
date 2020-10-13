@@ -736,7 +736,9 @@ export default function OrganizationPage() {
       >
         <div onMouseLeave={handleGroupContextMenuClose} tabIndex={1}>
           <ul>
-            <li onClick={handleAddGroupToFavorite}>즐겨찾기에 그룹 추가</li>
+            <li onClick={handleAddGroupToFavorite}>
+              즐겨찾기에 그룹 멤버 추가
+            </li>
             <li onClick={handleSendGroupMessage}>그룹 쪽지 발송</li>
             <li onClick={handleSendGroupChat}>그룹 채팅 시작</li>
           </ul>
