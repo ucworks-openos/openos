@@ -22,7 +22,7 @@ function LeftPanel() {
   };
 
   return (
-    <div className="list-area">
+    <div className="message-list-area">
       <div className="message-page-title-wrap">
         <h4 className="page-title">쪽지</h4>
         <div
