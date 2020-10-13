@@ -50,7 +50,18 @@ export const getChatRoomList = async (rowOffset = 0, rowLimit = 100) => {
     });
 }
 
-/** getChatRoomList */
+/** getChatRoomByRoomKey */
+export const getChatRoomByRoomKey = async (roomId) => {
+  return new Promise(function(resolve, reject) {
+      electron.ipcRenderer.once('res-getChatRoomByRoomKey', (event, arg) => {
+          resolve(arg);
+        })
+        electron.ipcRenderer.send('getChatRoomByRoomKey', roomId)
+    });
+}
+
+
+/** sendChatMessage */
 export const sendChatMessage = async (chatUserIds, chatMessage, roomKey = null) => {
   return new Promise(function(resolve, reject) {
       electron.ipcRenderer.once('res-sendChatMessage', (event, arg) => {

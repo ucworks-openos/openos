@@ -81,8 +81,24 @@ ipcMain.on('getChatRoomList', async (event, msgKey) => {
   });
 });
 
+
 /**
- * getChatRoomList
+ * getChatRoom
+ */
+ipcMain.on('getChatRoomByRoomKey', async (event, roomKey) => {
+
+  fetchAPI.reqChatRoomByRoomKey(roomKey).then(function (resData) {
+    winston.info('[IPC] getChatRoomByRoomKey res:', resData)
+    event.reply('res-getChatRoomByRoomKey', resData);
+  }).catch(function (err) {
+    winston.info('[IPC] getChatRoomByRoomKey res  Err:', roomKey, err)
+    event.reply('res-getChatRoomByRoomKey', new ResData(false, err));
+  });
+});
+
+
+/**
+ * sendChatMessage
  */
 ipcMain.on('sendChatMessage', async (event, chatUserIds, chatMessage, roomKey = null) => {
 
@@ -116,13 +132,6 @@ ipcMain.on('sendChatMessage', async (event, chatUserIds, chatMessage, roomKey = 
     winston.info('[IPC] getChatLineKey res  Err:', err)
     event.reply('res-getChatLineKey', new ResData(false, err));
   });
-});
-
-/**
- * notiTitleClick
- */
-ipcMain.on('notiTitleClick', async (event, notiType, notiId, allMembers, message) => {
-  send('notiTitleClick!', notiType, notiId, allMembers, message)
 });
 
 /**

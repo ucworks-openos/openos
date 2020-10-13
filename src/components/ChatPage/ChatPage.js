@@ -9,35 +9,65 @@ import {
 import {
     emptyChatMessages,
     moveToClickedChatRoom,
-    addChatRoomFromOrganization
+    addChatRoomFromOrganization,
+    setCurrentChatRoomFromNoti
 } from '../../redux/actions/chat_actions';
 import moment from 'moment';
+import { writeLog } from "../../common/ipcCommunication/ipcCommon";
+import { getChatRoomByRoomKey } from "../../common/ipcCommunication/ipcMessage";
 
 function ChatPage(props) {
     const dispatch = useDispatch();
-    const roomKey = props.match.params["roomKey"];
-    const members = props.match.params["members"];
-    const message = props.match.params["message"];
-    const orgMembers = props.match.params["orgMembers"];
     const chatRooms = useSelector(state => state.chats.chatRooms)
+
+    const roomKey = props.match.params["roomKey"];
+    let members = props.match.params["members"];
+    let message = props.match.params["message"];
+    const orgMembers = props.match.params["orgMembers"];
+
+    writeLog('ChatPage -----------', roomKey);
 
     useEffect(() => {
         dispatch(getLogginedInUserInfo(sessionStorage.getItem("loginId")))
+
         if (roomKey) {
-            let selectedUsers = members.split("|")
-            const chatRoomBody = {
-                selected_users: selectedUsers,
-                user_counts: selectedUsers.length,
-                chat_entry_ids: members,
-                unread_count: 0,
-                room_key: roomKey,
-                chat_contents: message ? message : "",
-                chat_send_name: sessionStorage.getItem("loginName"),
-                create_room_date: moment().format("YYYYMMDDHHmm"),
-                chat_send_id: sessionStorage.getItem("loginId"),
-                last_line_key: '9999999999999999'
-            }
-            dispatch(moveToClickedChatRoom(chatRoomBody));
+            writeLog('moveToClickedChatRoom -------------');
+
+            // let selectedUsers = members.split("|")
+            // const chatRoomBody = {
+            //     selected_users: selectedUsers,
+            //     user_counts: selectedUsers.length,
+            //     chat_entry_ids: members,
+            //     unread_count: 0,
+            //     room_key: roomKey,
+            //     chat_contents: message ? message : "",
+            //     chat_send_name: sessionStorage.getItem("loginName"),
+            //     create_room_date: moment().format("YYYYMMDDHHmm"),
+            //     chat_send_id: sessionStorage.getItem("loginId"),
+            //     last_line_key: '9999999999999999'
+            // }
+            
+            getChatRoomByRoomKey(roomKey).then((resData) => {
+                let roomInfo = resData.data;
+                writeLog('moveToClickedChatRoom', roomInfo)   
+                
+                let selectedUsers = roomInfo.chat_entry_ids.split("|")
+                const chatRoomBody = {
+                    selected_users: selectedUsers,
+                    user_counts: selectedUsers.length,
+                    chat_entry_ids: roomInfo.chat_entry_ids,
+                    unread_count: 0,
+                    room_key: roomKey,
+                    chat_contents: roomInfo.chat_contents,
+                    chat_send_name: sessionStorage.getItem("loginName"),
+                    create_room_date: moment().format("YYYYMMDDHHmm"),
+                    chat_send_id: sessionStorage.getItem("loginId"),
+                    last_line_key: '9999999999999999'
+                }
+                dispatch(moveToClickedChatRoom(chatRoomBody));  
+            }).catch((err) => {
+                writeLog('getChatRoomByRoomKey fail!', err)
+            });
         }
 
     }, [roomKey])

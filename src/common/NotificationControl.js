@@ -5,6 +5,7 @@ import {
     addReceivedChat
 } from "../redux/actions/chat_actions";
 import { writeLog } from "./ipcCommunication/ipcCommon";
+import { setCurrentMessageListsType } from "../redux/actions/message_actions";
 
 const electron = window.require("electron");
 
@@ -29,6 +30,9 @@ function NotificationControl() {
 
     //대화 알림 수신처리
     useEffect(() => {
+
+        // 2중 등록 방지
+        electron.ipcRenderer.removeAllListeners('chatReceived');
         electron.ipcRenderer.on('chatReceived', (event, chatMsg) => {
 
             console.log('------ chatReceived', chatMsg);
@@ -60,20 +64,36 @@ function NotificationControl() {
     // 알림창 선택
     useEffect(() => {
 
-        writeLog('NotiContronLoad-----------');
-        electron.ipcRenderer.on('notiTitleClick!', (event, sentInfo) => {
+        // 2중 등록 방지
+        electron.ipcRenderer.removeAllListeners('notiTitleClick');
+        electron.ipcRenderer.on('notiTitleClick', (event, noti) => {
 
-            writeLog('notiTitleClick', sentInfo);
-            return;
+            writeLog('notiTitleClick', noti);
 
+            switch(noti[0].notiType) {
+                case 'NOTI_MESSAGE':
+                    // 수신쪽지로 설정한후 탭을 넘긴다.
+                    setCurrentMessageListsType('MSG_RECV');
+                    window.location.hash = `#/message`;
+                    break;
+                case 'NOTI_CHAT':
+                    writeLog('chat noti click!--');
+                    window.location.hash = `#/chat/${noti[0].notiId}`;
+                    break;
+                default:
+                    writeLog('Unknown Noti Title Click', noti[0])
+                    return;
 
-            // let notiType = sentInfo[0]
-            let message = sentInfo[3]
-            let roomKey = sentInfo[1]
-            let allMembers = sentInfo[2]
-            if (window.location.hash.split("/")[1] !== "chat") {
-                window.location.hash = `#/chat/${roomKey}/${allMembers}/${message}`;
             }
+
+            // // let notiType = sentInfo[0]
+            // let message = sentInfo[3]
+            // let roomKey = sentInfo[1]
+            // let allMembers = sentInfo[2]
+            // if (window.location.hash.split("/")[1] !== "chat") {
+            //     writeLog('notiTitleClick--');
+            //     window.location.hash = `#/chat/${roomKey}/${allMembers}/${message}`;
+            // }
         });
     }, [])
 
