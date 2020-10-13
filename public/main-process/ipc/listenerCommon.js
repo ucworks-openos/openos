@@ -59,7 +59,6 @@ ipcMain.on('login', async (event, loginData) => {
   };
 });
 
-
 // logout
 ipcMain.on('logout', async (event, ...args) => {
   
@@ -110,7 +109,6 @@ ipcMain.on('getChildOrg', async (event, orgGroupCode, groupCode, groupSeq) => {
   });
 });
 
-
 // getUserInfos
 ipcMain.on('getUserInfos', async (event, userIds) => {
   psAPI.reqGetUserInfos(userIds).then(function(resData)
@@ -122,7 +120,6 @@ ipcMain.on('getUserInfos', async (event, userIds) => {
   });
 });
 
-
 // searchUsers
 ipcMain.on('searchUsers', async (event, searchMode, searchText) => {
   psAPI.reqSearchUsers(searchMode, searchText).then(function(resData)
@@ -133,7 +130,6 @@ ipcMain.on('searchUsers', async (event, searchMode, searchText) => {
     event.reply('res-searchUsers', new ResData(false, err));
   });
 });
-
 
 // searchUsers
 ipcMain.on('searchOrgUsers', async (event, orgGrgoupCode, searchText) => {
@@ -157,7 +153,6 @@ ipcMain.on('saveBuddyData', async (event, favoritData) => {
   });
 });
 
-
 // changeStatus
 ipcMain.on('changeStatus', async (event, status, force = false) => {
   nsAPI.reqChangeStatus(status, force).then(function(resData)
@@ -169,7 +164,6 @@ ipcMain.on('changeStatus', async (event, status, force = false) => {
   });
 });
 
-
 // setStatusMonitor
 ipcMain.on('setStatusMonitor', async (event, userIds) => {
   nsAPI.reqSetStatusMonitor(userIds).then(function(resData)
@@ -179,6 +173,11 @@ ipcMain.on('setStatusMonitor', async (event, userIds) => {
   }).catch(function(err) {
     event.reply('res-setStatusMonitor', new ResData(false, err));
   });
+});
+
+// writeLog
+ipcMain.on('writeLog', async (event, msg, ...args) => {
+ winston.randerer(msg, ...args)
 });
 
 /** sample */

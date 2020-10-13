@@ -113,6 +113,7 @@ function readDataStream(rcvData){
 
     // 받은 데이터가 전문의 길이 값보다 더크다면 다음 커맨드가 붙어왔을수 있다.
      winston.info('rcvCommand ----------------------', rcvCommand)
+
      winston.info('recvData : data Size  -----------------', rcvData.length , dataBuff.length)
 
     // 기존데이터 + 받은 데이터 길이가 사이즈보다 넘는다면, 이후 커맨드까지 같이 받은것이다.

@@ -4,7 +4,7 @@ const electron = window.require("electron")
 /** DS 연결. */
 export const connectDS = async () => {
     return new Promise(function(resolve, reject) {
-        electron.ipcRenderer.on('res-connectDS', (event, arg) => {
+        electron.ipcRenderer.once('res-connectDS', (event, arg) => {
             resolve(arg);
           })
           electron.ipcRenderer.send('connectDS', 'ping')
@@ -14,7 +14,7 @@ export const connectDS = async () => {
 /** upgradeCheck */
 export const upgradeCheck = async () => {
     return new Promise(function(resolve, reject) {
-        electron.ipcRenderer.on('res-upgradeCheck', (event, arg) => {
+        electron.ipcRenderer.once('res-upgradeCheck', (event, arg) => {
             resolve(arg);
           })
           electron.ipcRenderer.send('upgradeCheck', 'ping')
@@ -25,7 +25,7 @@ export const upgradeCheck = async () => {
 export const testAction = (testArg) => {
     
     return new Promise(function(resolve, reject) {
-        electron.ipcRenderer.on('res-testAction', (event, arg) => {
+        electron.ipcRenderer.once('res-testAction', (event, arg) => {
             console.log('testAction res', arg)
             resolve(arg);
         })

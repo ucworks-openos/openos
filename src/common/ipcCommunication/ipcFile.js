@@ -2,7 +2,7 @@ const electron = window.require("electron")
 
 export const downloadFile = async (serverIp, serverPort, serverFileName, saveFilePath) => {
     return new Promise(function(resolve, reject) {
-        electron.ipcRenderer.on('res-downloadFile', (event, arg) => {
+        electron.ipcRenderer.once('res-downloadFile', (event, arg) => {
             resolve(arg);
           })
           electron.ipcRenderer.send('downloadFile', serverIp, serverPort, serverFileName, saveFilePath);
@@ -18,7 +18,7 @@ export const downloadFile = async (serverIp, serverPort, serverFileName, saveFil
  */
 export const uploadFile = async (fileKey, filePath) => {
     return new Promise(function(resolve, reject) {
-        electron.ipcRenderer.on('res-uploadFile', (event, arg) => {
+        electron.ipcRenderer.once('res-uploadFile', (event, arg) => {
             resolve(arg);
           })
           electron.ipcRenderer.send('uploadFile', fileKey, filePath);

@@ -149,7 +149,7 @@ ipcMain.on('testAction', async (event, ...args) => {
 
   winston.info('DATE>>', OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS));
 
-  //nsAPI.reqGetStatus(1, 'bslee');
+  //nsAPI.reqGetStatus(1, 'kitt1');
   //return;
 
   let options = {
@@ -188,7 +188,7 @@ ipcMain.on('testAction', async (event, ...args) => {
 
 
   ////////////////////////////////////
-  //reqGetCondition('bslee');
+  //reqGetCondition('kitt1');
 
 
   //////////////////////////

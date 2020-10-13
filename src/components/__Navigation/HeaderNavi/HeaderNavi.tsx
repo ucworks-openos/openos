@@ -5,7 +5,7 @@ import {
   logout,
   changeStatus,
   getUserInfos,
-} from "../../ipcCommunication/ipcCommon";
+} from "../../../common/ipcCommunication/ipcCommon";
 import { convertToUser, delay } from "../../../common/util";
 import { EuserState } from "../../../enum";
 

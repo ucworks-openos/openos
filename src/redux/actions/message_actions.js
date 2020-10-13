@@ -6,8 +6,8 @@ import {
     ADD_MESSAGE,
     SET_CURRENT_MESSAGE_LISTS_TYPE,
 } from './types';
-import { getMessage, getMessageDetail } from '../../components/ipcCommunication/ipcMessage'
-import { sendMessage } from '../../components/ipcCommunication/ipcMessage'
+import { getMessage, getMessageDetail } from '../../common/ipcCommunication/ipcMessage'
+import { sendMessage } from '../../common/ipcCommunication/ipcMessage'
 import moment from 'moment';
 
 export function setCurrentMessage(messageKey) {

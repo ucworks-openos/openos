@@ -12,7 +12,7 @@ import {
     SET_CURRENT_CHAT_ROOM_FROM_NOTI,
     EMPTY_CHAT_MESSAGE
 } from './types';
-import { getChatRoomList, sendChatMessage, getChatList } from '../../components/ipcCommunication/ipcMessage'
+import { getChatRoomList, sendChatMessage, getChatList } from '../../common/ipcCommunication/ipcMessage'
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 /**

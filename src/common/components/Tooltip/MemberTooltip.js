@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getUserInfos } from '../../../components/ipcCommunication/ipcCommon';
+import { getUserInfos } from '../../ipcCommunication/ipcCommon';
 import { useDispatch, useSelector } from 'react-redux';
 
 function MemberTooltip({ userIds, RecvCounts }) {

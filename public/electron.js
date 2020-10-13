@@ -287,6 +287,7 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   winston.info('== COMPUTERNAME:%s USERDOMAIN:%s LANG:%s', process.env.COMPUTERNAME, process.env.USERDOMAIN, process.env.LANG);
   winston.info('== ROOT_PATH:%s ', global.ROOT_PATH);
   winston.info('== LOG_PATH:%s', global.LOG_PATH);
+  
 
   if (IS_DEV) {
     winston.info('== USERPROFILE:%s PWD:%s HOME:%s', process.env.USERPROFILE, process.env.PWD, process.env.HOME);

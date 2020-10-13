@@ -20,7 +20,7 @@ function ChatRooms(props) {
     }, [])
 
     useEffect(() => {
-        electron.ipcRenderer.on('notiTitleClick!', (event, sentInfo) => {
+        electron.ipcRenderer.once('notiTitleClick!', (event, sentInfo) => {
             let roomKey = sentInfo[1]
             dispatch(setCurrentChatRoomFromNoti(roomKey, chatRooms))
         });

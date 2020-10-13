@@ -5,8 +5,8 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
-import {getConfig, login, searchUsers, searchOrgUsers} from '../ipcCommunication/ipcCommon'
-import {getMessage, getMessageDetail, deleteMessage, getChatRoomList} from '../ipcCommunication/ipcMessage'
+import {getConfig, login, searchUsers, searchOrgUsers} from '../../common/ipcCommunication/ipcCommon'
+import {getMessage, getMessageDetail, deleteMessage, getChatRoomList} from '../../common/ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")
 
@@ -23,8 +23,8 @@ function FuncTestPage2() {
   const [serverPort, setServerPort] = useState(0);
   const [netLog, setNetLog] = useState("");
   const [localLog, setLocalLog] = useState("");
-  const [loginId, setloginId] = useState("bslee");
-  const [loginPwd, setloginPwd] = useState("1111");
+  const [loginId, setloginId] = useState("kitt1");
+  const [loginPwd, setloginPwd] = useState("1234");
   const [searchMode, setSearchMode] = useState('ALL');
   const [searchText, setSearchText] = useState('이봉석');
   const [orgGroupCode, setOrgGroupCode] = useState("ORG001");
@@ -37,7 +37,7 @@ function FuncTestPage2() {
   useEffect(() => {
     console.log("FuncTestPage Init");
 
-    electron.ipcRenderer.on('net-log', (event, msg, ...args) => {
+    electron.ipcRenderer.once('net-log', (event, msg, ...args) => {
       appendNetLog(msg, args);
     });
 

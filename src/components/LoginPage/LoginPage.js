@@ -3,7 +3,7 @@ import "./Sections/LoginPage.css";
 import { useForm } from "react-hook-form";
 import SignitureCi from "../../common/components/SignitureCi";
 import styled from "styled-components";
-import { login } from "../ipcCommunication/ipcCommon";
+import { login } from "../../common/ipcCommunication/ipcCommon";
 
 const electron = window.require("electron");
 
@@ -30,7 +30,7 @@ function Home(props) {
     }
   };
 
-  // electron.ipcRenderer.on('res-login', (event, data) => {
+  // electron.ipcRenderer.once('res-login', (event, data) => {
   //   alert('Login Response! ' + JSON.stringify(data))
   //   localStorage.setItem('isLoginElectronApp', true)
   //   window.location.hash = '#/favorite';

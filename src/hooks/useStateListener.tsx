@@ -6,7 +6,7 @@ const electron = window.require("electron");
 export default function useStateListener() {
   const [targetInfo, setTargetInfo] = useState<string[]>([]);
   useEffect(() => {
-    electron.ipcRenderer.on(
+    electron.ipcRenderer.once(
       "userStatusChanged",
       (event: any, diff: string[]) => {
         setTargetInfo(diff);

@@ -5,10 +5,10 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
-import {getConfig, login} from '../ipcCommunication/ipcCommon'
-import {connectDS, upgradeCheck, testAction} from '../ipcCommunication/ipcTest'
-import { decryptMessage } from '../ipcCommunication/ipcMessage';
-import { uploadFile, downloadFile } from '../ipcCommunication/ipcFile';
+import {getConfig, login} from '../../common/ipcCommunication/ipcCommon'
+import {connectDS, upgradeCheck, testAction} from '../../common/ipcCommunication/ipcTest'
+import { decryptMessage } from '../../common/ipcCommunication/ipcMessage';
+import { uploadFile, downloadFile } from '../../common/ipcCommunication/ipcFile';
 
 const electron = window.require("electron")
 const { remote } = window.require("electron")
@@ -46,11 +46,11 @@ function NetTestPage() {
   useEffect(() => {
     console.log("NetTestPage Init");
 
-    electron.ipcRenderer.on('net-log', (event, data) => {
+    electron.ipcRenderer.once('net-log', (event, data) => {
       appendNetLog(data);
     });
 
-    electron.ipcRenderer.on('upload-file-progress', (event, data) => {
+    electron.ipcRenderer.once('upload-file-progress', (event, data) => {
       appendNetLog("[PROGRESS] "+ JSON.stringify(data));
     });
     
@@ -126,7 +126,7 @@ function NetTestPage() {
   // Login
   const handleLogin = (e) => {
     appendLocalLog("Login");
-    login('bslee', '1234').then(function(resData){
+    login('kitt1', '1234').then(function(resData){
 
       console.log('Promiss login res', resData);
 
