@@ -21,8 +21,8 @@ function ChatPage(props) {
     const chatRooms = useSelector(state => state.chats.chatRooms)
 
     const roomKey = props.match.params["roomKey"];
-    let members = props.match.params["members"];
-    let message = props.match.params["message"];
+    const members = props.match.params["members"];
+    const message = props.match.params["message"];
     const orgMembers = props.match.params["orgMembers"];
 
     writeLog('ChatPage -----------', roomKey);

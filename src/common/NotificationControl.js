@@ -48,7 +48,10 @@ function NotificationControl() {
             if (divideChatData.length > 1) return;
 
             //받은 메시지 화면에 반영해주기
-            if (sessionStorage.getItem('chatRoomKey')) { dispatch(addReceivedChat(chat)) };
+            writeLog('------ chatReceived', sessionStorage.getItem('chatRoomKey'), chat)
+
+            //if (sessionStorage.getItem('chatRoomKey')) { dispatch(addReceivedChat(chat)) };
+            dispatch(addReceivedChat(chat))
 
             console.log('selected chatRoom', sessionStorage.getItem('chatRoomKey'))
             // 내가 대화 room_key에 해당하지 않는 페이지에 있을 때만 알림 받기
