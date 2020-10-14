@@ -25,14 +25,10 @@ function ChatPage(props) {
     const message = props.match.params["message"];
     const orgMembers = props.match.params["orgMembers"];
 
-    writeLog('ChatPage -----------', roomKey);
-
     useEffect(() => {
         dispatch(getLogginedInUserInfo(sessionStorage.getItem("loginId")))
 
         if (roomKey) {
-            writeLog('moveToClickedChatRoom -------------');
-
             // let selectedUsers = members.split("|")
             // const chatRoomBody = {
             //     selected_users: selectedUsers,

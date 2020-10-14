@@ -121,11 +121,14 @@ function MessageInputModal(props) {
             return;
         }
 
-        if (title.trim().length === 0) {
-            let tmpTitle = title;
+        let tmpTitle = title;
+        writeLog('tmpTitle', tmpTitle.trim().length);
+        if (tmpTitle.trim().length === 0) {
+
+            tmpTitle = content.substring(3, content.length - 4)
             if (tmpTitle.length > 20) {
                 tmpTitle = tmpTitle.substring(0, 20);
-            }
+            } 
 
             setTitle(tmpTitle);
 
@@ -139,7 +142,8 @@ function MessageInputModal(props) {
         let recvIds = selectedUsers.map(user => user.user_id.value).join('|')
         let recvNames = selectedUsers.map(user => user.user_name.value).join(',')
         
-        sendMessage(recvIds, recvNames, title, content);
+        writeLog('sendMessage', recvIds, recvNames, tmpTitle, content);
+        sendMessage(recvIds, recvNames, tmpTitle, content);
           
         setContent("")
         setTitle("")
