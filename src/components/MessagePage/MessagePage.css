@@ -1013,7 +1013,7 @@
 }
 .message-from-wrap{font-size: 0;}
 .message-from-wrap:before {
-    content: "From";
+    content: "";
     font-family: 'Roboto', sans-serif;
     font-size: 0.875rem;
     letter-spacing: 0.35px;

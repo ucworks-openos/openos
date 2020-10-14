@@ -9,6 +9,8 @@ import {
     getInitialChatRooms,
     setCurrentChatRoomFromNoti
 } from "../../../redux/actions/chat_actions";
+import { writeLog } from "../../../common/ipcCommunication/ipcCommon";
+
 const electron = window.require("electron")
 
 function ChatRooms(props) {
@@ -18,13 +20,6 @@ function ChatRooms(props) {
     useEffect(() => {
         dispatch(getInitialChatRooms())
     }, [])
-
-    // 대화탭에서 다른대화방에서 대화중일때 클릭하면 클릭한 방으로 이동시킨다.
-    useEffect(() => {
-        electron.ipcRenderer.once('notiTitleClick', (event, noti) => {
-            dispatch(setCurrentChatRoomFromNoti(noti[0].notiId, chatRooms))
-        });
-    }, [chatRooms])
 
     const onChatRoomClick = (roomKey) => {
         dispatch(setCurrentChatRoom(roomKey, chatRooms))

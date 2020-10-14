@@ -68,37 +68,42 @@ function reqMessageList(msgType, rowOffset = 0, rowLimit = 100) {
  */
 function reqGetMessageDetail(msgKey) {
     return new Promise(async function(resolve, reject) {
-            
+        
         let queryKey = 'GET_MSG_LIST_MSG_ALL_' + global.USER.userId + '_' + OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
         let query = SqlConst.SQL_select_tbl_message_msg_key_from_server;
         query = query.replace(':MSG_KEY:', msgKey);
         
-        let resData = await selectToServer(query, queryKey);
+        try {
+            let resData = await selectToServer(query, queryKey);
 
-        if (resData.resCode) {
-            let encryptKey = resData.data.table.row.encrypt_key
-            let encArr = encryptKey.split(CmdConst.SEP_PIPE);
-            let encMode = encArr[0];
-            let encKey = encArr[1];
+            if (resData.resCode) {
+                let encryptKey = resData.data.table.row.encrypt_key
+                let encArr = encryptKey.split(CmdConst.SEP_PIPE);
+                let encMode = encArr[0];
+                let encKey = encArr[1];
 
-            let cipherContents = resData.data.table.row.msg_content;
-            switch(encMode) {
-            case CmdConst.ENCODE_TYPE_OTS:
-                encKey = EncUtil.decryptRC4(CmdConst.SESSION_KEY, encKey);
-                resData.data.table.row.msg_content = EncUtil.decryptRC4(encKey, cipherContents);
-                break;
-            case CmdConst.ENCODE_TYPE_OTS_AES256:
-                encKey = EncUtil.decryptAES256(CmdConst.SESSION_KEY_AES256, encKey);
-                resData.data.table.row.msg_content = EncUtil.decryptAES256(encKey, cipherContents);
-                break;
+                let cipherContents = resData.data.table.row.msg_content;
+                switch(encMode) {
+                case CmdConst.ENCODE_TYPE_OTS:
+                    encKey = EncUtil.decryptRC4(CmdConst.SESSION_KEY, encKey);
+                    resData.data.table.row.msg_content = EncUtil.decryptRC4(encKey, cipherContents);
+                    break;
+                case CmdConst.ENCODE_TYPE_OTS_AES256:
+                    encKey = EncUtil.decryptAES256(CmdConst.SESSION_KEY_AES256, encKey);
+                    resData.data.table.row.msg_content = EncUtil.decryptAES256(encKey, cipherContents);
+                    break;
 
-            default:
-                resData.data.table.row.msg_content = cipherContents;
-                break;
+                default:
+                    resData.data.table.row.msg_content = cipherContents;
+                    break;
+                }
             }
+            resolve(resData);
+        } catch (err) {
+            winston.err(query, err)
+            reject(err);
         }
 
-        resolve(resData);
     });
 }
 

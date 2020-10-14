@@ -1,4 +1,5 @@
 import React, { Suspense } from "react";
+import { useSelector } from "react-redux";
 import { Route, Switch, HashRouter } from "react-router-dom";
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
@@ -25,8 +26,7 @@ const FuncTestPage2 = React.lazy(() => import("./TestPages/FuncTestPage2"));
 const chatTestPage = React.lazy(() => import("./TestPages/ChatTestPage"));
 const TeamSpacePage = React.lazy(() => import("./TeamSpacePage/TeamSpacePage"));
 
-function RouterPage() {
-  return (
+function RouterPage() { return (
     <HashRouter>
       {/* <MyErrorBoundary> */}
       <Suspense fallback={<div>Loading...</div>}>
@@ -43,6 +43,7 @@ function RouterPage() {
           <Route exact path="/login" component={LoginPage} />
           <Route exact path="/about" component={AboutPage} />
           <Route exact path="/message" component={MessagePage} />
+          <Route exact path="/message/:msgType" component={MessagePage} />
           <Route exact path="/chat" component={ChatPage} />
           <Route exact path="/call" component={CallPage} />
 
