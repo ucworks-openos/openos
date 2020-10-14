@@ -43,6 +43,7 @@ function RouterPage() {
           <Route exact path="/login" component={LoginPage} />
           <Route exact path="/about" component={AboutPage} />
           <Route exact path="/message" component={MessagePage} />
+          <Route exact path="/message/:msgType" component={MessagePage} />
           <Route exact path="/chat" component={ChatPage} />
           <Route exact path="/call" component={CallPage} />
 

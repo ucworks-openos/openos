@@ -9,6 +9,7 @@ import {
 import { getMessage, getMessageDetail } from '../../common/ipcCommunication/ipcMessage'
 import { sendMessage } from '../../common/ipcCommunication/ipcMessage'
 import moment from 'moment';
+import { writeLog } from '../../common/ipcCommunication/ipcCommon';
 
 export function setCurrentMessage(messageKey) {
     return {
@@ -34,23 +35,17 @@ export async function getMessageHo(messageKey) {
     }
 }
 
-export async function addMessage(recvIds, recvNames, title, content, currentMessageListType, senderName) {
-
-    let request;
-    if (currentMessageListType === "MSG_SEND") {
-        request = {
+export async function addMessage(msg_key, recvIds, recvNames, title, content, senderName) {
+    return {
+        type: ADD_MESSAGE,
+        payload: {
+            msg_key: msg_key,
             msg_recv_ids: recvIds,
             msg_recv_name: recvNames,
             msg_send_name: senderName,
             msg_send_date: moment().format("YYYYMMDDHHmm"),
             msg_subject: title,
         }
-    }
-
-    await sendMessage(recvIds, recvNames, title, content)
-    return {
-        type: ADD_MESSAGE,
-        payload: request
     }
 }
 

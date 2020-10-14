@@ -6,10 +6,11 @@ import {
 } from '../../../redux/actions/message_actions';
 // import ReactSelect from '../../../common/components/Select/ReactSelect';
 // import { userLists } from '../../../redux/mock-datas/user-lists';
-import { getUserInfos, searchUsers } from '../../../common/ipcCommunication/ipcCommon'
+import { getUserInfos, searchUsers, writeLog } from '../../../common/ipcCommunication/ipcCommon'
 import './MessageInputModal.css';
 import Alert from 'react-bootstrap/Alert'
 import { arrayLike } from '../../util';
+import { sendMessage } from '../../ipcCommunication/ipcMessage';
 
 function MessageInputModal(props) {
     const dispatch = useDispatch();
@@ -110,22 +111,41 @@ function MessageInputModal(props) {
             }, 2000)
             return;
         }
-        if (title.trim().length === 0) {
-            setIsTitleTyped(true)
+
+        if (content.trim().length === 0) {
+
+            setIsContentTyped(true)
             setTimeout(() => {
-                setIsTitleTyped(false)
+                setIsContentTyped(false)
             }, 2000)
             return;
+        }
+
+        if (title.trim().length === 0) {
+            let tmpTitle = title;
+            if (tmpTitle.length > 20) {
+                tmpTitle = tmpTitle.substring(0, 20);
+            }
+
+            setTitle(tmpTitle);
+
+            //setTitle()
+            // setIsTitleTyped(true)
+            // setTimeout(() => {
+            //     setIsTitleTyped(false)
+            // }, 2000)
+            //return;
         }
         let recvIds = selectedUsers.map(user => user.user_id.value).join('|')
         let recvNames = selectedUsers.map(user => user.user_name.value).join(',')
         
-        dispatch(addMessage(recvIds, recvNames, title,
-            content.trim().length === 0 ? `<p>${title}</>` : content, currentMessageListType, loggedInUser.user_name.value))
+        sendMessage(recvIds, recvNames, title, content);
+          
         setContent("")
         setTitle("")
         setSelectedUsers([])
         props.closeModalFunction();
+
     }
 
     const onDeleteCheckedMemberClick = (targetedUser) => {
@@ -156,17 +176,17 @@ function MessageInputModal(props) {
             </div>
             {isUserSelected &&
                 <Alert variant="danger">
-                    먼저 유저를 선택해주세요.
+                    받는 사람을 선택해주세요.
                 </Alert>
             }
             {isAlreadyCheckedUser &&
                 <Alert variant="danger">
-                    이미 체크 된 유저 입니다.
+                    이미 선택된 사용자 입니다.
                 </Alert>
             }
             {isNoUser &&
                 <Alert variant="danger">
-                    검색어에 맞는 분이 없습니다.
+                    검색된 사용자가 없습니다.
                 </Alert>
             }
             {selectedUsers.length > 0 &&
@@ -178,11 +198,11 @@ function MessageInputModal(props) {
             <div class="write-row subject-wrap">
                 <input type="text" class="subject" onChange={onTitleChange} value={title} placeholder="쪽지 제목을 입력해주세요" />
             </div>
-            {isTitleTyped &&
+            {/* {isTitleTyped &&
                 <Alert variant="danger">
                     먼저 쪽지 이름을 입력해 주세요.
                 </Alert>
-            }
+            } */}
             <QuillEditor
                 placeholder={"쪽지 내용을 입력해주세요."}
                 onEditorChange={onEditorChange}
@@ -190,7 +210,7 @@ function MessageInputModal(props) {
             />
             {isContentTyped &&
                 <Alert variant="danger">
-                    먼저 쪽지를 입력해 주세요.
+                    쪽지 내용을 입력해 주세요.
                 </Alert>
             }
             <br />

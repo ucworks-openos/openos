@@ -5,17 +5,14 @@ import {
     addReceivedChat
 } from "../redux/actions/chat_actions";
 import { writeLog } from "./ipcCommunication/ipcCommon";
-import { setCurrentMessageListsType } from "../redux/actions/message_actions";
+import { addMessage, setCurrentMessageListsType } from "../redux/actions/message_actions";
 
 const electron = window.require("electron");
 
 function NotificationControl() {
 
     const dispatch = useDispatch();
-
-    //
-    //#region Chat Norification ...
-
+   
     // 선택한 대화방 정보를 가지고 있는다.
     const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
     // 선택한 대화방 처리
@@ -28,15 +25,16 @@ function NotificationControl() {
         }
     }, [currentChatRoom, window.location.hash])
 
-    //대화 알림 수신처리
+
+    //알림 수신처리
     useEffect(() => {
 
-        // 2중 등록 방지
+        // 대화 메세지 수신
         electron.ipcRenderer.removeAllListeners('chatReceived');
-        electron.ipcRenderer.on('chatReceived', (event, chatMsg) => {
+        electron.ipcRenderer.on('chatReceived', (event, chatData) => {
 
-            console.log('------ chatReceived', chatMsg);
-            let chat = chatMsg[0];
+            console.log('------ chatReceived', chatData);
+            let chat = chatData[0];
 
             // 본인이 보낸 메세지는 무시한다.
             if (chat.sendId === sessionStorage.getItem('loginId')) return;
@@ -59,10 +57,33 @@ function NotificationControl() {
                 //알림 받기
                 showChatNoti(chat);
             }
-            
+        });  
+
+        // 쪽지 수신
+        // 현재 선택된 쪽지 탭 유형을 확인하고, 쪽지 목록화면에 추가해야 함으로 쪽지 컨트롤에서 처리
+        electron.ipcRenderer.removeAllListeners('messageReceived');
+        electron.ipcRenderer.on('messageReceived', (event, msgData) => {
+            let currentMessageListType = sessionStorage.getItem('currentMessageListType');
+            let msg = msgData[0];
+
+            let isSendMsg = msg.sendId === sessionStorage.getItem('loginId');
+
+            writeLog('messageReceived', isSendMsg, currentMessageListType);
+
+            // 내가 보고있는 함에 맞는 메세지가 오면 추가.
+            if ((isSendMsg && currentMessageListType === 'MSG_SEND') ||
+                (!isSendMsg && currentMessageListType === 'MSG_RECV')) {
+                dispatch(
+                    addMessage(msg.key, 
+                        msg.destIds, 
+                        msg.destName, 
+                        msg.subject,
+                        msg.message.trim().length === 0 ? `<p>${msg.subject}</>` : msg.message, 
+                        msg.sendName))
+            } 
         });
     }, [])
-    //#endregion  Chat Norification ...
+    
 
     // 알림창 선택
     useEffect(() => {
@@ -75,28 +96,26 @@ function NotificationControl() {
 
             switch(noti[0].notiType) {
                 case 'NOTI_MESSAGE':
-                    // 수신쪽지로 설정한후 탭을 넘긴다.
-                    setCurrentMessageListsType('MSG_RECV');
                     window.location.hash = `#/message`;
                     break;
                 case 'NOTI_CHAT':
                     writeLog('chat noti click!--');
                     window.location.hash = `#/chat/${noti[0].notiId}`;
+                    
+                    // // let notiType = sentInfo[0]
+                    // let message = sentInfo[3]
+                    // let roomKey = sentInfo[1]
+                    // let allMembers = sentInfo[2]
+                    // if (window.location.hash.split("/")[1] !== "chat") {
+                    //     writeLog('notiTitleClick--');
+                    //     window.location.hash = `#/chat/${roomKey}/${allMembers}/${message}`;
+                    // }
                     break;
                 default:
                     writeLog('Unknown Noti Title Click', noti[0])
                     return;
 
             }
-
-            // // let notiType = sentInfo[0]
-            // let message = sentInfo[3]
-            // let roomKey = sentInfo[1]
-            // let allMembers = sentInfo[2]
-            // if (window.location.hash.split("/")[1] !== "chat") {
-            //     writeLog('notiTitleClick--');
-            //     window.location.hash = `#/chat/${roomKey}/${allMembers}/${message}`;
-            // }
         });
     }, [])
 
