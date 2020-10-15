@@ -50,6 +50,10 @@ export default function (state = {}, action) {
                 chatMessages: []
             }
         case ADD_RECEIVED_CHAT:
+
+            // 대화방이 없는데 추가할려고 하면 버린다.
+            if (!state.chatRooms) return state;
+
             // 1. chatRooms       - 없다면 추가  - 있다면 컨텐츠 변경  - 순서 맨 위로 올리기 
             // 2. chatMessages    - 만약 currenChatRoom 이라면 추가 시키기, 아니라면 추가시키지 않아도 됨 ?    
             let newMessage = action.payload;
@@ -108,6 +112,8 @@ export default function (state = {}, action) {
                 currentChatRoom: state.currentChatRoom // 채팅룸 컨텐츠 정보 바꾸기
             };
         case SET_CURRENT_CHAT_ROOM_FROM_NOTI:
+
+            if (!state.chatRooms) return state;
             return {
                 ...state, currentChatRoom: state.chatRooms[0]
             }

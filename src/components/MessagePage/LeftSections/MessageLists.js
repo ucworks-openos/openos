@@ -31,23 +31,31 @@ function MessagesLists() {
         messageLists && messageLists.map((message, index) => {
             const isCurrentMessage = message.msg_key === currentMessage ? "current" : "";
             let receieveNames = message.msg_recv_name.split('|')
-            const renderSendTo = receieveNames.map(user => {
-                return <span key={uuidv4()}>{user}{" "}</span>
+            const renderDestInfo = receieveNames.map(user => {
+                if (currentMessageListType === 'MSG_SEND') {
+                    return  <div className="message-title">To :<span key={uuidv4()}> {user}{" "}</span></div>
+                } else {
+                    return  <div className="message-title">From :<span key={uuidv4()}> {message.msg_send_name}{" "}</span></div>
+                }
             })
+
+            const renderSubInfo = receieveNames.map(user => {
+                if (currentMessageListType === 'MSG_SEND') {
+                    return  <div className="message-from sub1">From :{message.msg_send_name}{" "}</div>
+                } else {
+                    return  <div className="message-from sub1">to :{user}{" "}</div>
+                }
+            })
+            
             return (
                 <li className={`message-list-single  ${isCurrentMessage}`} key={uuidv4()} onClick={() => onMessageClick(message.msg_key)}>
                     <div className="list-info-area">
                         <div className="list-row 1">
-                            <div className="message-title">
-                                To : {renderSendTo}
-                            </div>
-                            {/* <div className="message-counter unread">
-                                new
-                            </div> */}
+                            {renderDestInfo}
                         </div>
                         <div className="list-row 2">
                             <div className="message-summary">
-                                {message.msg_subject}
+                                {message.msg_subject}&nbsp;
                             </div>
                         </div>
                         <div className="list-row 3">
@@ -55,8 +63,8 @@ function MessagesLists() {
                                 <div className="user-pic-wrap">
                                     <img src={userThumbnail} alt="user-profile-picture" />
                                 </div>
-                                <div className="message-from sub1">
-                                    {message.msg_send_name}</div>
+                                
+                                {renderSubInfo}
                                 <div className="ppl-position sub1"></div>
                             </div>
                             <div className="receive-time sub1">

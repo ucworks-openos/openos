@@ -9,6 +9,8 @@ import {
     getInitialChatRooms,
     setCurrentChatRoomFromNoti
 } from "../../../redux/actions/chat_actions";
+import { writeLog } from "../../../common/ipcCommunication/ipcCommon";
+
 const electron = window.require("electron")
 
 function ChatRooms(props) {
@@ -18,13 +20,6 @@ function ChatRooms(props) {
     useEffect(() => {
         dispatch(getInitialChatRooms())
     }, [])
-
-    useEffect(() => {
-        electron.ipcRenderer.once('notiTitleClick!', (event, sentInfo) => {
-            let roomKey = sentInfo[1]
-            dispatch(setCurrentChatRoomFromNoti(roomKey, chatRooms))
-        });
-    }, [chatRooms])
 
     const onChatRoomClick = (roomKey) => {
         dispatch(setCurrentChatRoom(roomKey, chatRooms))

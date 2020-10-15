@@ -21,9 +21,9 @@ function messageReceived(msgData) {
   winston.debug('messageReceived', msgData)
 
   let destIds = msgData.allDestId.split(cmdConst.SEP_PIPE);
-  if (destIds.includes(global.USER.userId)) {
-    send('messageReceived', msgData)
+  send('messageReceived', msgData)
 
+  if (destIds.includes(global.USER.userId)) {
     // main에서 바로 알림창을 처리합니다.
     showAlert(notiType.NOTI_MESSAGE, msgData.key, '쪽지', msgData.subject, msgData.sendName);
   }

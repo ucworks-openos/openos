@@ -4,6 +4,7 @@ import LeftPanel from "./LeftSections/LeftPanel";
 import RightPanel from "./RightSections/RightPanel";
 import { useDispatch, useSelector } from 'react-redux';
 import {
+    addMessage,
     getInitialMessageLists,
     setCurrentMessageListsType
 } from "../../redux/actions/message_actions";
@@ -14,14 +15,18 @@ import {
 function MessagePage() {
     const dispatch = useDispatch();
     const currentMessageListType = useSelector(state => state.messages.currentMessageListType)
+
     useEffect(() => {
         dispatch(setCurrentMessageListsType('MSG_RECV'))
         dispatch(getLogginedInUserInfo(sessionStorage.getItem("loginId")))
-    }, [])
+    }, []);
+
     useEffect(() => {
         dispatch(getInitialMessageLists(currentMessageListType ? currentMessageListType : 'MSG_RECV'))
-    }, [currentMessageListType])
+        sessionStorage.setItem('currentMessageListType', currentMessageListType)
+    }, [currentMessageListType]);
 
+    
     return (
         <div className="contents-wrap-chat">
             <LeftPanel />

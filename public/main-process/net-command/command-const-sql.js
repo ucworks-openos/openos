@@ -37,7 +37,18 @@ module.exports = Object.freeze({
     ' ORDER BY a.line_num_date DESC    ' +
     ' LIMIT :ROW_LIMIT: OFFSET :ROW_OFFSET: ',
 
+    /** 대화방 조회 */
+    SQL_select_tbl_chat_room_server:
+    'SELECT a.chat_user_id, a.chat_state, b.create_room_date, b.room_key, b.room_type, b.chat_entry_ids, b.chat_entry_names, b.last_line_key, b.max_line_number, a.line_num_date, a.unread_count, '+
+    '       b.chat_send_id, b.chat_send_name, b.chat_type, b.chat_encrypt_key, b.chat_contents, b.chat_font_name '+
+    '  FROM tbl_chat_list AS a,  '+
+    '       tbl_chat_room AS b   '+
+    ' WHERE (a.chat_user_id  = \':USER_ID:\') ' +
+    '   AND (a.chat_state = \'E\' ) ' +
+    '   AND (a.room_key      = b.room_key)' +
+    '   AND a.room_key = \':CAHT_ROOM_KEY:\'',
 
+    /** 이전대화 목록 조회 */
     SQL_select_tbl_chat_recv_line_server_redis:
     'SELECT b.room_key, a.read_count, b.unread_count, b.line_key, b.line_number, b.line_num_date, b.chat_entry_ids, b.chat_entry_names, '+
     '       b.chat_send_id, b.chat_send_name, b.chat_send_date, b.chat_type, '+
