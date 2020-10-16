@@ -14,6 +14,7 @@ const { createLiteralTypeNode } = require("typescript");
 const { readConfig } = require("./main-process/configuration/site-config");
 const { getOsInfo } = require("./main-process/utils/utils-os");
 const { PLATFORM } = require("./main-process/common/common-const");
+const { logout } = require("./main-process/main-Handler");
 
 const BrowserWindow = electron.BrowserWindow;
 const globalShortcut = electron.globalShortcut
@@ -44,6 +45,12 @@ const mainContextMenu = Menu.buildFromTemplate([
         }
       },
       {
+        label: 'Logout',
+        click: async () => {
+          logout();
+        }
+      },
+      {
         label: 'OpenDevTool',
         accelerator: 'F12',
         click: () => { 
@@ -70,6 +77,12 @@ const trayContextMenu = Menu.buildFromTemplate([
         label: 'Exit',
         click: async () => {
           mainWindow.destroy(-1);
+        }
+      },
+      {
+        label: 'Logout',
+        click: async () => {
+          logout();
         }
       },
       {
@@ -105,7 +118,6 @@ const trayContextMenu = Menu.buildFromTemplate([
  * GLOBAL 정보는 선언을 하고 사용한다. (중앙관리)
  */
 //#region GLOBAL 설정 정보
-
 global.IS_DEV = isDev;
 global.MY_PLATFORM = process.platform;
 
@@ -248,9 +260,6 @@ global.BigFileLimit = 1024 * 1024 * 1024;
 global.TEMP = {
   buddyXml: ''
 }
-
-
-
 //#endregion GLOBAL 설정 정보
 
 
@@ -270,7 +279,7 @@ global.TEMP = {
 
 var mainWindow = null;
 var tray = null;
-  
+
 /**
  * ready
  */

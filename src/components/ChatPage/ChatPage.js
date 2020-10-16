@@ -13,7 +13,7 @@ import {
     setCurrentChatRoomFromNoti
 } from '../../redux/actions/chat_actions';
 import moment from 'moment';
-import { writeLog } from "../../common/ipcCommunication/ipcCommon";
+import { writeLog } from "../../common/ipcCommunication/ipcLogger";
 import { getChatRoomByRoomKey } from "../../common/ipcCommunication/ipcMessage";
 
 function ChatPage(props) {

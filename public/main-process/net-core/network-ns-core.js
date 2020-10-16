@@ -4,8 +4,8 @@ const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
 const CmdConst = require('../net-command/command-const');
 const CmdCodes = require('../net-command/command-code');
+const BufUtil = require('../utils/utils-buffer');
 const { receiveCmdProc } = require('../net-command/command-ns-res');
-const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
 var nsSock;
 var rcvCommand;
@@ -112,9 +112,9 @@ function readDataStream(rcvData){
     }
 
     // 받은 데이터가 전문의 길이 값보다 더크다면 다음 커맨드가 붙어왔을수 있다.
-     winston.info('rcvCommand ----------------------', rcvCommand)
+    winston.info('recvData:%s dataSize:%s', rcvData.length , dataBuff.length)
+    winston.info('rcvCommand ----', rcvCommand)
 
-     winston.info('recvData : data Size  -----------------', rcvData.length , dataBuff.length)
 
     // 기존데이터 + 받은 데이터 길이가 사이즈보다 넘는다면, 이후 커맨드까지 같이 받은것이다.
     if (rcvCommand.readCnt + dataBuff.length > rcvCommand.size) {
@@ -141,7 +141,6 @@ function readDataStream(rcvData){
         rcvCommand.readCnt += dataBuff.length;
     }    
         
-    //winston.info('rcvCommand.readCnt : Command.Size : rcvCommand.readCnt  -----------------', rcvData.length , dataBuff.length, rcvCommand.readCnt)
     if (rcvCommand.size <= rcvCommand.readCnt) {
         // 데이터를 모두 다 받았다.
         var procCmd = rcvCommand;
@@ -180,7 +179,6 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
 
         // Full Data Buffer
         var cmdBuf = Buffer.concat([codeBuf, sizeBuf, dataBuf]);
-        
         
         // Command Code
         codeBuf.writeInt32LE(cmdHeader.cmdCode);

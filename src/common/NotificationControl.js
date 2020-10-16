@@ -4,7 +4,7 @@ import { showChatNoti } from "./ipcCommunication/ipcMessage";
 import {
     addReceivedChat, setCurrentChatRoomFromNoti
 } from "../redux/actions/chat_actions";
-import { writeLog } from "./ipcCommunication/ipcCommon";
+import { writeInfo, writeLog } from "./ipcCommunication/ipcLogger";
 import { addMessage, setCurrentMessage, setCurrentMessageListsType } from "../redux/actions/message_actions";
 
 const electron = window.require("electron");
@@ -30,6 +30,17 @@ function NotificationControl() {
 
     //알림 수신처리
     useEffect(() => {
+
+        writeInfo('----------   NorificationControl Loaded!');
+
+        //
+        // 페이지 변경요청
+        electron.ipcRenderer.removeAllListeners('goto');
+        electron.ipcRenderer.on('goto', (event, page) => {
+            writeInfo('goto', page);
+            window.location.hash = `#/${page}`;
+            window.location.reload();
+        });
 
         //
         // 대화 메세지 수신
@@ -117,6 +128,14 @@ function NotificationControl() {
             }
         });
     
+        
+        //
+        // 별칭(대화명) 변경 알림
+        electron.ipcRenderer.removeAllListeners('userAliasChanged');
+        electron.ipcRenderer.on('userAliasChanged', (event, msgData) => {
+            writeInfo('userAliasChanged', msgData);
+        });
+
     }, [])
 
     return (

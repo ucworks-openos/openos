@@ -94,6 +94,9 @@ module.exports = Object.freeze({
     NS_CHANGE_STATE              : NS_BASE + 10,
     NS_SEND_MSG                  : NS_BASE + 11,
     NS_DELETE_MESSAGE            : NS_BASE + 26,
+
+    NS_CHANGE_ALIAS              : NS_BASE + 30,
+
     NS_NOTIFY_FRIENDS            : NS_BASE + 78,
     NS_UNNOTIFY_FRIENDS          : NS_BASE + 79,
     NS_CHECK_SEND                : NS_BASE + 90,

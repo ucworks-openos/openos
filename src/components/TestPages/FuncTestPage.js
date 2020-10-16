@@ -5,8 +5,8 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
-import {getConfig, login, getBuddyList, getBaseOrg, getChildOrg, changeStatus, setStatusMonitor,
-  getUserInfos} from '../../common/ipcCommunication/ipcCommon'
+import {getConfig, login, changeStatus, setStatusMonitor } from '../../common/ipcCommunication/ipcCommon'
+import {getBuddyList, getBaseOrg, getChildOrg, getUserInfos} from '../../common/ipcCommunication/ipcOrganization'
 import {sendMessage} from '../../common/ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")

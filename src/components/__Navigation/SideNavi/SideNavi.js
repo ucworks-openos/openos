@@ -4,8 +4,10 @@ import NavItem from "./SideNaviItem";
 import SideItemList from "./SideNaviLists";
 import "./SideNavi.css";
 import NotificationControl from "../../../common/NotificationControl";
-import { logout, getUserInfos } from "../../../common/ipcCommunication/ipcCommon";
+import { logout } from "../../../common/ipcCommunication/ipcCommon";
+import { getUserInfos } from "../../../common/ipcCommunication/ipcOrganization";
 import { useHistory } from "react-router-dom";
+import { writeInfo } from "../../../common/ipcCommunication/ipcLogger";
 
 function Sidebar() {
   const history = useHistory();
@@ -28,7 +30,7 @@ function Sidebar() {
       console.log(response);
       sessionStorage.setItem(
         "loginName",
-        response?.data?.items?.node_item.user_name.value
+        response?.data?.items?.node_item?.user_name?.value
       );
     });
   }, []);
@@ -41,10 +43,7 @@ function Sidebar() {
 
   const onLogOutClick = () => {
     logout().then(function (resData) {
-      sessionStorage.removeItem("isLoginElectronApp");
-      // props.history.push('/favorite')
-      window.location.hash = "#/login";
-      window.location.reload();
+      writeInfo('Logout On Side Navi', resData)
     });
   };
 

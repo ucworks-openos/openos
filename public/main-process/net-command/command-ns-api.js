@@ -363,14 +363,13 @@ function reqSaveBuddyData(buddyData) {
         let idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
         idBuf.write(global.USER.userId);
 
-        let buddyBuf = Buffer.from(buddyData)
-
+        let buddyBuf = Buffer.from(buddyData, global.ENC)
         let dataBuf = Buffer.concat([idBuf, buddyBuf]);
+
         // DS명령으로 보낸다, 
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.DS_SAVE_BUDDY_DATA, 0), dataBuf);
     });
 }
-
 
 /**
  * 메세지에 대한 lineKey를 요청합니다.
@@ -399,7 +398,13 @@ function reqChatLineKey(chatRoomKey) {
     });
 }
 
-
+/**
+ * 대화메세지를 보냅니다.
+ * @param {String} roomKey 
+ * @param {String} lineKey 
+ * @param {String} userIds 
+ * @param {String} message 
+ */
 function reqSendChatMessage(roomKey, lineKey, userIds, message) {
     return new Promise(async function(resolve, reject) {
 
@@ -503,6 +508,33 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message) {
     });
 }
 
+/**
+ * 나의 대화명을 입력합니다.
+ * @param {String} myAlias 
+ */
+function reqUpdateMyAlias(myAlias) {
+    return new Promise(async function(resolve, reject) {
+
+        if (!global.SERVER_INFO.NS.isConnected) {
+            reject(new Error('NS IS NOT CONNECTED!'));
+            return;
+        }
+
+        let sendIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        sendIdBuf.write(global.USER.userId, global.ENC);
+        sendIdBuf = adjustBufferMultiple4(sendIdBuf);
+        let myAliasBuf = Buffer.from(myAlias, global.ENC);
+
+        console.log('req Alias -%s-', myAliasBuf.toString(global.ENC), myAliasBuf.length, myAliasBuf);
+
+        var dataBuf = Buffer.concat([sendIdBuf, myAliasBuf]);
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_CHANGE_ALIAS, 0, function(resData){
+            if (resData.resCode) resolve(resData);
+            else reject(new Error('My Alias Change Fail! ' + JSON.stringify(resData)));
+        }), dataBuf);
+    });
+}
+
 
 module.exports = {
     reqconnectNS: reqconnectNS,
@@ -514,5 +546,6 @@ module.exports = {
     reqSaveBuddyData: reqSaveBuddyData,
     reqChatLineKey: reqChatLineKey,
     reqSendChatMessage: reqSendChatMessage,
+    reqUpdateMyAlias: reqUpdateMyAlias,
     close: close,
 }

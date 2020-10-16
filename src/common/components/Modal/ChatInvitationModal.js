@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     addChatRoom
 } from '../../../redux/actions/chat_actions';
-import { searchUsers } from '../../ipcCommunication/ipcCommon'
+import { searchUsers } from '../../ipcCommunication/ipcOrganization'
 import './MessageInputModal.css';
 import Alert from 'react-bootstrap/Alert'
 import moment from 'moment';

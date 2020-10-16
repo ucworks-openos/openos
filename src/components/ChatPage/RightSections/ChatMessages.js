@@ -4,7 +4,7 @@ import {
     getInitialChatMessages
 } from "../../../redux/actions/chat_actions";
 import moment from 'moment';
-// import { getUserInfos } from '../../ipcCommunication/ipcCommon'
+
 function ChatMessages() {
     const dispatch = useDispatch();
     const chatMessages = useSelector(state => state.chats.chatMessages)
