@@ -7,9 +7,7 @@ import {
     SET_CURRENT_MESSAGE_LISTS_TYPE,
 } from './types';
 import { getMessage, getMessageDetail } from '../../common/ipcCommunication/ipcMessage'
-import { sendMessage } from '../../common/ipcCommunication/ipcMessage'
 import moment from 'moment';
-import { writeLog } from '../../common/ipcCommunication/ipcCommon';
 
 export function setCurrentMessage(messageKey) {
     return {

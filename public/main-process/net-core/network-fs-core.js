@@ -4,11 +4,8 @@ const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
 
 const BufUtil = require('../utils/utils-buffer')
-const CmdConst = require('../net-command/command-const');
-const CmdCodes = require('../net-command/command-code');
 
 const { receiveCmdProc } = require('../net-command/command-fs-res');
-const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
 var fsSock;
 var rcvCommand;

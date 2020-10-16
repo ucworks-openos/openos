@@ -5,13 +5,13 @@ import "../../assets/css/Tree.scss";
 import Modal from "react-modal";
 import Node from "./OrganizationNode";
 import { EventDataNode } from "rc-tree/lib/interface";
+import { setStatusMonitor } from "../../common/ipcCommunication/ipcCommon";
 import {
   getBaseOrg,
   getChildOrg,
   getUserInfos,
   searchOrgUsers,
-  setStatusMonitor,
-} from "../../common/ipcCommunication/ipcCommon";
+} from "../../common/ipcCommunication/ipcOrganization";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 import {

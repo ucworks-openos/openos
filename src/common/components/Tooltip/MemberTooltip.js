@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getUserInfos } from '../../ipcCommunication/ipcCommon';
-import { useDispatch, useSelector } from 'react-redux';
+import { getUserInfos } from '../../ipcCommunication/ipcOrganization';
 
 function MemberTooltip({ userIds, RecvCounts }) {
     const [userInfos, setUserInfos] = useState([])

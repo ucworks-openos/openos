@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./HeaderNavi.css";
-import userAvatarThumbnail from "../../../assets/images/img_user-thumbnail.png";
-import {
-  logout,
-  changeStatus,
-  getUserInfos,
-} from "../../../common/ipcCommunication/ipcCommon";
+import { logout, changeStatus } from "../../../common/ipcCommunication/ipcCommon";
+import { getUserInfos } from "../../../common/ipcCommunication/ipcOrganization";
 import { convertToUser, delay } from "../../../common/util";
 import { EuserState } from "../../../enum";
+import { writeInfo } from "../../../common/ipcCommunication/ipcLogger";
 
 export default function HeaderNavi() {
   const [avatarDropDownIsOpen, setAvatarDropDownIsOpen] = useState(false);
@@ -40,10 +37,7 @@ export default function HeaderNavi() {
   };
   const handleLogout = () => {
     logout().then(function (resData) {
-      sessionStorage.removeItem("isLoginElectronApp");
-      // props.history.push('/favorite')
-      window.location.hash = "#/login";
-      window.location.reload();
+      writeInfo('Logout On Side Navi', resData)
     });
   };
 
