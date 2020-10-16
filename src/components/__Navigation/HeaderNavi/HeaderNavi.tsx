@@ -5,10 +5,16 @@ import { getUserInfos } from "../../../common/ipcCommunication/ipcOrganization";
 import { convertToUser, delay } from "../../../common/util";
 import { EuserState } from "../../../enum";
 import { writeInfo } from "../../../common/ipcCommunication/ipcLogger";
+import Modal from "react-modal";
+import SettingModal from "../../../common/components/Modal/SettingModal";
+
 
 export default function HeaderNavi() {
   const [avatarDropDownIsOpen, setAvatarDropDownIsOpen] = useState(false);
   const [myInfo, setMyInfo] = useState<TUser>({});
+  const [settingModalVisible, setSettingModalVisible] = useState<boolean>(
+    false
+  );
 
   const getProfile = async (id: string) => {
     const {
@@ -35,6 +41,11 @@ export default function HeaderNavi() {
   const onAvatarClose = () => {
     setAvatarDropDownIsOpen(false);
   };
+
+  const handleSetting = () => {
+    setSettingModalVisible(true);
+  };
+
   const handleLogout = () => {
     logout().then(function (resData) {
       writeInfo('Logout On Side Navi', resData)
@@ -114,7 +125,11 @@ export default function HeaderNavi() {
           </ul>
         </li>
 
-        <li className="sub-action-item btn-go-to-setting" title="설정"></li>
+        <li
+          className="sub-action-item btn-go-to-setting"
+          title="설정"
+          onClick={handleSetting}
+        ></li>
         <li className="sub-action-item noti-toggle">
           <input type="checkbox" id="noti-check" />
           <label
@@ -265,6 +280,37 @@ export default function HeaderNavi() {
           </div>
         )}
       </div>
+
+      <Modal
+        isOpen={settingModalVisible}
+        onRequestClose={() => {
+          setSettingModalVisible(false);
+        }}
+        style={settingModalStyles}
+      >
+        <SettingModal
+          closeModalFunction={() => {
+            setSettingModalVisible(false);
+          }}
+          profile={myInfo}
+        />
+      </Modal>
     </div>
   );
 }
+
+Modal.setAppElement("#root");
+
+const settingModalStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    marginLeft: "-25%",
+    marginTop: "calc(-25% + 56px)",
+    width: "65%",
+    maxWidth: "960px",
+    minHeight: "400px",
+    height: "fit-content",
+  },
+  overlay: { zIndex: 1000 },
+};
