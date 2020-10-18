@@ -9,6 +9,7 @@ import styled from "styled-components";
 
 import { arrayLike } from "../../common/util";
 import { EconnectType, EnodeGubun, EuserState } from "../../enum";
+import useConfig from "../../hooks/useConfig";
 
 type TFavoriteNodeProps = {
   data: TTreeNode;
@@ -40,6 +41,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
     setMessageModalVisible,
   } = props;
   const [visible, setVisible] = useState<boolean>(false);
+  const { doubleClickBehavior } = useConfig();
 
   // ANCHOR memo
   const connectTypeConverter = () => {
@@ -66,6 +68,15 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
   const rightClicked = useMemo(setRightClicked, [rightClickedKey]);
 
   // ANCHOR handler
+  const handleDoubleClick = () => {
+    if (doubleClickBehavior === `message`) {
+      setFinalSelectedKeys([data?.key]);
+      setMessageModalVisible((prev: boolean) => !prev);
+    } else if (doubleClickBehavior === `chat`) {
+      window.location.hash = `#/chat_from_organization/${data?.userId}`;
+    }
+  };
+
   const handleMessageModal = () => {
     setFinalSelectedKeys([data?.key]);
     setMessageModalVisible((prev: boolean) => !prev);
@@ -105,6 +116,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
           }`}
           selected={selected}
           rightClicked={rightClicked}
+          onDoubleClick={handleDoubleClick}
         >
           <div className="user-profile-state-wrap">
             <div className="user-pic-wrap">

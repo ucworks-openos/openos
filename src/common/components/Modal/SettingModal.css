@@ -15,11 +15,13 @@
 
 .setting-modal {
     user-select: none;
-    padding: 24px 24px 40px;
+    padding: 10px 24px;
     background-color: #fff;
 }
-.modal-title{
+.setting-modal-title{
     margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
 }
 .setting-tab-wrap input[type="radio"],.setting-tab-wrap input[type="checkbox"],.setting-tab-wrap .tab-panel {
   display: none;

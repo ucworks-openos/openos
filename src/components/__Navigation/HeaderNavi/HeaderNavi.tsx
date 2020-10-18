@@ -10,6 +10,7 @@ import { convertToUser, delay } from "../../../common/util";
 import { EuserState } from "../../../enum";
 import Modal from "react-modal";
 import SettingModal from "../../../common/components/Modal/SettingModal";
+import useConfig from "../../../hooks/useConfig";
 
 export default function HeaderNavi() {
   const [avatarDropDownIsOpen, setAvatarDropDownIsOpen] = useState(false);
@@ -17,6 +18,18 @@ export default function HeaderNavi() {
   const [settingModalVisible, setSettingModalVisible] = useState<boolean>(
     false
   );
+  const {
+    setTheme,
+    setScope,
+    setLanguage,
+    setFont,
+    setInitialTab,
+    setAutoLaunch,
+    setAutoLoginWithLockMode,
+    setLockMode,
+    setDoubleClickBehavior,
+    setUseProxy,
+  } = useConfig();
 
   const getProfile = async (id: string) => {
     const {
@@ -27,11 +40,31 @@ export default function HeaderNavi() {
     return convertToUser(profileSchema);
   };
 
+  const getConfig = () => {
+    const rawConfig = localStorage.getItem(sessionStorage.getItem(`loginId`)!);
+
+    if (rawConfig) {
+      const config: TconfigState = JSON.parse(rawConfig);
+      console.log(`parsed config: `, config);
+      setTheme(config.theme);
+      setScope(config.scope);
+      setLanguage(config.language);
+      setFont(config.font);
+      setInitialTab(config.initialTab);
+      setAutoLaunch(config.autoLaunch);
+      setAutoLoginWithLockMode(config.autoLoginWithLockMode);
+      setLockMode(config.lockMode);
+      setDoubleClickBehavior(config.doubleClickBehavior);
+      setUseProxy(config.useProxy);
+    }
+  };
+
   useEffect(() => {
     const initiate = async () => {
       await delay(2000);
       if (!sessionStorage.getItem(`loginId`)) return false;
       const profile = await getProfile(sessionStorage.getItem(`loginId`)!);
+      getConfig();
       setMyInfo(profile);
     };
     initiate();
@@ -314,7 +347,6 @@ const settingModalStyles = {
     marginTop: "calc(-25% + 56px)",
     width: "65%",
     maxWidth: "960px",
-    minHeight: "400px",
     height: "fit-content",
   },
   overlay: { zIndex: 1000 },

@@ -24,7 +24,14 @@ export default function useSearch(
   props: TuseSearchProps
 ): TuseSearchReturnTypes {
   const { type } = props;
-  const states: TOrganizationSearchState & TFavoriteSearchState = useSelector(
+  const {
+    organizationSearchMode,
+    organizationSearchKeyword,
+    organizationSearchResult,
+    favoriteSearchKeyword,
+    favoriteSearchMode,
+    favoriteSearchResult,
+  }: TOrganizationSearchState & TFavoriteSearchState = useSelector(
     (state: RootState) => state.search
   );
   const dispatch = useDispatch();
@@ -45,17 +52,13 @@ export default function useSearch(
 
   return {
     searchMode:
-      type === `organization`
-        ? states.organizationSearchMode
-        : states.favoriteSearchMode,
+      type === `organization` ? organizationSearchMode : favoriteSearchMode,
     searchKeyword:
       type === `organization`
-        ? states.organizationSearchKeyword
-        : states.favoriteSearchKeyword,
+        ? organizationSearchKeyword
+        : favoriteSearchKeyword,
     searchResult:
-      type === `organization`
-        ? states.organizationSearchResult
-        : states.favoriteSearchResult,
+      type === `organization` ? organizationSearchResult : favoriteSearchResult,
     setSearchMode,
     setSearchKeyword,
     setSearchResult,

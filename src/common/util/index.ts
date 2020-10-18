@@ -1,3 +1,11 @@
+export function mapEnum<T>(
+  enumerable: T,
+  callback: (key: string, i: number) => any
+) {
+  const keys = Object.keys(enumerable).filter((key: any) => isNaN(key * 1));
+  return keys.map(callback);
+}
+
 export function arrayLike<T>(maybeArray: T[] | T): T[] {
   if (!maybeArray) return [];
 
@@ -113,9 +121,7 @@ export const syncronize = (tree: TTreeNode[]) => {
     },
   };
 
-  const {
-    saveBuddyData,
-  } = require("../ipcCommunication/ipcCommon");
+  const { saveBuddyData } = require("../ipcCommunication/ipcCommon");
   const xml2js = require("xml2js");
   const xml = new xml2js.Builder().buildObject(requestBody);
 

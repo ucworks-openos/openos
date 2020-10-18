@@ -2,6 +2,7 @@ import React, { useEffect, useState, ImgHTMLAttributes, useMemo } from "react";
 import styled from "styled-components";
 import { arrayLike } from "../../common/util";
 import { EconnectType, EnodeGubun, EuserState } from "../../enum";
+import useConfig from "../../hooks/useConfig";
 
 type TOrganizationNodeProps = {
   data: TTreeNode;
@@ -33,6 +34,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
     setMessageModalVisible,
   } = props;
   const [visible, setVisible] = useState<boolean>(false);
+  const { doubleClickBehavior } = useConfig();
 
   // ANCHOR memo
   const connectTypeConverter = () => {
@@ -58,6 +60,15 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
   const rightClicked = useMemo(setRightClicked, [rightClickedKey]);
 
   // ANCHOR handler
+  const handleDoubleClick = () => {
+    if (doubleClickBehavior === `message`) {
+      setFinalSelectedKeys([data?.key]);
+      setMessageModalVisible((prev: boolean) => !prev);
+    } else if (doubleClickBehavior === `chat`) {
+      window.location.hash = `#/chat_from_organization/${data?.userId}`;
+    }
+  };
+
   const handleToggle = () => {
     setFinalSelectedKeys([data?.key]);
     setMessageModalVisible((prev: boolean) => !prev);
@@ -97,6 +108,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
           }`}
           selected={selected}
           rightClicked={rightClicked}
+          onDoubleClick={handleDoubleClick}
         >
           <div className="user-profile-state-wrap">
             <div className="user-pic-wrap">

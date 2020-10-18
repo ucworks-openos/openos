@@ -227,6 +227,30 @@ export default function FavoritePage() {
   }, []);
 
   // ANCHOR handler
+  const handleSendGroupMessage = async () => {
+    const { v } = await find(treeData, rightClickedKey);
+
+    const childrenKeys = arrayLike(v.children!.map((v: TTreeNode) => v.key));
+
+    if (childrenKeys.length) {
+      setFinalSelectedKeys(childrenKeys);
+      setMessageModalVisible(true);
+    }
+  };
+
+  const handleSendGroupChat = async () => {
+    const { v } = await find(treeData, rightClickedKey);
+
+    const childrenKeys = arrayLike(v.children!.map((v: TTreeNode) => v.key));
+
+    if (childrenKeys.length) {
+      setFinalSelectedKeys(childrenKeys);
+      window.location.hash = `#/chat_from_organization/${childrenKeys.join(
+        `|`
+      )}`;
+    }
+  };
+
   const handleChat = () => {
     window.location.hash = `#/chat_from_organization/${finalFinalSelectedKeys.join(
       `|`
@@ -922,6 +946,8 @@ export default function FavoritePage() {
             >
               하위 그룹 추가
             </ul>
+            <ul onClick={handleSendGroupMessage}>그룹 쪽지 발송</ul>
+            <ul onClick={handleSendGroupChat}>그룹 채팅 시작</ul>
           </li>
         </div>
       </ContextMenu>
