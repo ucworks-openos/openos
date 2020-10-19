@@ -1,3 +1,5 @@
+import { writeDebug } from "./ipcLogger";
+
 const electron = window.require("electron")
 
 /** sendMessage */
@@ -88,6 +90,7 @@ export const showChatNoti = (chatMsg) => {
 
 /** exitChatRoom */
 export const exitChatRoom = (roomId) => {
+  writeDebug('exitChatRoom', roomId)
   electron.ipcRenderer.send('exitChatRoom', roomId)
 }
 

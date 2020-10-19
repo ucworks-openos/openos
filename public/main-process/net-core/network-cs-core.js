@@ -2,7 +2,7 @@ const winston = require('../../winston');
 
 const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
-const { receive_command } = require('../net-command/command-res-proc');
+const { responseCmdProc } = require('../net-command/command-cs-res');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
 var csSock;
@@ -112,7 +112,7 @@ function readDataStream(rcvData){
         var procCmd = rcvCommand;
         rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
 
-        if (!receive_command(procCmd)) {
+        if (!responseCmdProc(procCmd)) {
             winston.info('Revceive CS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     }

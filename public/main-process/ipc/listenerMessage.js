@@ -156,7 +156,7 @@ ipcMain.on('getChatList', async (event, roomId, lastLineKey = '9999999999999999'
  * exit chatRoom
  */
 ipcMain.on('exitChatRoom', async (event, roomId) => {
-
+  winston.debug('exitChatRoom', roomId)
   nsAPI.reqExitChatRoom(roomId).then(function (resData) {
     winston.info('[IPC] exitChatRoom res:', resData)
     event.reply('res-exitChatRoom', resData);

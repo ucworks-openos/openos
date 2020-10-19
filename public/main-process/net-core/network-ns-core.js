@@ -6,6 +6,7 @@ const CmdConst = require('../net-command/command-const');
 const CmdCodes = require('../net-command/command-code');
 const BufUtil = require('../utils/utils-buffer');
 const { receiveCmdProc } = require('../net-command/command-ns-res');
+const { logout } = require("../main-handler");
 
 var nsSock;
 var rcvCommand;
@@ -50,7 +51,7 @@ function connect () {
 
             // 연결이 종료되면 Connectin Check를 멈춘다.
             clearInterval(global.NS_CONN_CHECK);   
-            logout()
+            logout();
         });
         // 
         nsSock.on('close', function(hadError){
