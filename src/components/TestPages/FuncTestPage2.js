@@ -243,8 +243,8 @@ function FuncTestPage2() {
           <Col>
             <InputGroup >
               <InputGroup.Append>
-                <Button variant="outline-secondary" onClick={handleGetMessage} value='MSG_RECV'>받은쪽지</Button> &nbsp;
-                <Button variant="outline-secondary" onClick={handleGetMessage} value='MSG_SEND'> 보낸쪽지</Button>
+                <Button variant="outline-secondary" onClick={handleGetMessage} value='RECV'>받은쪽지</Button> &nbsp;
+                <Button variant="outline-secondary" onClick={handleGetMessage} value='SEND'> 보낸쪽지</Button>
               </InputGroup.Append>
             </InputGroup>
           </Col>

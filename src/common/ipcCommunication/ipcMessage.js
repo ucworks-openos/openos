@@ -87,13 +87,8 @@ export const showChatNoti = (chatMsg) => {
       electron.ipcRenderer.send('showChatNoti', chatMsg)
 }
 
-/** decryptMessage */
-export const decryptMessage = async (endKey, cipherMessage) => {
-  return new Promise(function(resolve, reject) {
-      electron.ipcRenderer.once('res-decryptMessage', (event, arg) => {
-          resolve(arg);
-      });
-
-      electron.ipcRenderer.send('decryptMessage', endKey, cipherMessage)
-    });
+/** exitChatRoom */
+export const exitChatRoom = (roomId) => {
+  electron.ipcRenderer.send('exitChatRoom', roomId)
 }
+

@@ -17,12 +17,12 @@ function MessagePage() {
     const currentMessageListType = useSelector(state => state.messages.currentMessageListType)
 
     useEffect(() => {
-        dispatch(setCurrentMessageListsType('MSG_RECV'))
+        dispatch(setCurrentMessageListsType('RECV'))
         dispatch(getLogginedInUserInfo(sessionStorage.getItem("loginId")))
     }, []);
 
     useEffect(() => {
-        dispatch(getInitialMessageLists(currentMessageListType ? currentMessageListType : 'MSG_RECV'))
+        dispatch(getInitialMessageLists(currentMessageListType ? currentMessageListType : 'RECV'))
         sessionStorage.setItem('currentMessageListType', currentMessageListType)
     }, [currentMessageListType]);
 

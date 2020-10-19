@@ -1,32 +1,42 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./Sections/LoginPage.css";
 import { useForm } from "react-hook-form";
 import SignitureCi from "../../common/components/SignitureCi";
 import styled from "styled-components";
+import Alert from 'react-bootstrap/Alert'
 import { login } from "../../common/ipcCommunication/ipcCommon";
+import { writeDebug, writeLog } from "../../common/ipcCommunication/ipcLogger";
 
 const electron = window.require("electron");
 
 function Home(props) {
   const { register, errors, handleSubmit } = useForm({ mode: "onChange" });
+
+  const [isLoginFail, setIsLoginFail] = useState(false);
+  const [failMessage, setFailMessage] = useState('');
+
   const onSubmit = async (event) => {
     console.log("LOGIN REQUEST:", event);
+
+    setIsLoginFail(false)
+    setFailMessage('')
 
     try {
       const resData = await login(event.loginId, event.loginPwd);
 
-      console.log("Promiss login res", resData);
+      writeDebug("Login res", resData);
       if (resData.resCode) {
-        console.log("Login Success! ", resData);
         sessionStorage.setItem("isLoginElectronApp", true);
         sessionStorage.setItem(`loginId`, event.loginId);
         window.location.hash = "#/favorite";
         window.location.reload();
       } else {
-        console.log("Login fail! Res:", resData);
+        setIsLoginFail(true)
+        setFailMessage('Login Fail! (' + resData.data + ')')
       }
     } catch (error) {
-      console.log("Login fail! Ex: ", error);
+      setIsLoginFail(true)
+      setFailMessage('Login Fail! (Ex:' + error + ')')
     }
   };
 
@@ -87,6 +97,11 @@ function Home(props) {
             <div className="submit-wrap">
               <button type="submit">Let's start </button>
             </div>
+            {isLoginFail &&
+                <Alert variant="danger">
+                    {failMessage}
+                </Alert>
+              }
             <div className="sign-in-action-wrap">
               <div className="auto-sign-in">
                 <input type="checkbox" id="auto-sign-in-check" />

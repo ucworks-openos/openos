@@ -19,6 +19,7 @@ const { logout } = require("./main-process/main-handler");
 const BrowserWindow = electron.BrowserWindow;
 const globalShortcut = electron.globalShortcut
 
+
 // Main Context Menu
 const mainContextMenu = Menu.buildFromTemplate([
   // { role: 'appMenu' }

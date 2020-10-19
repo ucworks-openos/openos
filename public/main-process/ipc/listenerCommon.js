@@ -120,6 +120,18 @@ ipcMain.on('saveConfig', (event, configData) => {
   writeConfig();
 });
 
+
+/**
+ * decrypt message
+ */
+ipcMain.on('decryptMessage', async (event, encryptKey, cipherMessage) => {
+
+  let decMessage = decryptMessage(encryptKey, cipherMessage);
+
+  winston.info('[IPC] decryptMessage res:', decMessage)
+  event.reply('res-decryptMessage', decMessage);
+
+});
 /** sample */
 // ipcMain.on('sample', (event, ...args) => {
 //   return event.returnValue = global.SITE_CONFIG;
