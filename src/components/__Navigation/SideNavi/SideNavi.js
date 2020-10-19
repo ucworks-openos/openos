@@ -42,8 +42,9 @@ function Sidebar() {
   };
 
   const onLogOutClick = () => {
+    localStorage.setItem(`autoSwitch`, `off`);
     logout().then(function (resData) {
-      writeInfo('Logout On Side Navi', resData)
+      writeInfo("Logout On Side Navi", resData);
     });
   };
 

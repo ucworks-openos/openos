@@ -30,6 +30,7 @@ input::placeholder {
     display: flex;
     justify-content: center;
     align-items: center;
+    user-select: none;
 }
 
 .sign-in .main-wrap {
@@ -103,10 +104,10 @@ input::placeholder {
     background-repeat: no-repeat;
     background-position: left center;
 }
-.auto-sign-in label:hover,
+/* .auto-sign-in label:hover,
 .go-to-reset-pw:hover {
     border-bottom: 1px solid #b4b5b8;
-}
+} */
 .auto-sign-in input[type="checkbox"]:checked + label {
     background-image: url("../../../assets/images/icon_checkbox_checked.svg");
     background-repeat: no-repeat;

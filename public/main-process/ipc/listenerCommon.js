@@ -9,15 +9,44 @@ const nsAPI = require('../net-command/command-ns-api');
 const ResData = require('../ResData');
 const commandConst = require('../net-command/command-const');
 
+const crypto = require("crypto");
+const ENCRYPTION_KEY = 'abcdefghijklmnop'.repeat(2); // Must be 256 bits (32 characters)
+const IV_LENGTH = 16; // For AES, this is always 16
+
+function encrypt(text) {
+ const iv = crypto.randomBytes(IV_LENGTH);
+ const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+ const encrypted = cipher.update(text);
+
+ return iv.toString('hex') + ':' + Buffer.concat([encrypted, cipher.final()]).toString('hex');
+}
+
+function decrypt(text) {
+ const textParts = text.split(':');
+ const iv = Buffer.from(textParts.shift(), 'hex');
+ const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+ const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+ const decrypted = decipher.update(encryptedText);
+
+ return Buffer.concat([decrypted, decipher.final()]).toString();
+}
 const { initGlobal, logout } = require('../main-handler');
 const { writeConfig } = require('../configuration/site-config')
 
 
 /** login */ 
 ipcMain.on('login', async (event, loginData) => {
-
   winston.debug('login Req : %s', loginData)
+  
+  let password;
   let resData;
+
+  if (loginData.autoLogin) {
+    const decrypted = decrypt(loginData.loginPwd);
+    password = decrypted;
+  } else {
+    password = loginData.loginPwd
+  }
 
   try {
     // DS로 로그인 요청을 하고
@@ -27,7 +56,7 @@ ipcMain.on('login', async (event, loginData) => {
 
     // CS로 인증 요청을 하고
     if (resData.resCode) {
-      resData = await csAPI.reqCertifyCS(loginData.loginId, loginData.loginPwd, true);
+      resData = await csAPI.reqCertifyCS(loginData.loginId, password, true);
     } 
     else throw new Error('reqLogin fail!');
 
@@ -47,6 +76,17 @@ ipcMain.on('login', async (event, loginData) => {
       resData = await nsAPI.reqconnectNS(loginData.loginId)
     }
     else throw new Error('reqGetCondition fail!');
+
+    if (resData.resCode && !loginData.autoLogin) {
+      const encrypted = encrypt(password);
+      console.log(`encrypted `, encrypted);
+        resData = {
+          ...resData,
+          // autoLogin: crypto.createHash(`sha256`).update(loginData.loginPwd).digest(`hex`) 
+          autoLogin: encrypted
+        }
+      
+    }
 
     // 내상태를 Online으로 처리합니다.
     nsAPI.reqChangeStatus(commandConst.STATE_ONLINE);

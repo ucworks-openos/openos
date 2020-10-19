@@ -3,14 +3,15 @@ import { writeInfo } from "./ipcLogger";
 const electron = window.require("electron");
 
 /** 로그인 요청을 합니다. */
-export const login = (loginId, loginPwd) => {
+export const login = async (loginId, loginPwd, autoLogin) => {
   return new Promise(function (resolve, reject) {
     let reqData = {
-      loginId: loginId,
-      loginPwd: loginPwd,
+      loginId,
+      loginPwd,
+      autoLogin,
     };
 
-    electron.ipcRenderer.once('res-login', (event, arg) => {
+    electron.ipcRenderer.once("res-login", (event, arg) => {
       console.log("LOGIN REQUEST res:", arg);
       resolve(arg);
     });
@@ -22,11 +23,11 @@ export const login = (loginId, loginPwd) => {
 
 /** 로그아웃 요청을 합니다. */
 export const logout = () => {
-  writeInfo('====  LOG OUT  ===')
+  writeInfo("====  LOG OUT  ===");
 
   return new Promise(function (resolve, reject) {
     electron.ipcRenderer.once("res-logout", (event, arg) => {
-      writeInfo('logout Response', arg);
+      writeInfo("logout Response", arg);
       resolve(arg);
     });
 
@@ -76,8 +77,8 @@ export const setStatusMonitor = async (userIds) => {
 
 /** Config를 불러옵니다. */
 export const getConfig = () => {
-  return new Promise(function(resolve, reject) {
-    electron.ipcRenderer.once('res-getConfig', (event, arg) => {
+  return new Promise(function (resolve, reject) {
+    electron.ipcRenderer.once("res-getConfig", (event, arg) => {
       resolve(arg);
     });
 
