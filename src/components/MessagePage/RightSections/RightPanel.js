@@ -2,8 +2,25 @@ import React, { useState } from "react";
 import MessageContent from "./MessageContent";
 import { useDispatch, useSelector } from "react-redux";
 import MessageFiles from "./MessageFiles";
+import { deleteMessage } from "../../../common/ipcCommunication/ipcMessage";
+import { getInitialMessageLists } from "../../../redux/actions/message_actions";
+import { delay } from "../../../common/util";
 function RightPanel() {
+  const dispatch = useDispatch();
+
   const message = useSelector((state) => state.messages.message);
+
+  const currentMessageListType = useSelector(
+    (state) => state.messages.currentMessageListType
+  );
+
+  const onDeleteMessageClick = () => {
+    deleteMessage(currentMessageListType, [message.msg_key]).then(() => {
+      delay(500);
+      dispatch(getInitialMessageLists(currentMessageListType))
+    });
+  };
+
   return (
     <main className="message-main-wrap">
       <div className="message-title-wrap">
@@ -16,7 +33,7 @@ function RightPanel() {
           <div className="message-action go-to-chat" title="채팅"></div>
           <div className="message-action download" title="다운로드"></div>
           <div className="message-action print" title="인쇄"></div>
-          <div className="message-action remove" title="삭제"></div>
+          <div className="message-action remove" title="삭제" onClick={() => onDeleteMessageClick()}></div>
         </div>
       </div>
 

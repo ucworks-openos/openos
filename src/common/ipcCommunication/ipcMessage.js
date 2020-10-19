@@ -71,7 +71,6 @@ export const sendChatMessage = async (chatUserIds, chatMessage, roomKey = null) 
     });
 }
 
-
 /** getChatList */
 export const getChatList = async (roomId, lastLineKey = '9999999999999999', rowLimit = 30) => {
   return new Promise(function(resolve, reject) {

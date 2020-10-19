@@ -63,7 +63,7 @@ ipcMain.on('deleteMessage', async (event, msgType, msgKeys) => {
     await fetchAPI.reqDeleteMessage(msgType, msgKeys);
 
     // 서버로 삭제 알림
-    await nsAPI.reqDeleteMessage(msgType, msgKeys);
+    nsAPI.reqDeleteMessage(msgType, msgKeys);
 
     winston.info('[IPC] deleteMessage res:', resData)
     event.reply('res-deleteMessage', resData);

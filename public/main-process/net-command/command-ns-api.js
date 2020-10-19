@@ -9,6 +9,7 @@ const CryptoUtil = require('../utils/utils-crypto');
 const nsCore = require('../net-core/network-ns-core');
 const { adjustBufferMultiple4, getMultiple4Size } = require('../utils/utils-buffer');
 const { MSG_TYPE, MSG_DATA_TYPE, CHAT_ROOM_TYPE, DATE_FORMAT } = require('../common/common-const');
+const ResData = require('../ResData');
 
 /**
  * 연결을 종료합니다.
@@ -227,6 +228,8 @@ function reqDeleteMessage(msgGubun, msgKeys) {
         ]);
 
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_DELETE_MESSAGE, 0), dataBuf);
+
+        resolve(new ResData(true));
     });
 }
 
