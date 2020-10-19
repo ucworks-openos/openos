@@ -29,3 +29,10 @@ export enum EconnectType {
   iphone = 6,
   mac = 10,
 }
+
+export enum EconfigTab {
+  일반,
+  프로필,
+  동작,
+  연결,
+}

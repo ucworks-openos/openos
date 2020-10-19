@@ -7,14 +7,53 @@ import Alert from 'react-bootstrap/Alert'
 import { login } from "../../common/ipcCommunication/ipcCommon";
 import { writeDebug, writeLog } from "../../common/ipcCommunication/ipcLogger";
 
-const electron = window.require("electron");
-
-function Home(props) {
+export default function Home(props) {
+  const [autoLogin, setAutoLogin] = useState(
+    localStorage.getItem(`autoLoginId`) !== null
+  );
+  const [id, setId] = useState(localStorage.getItem(`autoLoginId`));
   const { register, errors, handleSubmit } = useForm({ mode: "onChange" });
 
   const [isLoginFail, setIsLoginFail] = useState(false);
   const [failMessage, setFailMessage] = useState('');
 
+  useEffect(() => {
+    const initiate = async () => {
+      if (
+        localStorage.getItem(`autoLoginId`) !== null &&
+        localStorage.getItem(`autoLoginPw`) !== null &&
+        localStorage.getItem(`autoSwitch`) === `on`
+      ) {
+        const resData = await login(
+          localStorage.getItem(`autoLoginId`),
+          localStorage.getItem(`autoLoginPw`),
+          true
+        );
+
+        console.log("Promiss login res", resData);
+
+        if (resData.resCode) {
+          console.log("Login Success! ", resData);
+          sessionStorage.setItem("isLoginElectronApp", true);
+          sessionStorage.setItem(`loginId`, id);
+
+          window.location.hash = "#/favorite";
+          window.location.reload();
+        } else {
+          console.log("Login fail! Res:", resData);
+        }
+      }
+    };
+    initiate();
+  });
+
+  const handleIdChange = (e) => {
+    setId(e.target.value);
+  };
+
+  const handleAutoLogin = () => {
+    setAutoLogin((prev) => !prev);
+  };
   const onSubmit = async (event) => {
     console.log("LOGIN REQUEST:", event);
 
@@ -22,12 +61,21 @@ function Home(props) {
     setFailMessage('')
 
     try {
-      const resData = await login(event.loginId, event.loginPwd);
+      const resData = await login(id, event.loginPwd, false);
 
-      writeDebug("Login res", resData);
+      console.log("Promiss login res", resData);
+
+      // * autoLoginId는 자동 로그인 시 아이디를 보여주기 위함.
+      // * 자동 로그인 시 resData 리턴값에 암호화된 id,비밀번호가 있음. 이를 localStorage에 넣어준다.
+      if (resData.resCode && autoLogin) {
+        localStorage.setItem(`autoLoginId`, id);
+        localStorage.setItem(`autoLoginPw`, resData.data.autoLogin);
+        localStorage.setItem(`autoSwitch`, `on`);
+      }
       if (resData.resCode) {
         sessionStorage.setItem("isLoginElectronApp", true);
-        sessionStorage.setItem(`loginId`, event.loginId);
+        sessionStorage.setItem(`loginId`, id);
+
         window.location.hash = "#/favorite";
         window.location.reload();
       } else {
@@ -65,11 +113,13 @@ function Home(props) {
                 type="text"
                 className="user-id-here"
                 name="loginId"
+                value={id}
+                onChange={handleIdChange}
                 aria-invalid={errors.id ? "true" : "false"}
                 placeholder="아이디를 입력해주세요"
-                ref={register({
-                  required: true,
-                })}
+                // ref={register({
+                //   required: true,
+                // })}
               />
               {errors.id && (
                 <div className="err-msg">아이디는 필수입력항목입니다.</div>
@@ -104,7 +154,12 @@ function Home(props) {
               }
             <div className="sign-in-action-wrap">
               <div className="auto-sign-in">
-                <input type="checkbox" id="auto-sign-in-check" />
+                <input
+                  type="checkbox"
+                  id="auto-sign-in-check"
+                  onChange={handleAutoLogin}
+                  checked={autoLogin}
+                />
                 <label className="sub2" htmlFor="auto-sign-in-check">
                   자동로그인
                 </label>
@@ -122,8 +177,6 @@ function Home(props) {
     </div>
   );
 }
-
-export default Home;
 
 const WelcomeWordWide = styled.span`
   @media (max-width: 768px) {

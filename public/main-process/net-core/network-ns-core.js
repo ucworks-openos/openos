@@ -50,6 +50,7 @@ function connect () {
 
             // 연결이 종료되면 Connectin Check를 멈춘다.
             clearInterval(global.NS_CONN_CHECK);   
+            logout()
         });
         // 
         nsSock.on('close', function(hadError){

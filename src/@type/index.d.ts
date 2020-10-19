@@ -1,5 +1,5 @@
 import { Interface } from "readline";
-import { Efavorite, EnodeGubun, EuserState } from "../enum";
+import { Efavorite, EnodeGubun, Etheme, EuserState } from "../enum";
 
 declare global {
   type TTreeNode = TTreeDefault & TUser;
@@ -104,5 +104,36 @@ declare global {
     favoriteSearchMode: boolean;
     favoriteSearchKeyword: string;
     favoriteSearchResult: TTreeNode[];
+  };
+
+  type TconfigState = {
+    theme: "default" | "dark";
+    scope: "default-size" | "bigger" | "more-bigger";
+    language: "KR" | "US" | "JP" | "CN";
+    font: "굴림" | "궁서" | "돋움" | "바탕" | "맑은고딕" | "본고딕";
+    initialTab:
+      | "favorite"
+      | "organization"
+      | "chat"
+      | "message"
+      | "notice"
+      | "band"
+      | "call";
+    autoLaunch: boolean;
+    autoLoginWithLockMode: boolean;
+    lockMode: boolean;
+    // showQuickButton: boolean;
+    // showLine: boolean;
+    // buddyNotiOnConnect: boolean;
+    // buddySortByConnect: boolean;
+    doubleClickBehavior: "chat" | "message";
+    // ip: string;
+    // port: number;
+    useProxy: boolean;
+    // encryption: Eencryption;
+    // proxyServer: string;
+    // proxyPort: number;
+    // proxyUser: string;
+    // proxyPassword: string;
   };
 }
