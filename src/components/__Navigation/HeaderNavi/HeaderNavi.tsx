@@ -82,6 +82,7 @@ export default function HeaderNavi() {
   };
 
   const handleLogout = () => {
+    localStorage.setItem(`autoSwitch`, `off`);
     logout().then(function (resData) {
       sessionStorage.removeItem("isLoginElectronApp");
       // props.history.push('/favorite')

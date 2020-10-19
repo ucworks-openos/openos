@@ -104,7 +104,6 @@ export default function FavoritePage() {
   ]);
 
   // ANCHOR effect
-
   useEffect(() => {
     if (!rightClickedKey) {
       setFinalSelectedKeys([]);
@@ -195,6 +194,7 @@ export default function FavoritePage() {
       };
 
       const root = convertResponseToTree(response);
+      console.log(`root: `, root);
 
       // 즐겨찾기 없을 경우 생성.
       const spareRoot: TTreeNode[] = [
