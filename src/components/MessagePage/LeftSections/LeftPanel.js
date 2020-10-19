@@ -27,17 +27,17 @@ function LeftPanel() {
         <h4 className="page-title">쪽지</h4>
         <div
           className={`message-tab receive ${
-            currentMessageListType === "MSG_RECV" && "current"
+            currentMessageListType === "RECV" && "current"
           }`}
-          onClick={() => onChangeMessageListsTypeClick("MSG_RECV")}
+          onClick={() => onChangeMessageListsTypeClick("RECV")}
         >
           수신
         </div>
         <div
           className={`message-tab sent ${
-            currentMessageListType === "MSG_SEND" && "current"
+            currentMessageListType === "SEND" && "current"
           }`}
-          onClick={() => onChangeMessageListsTypeClick("MSG_SEND")}
+          onClick={() => onChangeMessageListsTypeClick("SEND")}
         >
           발신
         </div>

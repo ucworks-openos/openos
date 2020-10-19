@@ -34,8 +34,7 @@ export const logout = () => {
     electron.ipcRenderer.send("logout", null);
 
     sessionStorage.clear();
-    // window.location.hash = "#/login";
-    // window.location.reload();
+    
   });
 };
 
@@ -90,3 +89,15 @@ export const getConfig = () => {
 export const saveConfig = (configData) => {
   electron.ipcRenderer.send("saveConfig", configData);
 };
+
+
+/** decryptMessage */
+export const decryptMessage = async (endKey, cipherMessage) => {
+  return new Promise(function(resolve, reject) {
+      electron.ipcRenderer.once('res-decryptMessage', (event, arg) => {
+          resolve(arg);
+      });
+
+      electron.ipcRenderer.send('decryptMessage', endKey, cipherMessage)
+    });
+}

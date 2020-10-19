@@ -81,8 +81,8 @@ function NotificationControl() {
             let isSendMsg = msg.sendId === sessionStorage.getItem('loginId');
 
             // 내가 보고있는 함에 맞는 메세지가 오면 추가.
-            if ((isSendMsg && currentMessageListType === 'MSG_SEND') ||
-                (isRecvMsg && currentMessageListType === 'MSG_RECV')) {
+            if ((isSendMsg && currentMessageListType === 'SEND') ||
+                (isRecvMsg && currentMessageListType === 'RECV')) {
                 dispatch(
                     addMessage(msg.key, 
                         msg.destIds, 
@@ -103,7 +103,7 @@ function NotificationControl() {
             switch(noti[0].notiType) {
                 case 'NOTI_MESSAGE':
                     window.location.hash = `#/message`;
-                    dispatch(setCurrentMessageListsType('MSG_RECV'));
+                    dispatch(setCurrentMessageListsType('RECV'));
                     dispatch(setCurrentMessage(noti[0].notiId))
 
                     break;

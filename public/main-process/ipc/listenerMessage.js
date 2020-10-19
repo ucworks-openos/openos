@@ -56,15 +56,21 @@ ipcMain.on('getMessageDetail', async (event, msgKey) => {
 /**
  * deleteMessage
  */
-ipcMain.on('deleteMessage', async (event, msgGubun, msgKeys) => {
+ipcMain.on('deleteMessage', async (event, msgType, msgKeys) => {
 
-  nsAPI.reqDeleteMessage(msgGubun, msgKeys).then(function (resData) {
+  try {
+    // data 삭제
+    await fetchAPI.reqDeleteMessage(msgType, msgKeys);
+
+    // 서버로 삭제 알림
+    await nsAPI.reqDeleteMessage(msgType, msgKeys);
+
     winston.info('[IPC] deleteMessage res:', resData)
     event.reply('res-deleteMessage', resData);
-  }).catch(function (err) {
+  } catch (err) {
     winston.info('[IPC] deleteMessage res  Err:', err)
     event.reply('res-deleteMessage', new ResData(false, err));
-  });
+  }
 });
 
 /**
@@ -81,7 +87,6 @@ ipcMain.on('getChatRoomList', async (event, msgKey) => {
   });
 });
 
-
 /**
  * getChatRoom
  */
@@ -95,7 +100,6 @@ ipcMain.on('getChatRoomByRoomKey', async (event, roomKey) => {
     event.reply('res-getChatRoomByRoomKey', new ResData(false, err));
   });
 });
-
 
 /**
  * sendChatMessage
@@ -149,13 +153,15 @@ ipcMain.on('getChatList', async (event, roomId, lastLineKey = '9999999999999999'
 });
 
 /**
- * decrypt message
+ * exit chatRoom
  */
-ipcMain.on('decryptMessage', async (event, encryptKey, cipherMessage) => {
+ipcMain.on('exitChatRoom', async (event, roomId) => {
 
-  let decMessage = decryptMessage(encryptKey, cipherMessage);
-
-  winston.info('[IPC] decryptMessage res:', decMessage)
-  event.reply('res-decryptMessage', decMessage);
-
+  nsAPI.reqExitChatRoom(roomId).then(function (resData) {
+    winston.info('[IPC] exitChatRoom res:', resData)
+    event.reply('res-exitChatRoom', resData);
+  }).catch(function (err) {
+    winston.info('[IPC] exitChatRoom res  Err:', err)
+    event.reply('res-exitChatRoom', new ResData(false, err));
+  });
 });

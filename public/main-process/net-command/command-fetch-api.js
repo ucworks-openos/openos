@@ -9,7 +9,7 @@ const CmdConst = require('./command-const');
 const SqlConst = require('./command-const-sql');
 const fetchCore = require('../net-core/network-fetch-core');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
-const { DATE_FORMAT } = require('../common/common-const');
+const { DATE_FORMAT, MSG_TYPE } = require('../common/common-const');
 const { decryptMessage } = require('../utils/utils-crypto');
 const { realpathSync } = require('fs');
 
@@ -39,15 +39,15 @@ function reqMessageList(msgType, rowOffset = 0, rowLimit = 100) {
 
     let query = ''
     switch(msgType) {
-        case 'MSG_RECV':
+        case MSG_TYPE.RECEIVE:
             query = SqlConst.SQL_select_search_tbl_message_where_nogroup_recv_from_server
 
             break;
-        case 'MSG_SEND':
+        case MSG_TYPE.SEND:
             query = SqlConst.SQL_select_search_tbl_message_where_nogroup_send_from_server
             break;
 
-        case 'MSG_ALL':  // 쿼리가 없다.
+        case MSG_TYPE.ALL:  // 쿼리가 없다.
         default:
             winston.warn('Unknown Message Direction! direction:' + msgDirection)
             return new Error('Unknown Message Direction! direction:' + msgDirection);
@@ -105,6 +105,38 @@ function reqGetMessageDetail(msgKey) {
         }
 
     });
+}
+
+/**
+ * msgKeys seperated comma ','
+ * @param {MSG_TYPE} msgType 
+ * @param {Array} msgKeys 
+ */
+function reqDeleteMessage(msgType, msgKeys) {
+
+    if (!msgKeys) return;
+
+    let queryKey = 'GET_MSG_LIST_' + msgType + '_' + global.USER.userId + '_' + OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
+
+    let query = ''
+    switch(msgType) {
+        case MSG_TYPE.RECEIVE:
+            query = SqlConst.SQL_delete_tbl_msg_recv_msg_key_from_server
+
+            break;
+        case MSG_TYPE.SEND:
+            query = SqlConst.SQL_delete_tbl_msg_send_msg_key_from_server
+            break;
+
+        default:
+            winston.warn('Unknown Message Direction! direction:' + msgDirection)
+            return new Error('Unknown Message Direction! direction:' + msgDirection);
+    }
+
+    let keyTmp = msgKeys.join("','");
+    query = query.replace(':MSG_KEYS:', "'" + keyTmp + "')");
+
+    return selectToServer(query, queryKey)
 }
 
 /**
@@ -249,6 +281,7 @@ function selectToServer(query, queryKey) {
 module.exports = {
     reqMessageList: reqMessageList,
     reqGetMessageDetail: reqGetMessageDetail,
+    reqDeleteMessage: reqDeleteMessage,
     reqChatRoomList: reqChatRoomList,
     reqChatRoomByRoomKey: reqChatRoomByRoomKey,
     reqGetChatList: reqGetChatList,

@@ -9,7 +9,7 @@ import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
 import { getConfig, login } from '../../common/ipcCommunication/ipcCommon'
-import { getChatRoomList, sendChatMessage, getChatList } from '../../common/ipcCommunication/ipcMessage'
+import { getChatRoomList, sendChatMessage, getChatList, exitChatRoom } from '../../common/ipcCommunication/ipcMessage'
 
 const electron = window.require("electron")
 const { remote } = window.require("electron")
@@ -118,6 +118,10 @@ function FuncTestPage2() {
     setIsNewChat(false);
   }
 
+  const handleExitChat = (e) => {
+    exitChatRoom(chatRoomId);
+  }
+
   const handleGetChatList = (e) => {
     getChatList(chatRoomId, lastLineKey, 100).then(function (resData) {
       console.log('Promiss getChatRoomList res', resData);
@@ -199,7 +203,6 @@ function FuncTestPage2() {
 
         {/* 대화참여하기  */}
         <Row>
-
           <Col>
             <InputGroup >
               <InputGroup.Prepend>
@@ -221,14 +224,18 @@ function FuncTestPage2() {
                 onChange={(e) => setLastLineKey(e.target.value)}
               />
               <InputGroup.Append>
+                <Button variant="outline-secondary" onClick={handleGetChatList}>대화리스트</Button>
+              </InputGroup.Append>
+              <InputGroup.Append>
                 <Button variant="outline-secondary" onClick={handleJoinChat}>대화참여</Button>
               </InputGroup.Append>
               <InputGroup.Append>
-                <Button variant="outline-secondary" onClick={handleGetChatList}>대화리스트</Button>
+                <Button variant="outline-secondary" onClick={handleExitChat}>나가기</Button>
               </InputGroup.Append>
             </InputGroup>
           </Col>
         </Row>
+
 
         {/* 대화 메세지  */}
         <Row>

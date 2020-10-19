@@ -32,7 +32,7 @@ function MessagesLists() {
             const isCurrentMessage = message.msg_key === currentMessage ? "current" : "";
             let receieveNames = message.msg_recv_name.split('|')
             const renderDestInfo = receieveNames.map(user => {
-                if (currentMessageListType === 'MSG_SEND') {
+                if (currentMessageListType === 'SEND') {
                     return  <div className="message-title">To :<span key={uuidv4()}> {user}{" "}</span></div>
                 } else {
                     return  <div className="message-title">From :<span key={uuidv4()}> {message.msg_send_name}{" "}</span></div>
@@ -40,7 +40,7 @@ function MessagesLists() {
             })
 
             const renderSubInfo = receieveNames.map(user => {
-                if (currentMessageListType === 'MSG_SEND') {
+                if (currentMessageListType === 'SEND') {
                     return  <div className="message-from sub1">From :{message.msg_send_name}{" "}</div>
                 } else {
                     return  <div className="message-from sub1">to :{user}{" "}</div>
