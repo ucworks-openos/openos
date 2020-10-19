@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Sections/LoginPage.css";
 import { useForm } from "react-hook-form";
 import SignitureCi from "../../common/components/SignitureCi";
 import styled from "styled-components";
+import Alert from 'react-bootstrap/Alert'
 import { login } from "../../common/ipcCommunication/ipcCommon";
+import { writeDebug, writeLog } from "../../common/ipcCommunication/ipcLogger";
 
 export default function Home(props) {
   const [autoLogin, setAutoLogin] = useState(
@@ -11,6 +13,9 @@ export default function Home(props) {
   );
   const [id, setId] = useState(localStorage.getItem(`autoLoginId`));
   const { register, errors, handleSubmit } = useForm({ mode: "onChange" });
+
+  const [isLoginFail, setIsLoginFail] = useState(false);
+  const [failMessage, setFailMessage] = useState('');
 
   useEffect(() => {
     const initiate = async () => {
@@ -52,6 +57,9 @@ export default function Home(props) {
   const onSubmit = async (event) => {
     console.log("LOGIN REQUEST:", event);
 
+    setIsLoginFail(false)
+    setFailMessage('')
+
     try {
       const resData = await login(id, event.loginPwd, false);
 
@@ -65,17 +73,18 @@ export default function Home(props) {
         localStorage.setItem(`autoSwitch`, `on`);
       }
       if (resData.resCode) {
-        console.log("Login Success! ", resData);
         sessionStorage.setItem("isLoginElectronApp", true);
         sessionStorage.setItem(`loginId`, id);
 
         window.location.hash = "#/favorite";
         window.location.reload();
       } else {
-        console.log("Login fail! Res:", resData);
+        setIsLoginFail(true)
+        setFailMessage('Login Fail! (' + resData.data + ')')
       }
     } catch (error) {
-      console.log("Login fail! Ex: ", error);
+      setIsLoginFail(true)
+      setFailMessage('Login Fail! (Ex:' + error + ')')
     }
   };
 
@@ -138,6 +147,11 @@ export default function Home(props) {
             <div className="submit-wrap">
               <button type="submit">Let's start </button>
             </div>
+            {isLoginFail &&
+                <Alert variant="danger">
+                    {failMessage}
+                </Alert>
+              }
             <div className="sign-in-action-wrap">
               <div className="auto-sign-in">
                 <input

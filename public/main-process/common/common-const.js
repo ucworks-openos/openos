@@ -9,7 +9,8 @@ module.exports = Object.freeze({
     },
 
     /** 쪽지 구분 */ 
-    MSG_GUBUN: {
+    MSG_TYPE: {
+        ALL: 'ALL',
         SEND:'SEND',   //보낸쪽지
         RECEIVE:'RECV' // 받은쪽지
     },
@@ -18,6 +19,12 @@ module.exports = Object.freeze({
     MSG_DATA_TYPE : {
         COMMON: 'COMMON',  // 일반쪽지
         CONFIRM: 'CONFIRM' // 수신확인용 쪽지
+    },
+
+    /** 대화 유형 */
+    CHAT_ROOM_TYPE : {
+        SINGLE: 1, // 1:1
+        MULTI: 2 // 1:N
     },
 
     /** 날짜포멧 */

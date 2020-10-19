@@ -53,7 +53,7 @@ function reqLogin (loginData) {
         // GetServerInfo
         let resData = await reqGetServerInfo(loginData.loginId);
         if (!resData.resCode) {
-            reject(new Error(JSON.stringify(resData)));
+            reject(new Error(resData.data));
             return;
         }
         winston.debug('LOG IN STEP 1 --- GetServerInfo COMPLETED!' + JSON.stringify(resData));
@@ -61,7 +61,7 @@ function reqLogin (loginData) {
         // GetUserRules
         resData = await reqGetUserRules(loginData.loginId, loginData.loginPwd);
         if (!resData.resCode) {
-            reject(new Error(JSON.stringify(resData)));
+            reject(new Error(resData.data));
             return;
         }
         winston.debug('LOG IN STEP 2 --- GetUserRules COMPLETED!' + JSON.stringify(resData));
@@ -69,7 +69,7 @@ function reqLogin (loginData) {
         // HandshackDS
         resData = await reqHandshackDS(loginData.loginId);
         if (!resData.resCode) {
-            reject(new Error(JSON.stringify(resData)));
+            reject(new Error(resData.data));
             return;
         }
         winston.debug('LOG IN STEP 3 --- HandshackDS COMPLETED!' + JSON.stringify(resData));
@@ -77,7 +77,7 @@ function reqLogin (loginData) {
         // SetSessionDS
         resData = await reqSetSessionDS(loginData.loginId);
         if (!resData.resCode) {
-            reject(new Error(JSON.stringify(resData)));
+            reject(new Error(resData.data));
             return;
         }
         winston.debug('LOG IN STEP 4 --- SetSessionDS COMPLETED!' + JSON.stringify(resData));

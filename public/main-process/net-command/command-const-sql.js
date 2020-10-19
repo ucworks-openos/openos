@@ -25,6 +25,16 @@ module.exports = Object.freeze({
     'SELECT * FROM tbl_message ' +
     ' WHERE msg_key = \':MSG_KEY:\' ',
 
+    /** 수신 메세지 삭제 */
+    SQL_delete_tbl_msg_recv_msg_key_from_server:
+    'DELETE FROM tbl_msg_recv'+
+    ' WHERE msg_key IN (:MSG_KEYS:)',
+
+    /** 발신 메세지 삭제 */
+    SQL_delete_tbl_msg_send_msg_key_from_server:
+    'DELETE FROM tbl_msg_send '+
+    ' WHERE msg_key IN (:MSG_KEYS:)',
+
     /** 대화방 목록 조회 */
     SQL_select_tbl_chat_collect_server:
     'SELECT a.chat_user_id, a.chat_state, b.create_room_date, b.room_key, b.room_type, b.chat_entry_ids, b.chat_entry_names, b.last_line_key, b.max_line_number, a.line_num_date, a.unread_count, '+
