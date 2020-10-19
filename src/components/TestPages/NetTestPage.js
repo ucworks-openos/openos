@@ -5,8 +5,8 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import moment from 'moment';
 
-import {getConfig, login} from '../../common/ipcCommunication/ipcCommon'
-import {connectDS, upgradeCheck, testAction} from '../../common/ipcCommunication/ipcTest'
+import { getConfig, login, updateMyAlias} from '../../common/ipcCommunication/ipcCommon'
+import { connectDS, upgradeCheck, testAction} from '../../common/ipcCommunication/ipcTest'
 import { decryptMessage } from '../../common/ipcCommunication/ipcMessage';
 import { uploadFile, downloadFile } from '../../common/ipcCommunication/ipcFile';
 
@@ -37,6 +37,8 @@ function NetTestPage() {
   const [fileSvrPort, setFileSvrPort] = useState('');
   const [saveFile, setSaveFile] = useState('D:\\temp\\ifserver_download.log');
   const [svrFile, setSvrFile] = useState('_ucfile2020-09-25/ifserver.log.9');
+
+  const [myAlias, setMyAlias] = useState("거북선은이순신");
 
   const netLogArea = useRef(null);
   const localLogArea = useRef(null);
@@ -173,6 +175,9 @@ function NetTestPage() {
     downloadFile(fileSvrIp, fileSvrPort, svrFile, saveFile);
   }
 
+  const handleUpdateMyAlias = (e) => {
+    updateMyAlias(myAlias)
+  }
  
   // LogClear
   const handleLogClear = (e) => {
@@ -301,6 +306,27 @@ function NetTestPage() {
           </Col>
         </Row>
         
+
+        {/* MY ALIAS TEST  */}
+        <Row>
+          <Col>
+            <InputGroup >
+              <InputGroup.Prepend>
+                <InputGroup.Text id="myAlias">대화명</InputGroup.Text>
+              </InputGroup.Prepend>
+              <FormControl
+                aria-label="Default"
+                aria-describedby="inputGroup-sizing-default"
+                placeholder={myAlias}
+                onChange={(e) => setMyAlias(e.target.value)}
+              />
+              <InputGroup.Append>
+                <Button variant="outline-secondary" onClick={handleUpdateMyAlias}>변경 요충</Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+        </Row>
+
         <Row xs={1} >
           <textarea  ref={localLogArea} rows={10} value={localLog} className='mt-1'  />
         </Row>

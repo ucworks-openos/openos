@@ -10,7 +10,7 @@ const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
 
 const { callCallback } = require('./command-utils');
-const { getMultiple4DiffSize } = require('../utils/utils-buffer');
+const { getMultiple4DiffSize, getMultiple4Size } = require('../utils/utils-buffer');
 
 /**
  * 수신한 Command를 처리합니다. 
@@ -67,6 +67,21 @@ function receiveCmdProc(recvCmd) {
         }
       }
       break;
+    
+    case CmdCodes.NS_CHANGE_ALIAS :
+      if (recvCmd.data) {
+        let userId = BufUtil.getStringWithoutEndOfString(recvCmd.data, 0, CmdConst.BUF_LEN_USERID);        // 별칭 유저 아이디
+        let alias = BufUtil.getStringWithoutEndOfString(recvCmd.data, getMultiple4Size(CmdConst.BUF_LEN_USERID));            // 별칭
+
+        callCallback(recvCmd.sendCmd, new ResData(true, {userId:userId, alias:alias}));
+      } else {
+        let rcvBuf = Buffer.from(recvCmd.data);
+        let dataStr = rcvBuf.toString(global.ENC, 0);
+        winston.warn('My Alias Change Fail! ', dataStr);
+        callCallback(recvCmd.sendCmd, new ResData(false, 'Response Command Receive Fail! : ' + recvCmd.cmdCode));
+      }
+      break;
+
     default :
     {
       let rcvBuf = Buffer.from(recvCmd.data);
@@ -406,8 +421,20 @@ function notifyCmdProc(recvCmd) {
       winston.info('NS_CHATLINE_UNREAD_CNT Receive : %s', dataStr);
       break;
 
-    
-
+    case CmdCodes.NS_CHANGE_ALIAS :
+      if (recvCmd.data) {
+        let userId = BufUtil.getStringWithoutEndOfString(recvCmd.data, 0, CmdConst.BUF_LEN_USERID);        // 별칭 유저 아이디
+        let alias = BufUtil.getStringWithoutEndOfString(recvCmd.data, getMultiple4Size(CmdConst.BUF_LEN_USERID));            // 별칭
+        MsgNoti.userAliasChanged({
+          userId: userId,
+          alias: alias
+        })
+      } else {
+        let rcvBuf = Buffer.from(recvCmd.data);
+        let dataStr = rcvBuf.toString(global.ENC, 0);
+        callCallback(recvCmd.sendCmd, new ResData(false, 'NS_CHANGE_ALIAS Receive Fail! : ' + recvCmd.cmdCode));
+      }
+      break;
     default :
     {
       let rcvBuf = Buffer.from(recvCmd.data);

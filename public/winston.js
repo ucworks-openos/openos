@@ -15,20 +15,30 @@ const { combine, timestamp, label, printf, prettyPrint } = winston.format;
 //   verbose: 4,
 //   debug: 5,
 //   silly: 6,
-// }con
+// }
 
 
 const arrayPrepareStackTrace = (err, stack) => { return stack }
 
-const mainLogFormat = printf(({ level, message, label, timestamp }) => {
-
-  return `[${level}] ${timestamp} ${message}`;    // log 출력 포맷 정의
+const logFormat = printf(({ level, message, label, timestamp }) => {
+  //return `[${level}] ${label} ${timestamp} ${message}`;    // log 출력 포맷 정의
+  //return util.format('[%s] %s %s %s', level.padEnd(5, ' '), label, timestamp, message);
+  return util.format('[%s] %s %s', level.padEnd(5, ' '), timestamp, message);
 });
 
-const randerLogFormat = printf(({ level, message, label, timestamp }) => {
+const consoleLogOption = {
+  level: 'debug',
+  handleExceptions: true,
+  json: false, // 로그형태를 json으로도 뽑을 수 있다.
+  colorize: false,
+  format: combine(
+    format.splat(),
+    label({ label: 'console' }),
+    timestamp({format: 'YYYY-MM-DD HH:mm:ss.SSS'}),
+    logFormat
+  )
+}
 
-  return `[rander] ${timestamp} ${message}`;    // log 출력 포맷 정의
-});
 
 let main_logger;
 let randerer_logger;
@@ -40,50 +50,36 @@ function getMainLogger() {
 
   if (main_logger) return main_logger;
 
-  let options = {
-    // log파일
-    file: {
-      level: 'debug', // info
-      filename: `${global.LOG_PATH}/main-process.log`, // 로그파일을 남길 경로
-      handleExceptions: true,
-      maxsize: (5242880 * 4), // 20MB
-      maxFiles: 5,
-      colorize: false,
-      json: false,
-      defaultMeta: { service: 'user-serice' },
-      format: combine(
-        format.splat(),
-        label({ label: 'm-p' }),
-        timestamp({format: 'YYYY-MM-DD HH:mm:ss.SSS'}),
-        mainLogFormat    // log 출력 포맷
-      )
-    },
-    // 개발 시 console에 출력
-    console: {
-      level: 'debug',
-      handleExceptions: true,
-      json: false, // 로그형태를 json으로도 뽑을 수 있다.
-      colorize: false,
-      format: combine(
-        format.splat(),
-        label({ label: 'console' }),
-        timestamp({format: 'YYYY-MM-DD HH:mm:ss.SSS'}),
-        mainLogFormat
-      )
-    }
-  }
-
   main_logger = new winston.createLogger({
     level: 'debug',
     format: combine(format.json(), timestamp(), prettyPrint()),
     transports: [
-      new winston.transports.File(options.file) // 중요! 위에서 선언한 option으로 로그 파일 관리 모듈 transport
+      new winston.transports.File({
+        level: 'debug', // info
+        filename: `${global.LOG_PATH}/main-process.log`, // 로그파일을 남길 경로
+        handleExceptions: true,
+        maxsize: (5242880 * 4), // 20MB
+        maxFiles: 5,
+        colorize: false,
+        json: false,
+        defaultMeta: { service: 'user-serice' },
+        format: combine(
+          format.splat(),
+          label({ label: 'main' }),
+          timestamp({format: 'YYYY-MM-DD HH:mm:ss.SSS'}),
+          logFormat    // log 출력 포맷
+        )
+      }) // 중요! 위에서 선언한 option으로 로그 파일 관리 모듈 transport
     ],
     exitOnError: false, 
   });
   
   if(process.env.NODE_ENV !== 'production'){
+<<<<<<< HEAD
     main_logger.add(new winston.transports.Console(options.console)) // 개발 시 console로도 출력
+=======
+    main_logger.add(new winston.transports.Console(consoleLogOption)) // 개발 시 console로도 출력
+>>>>>>> 557c87a8c547eab8dc6de1c25c26ce12425ff59e
   }
 
   return main_logger;
@@ -91,52 +87,39 @@ function getMainLogger() {
 
 /**
  * Randerer File Logger
+ * 
+ * @deprecated
  */
 function getRandererLogger() {
 
   if (randerer_logger) return randerer_logger;
 
-  let options = {
-    file: {
-      level: 'debug', // info
-      filename: `${global.LOG_PATH}/main-process.log`, // 로그파일을 남길 경로
-      handleExceptions: true,
-      maxsize: (5242880 * 4), // 20MB
-      maxFiles: 5,
-      colorize: false,
-      json: false,
-      defaultMeta: { service: 'user-serice' },
-      format: combine(
-        format.splat(),
-        timestamp({format: 'YYYY-MM-DD HH:mm:ss.SSS'}),
-        randerLogFormat    // log 출력 포맷
-      )
-    },
-    // 개발 시 console에 출력
-    console: {
-      level: 'debug',
-      handleExceptions: true,
-      json: false, // 로그형태를 json으로도 뽑을 수 있다.
-      colorize: false,
-      format: combine(
-        format.splat(),
-        timestamp({format: 'YYYY-MM-DD HH:mm:ss.SSS'}),
-        randerLogFormat
-      )
-    }
-  }
-
   randerer_logger = new winston.createLogger({
     level: 'debug',
     format: combine(format.json(), timestamp(), prettyPrint()),
     transports: [
-      new winston.transports.File(options.file) // 중요! 위에서 선언한 option으로 로그 파일 관리 모듈 transport
+      new winston.transports.File( {
+        level: 'debug', // info
+        filename: `${global.LOG_PATH}/rander-process.log`, // 로그파일을 남길 경로
+        handleExceptions: true,
+        maxsize: (5242880 * 4), // 20MB
+        maxFiles: 5,
+        colorize: false,
+        json: false,
+        defaultMeta: { service: 'user-serice' },
+        format: combine(
+          format.splat(),
+          label({ label: 'randerer' }),
+          timestamp({format: 'YYYY-MM-DD HH:mm:ss.SSS'}),
+          logFormat    // log 출력 포맷
+        )
+      }) // 중요! 위에서 선언한 option으로 로그 파일 관리 모듈 transport
     ],
     exitOnError: false, 
   });
   
   if(process.env.NODE_ENV !== 'production'){
-    randerer_logger.add(new winston.transports.Console(options.console)) // 개발 시 console로도 출력
+    randerer_logger.add(new winston.transports.Console(consoleLogOption)) // 개발 시 console로도 출력
   }
 
   return randerer_logger;
@@ -176,7 +159,22 @@ module.exports = {
   err(msg, ...vars) {
     getMainLogger().error(util.format(getPreviousStackInfo() + msg, ...vars), '');
   },
+  debugRanderer(msg, ...vars) {
+    getMainLogger().debug(util.format(getPreviousStackInfo() + msg, ...vars), '');
+  }, 
+  infoRanderer(msg, ...vars) {
+    getMainLogger().info(util.format(getPreviousStackInfo() + msg, ...vars), '');
+  },
+  warnRanderer(msg, ...vars) {
+    getMainLogger().warn(util.format(getPreviousStackInfo() + msg, ...vars), '');
+  }, 
+  errorRanderer(msg, ...vars) {
+    getMainLogger().error(util.format(getPreviousStackInfo() + msg, ...vars), '');
+  }, 
+  errRanderer(msg, ...vars) {
+    getMainLogger().error(util.format(getPreviousStackInfo() + msg, ...vars), '');
+  },
   randerer(msg, ...vars) {
-    getRandererLogger().info(util.format(getPreviousStackInfo() + msg, ...vars), '');
+    getMainLogger().info(util.format(getPreviousStackInfo() + msg, ...vars), '');
   }
 }

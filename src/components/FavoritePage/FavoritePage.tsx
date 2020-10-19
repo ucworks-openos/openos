@@ -8,11 +8,8 @@ import Modal from "react-modal";
 import HamburgerButton from "../../common/components/HamburgerButton";
 import Node from "./FavoriteNode";
 import Tree, { TreeNode } from "rc-tree";
-import {
-  getBuddyList,
-  setStatusMonitor,
-  getUserInfos,
-} from "../../common/ipcCommunication/ipcCommon";
+import { setStatusMonitor, } from "../../common/ipcCommunication/ipcCommon";
+import { getBuddyList, getUserInfos, } from "../../common/ipcCommunication/ipcOrganization";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 import {

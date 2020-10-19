@@ -58,9 +58,16 @@ function chatReceived(chatData) {
   send('chatReceived', chatData)
 }
 
+/** 대화명 변경 수신 */
+function userAliasChanged(aliasData) {
+  winston.debug('userAliasChanged! ', JSON.stringify(aliasData));
+  send('userAliasChanged', aliasData)
+}
+
 module.exports = {
     messageReceived: messageReceived,
     unreadCountReceived: unreadCountReceived,
     userStatusChanged: userStatusChanged,
-    chatReceived: chatReceived
+    chatReceived: chatReceived,
+    userAliasChanged: userAliasChanged
   }

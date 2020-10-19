@@ -2,7 +2,7 @@ import Tree, { TreeNode } from "rc-tree";
 import React, { useEffect, useMemo, useState } from "react";
 import Modal from "react-modal";
 import styled from "styled-components";
-import { getUserInfos } from "../../ipcCommunication/ipcCommon";
+import { getUserInfos } from "../../ipcCommunication/ipcOrganization";
 import { EnodeGubun } from "../../../enum";
 import useTree from "../../../hooks/useTree";
 import {

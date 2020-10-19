@@ -6,7 +6,8 @@ import {
 } from '../../../redux/actions/message_actions';
 // import ReactSelect from '../../../common/components/Select/ReactSelect';
 // import { userLists } from '../../../redux/mock-datas/user-lists';
-import { getUserInfos, searchUsers, writeLog } from '../../../common/ipcCommunication/ipcCommon'
+import { writeLog } from '../../../common/ipcCommunication/ipcLogger'
+import { getUserInfos, searchUsers } from '../../../common/ipcCommunication/ipcOrganization'
 import './MessageInputModal.css';
 import Alert from 'react-bootstrap/Alert'
 import { arrayLike } from '../../util';

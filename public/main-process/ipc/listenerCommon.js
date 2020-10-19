@@ -30,6 +30,9 @@ function decrypt(text) {
 
  return Buffer.concat([decrypted, decipher.final()]).toString();
 }
+const { initGlobal, logout } = require('../main-handler');
+const { writeConfig } = require('../configuration/site-config')
+
 
 /** login */ 
 ipcMain.on('login', async (event, loginData) => {
@@ -99,101 +102,24 @@ ipcMain.on('login', async (event, loginData) => {
   };
 });
 
-// logout
+/** logout */
 ipcMain.on('logout', async (event, ...args) => {
-  
-  nsAPI.close();
-  dsAPI.close();
-  csAPI.close();
-  psAPI.close();
-
-  winston.debug('logout completed!')
-
+  logout();
   event.reply('res-logout', new ResData(true));
 });
 
-// getBuddyList
-ipcMain.on('getBuddyList', async (event, ...args) => {
+/** updateMyAlias */
+ipcMain.on('updateMyAlias', async (event, myAlias) => {
   
-  dsAPI.reqGetBuddyList(function(resData)
+  nsAPI.reqUpdateMyAlias(myAlias).then(function(resData)
   {
-    winston.debug('getBuddyList res:', resData)
-    event.reply('res-getBuddyList', resData);
+    event.reply('res-updateMyAlias', resData);
   }).catch(function(err) {
-    event.reply('res-getBuddyList', new ResData(false, err));
-  });
-
-});
-
-// getOrganization
-ipcMain.on('getBaseOrg', async (event, ...args) => {
-  
-  psAPI.reqGetOrganization(global.ORG.orgGroupCode).then(function(resData)
-  {
-    winston.debug('getBaseOrg res:', resData)
-    event.reply('res-getBaseOrg', resData);
-  }).catch(function(err) {
-    event.reply('res-getBaseOrg', new ResData(false, err));
-  });
-  
-});
-
-// getChildOrg
-ipcMain.on('getChildOrg', async (event, orgGroupCode, groupCode, groupSeq) => {
-  psAPI.reqGetOrgChild(orgGroupCode, groupCode, groupSeq).then(function(resData)
-  {
-    winston.debug('getChildOrg res:', resData)
-    event.reply('res-getChildOrg', resData);
-  }).catch(function(err) {
-    event.reply('res-getChildOrg', new ResData(false, err));
+    event.reply('res-updateMyAlias', new ResData(false, err));
   });
 });
 
-// getUserInfos
-ipcMain.on('getUserInfos', async (event, userIds) => {
-  psAPI.reqGetUserInfos(userIds).then(function(resData)
-  {
-    //winston.debug('getUserInfos res:', resData)
-    event.reply('res-getUserInfos', resData);
-  }).catch(function(err) {
-    event.reply('res-getUserInfos', new ResData(false, err));
-  });
-});
-
-// searchUsers
-ipcMain.on('searchUsers', async (event, searchMode, searchText) => {
-  psAPI.reqSearchUsers(searchMode, searchText).then(function(resData)
-  {
-    winston.debug('searchUsers res:', resData)
-    event.reply('res-searchUsers', resData);
-  }).catch(function(err) {
-    event.reply('res-searchUsers', new ResData(false, err));
-  });
-});
-
-// searchUsers
-ipcMain.on('searchOrgUsers', async (event, orgGrgoupCode, searchText) => {
-  psAPI.reqSearchOrgUsers(orgGrgoupCode, searchText).then(function(resData)
-  {
-    winston.debug('searchOrgUsers res:', resData)
-    event.reply('res-searchOrgUsers', resData);
-  }).catch(function(err) {
-    event.reply('res-searchOrgUsers', new ResData(false, err));
-  });
-});
-
-// saveBuddyData
-ipcMain.on('saveBuddyData', async (event, favoritData) => {
-  nsAPI.reqSaveBuddyData(favoritData).then(function(resData)
-  {
-    winston.debug('saveBuddyData res:', resData)
-    event.reply('res-saveBuddyData', resData);
-  }).catch(function(err) {
-    event.reply('res-saveBuddyData', new ResData(false, err));
-  });
-});
-
-// changeStatus
+/** changeStatus */
 ipcMain.on('changeStatus', async (event, status, force = false) => {
   nsAPI.reqChangeStatus(status, force).then(function(resData)
   {
@@ -204,7 +130,7 @@ ipcMain.on('changeStatus', async (event, status, force = false) => {
   });
 });
 
-// setStatusMonitor
+/** setStatusMonitor */
 ipcMain.on('setStatusMonitor', async (event, userIds) => {
   nsAPI.reqSetStatusMonitor(userIds).then(function(resData)
   {
@@ -215,14 +141,26 @@ ipcMain.on('setStatusMonitor', async (event, userIds) => {
   });
 });
 
-// writeLog
-ipcMain.on('writeLog', async (event, msg, ...args) => {
- winston.randerer(msg, ...args)
+/** getConfig */
+ipcMain.on('getConfig', (event, ...args) => {
+  //return event.returnValue = global.SITE_CONFIG;
+  event.reply('res-getConfig', global.SITE_CONFIG);
+
+  winston.debug('mainProc getConfig\r\n%s', global.SITE_CONFIG)
+});
+
+/** saveConfig */
+ipcMain.on('saveConfig', (event, configData) => {
+  global.SITE_CONFIG = {
+    server_ip: configData.serverIp,
+    server_port:configData.serverPort,
+    client_version:configData.clientVersion
+    }
+
+  writeConfig();
 });
 
 /** sample */
 // ipcMain.on('sample', (event, ...args) => {
 //   return event.returnValue = global.SITE_CONFIG;
 // });
-
-

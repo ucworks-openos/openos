@@ -7,9 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
 import {
     getInitialChatRooms,
-    setCurrentChatRoomFromNoti
 } from "../../../redux/actions/chat_actions";
-import { writeLog } from "../../../common/ipcCommunication/ipcCommon";
 
 const electron = window.require("electron")
 

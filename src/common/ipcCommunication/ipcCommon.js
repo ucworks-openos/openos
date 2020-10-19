@@ -1,28 +1,6 @@
+import { writeInfo } from "./ipcLogger";
+
 const electron = window.require("electron");
-
-/**
- * write FileLog
- * @param {*} xml
- */
-export const writeLog = (msg, ...args) => {
-  electron.ipcRenderer.send(`writeLog`, msg, ...args);
-};
-
-/** Config를 불러옵니다. */
-export const getConfig = () => {
-  return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.once("res-getConfig", (event, arg) => {
-      resolve(arg);
-    });
-
-    electron.ipcRenderer.send("getConfig", "");
-  });
-};
-
-/** Config를 저장합니다.. */
-export const saveConfig = (configData) => {
-  electron.ipcRenderer.send("saveConfig", configData);
-};
 
 /** 로그인 요청을 합니다. */
 export const login = async (loginId, loginPwd, autoLogin) => {
@@ -45,75 +23,31 @@ export const login = async (loginId, loginPwd, autoLogin) => {
 
 /** 로그아웃 요청을 합니다. */
 export const logout = () => {
+  writeInfo("====  LOG OUT  ===");
+
   return new Promise(function (resolve, reject) {
     electron.ipcRenderer.once("res-logout", (event, arg) => {
+      writeInfo("logout Response", arg);
       resolve(arg);
     });
 
     electron.ipcRenderer.send("logout", null);
+
+    sessionStorage.clear();
+    // window.location.hash = "#/login";
+    // window.location.reload();
   });
 };
 
-/** getFavorite */
-export const getBuddyList = async () => {
-  return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.once("res-getBuddyList", (event, arg) => {
-      console.log("---getBuddyList----------", arg);
-      resolve(arg);
-    });
-    electron.ipcRenderer.send("getBuddyList", "");
-  });
-};
-
-/** getFavorite */
-export const getBaseOrg = async () => {
-  return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.once("res-getBaseOrg", (event, arg) => {
-      resolve(arg);
-    });
-    electron.ipcRenderer.send("getBaseOrg", "");
-  });
-};
-
-/** getFavorite */
-export const getChildOrg = async (orgGroupCode, groupCode, groupSeq) => {
-  console.log("getChildOrg:", orgGroupCode, groupCode, groupSeq);
+/** updateMyAlias */
+export const updateMyAlias = async (myAlias) => {
+  console.log("updateMyAlias:", myAlias);
 
   return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.once("res-getChildOrg", (event, arg) => {
+    electron.ipcRenderer.once("res-updateMyAlias", (event, arg) => {
       resolve(arg);
     });
-    electron.ipcRenderer.send("getChildOrg", orgGroupCode, groupCode, groupSeq);
-  });
-};
-
-/** getUserInfos */
-export const getUserInfos = async (userIds) => {
-  return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.once("res-getUserInfos", (event, arg) => {
-      resolve(arg);
-    });
-    electron.ipcRenderer.send("getUserInfos", userIds);
-  });
-};
-
-/** searchUsers */
-export const searchUsers = async (searchMode, searchText) => {
-  return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.once("res-searchUsers", (event, arg) => {
-      resolve(arg);
-    });
-    electron.ipcRenderer.send("searchUsers", searchMode, searchText);
-  });
-};
-
-/** searchOrgUsers */
-export const searchOrgUsers = async (orgGroupCode, searchText) => {
-  return new Promise(function (resolve, reject) {
-    electron.ipcRenderer.once("res-searchOrgUsers", (event, arg) => {
-      resolve(arg);
-    });
-    electron.ipcRenderer.send("searchOrgUsers", orgGroupCode, searchText);
+    electron.ipcRenderer.send("updateMyAlias", myAlias);
   });
 };
 
@@ -141,16 +75,18 @@ export const setStatusMonitor = async (userIds) => {
   });
 };
 
-/**
- * saveBuddyData
- * @param {*} xml
- */
-export const saveBuddyData = async (xml) => {
-  console.log("saveBuddyData: ", xml);
-  return new Promise((resolve, reject) => {
-    electron.ipcRenderer.once(`res-saveBuddyData`, (event, arg) => {
+/** Config를 불러옵니다. */
+export const getConfig = () => {
+  return new Promise(function (resolve, reject) {
+    electron.ipcRenderer.once("res-getConfig", (event, arg) => {
       resolve(arg);
     });
-    electron.ipcRenderer.send(`saveBuddyData`, xml);
+
+    electron.ipcRenderer.send("getConfig", "");
   });
+};
+
+/** Config를 저장합니다.. */
+export const saveConfig = (configData) => {
+  electron.ipcRenderer.send("saveConfig", configData);
 };

@@ -121,7 +121,7 @@ export const syncronize = (tree: TTreeNode[]) => {
     },
   };
 
-  const { saveBuddyData } = require("../ipcCommunication/ipcCommon");
+  const { saveBuddyData } = require("../ipcCommunication/ipcOrganization");
   const xml2js = require("xml2js");
   const xml = new xml2js.Builder().buildObject(requestBody);
 
