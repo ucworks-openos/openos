@@ -4,43 +4,46 @@ import { useForm } from "react-hook-form";
 import SignitureCi from "../../common/components/SignitureCi";
 import styled from "styled-components";
 import { login } from "../../common/ipcCommunication/ipcCommon";
+import { useParams } from "react-router-dom";
 
 export default function Home(props) {
+  const { stopAutoLogin } = useParams();
   const [autoLogin, setAutoLogin] = useState(
-    localStorage.getItem(`autoLoginId`) !== null
+    localStorage.getItem(`autoSwitch`) === `on`
   );
   const [id, setId] = useState(localStorage.getItem(`autoLoginId`));
   const { register, errors, handleSubmit } = useForm({ mode: "onChange" });
 
   useEffect(() => {
     const initiate = async () => {
-      if (
-        localStorage.getItem(`autoLoginId`) !== null &&
-        localStorage.getItem(`autoLoginPw`) !== null &&
-        localStorage.getItem(`autoSwitch`) === `on`
-      ) {
-        const resData = await login(
-          localStorage.getItem(`autoLoginId`),
-          localStorage.getItem(`autoLoginPw`),
-          true
-        );
+      const resData = await login(
+        localStorage.getItem(`autoLoginId`),
+        localStorage.getItem(`autoLoginPw`),
+        true
+      );
 
-        console.log("Promiss login res", resData);
+      console.log("Promiss login res", resData);
 
-        if (resData.resCode) {
-          console.log("Login Success! ", resData);
-          sessionStorage.setItem("isLoginElectronApp", true);
-          sessionStorage.setItem(`loginId`, id);
+      if (resData.resCode) {
+        console.log("Login Success! ", resData);
+        sessionStorage.setItem("isLoginElectronApp", true);
+        sessionStorage.setItem(`loginId`, id);
 
-          window.location.hash = "#/favorite";
-          window.location.reload();
-        } else {
-          console.log("Login fail! Res:", resData);
-        }
+        window.location.hash = "#/favorite";
+        window.location.reload();
+      } else {
+        console.log("Login fail! Res:", resData);
       }
     };
-    initiate();
-  });
+
+    console.log(`stopAutoLogin: `, stopAutoLogin);
+    if (
+      stopAutoLogin === `false` &&
+      localStorage.getItem(`autoSwitch`) === `on`
+    ) {
+      initiate();
+    }
+  }, []);
 
   const handleIdChange = (e) => {
     setId(e.target.value);
@@ -48,6 +51,12 @@ export default function Home(props) {
 
   const handleAutoLogin = () => {
     setAutoLogin((prev) => !prev);
+
+    if (localStorage.getItem(`autoSwitch`) === `on`) {
+      localStorage.setItem(`autoSwitch`, `off`);
+    } else {
+      localStorage.setItem(`autoSwitch`, `on`);
+    }
   };
   const onSubmit = async (event) => {
     console.log("LOGIN REQUEST:", event);
@@ -62,7 +71,6 @@ export default function Home(props) {
       if (resData.resCode && autoLogin) {
         localStorage.setItem(`autoLoginId`, id);
         localStorage.setItem(`autoLoginPw`, resData.data.autoLogin);
-        localStorage.setItem(`autoSwitch`, `on`);
       }
       if (resData.resCode) {
         console.log("Login Success! ", resData);

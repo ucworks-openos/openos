@@ -26,7 +26,8 @@ const FuncTestPage2 = React.lazy(() => import("./TestPages/FuncTestPage2"));
 const chatTestPage = React.lazy(() => import("./TestPages/ChatTestPage"));
 const TeamSpacePage = React.lazy(() => import("./TeamSpacePage/TeamSpacePage"));
 
-function RouterPage() { return (
+function RouterPage() {
+  return (
     <HashRouter>
       {/* <MyErrorBoundary> */}
       <Suspense fallback={<div>Loading...</div>}>
@@ -40,7 +41,7 @@ function RouterPage() { return (
           <Route exact path="/" component={LoginPage} />
           <Route exact path="/favorite" component={FavoritePage} />
           <Route exact path="/organization" component={OrganizationPage} />
-          <Route exact path="/login" component={LoginPage} />
+          <Route exact path="/login/:stopAutoLogin" component={LoginPage} />
           <Route exact path="/about" component={AboutPage} />
           <Route exact path="/message" component={MessagePage} />
           <Route exact path="/chat" component={ChatPage} />
@@ -74,7 +75,7 @@ function RouterPage() { return (
 }
 
 if (!window.location.hash || window.location.hash === "#/") {
-  window.location.hash = "#/login";
+  window.location.hash = `#/login/${false}`;
 }
 
 export default RouterPage;

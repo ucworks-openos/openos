@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, SyntheticEvent } from "react";
 import "./HeaderNavi.css";
-import { logout, changeStatus } from "../../../common/ipcCommunication/ipcCommon";
-import { getUserInfos } from "../../../common/ipcCommunication/ipcOrganization";
+import userAvatarThumbnail from "../../../assets/images/img_user-thumbnail.png";
+import {
+  logout,
+  changeStatus,
+} from "../../../common/ipcCommunication/ipcCommon";
 import { convertToUser, delay } from "../../../common/util";
 import { EuserState } from "../../../enum";
-import { writeInfo } from "../../../common/ipcCommunication/ipcLogger";
 import Modal from "react-modal";
 import SettingModal from "../../../common/components/Modal/SettingModal";
 import useConfig from "../../../hooks/useConfig";
-
+import { getUserInfos } from "../../../common/ipcCommunication/ipcOrganization";
 
 export default function HeaderNavi() {
   const [avatarDropDownIsOpen, setAvatarDropDownIsOpen] = useState(false);
@@ -79,10 +81,12 @@ export default function HeaderNavi() {
     setSettingModalVisible(true);
   };
 
-  const handleLogout = () => {
-    localStorage.setItem(`autoSwitch`, `off`);
+  const handleLogout = (e: SyntheticEvent) => {
     logout().then(function (resData) {
-      writeInfo('Logout On Side Navi', resData)
+      sessionStorage.removeItem("isLoginElectronApp");
+      // props.history.push('/favorite')
+      window.location.hash = `#/login/${true}`;
+      window.location.reload();
     });
   };
 
