@@ -6,17 +6,23 @@ ipcMain.on('writeLog', async (event, msg, ...args) => {
  winston.debugRanderer(msg, ...args)
 });
 
-/** writeLog */
+/** writeDebug */
 ipcMain.on('writeDebug', async (event, msg, ...args) => {
   winston.debugRanderer(msg, ...args)
  });
 
- /** writeLog */
+ /** writeInfo */
 ipcMain.on('writeInfo', async (event, msg, ...args) => {
   winston.infoRanderer(msg, ...args)
  });
 
- /** writeLog */
+ 
+ /** writeWarn */
+ipcMain.on('writeWarn', async (event, msg, ...args) => {
+  winston.warnRanderer(msg, ...args)
+ });
+
+ /** writeError */
 ipcMain.on('writeError', async (event, msg, ...args) => {
   winston.errorRanderer(msg, ...args)
  });

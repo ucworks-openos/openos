@@ -4,6 +4,9 @@ import { arrayLike } from "../../common/util";
 import { EconnectType, EnodeGubun, EuserState } from "../../enum";
 import useConfig from "../../hooks/useConfig";
 
+import { makeCall } from "../../common/ipcCommunication/ipcIpPhone";
+import { writeWarn } from "../../common/ipcCommunication/ipcLogger";
+
 type TOrganizationNodeProps = {
   data: TTreeNode;
   index: number;
@@ -96,6 +99,17 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
   const handleChat = () => {
     window.location.hash = `#/chat_from_organization/${data?.userId}`;
   };
+
+  /**
+   * 전화걸기
+   */
+  const handleMaleCall = () => {
+    if (data && data.userTelIpphone) {
+      makeCall(data?.userTelIpphone)
+    } else {
+      writeWarn('make call fail! dest is empty!', data);
+    }
+  }
 
   return (
     <>
@@ -231,7 +245,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
           <div className="user-quick-action-wrap">
             <div className="btn-quick chat" onClick={handleChat}></div>
             <div className="btn-quick message" onClick={handleToggle}></div>
-            <div className="btn-quick call"></div>
+            <div className="btn-quick call" onClick={handleMaleCall}></div>
           </div>
         </UserRow>
       )}

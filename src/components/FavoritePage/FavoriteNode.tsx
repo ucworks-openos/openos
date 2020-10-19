@@ -6,6 +6,8 @@ import React, {
   SetStateAction,
 } from "react";
 import styled from "styled-components";
+import { makeCall } from "../../common/ipcCommunication/ipcIpPhone";
+import { writeWarn } from "../../common/ipcCommunication/ipcLogger";
 
 import { arrayLike } from "../../common/util";
 import { EconnectType, EnodeGubun, EuserState } from "../../enum";
@@ -81,6 +83,17 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
     setFinalSelectedKeys([data?.key]);
     setMessageModalVisible((prev: boolean) => !prev);
   };
+
+  /**
+   * 전화걸기
+   */
+  const handleMaleCall = () => {
+    if (data && data.userTelOffice) {
+      makeCall(data?.userTelOffice)
+    } else {
+      writeWarn('make call fail! dest is empty!', data);
+    }
+  }
 
   const handleChat = () => {
     window.location.hash = `#/chat_from_organization/${data?.userId}`;
@@ -242,7 +255,10 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
               className="btn-quick message"
               onClick={handleMessageModal}
             ></div>
-            <div className="btn-quick call"></div>
+            <div 
+              className="btn-quick call"
+              onClick={handleMaleCall}
+            ></div>
           </div>
         </UserRow>
       )}
