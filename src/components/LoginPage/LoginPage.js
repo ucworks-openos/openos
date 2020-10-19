@@ -3,49 +3,52 @@ import "./Sections/LoginPage.css";
 import { useForm } from "react-hook-form";
 import SignitureCi from "../../common/components/SignitureCi";
 import styled from "styled-components";
-import Alert from 'react-bootstrap/Alert'
+import Alert from "react-bootstrap/Alert";
 import { login } from "../../common/ipcCommunication/ipcCommon";
+import { useParams } from "react-router-dom";
 import { writeDebug, writeLog } from "../../common/ipcCommunication/ipcLogger";
 
 export default function Home(props) {
+  const { stopAutoLogin } = useParams();
   const [autoLogin, setAutoLogin] = useState(
-    localStorage.getItem(`autoLoginId`) !== null
+    localStorage.getItem(`autoSwitch`) === `on`
   );
   const [id, setId] = useState(localStorage.getItem(`autoLoginId`));
   const { register, errors, handleSubmit } = useForm({ mode: "onChange" });
 
   const [isLoginFail, setIsLoginFail] = useState(false);
-  const [failMessage, setFailMessage] = useState('');
+  const [failMessage, setFailMessage] = useState("");
 
   useEffect(() => {
     const initiate = async () => {
-      if (
-        localStorage.getItem(`autoLoginId`) !== null &&
-        localStorage.getItem(`autoLoginPw`) !== null &&
-        localStorage.getItem(`autoSwitch`) === `on`
-      ) {
-        const resData = await login(
-          localStorage.getItem(`autoLoginId`),
-          localStorage.getItem(`autoLoginPw`),
-          true
-        );
+      const resData = await login(
+        localStorage.getItem(`autoLoginId`),
+        localStorage.getItem(`autoLoginPw`),
+        true
+      );
 
-        console.log("Promiss login res", resData);
+      console.log("Promiss login res", resData);
 
-        if (resData.resCode) {
-          console.log("Login Success! ", resData);
-          sessionStorage.setItem("isLoginElectronApp", true);
-          sessionStorage.setItem(`loginId`, id);
+      if (resData.resCode) {
+        console.log("Login Success! ", resData);
+        sessionStorage.setItem("isLoginElectronApp", true);
+        sessionStorage.setItem(`loginId`, id);
 
-          window.location.hash = "#/favorite";
-          window.location.reload();
-        } else {
-          console.log("Login fail! Res:", resData);
-        }
+        window.location.hash = "#/favorite";
+        window.location.reload();
+      } else {
+        console.log("Login fail! Res:", resData);
       }
     };
-    initiate();
-  });
+
+    console.log(`stopAutoLogin: `, stopAutoLogin);
+    if (
+      stopAutoLogin === `false` &&
+      localStorage.getItem(`autoSwitch`) === `on`
+    ) {
+      initiate();
+    }
+  }, []);
 
   const handleIdChange = (e) => {
     setId(e.target.value);
@@ -53,12 +56,18 @@ export default function Home(props) {
 
   const handleAutoLogin = () => {
     setAutoLogin((prev) => !prev);
+
+    if (localStorage.getItem(`autoSwitch`) === `on`) {
+      localStorage.setItem(`autoSwitch`, `off`);
+    } else {
+      localStorage.setItem(`autoSwitch`, `on`);
+    }
   };
   const onSubmit = async (event) => {
     console.log("LOGIN REQUEST:", event);
 
-    setIsLoginFail(false)
-    setFailMessage('')
+    setIsLoginFail(false);
+    setFailMessage("");
 
     try {
       const resData = await login(id, event.loginPwd, false);
@@ -70,7 +79,6 @@ export default function Home(props) {
       if (resData.resCode && autoLogin) {
         localStorage.setItem(`autoLoginId`, id);
         localStorage.setItem(`autoLoginPw`, resData.data.autoLogin);
-        localStorage.setItem(`autoSwitch`, `on`);
       }
       if (resData.resCode) {
         sessionStorage.setItem("isLoginElectronApp", true);
@@ -79,12 +87,12 @@ export default function Home(props) {
         window.location.hash = "#/favorite";
         window.location.reload();
       } else {
-        setIsLoginFail(true)
-        setFailMessage('Login Fail! (' + resData.data + ')')
+        setIsLoginFail(true);
+        setFailMessage("Login Fail! (" + resData.data + ")");
       }
     } catch (error) {
-      setIsLoginFail(true)
-      setFailMessage('Login Fail! (Ex:' + error + ')')
+      setIsLoginFail(true);
+      setFailMessage("Login Fail! (Ex:" + error + ")");
     }
   };
 
@@ -147,11 +155,7 @@ export default function Home(props) {
             <div className="submit-wrap">
               <button type="submit">Let's start </button>
             </div>
-            {isLoginFail &&
-                <Alert variant="danger">
-                    {failMessage}
-                </Alert>
-              }
+            {isLoginFail && <Alert variant="danger">{failMessage}</Alert>}
             <div className="sign-in-action-wrap">
               <div className="auto-sign-in">
                 <input
