@@ -409,7 +409,7 @@ function reqChatLineKey(chatRoomKey) {
  * @param {String} userIds 
  * @param {String} message 
  */
-function reqSendChatMessage(roomKey, lineKey, userIds, message) {
+function reqSendChatMessage(roomKey, lineKey, userIds, message, roomTitle) {
     return new Promise(async function(resolve, reject) {
 
         if (!global.SERVER_INFO.NS.isConnected) {
@@ -499,7 +499,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message) {
         chatDataSizeBuf.writeInt32LE(chatDataBuf.length);
 
         let destIdSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);     // destid_size
-        let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_PIPE + 'TestChattingRoom');
+        let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_CR + roomTitle);
         destIdSizeBuf.writeInt32LE(destIdBuf.length);
 
         var dataBuf = Buffer.concat([roomKeyBuf,roomTypeBuf,lineKeyBuf,lineNumberBuf,lineNumberBuf,sendDateBuf,ipBuf,portBuf,
