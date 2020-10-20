@@ -1,98 +1,96 @@
-import React, { useEffect } from 'react'
-import {
-    setCurrentChatRoom,
-} from "../../../redux/actions/chat_actions";
-import { useDispatch, useSelector } from 'react-redux';
-import { v4 as uuidv4 } from 'uuid';
-import moment from 'moment';
-import {
-    getInitialChatRooms,
-} from "../../../redux/actions/chat_actions";
+import React, { useEffect } from "react";
+import { setCurrentChatRoom } from "../../../redux/actions/chat_actions";
+import { useDispatch, useSelector } from "react-redux";
+import { v4 as uuidv4 } from "uuid";
+import moment from "moment";
+import { getInitialChatRooms } from "../../../redux/actions/chat_actions";
 
-const electron = window.require("electron")
+const electron = window.require("electron");
 
 function ChatRooms(props) {
-    const dispatch = useDispatch();
-    const chatRooms = useSelector(state => state.chats.chatRooms)
-    const currentChatRoom = useSelector(state => state.chats.currentChatRoom)
-    useEffect(() => {
-        dispatch(getInitialChatRooms())
-    }, [])
+  const dispatch = useDispatch();
+  const chatRooms = useSelector((state) => state.chats.chatRooms);
+  const currentChatRoom = useSelector((state) => state.chats.currentChatRoom);
+  useEffect(() => {
+    dispatch(getInitialChatRooms());
+  }, []);
 
-    const onChatRoomClick = (roomKey) => {
-        dispatch(setCurrentChatRoom(roomKey, chatRooms))
-    }
+  const onChatRoomClick = (roomKey) => {
+    dispatch(setCurrentChatRoom(roomKey, chatRooms));
+  };
 
-    const renderChatRoom = () => (
-        chatRooms && chatRooms.map(room => {
-            let receieveIds = room && room.chat_entry_ids.split('|')
-            let receievePeopleCounts = receieveIds && receieveIds.length
-            const renderSendTo = receieveIds && receieveIds.map(user => {
-                return <span key={uuidv4()}>{user}{" "}</span>
-            })
-            const isCurrentChatRoom = room && room.room_key === currentChatRoom.room_key ? "current-chat" : "";
-            // ${receievePeopleCounts >= 4 ? "n" : receievePeopleCounts} 
+  const renderChatRoom = () =>
+    chatRooms &&
+    chatRooms.map((room) => {
+      let receieveIds = room && room.chat_entry_ids.split("|");
+      let receievePeopleCounts = receieveIds && receieveIds.length;
+      let renderSendTo;
 
-            return (
-                <li className={`chat-list-single  ppl-1 ${isCurrentChatRoom}`}
-                    key={room.room_key}
-                    onClick={() => onChatRoomClick(room.room_key)}>
-                    {/* <div className="list-thumb-area">
+      if (room.chat_entry_names) {
+        renderSendTo = <span key={uuidv4()}>{room.chat_entry_names} </span>;
+      } else {
+        renderSendTo = receieveIds?.map((user) => {
+          return <span key={uuidv4()}>{user} </span>;
+        });
+      }
+      const isCurrentChatRoom =
+        room && room.room_key === currentChatRoom.room_key
+          ? "current-chat"
+          : "";
+      // ${receievePeopleCounts >= 4 ? "n" : receievePeopleCounts}
+
+      return (
+        <li
+          className={`chat-list-single  ppl-1 ${isCurrentChatRoom}`}
+          key={room.room_key}
+          onClick={() => onChatRoomClick(room.room_key)}
+        >
+          {/* <div className="list-thumb-area">
                         <div className="user-pic-wrap">
                             <img src={userThumbnail} alt="user-profile-picture" />
                         </div>
                     </div> */}
-                    <div className="list-info-area">
-                        <div className="list-row 1">
-                            <div className="chat-ppl-num">
-                                {receievePeopleCounts}
-                            </div>
-                            <div className="chat-room-name">
-                                {renderSendTo}
-                            </div>
-                            {/* {room.unread_count && room.unread_count !== "0"
+          <div className="list-info-area">
+            <div className="list-row 1">
+              <div className="chat-ppl-num">{receievePeopleCounts}</div>
+              <div className="chat-room-name">{renderSendTo}</div>
+              {/* {room.unread_count && room.unread_count !== "0"
                                 &&
                                 <div className="chat-counter unread">
                                     {room.unread_count}
                                 </div>
                             } */}
-                        </div>
-                        <div className="list-row 2">
-                            <div className="last-chat">
-                                {room.chat_contents && room.chat_contents}
-                            </div>
-                            <div className="icon-chat-noti on"></div>
-                        </div>
-                        <div className="list-row 3">
-                            <div className="last-chat-from sub1">
-                                {" "}{room.chat_send_name}
-                            </div>
-                            <div className="last-chat-time sub1">
-                                {moment(room.create_room_date, "YYYYMMDDHHmm").format("YYYY년 M월 D일 H시 m분")}
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            )
-        })
-    )
-
-    if (chatRooms === undefined || (chatRooms && chatRooms[0] === undefined)) {
-        return (<div></div>)
-    } else {
-        return (
-            <div>
-                {renderChatRoom()}
             </div>
-        )
-    }
+            <div className="list-row 2">
+              <div className="last-chat">
+                {room.chat_contents && room.chat_contents}
+              </div>
+              <div className="icon-chat-noti on"></div>
+            </div>
+            <div className="list-row 3">
+              <div className="last-chat-from sub1"> {room.chat_send_name}</div>
+              <div className="last-chat-time sub1">
+                {moment(room.create_room_date, "YYYYMMDDHHmm").format(
+                  "YYYY년 M월 D일 H시 m분"
+                )}
+              </div>
+            </div>
+          </div>
+        </li>
+      );
+    });
+
+  if (chatRooms === undefined || (chatRooms && chatRooms[0] === undefined)) {
+    return <div></div>;
+  } else {
+    return <div>{renderChatRoom()}</div>;
+  }
 }
 
-export default ChatRooms
+export default ChatRooms;
 
-
-
-{/* <li class="chat-list-single  ppl-1x2">
+{
+  /* <li class="chat-list-single  ppl-1x2">
 <div class="list-thumb-area">
     <div class="user-pic-wrap">
         <img src={userThumbnail} alt="user-profile-picture" />
@@ -492,7 +490,8 @@ export default ChatRooms
         </div>
     </div>
 </div>
-</li> */}
+</li> */
+}
 
 // const [chatRoomsWithUserInfos, setChatRoomsWithUserInfos] = useState([])
 
