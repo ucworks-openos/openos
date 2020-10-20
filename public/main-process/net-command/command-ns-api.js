@@ -513,12 +513,12 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, roomTitle) {
 }
 
 /**
- * 
+ * 대화방 나가기
  * @param {String} roomKey 
  * @param {CHAT_ROOM_TYPE} roomType 
  */
 //function reqExitChatRoom(roomKey, roomType) {
-function reqExitChatRoom(roomKey) {
+function reqExitChatRoom(roomKey, userIds) {
     return new Promise(async function(resolve, reject) {
 
         if (!global.SERVER_INFO.NS.isConnected) {
@@ -527,6 +527,8 @@ function reqExitChatRoom(roomKey) {
         }
 
         /*********************** */
+
+        let idDatas = userIds.join(CmdConst.SEP_PIPE);
 
         // roomKey
         let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
@@ -586,10 +588,10 @@ function reqExitChatRoom(roomKey) {
         let tmpBuf1 = adjustBufferMultiple4(concatBuf);
 
         let chatCmdBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);        // chat_cmd
-        chatCmdBuf.writeInt32LE(CmdCodes.CHAT_DATA_LINE)
+        chatCmdBuf.writeInt32LE(CmdCodes.CHAT_DEL_USER)
 
         let chatKeySizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);    // chatkey_size
-        let chatKeyBuf = Buffer.from('');
+        let chatKeyBuf = Buffer.from(roomKey + CmdConst.SEP_PIPE + idDatas);
         chatKeySizeBuf.writeInt32LE(chatKeyBuf.length);
 
         let chatDataSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);   // chatdata_size
@@ -597,7 +599,7 @@ function reqExitChatRoom(roomKey) {
         chatDataSizeBuf.writeInt32LE(chatDataBuf.length);
 
         let destIdSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);     // destid_size
-        let destIdBuf = Buffer.from('');
+        let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_CR);
         destIdSizeBuf.writeInt32LE(destIdBuf.length);
 
         var dataBuf = Buffer.concat([roomKeyBuf,roomTypeBuf,lineKeyBuf,lineNumberBuf,lineNumberBuf,sendDateBuf,ipBuf,portBuf,
@@ -610,6 +612,104 @@ function reqExitChatRoom(roomKey) {
     });
 }
 
+/**
+ * 대화방 이름 변경
+ * @param {String} roomKey 
+ * @param {String} roomName
+ */
+function reqChangeChatRoomName(roomKey, roomName, userIds) {
+    return new Promise(async function(resolve, reject) {
+
+        if (!global.SERVER_INFO.NS.isConnected) {
+            reject(new Error('NS IS NOT CONNECTED!'));
+            return;
+        }
+
+        /*********************** */
+
+        let idDatas = userIds.join(CmdConst.SEP_PIPE);
+
+        // roomKey
+        let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
+        roomKeyBuf.write(roomKey, global.ENC);
+        roomKeyBuf = adjustBufferMultiple4(roomKeyBuf);
+        winston.info('roomKey', roomKey , roomKeyBuf.length);
+
+        // roomType
+        let roomTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        //roomTypeBuf.writeInt32LE(roomType);
+
+        let lineKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
+        //lineKeyBuf.write(lineKey, global.ENC);
+        lineKeyBuf = adjustBufferMultiple4(lineKeyBuf);
+
+        let lineNumberBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        lineNumberBuf.writeInt32LE(0);
+
+        let unreadCountBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        unreadCountBuf.writeInt32LE(0);
+
+        let sendDate = OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
+        let sendDateBuf = Buffer.alloc(CmdConst.BUF_LEN_DATE);
+        //sendDateBuf.write(sendDate, global.ENC);
+        let ipBuf = Buffer.alloc(CmdConst.BUF_LEN_IP);
+
+        // Multiple4Size
+        let multiple4Length = getMultiple4Size(CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP);
+        let bufLen = CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP;
+        ipBuf = Buffer.concat([ipBuf, Buffer.alloc(multiple4Length - bufLen)])
+        winston.info('sendDate + IP', sendDate, ipBuf.length-CmdConst.BUF_LEN_IP)
+
+        let portBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+
+        //font_info
+        let fontSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);       // fontsize
+        let fontStyleBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);      // TFontStyles; ??
+        let fontColorBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);      // TColor; ??
+
+        let fontName = '맑은고딕';
+        let fontNameBuf = Buffer.alloc(CmdConst.BUF_LEN_FONTNAME); //fontName
+        fontNameBuf.write(fontName, global.ENC);
+        fontNameBuf = adjustBufferMultiple4(fontNameBuf)
+        winston.info('fontName', fontName, fontNameBuf.length)
+
+
+        let sendIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        sendIdBuf.write(global.USER.userId, global.ENC);
+
+        let sendNameBuf = Buffer.alloc(CmdConst.BUF_LEN_USERNAME);
+        sendNameBuf.write(global.USER.userName, global.ENC);
+
+        let encryptKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_ENCRYPT);
+        //encryptKeyBuf.write(encData.encKey, global.ENC);
+        
+        let concatBuf = Buffer.concat([sendIdBuf, sendNameBuf, encryptKeyBuf])
+        let tmpBuf1 = adjustBufferMultiple4(concatBuf);
+
+        let chatCmdBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);        // chat_cmd
+        chatCmdBuf.writeInt32LE(CmdCodes.CHAT_CHANGE_TITLE)
+
+        let chatKeySizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);    // chatkey_size
+        let chatKeyBuf = Buffer.from(roomKey + CmdConst.SEP_PIPE + idDatas);
+        chatKeySizeBuf.writeInt32LE(chatKeyBuf.length);
+
+        let chatDataSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);   // chatdata_size
+        let chatDataBuf = Buffer.from(roomName);
+        chatDataSizeBuf.writeInt32LE(chatDataBuf.length);
+
+        let destIdSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);     // destid_size
+        let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_CR);
+        destIdSizeBuf.writeInt32LE(destIdBuf.length);
+
+        var dataBuf = Buffer.concat([roomKeyBuf,roomTypeBuf,lineKeyBuf,lineNumberBuf,lineNumberBuf,sendDateBuf,ipBuf,portBuf,
+                    fontSizeBuf,fontStyleBuf,fontColorBuf,fontNameBuf,
+                    tmpBuf1, //sendIdBuf,sendNameBuf,encryptKeyBuf,
+                    chatCmdBuf, chatKeySizeBuf,chatDataSizeBuf,destIdSizeBuf, 
+                    chatKeyBuf,chatDataBuf,destIdBuf]);
+
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.SB_CHAT_USER_CHANGE, 0), dataBuf);
+    });
+}
 
 /**
  * 나의 대화명을 입력합니다.
