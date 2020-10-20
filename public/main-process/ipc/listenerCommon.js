@@ -30,7 +30,7 @@ function decrypt(text) {
 
  return Buffer.concat([decrypted, decipher.final()]).toString();
 }
-const { logout } = require('../mainHandler');
+const { logout } = require('../main-handler');
 const { writeConfig } = require('../configuration/site-config')
 
 

@@ -10,7 +10,7 @@ const nsCore = require('../net-core/network-ns-core');
 const { adjustBufferMultiple4, getMultiple4Size } = require('../utils/utils-buffer');
 const { MSG_TYPE, MSG_DATA_TYPE, CHAT_ROOM_TYPE, DATE_FORMAT } = require('../common/common-const');
 const ResData = require('../ResData');
-const { logout } = require('../mainHandler');
+const { logout } = require('../main-handler');
 
 /**
  * 연결을 종료합니다.
