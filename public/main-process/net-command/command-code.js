@@ -5,6 +5,7 @@ const NS_BASE           = 4000;
 const SB_BASE           = 5000;
 const PS_BASE           = 6000;
 const FS_BASE           = 7000;
+const IPPHONE_BASE      = 12000;
 const CS_BASE           = 13000;
 const CHAT_DATA_BASE    = 15000;
 const FETCH_BASE        = 25000;
@@ -107,6 +108,11 @@ module.exports = Object.freeze({
     NS_CHAT_LINEKEY              : NS_BASE + 640,
     NS_SERVER_BUSY               : NS_BASE + 999,
     NS_SERVER_CLOSE              : NS_BASE + 998,
+
+    //#region IPPHONE COMMAND
+    NS_IPPHONE_BASE                 : IPPHONE_BASE,
+    NS_IPPHONE_DATA                 : IPPHONE_BASE + 3,
+    //#endregion IPPHONE COMMAND
     //#endregion NS COMMAND
 
     //
@@ -132,7 +138,6 @@ module.exports = Object.freeze({
     FETCH_SQL_RESPONSE           : FETCH_BASE + 15,
     FETCH_NO_DATA                : FETCH_BASE + 16,
     //#endregion FETCH COMMAND
-
 
     SB_BASE                      : SB_BASE, // 5000
     SB_CHAT_DATA                 : SB_BASE + 3,
@@ -171,5 +176,8 @@ module.exports = Object.freeze({
     FS_PUT_UPGRADE_DATA          : FS_BASE + 14,
     FS_NO_KEY_HEADER             : FS_BASE + 20,
     FS_ERROR                     : FS_BASE + 21,
+
+
+
 
 });

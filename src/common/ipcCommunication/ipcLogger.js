@@ -28,6 +28,13 @@ export const writeInfo = (msg, ...args) => {
  * write FileLog
  * @param {*} xml 
  */
+export const writeWarn = (msg, ...args) => {
+  electron.ipcRenderer.send(`writeWarn`, msg, ...args);
+};
+/**
+ * write FileLog
+ * @param {*} xml 
+ */
 export const writeError = (msg, ...args) => {
   electron.ipcRenderer.send(`writeError`, msg, ...args);
 };

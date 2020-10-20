@@ -43,11 +43,15 @@ function Sidebar() {
 
   const onLogOutClick = () => {
     logout().then(function (resData) {
+
+
       writeInfo("Logout On Side Navi", resData);
       sessionStorage.removeItem("isLoginElectronApp");
       // props.history.push('/favorite')
       window.location.hash = `#/login/${true}`;
       window.location.reload();
+
+      
     });
   };
 

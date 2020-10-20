@@ -1,3 +1,5 @@
+import { writeDebug } from "./ipcLogger";
+
 const electron = window.require("electron")
 
 /** sendMessage */
@@ -62,12 +64,12 @@ export const getChatRoomByRoomKey = async (roomId) => {
 
 
 /** sendChatMessage */
-export const sendChatMessage = async (chatUserIds, chatMessage, roomKey = null) => {
+export const sendChatMessage = async (chatUserIds, chatMessage, roomKey = null, roomTitle) => {
   return new Promise(function(resolve, reject) {
       electron.ipcRenderer.once('res-sendChatMessage', (event, arg) => {
           resolve(arg);
         })
-        electron.ipcRenderer.send('sendChatMessage', chatUserIds, chatMessage, roomKey)
+        electron.ipcRenderer.send('sendChatMessage', chatUserIds, chatMessage, roomKey, roomTitle)
     });
 }
 
@@ -88,6 +90,7 @@ export const showChatNoti = (chatMsg) => {
 
 /** exitChatRoom */
 export const exitChatRoom = (roomId) => {
+  writeDebug('exitChatRoom', roomId)
   electron.ipcRenderer.send('exitChatRoom', roomId)
 }
 

@@ -5,7 +5,7 @@ const ResData = require('../ResData');
 const CmdConst = require('../net-command/command-const');
 const CmdCodes = require('../net-command/command-code');
 
-const { receive_command } = require('../net-command/command-res-proc');
+const { responseCmdProc } = require('../net-command/command-ps-res');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
 var psSock;
@@ -122,7 +122,7 @@ function readDataStream(rcvData){
         rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
         global.PS_SEND_COMMAND = null;
 
-        if (!receive_command(procCmd)) {
+        if (!responseCmdProc(procCmd)) {
             winston.info('Revceive PS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     }

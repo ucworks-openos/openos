@@ -136,5 +136,5 @@ function responseCmdProc(resCmd) {
 }
 
 module.exports = {
-  psResProc: responseCmdProc
+  responseCmdProc: responseCmdProc
 }

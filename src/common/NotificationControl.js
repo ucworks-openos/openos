@@ -4,7 +4,7 @@ import { showChatNoti } from "./ipcCommunication/ipcMessage";
 import {
     addReceivedChat, setCurrentChatRoomFromNoti
 } from "../redux/actions/chat_actions";
-import { writeInfo, writeLog } from "./ipcCommunication/ipcLogger";
+import { writeDebug, writeInfo, writeLog } from "./ipcCommunication/ipcLogger";
 import { addMessage, setCurrentMessage, setCurrentMessageListsType } from "../redux/actions/message_actions";
 
 const electron = window.require("electron");
@@ -45,10 +45,9 @@ function NotificationControl() {
         //
         // 대화 메세지 수신
         electron.ipcRenderer.removeAllListeners('chatReceived');
-        electron.ipcRenderer.on('chatReceived', (event, chatData) => {
+        electron.ipcRenderer.on('chatReceived', (event, chat) => {
 
-            writeLog('------ chatReceived currentChatRoom:%s chat:%s', currentChatRoom?currentChatRoom.room_key:'', chatData);
-            let chat = chatData[0];
+            writeLog('------ chatReceived currentChatRoom:%s chat:%s', currentChatRoom?currentChatRoom.room_key:'', chat);
 
             // 본인이 보낸 메세지는 무시한다.
             if (chat.sendId === sessionStorage.getItem('loginId')) return;
@@ -71,9 +70,10 @@ function NotificationControl() {
         // 쪽지 수신
         // 현재 선택된 쪽지 탭 유형을 확인하고, 쪽지 목록화면에 추가해야 함으로 쪽지 컨트롤에서 처리
         electron.ipcRenderer.removeAllListeners('messageReceived');
-        electron.ipcRenderer.on('messageReceived', (event, msgData) => {
+        electron.ipcRenderer.on('messageReceived', (event, msg) => {
+
             let currentMessageListType = sessionStorage.getItem('currentMessageListType');
-            let msg = msgData[0];
+            //let msg = msgData[0];
 
             // 내가 나에게 보내는 경우가 있으니 모든 경우를 판단한다.
             let destIds = msg.allDestId.split('|');
@@ -100,16 +100,16 @@ function NotificationControl() {
 
             writeLog('notiTitleClick', noti);
 
-            switch(noti[0].notiType) {
+            switch(noti.notiType) {
                 case 'NOTI_MESSAGE':
                     window.location.hash = `#/message`;
                     dispatch(setCurrentMessageListsType('RECV'));
-                    dispatch(setCurrentMessage(noti[0].notiId))
+                    dispatch(setCurrentMessage(noti.notiId))
 
                     break;
                 case 'NOTI_CHAT':
                     writeLog('chat noti click!--');
-                    window.location.hash = `#/chat/${noti[0].notiId}`;
+                    window.location.hash = `#/chat/${noti.notiId}`;
                     //dispatch(setCurrentChatRoomFromNoti(noti[0].notiId, chatRooms))
                     dispatch(setCurrentChatRoomFromNoti())
                     
@@ -123,7 +123,7 @@ function NotificationControl() {
                     // }
                     break;
                 default:
-                    writeLog('Unknown Noti Title Click', noti[0])
+                    writeLog('Unknown Noti Title Click', noti)
                     return;
             }
         });

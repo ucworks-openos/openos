@@ -196,5 +196,5 @@ async function responseCmdProc(resCmd) {
 
 
 module.exports = {
-  dsResProc: responseCmdProc
+  responseCmdProc: responseCmdProc
 }

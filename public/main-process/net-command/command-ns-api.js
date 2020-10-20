@@ -409,7 +409,7 @@ function reqChatLineKey(chatRoomKey) {
  * @param {String} userIds 
  * @param {String} message 
  */
-function reqSendChatMessage(roomKey, lineKey, userIds, message) {
+function reqSendChatMessage(roomKey, lineKey, userIds, message, roomTitle) {
     return new Promise(async function(resolve, reject) {
 
         if (!global.SERVER_INFO.NS.isConnected) {
@@ -499,7 +499,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message) {
         chatDataSizeBuf.writeInt32LE(chatDataBuf.length);
 
         let destIdSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);     // destid_size
-        let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_PIPE + 'TestChattingRoom');
+        let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_CR + roomTitle);
         destIdSizeBuf.writeInt32LE(destIdBuf.length);
 
         var dataBuf = Buffer.concat([roomKeyBuf,roomTypeBuf,lineKeyBuf,lineNumberBuf,lineNumberBuf,sendDateBuf,ipBuf,portBuf,
@@ -639,6 +639,37 @@ function reqUpdateMyAlias(myAlias) {
 }
 
 
+/**
+ * 나의 대화명을 입력합니다.
+ * @param {String} myAlias 
+ */
+function reqIpPhone(reqXml) {
+    return new Promise(async function(resolve, reject) {
+
+        if (!global.SERVER_INFO.NS.isConnected) {
+            reject(new Error('NS IS NOT CONNECTED!'));
+            return;
+        }
+
+        let userIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        userIdBuf.write(global.USER.userId, global.ENC);
+        userIdBuf = adjustBufferMultiple4(userIdBuf);
+
+        let xmlBuf = Buffer.from(reqXml, global.ENC);
+
+        let xmlSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        xmlSizeBuf.writeInt32LE(xmlBuf.length);
+
+        winston.debug('req IpPhone ', reqXml);
+
+        var dataBuf = Buffer.concat([userIdBuf, xmlSizeBuf,xmlBuf]);
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_IPPHONE_DATA, 0, function(resData){
+            if (resData.resCode) resolve(resData);
+            else reject(new Error('reqIpPhone Res Fail! ' + JSON.stringify(resData)));
+        }), dataBuf);
+    });
+}
+
 module.exports = {
     reqconnectNS: reqconnectNS,
     reqSendMessage: reqSendMessage,
@@ -651,5 +682,6 @@ module.exports = {
     reqSendChatMessage: reqSendChatMessage,
     reqExitChatRoom: reqExitChatRoom,
     reqUpdateMyAlias: reqUpdateMyAlias,
+    reqIpPhone: reqIpPhone,
     close: close,
 }

@@ -64,5 +64,5 @@ function responseCmdProc(command) {
 }
 
 module.exports = {
-  csResProc: responseCmdProc
+  responseCmdProc: responseCmdProc
 }
