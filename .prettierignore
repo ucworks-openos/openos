@@ -1,3 +1,4 @@
 public
 *.css
 src/common/components/Modal/MessageInputModal.js
+src/common/ipcCommunication/*
