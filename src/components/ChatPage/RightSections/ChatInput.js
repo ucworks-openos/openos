@@ -131,7 +131,7 @@ function ChatInput() {
           <div className="input-action btn-emoticon" title="이모티콘"></div>
           <div className="input-action btn-emoji" title="이모지"></div>
           <div className="input-action btn-add-file" title="파일전송"></div>
-          <div className="input-action btn-call" title="통화"></div>
+          {/* <div className="input-action btn-call" title="통화"></div>
           <div className="input-action btn-remote" title="원격제어"></div>
           <div
             className="input-action btn-shake-window"
@@ -142,7 +142,7 @@ function ChatInput() {
             className="input-action btn-send-survey"
             title="설문보내기"
           ></div>
-          <div className="input-action btn-save-chat" title="대화저장"></div>
+          <div className="input-action btn-save-chat" title="대화저장"></div> */}
         </div>
       </div>
     </>

@@ -6,12 +6,13 @@ import {
 } from '../../../redux/actions/message_actions';
 // import ReactSelect from '../../../common/components/Select/ReactSelect';
 // import { userLists } from '../../../redux/mock-datas/user-lists';
-import { writeLog } from '../../../common/ipcCommunication/ipcLogger'
 import { getUserInfos, searchUsers } from '../../../common/ipcCommunication/ipcOrganization'
 import './MessageInputModal.css';
 import Alert from 'react-bootstrap/Alert'
 import { arrayLike } from '../../util';
 import { sendMessage } from '../../ipcCommunication/ipcMessage';
+import { writeLog } from '../../ipcCommunication/ipcLogger';
+import styled from 'styled-components';
 
 function MessageInputModal(props) {
     const dispatch = useDispatch();
@@ -29,7 +30,7 @@ function MessageInputModal(props) {
     const [isTitleTyped, setIsTitleTyped] = useState(false);
     const [isContentTyped, setIsContentTyped] = useState(false);
     const [isUserSelected, setIsUserSelected] = useState(false);
-
+    
     useEffect(() => {
         const initiate = async() => {
             if (!props.selectedNode.length) return false;
@@ -39,6 +40,13 @@ function MessageInputModal(props) {
         }
         props.selectedNode && initiate();
     }, [props.selectedNode])
+
+    useEffect(() => {
+const initiate = () => {
+    setTitle(props.initialTitle);
+}
+        props.selectedNode && initiate();
+    }, [props.initialTitle])
 
     const onEditorChange = (value) => {
         setContent(value)
@@ -124,6 +132,7 @@ function MessageInputModal(props) {
 
         let tmpTitle = title;
         writeLog('tmpTitle', tmpTitle.trim().length);
+
         if (tmpTitle.trim().length === 0) {
 
             tmpTitle = content.substring(3, content.length - 4)
@@ -160,24 +169,24 @@ function MessageInputModal(props) {
 
     const renderCheckedMember = () =>
         selectedUsers && selectedUsers.map((user) => (
-            <div class="to-ppl-added-single" key={user.user_id.value}
+            <div className="to-ppl-added-single" key={user.user_id.value}
                 onClick={() => onDeleteCheckedMemberClick(user.user_id.value)}> {user.user_name.value}
-                <button class="remove-ppl-added"></button>
+                <button className="remove-ppl-added"></button>
             </div>
         ));
 
 
     return (
         <div >
-            <h5 class="modal-title write-message">쪽지 쓰기</h5>
-            <div class="write-row to-ppl-wrap">
+            <h5 className="modal-title write-message">쪽지 쓰기</h5>
+            <div className="write-row to-ppl-wrap">
                 <input type="text"
                     onKeyDown={e => { e.keyCode === 13 && handleSearchUser() }}
-                    onChange={(e) => setSearchText(e.target.value)} class="to-ppl"
+                    onChange={(e) => setSearchText(e.target.value)} className="to-ppl"
                     placeholder="받는 사람의 이름을 입력한 후 + 버튼을 눌러주세요"
                     value={searchText}
                 />
-                <button class="add-ppl" onClick={handleSearchUser} value=""></button>
+                <button className="add-ppl" onClick={handleSearchUser} value=""></button>
             </div>
             {isUserSelected &&
                 <Alert variant="danger">
@@ -195,50 +204,59 @@ function MessageInputModal(props) {
                 </Alert>
             }
             {selectedUsers.length > 0 &&
-                <div class="write-row to-ppl-added">
+                <div className="write-row to-ppl-added">
                     {renderCheckedMember()}
                 </div>
             }
 
-            <div class="write-row subject-wrap">
-                <input type="text" class="subject" onChange={onTitleChange} value={title} placeholder="쪽지 제목을 입력해주세요" />
+            <div className="write-row subject-wrap">
+                <input type="text" className="subject" onChange={onTitleChange} value={title} placeholder="쪽지 제목을 입력해주세요" />
             </div>
             {/* {isTitleTyped &&
                 <Alert variant="danger">
                     먼저 쪽지 이름을 입력해 주세요.
                 </Alert>
             } */}
+            <EditorWrapper>
             <QuillEditor
                 placeholder={"쪽지 내용을 입력해주세요."}
                 onEditorChange={onEditorChange}
                 onFilesChange={onFilesChange}
+                initialContent={props.initialContent}
             />
+            </EditorWrapper>
             {isContentTyped &&
                 <Alert variant="danger">
                     쪽지 내용을 입력해 주세요.
                 </Alert>
             }
             <br />
-            <div class="write-row add-file-wrap">
-                <div class="add-file-title">첨부파일(1)</div>
-                <label for="btn-add-file" class="label-add-file btn-solid-s">첨부하기</label>
-                <input type="file" id="btn-add-file" class="btn-add-file" />
+            <div className="write-row add-file-wrap">
+                <div className="add-file-title">첨부파일(1)</div>
+                <label for="btn-add-file" className="label-add-file btn-solid-s">첨부하기</label>
+                <input type="file" id="btn-add-file" className="btn-add-file" />
             </div>
 
-            <div class="attatched-file-wrap">
-                <div class="attatched-file-row">
-                    <i class="icon-attatched-file"></i>
-                    <div class="label-attatched-file-name">02_asset_bmp.zip (100Mb)</div>
-                    <div class="btn-attatched-file-name-remove">삭제</div>
+            <div className="attatched-file-wrap">
+                <div className="attatched-file-row">
+                    <i className="icon-attatched-file"></i>
+                    <div className="label-attatched-file-name">02_asset_bmp.zip (100Mb)</div>
+                    <div className="btn-attatched-file-name-remove">삭제</div>
                 </div>
             </div>
 
-            <div class="modal-btn-wrap">
-                <div class="btn-ghost-s cancel" onClick={props.closeModalFunction}>취소하기</div>
-                <div class="btn-solid-s submit" type="submit" onClick={onSubmit}>전송하기</div>
+            <div className="modal-btn-wrap">
+                <div className="btn-ghost-s cancel" onClick={props.closeModalFunction}>취소하기</div>
+                <div className="btn-solid-s submit" type="submit" onClick={onSubmit}>전송하기</div>
             </div>
         </div>
     )
 }
+
+
+const EditorWrapper = styled.div`
+width: 100%;
+    overflow: auto;
+`
 
 export default MessageInputModal

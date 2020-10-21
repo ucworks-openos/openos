@@ -14,7 +14,7 @@ export default function (state = {}, action) {
       return {
         ...state,
         messageLists: action.payload,
-        currentMessage: action.payload[0].msg_key,
+        currentMessage: action.payload[0]?.msg_key,
         page: 1,
         // * 몇개 가져왔는지 count. 만약 10개 가져왔다면 더보기 버튼 보여주고, 10개 미만일 경우 더보기 버튼을 히든 처리
         messageCounts: action.payload.length,
