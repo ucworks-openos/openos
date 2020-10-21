@@ -236,7 +236,6 @@ function FuncTestPage2() {
           </Col>
         </Row>
 
-
         {/* 대화 메세지  */}
         <Row>
           {/*   */}

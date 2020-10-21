@@ -11,11 +11,10 @@ module.exports = Object.freeze({
     ENCODE_TYPE_MOBILE      : 'MOBILE',   // 암호화 하지 않음
 
     SEP_PIPE                : '|',
-    SEP_CR                  : String.fromCharCode(13),
-    SEP_PT                  : String.fromCharCode(7),
-    SEP_DC4                 : String.fromCharCode(20),
+    SEP_CR                  : String.fromCharCode(13), // CR Carriage Return
+    SEP_PT                  : String.fromCharCode(7),  // BEL bell  
+    SEP_DC4                 : String.fromCharCode(20), // DC4 Device Control 4
     SEP_COMMA               : ',',
-
 
     DEFUALT_MAX_UNIXDATE_STRING: '9999999999999999',
     
