@@ -8,8 +8,11 @@ import Modal from "react-modal";
 import HamburgerButton from "../../common/components/HamburgerButton";
 import Node from "./FavoriteNode";
 import Tree, { TreeNode } from "rc-tree";
-import { setStatusMonitor, } from "../../common/ipcCommunication/ipcCommon";
-import { getBuddyList, getUserInfos, } from "../../common/ipcCommunication/ipcOrganization";
+import { setStatusMonitor } from "../../common/ipcCommunication/ipcCommon";
+import {
+  getBuddyList,
+  getUserInfos,
+} from "../../common/ipcCommunication/ipcOrganization";
 import useTree from "../../hooks/useTree";
 import useSearch from "../../hooks/useSearch";
 import {
@@ -23,6 +26,8 @@ import { Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/Modal/MessageInputModal";
 import ModifyGroupModal from "../../common/components/Modal/ModifyGroupModal";
+import togglePlusImg from "../../assets/images/icon_toggle_plus.png";
+import toggleMinImg from "../../assets/images/icon_toggle_min.png";
 
 type TgetBuddyTreeReturnTypes = {
   buddyTree: TTreeNode[];
@@ -568,12 +573,12 @@ export default function FavoritePage() {
         <Switcher>
           {!data?.expanded ? (
             <img
-              src="/images/icon_toggle_plus.png"
+              src={togglePlusImg}
               style={{ minWidth: `20px`, height: `21px` }}
             />
           ) : (
             <img
-              src="/images/icon_toggle_min.png"
+              src={toggleMinImg}
               style={{ minWidth: `20px`, height: `21px` }}
             />
           )}
