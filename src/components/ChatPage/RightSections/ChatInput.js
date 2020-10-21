@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addChatMessage } from "../../../redux/actions/chat_actions";
 import Alert from "react-bootstrap/Alert";
@@ -11,6 +11,7 @@ function ChatInput() {
   const [inputValue, setInputValue] = useState("");
   const [isAlreadyTyped, setIsAlreadyTyped] = useState(false);
   const [isAlreadyRoomSelected, setIsAlreadyRoomSelected] = useState(false);
+  const inputRef = useRef(null);
   const loggedInUser = useSelector((state) => state.users.loggedInUser);
   const onInputValueChange = (e) => {
     setInputValue(e.currentTarget.value);
@@ -28,6 +29,11 @@ function ChatInput() {
     const result = userSchema.map((v) => v.user_name.value).join(`, `);
     console.log(result);
     return result;
+  };
+
+  const handleFocusInput = () => {
+    console.log(`focus input!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
+    inputRef.current.focus();
   };
 
   const onSubmit = async (event) => {
@@ -96,8 +102,9 @@ function ChatInput() {
       )}
 
       <div className="chat-input-area">
-        <div className="chat-input-wrap">
+        <div className="chat-input-wrap" onClick={handleFocusInput}>
           <input
+            ref={inputRef}
             className="chat-input"
             onKeyDown={(e) => {
               e.keyCode === 13 && onSubmit();
