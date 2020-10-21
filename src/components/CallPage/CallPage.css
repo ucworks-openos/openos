@@ -155,7 +155,7 @@ header {
     width: 56px;
     height: 56px;
     display: inline-block;
-    background-image: url(/images/btn_page.png);
+    background-image: url(../../assets/images/btn_page.png);
     background-repeat: no-repeat;
     cursor: pointer;
 }
@@ -191,7 +191,7 @@ header {
     width: 80px;
     min-width: 72px;
     margin-left: auto;
-    background-image: url(/images/icon_global_search.png);
+    background-image: url(../../assets/images/icon_global_search.png);
     background-repeat: no-repeat;
     background-position: center center;
     background-color: #F59696;
@@ -211,7 +211,7 @@ header {
     width: 36px;
     height: 36px;
     margin-right: 12px;
-    background-image: url(/images/btn_sub_action.png);
+    background-image: url(../../assets/images/btn_sub_action.png);
     background-repeat: no-repeat;
     cursor: pointer;
 }
@@ -230,7 +230,7 @@ header {
     width: 36px;
     height: 36px;
     margin-right: 12px;
-    background-image: url(/images/btn_sub_action.png);
+    background-image: url(../../assets/images/btn_sub_action.png);
     background-repeat: no-repeat;
     cursor: pointer;
     background-position: 0px -72px;
@@ -241,7 +241,7 @@ header {
     width: 36px;
     height: 36px;
     margin-right: 12px;
-    background-image: url(/images/btn_sub_action.png);
+    background-image: url(../../assets/images/btn_sub_action.png);
     background-repeat: no-repeat;
     cursor: pointer;
     background-position: 0px -108px;
@@ -291,7 +291,7 @@ header {
     display: inline-block;
     width: 48px;
     height: 48px;
-    background-image: url('/images/btn_link.png');
+    background-image: url('../../assets/images/btn_link.png');
     background-repeat: no-repeat;
 }
 .go-to-survey a{background-position: 0px 0px;}
@@ -441,7 +441,7 @@ header .call-user-pic-wrap{border:0;}
     margin-right: 8px;
     width:14px;
     height: 12px;
-    background-image: url('/images/icon_current-call-user-action.png');
+    background-image: url('../../assets/images/icon_current-user-action.png');
     background-repeat: no-repeat;
 }
 .btn-edit-photo .current-call-user-action-icon{background-position: 0px 0px;}
@@ -597,7 +597,7 @@ header .call-user-pic-wrap{border:0;}
     width: 26px;
     height: 26px;
     margin-right:12px;
-    background-image: url(/images/btn_call_action.png);
+    background-image: url(../../assets/images/btn_call_action.png);
     background-repeat: no-repeat;
     cursor: pointer;
     vertical-align: middle;
@@ -670,7 +670,7 @@ header .call-user-pic-wrap{border:0;}
     width: 14px;
     height: 16px;
     display: inline-block;
-    background-image: url(/images/icon_contact.png);
+    background-image: url(../../assets/images/icon_contact.png);
     background-repeat: no-repeat;
     vertical-align: middle;
     margin-right: 8px;
@@ -729,7 +729,7 @@ header .call-user-pic-wrap{border:0;}
     width: 60px;
     height: 40px;
     background-color: #04DE71;
-    background-image: url(/images/icon_call.png);
+    background-image: url(../../assets/images/icon_call.png);
     background-repeat: no-repeat;
     background-position: center;
     cursor: pointer;
@@ -800,7 +800,7 @@ th,td {
     display: inline-block;
     width: 21px;
     height: 16px;
-    background-image: url(/images/icon_call_history.png);
+    background-image: url(../../assets/images/icon_call_history.png);
     background-repeat: no-repeat;
     vertical-align: -2px;
 }

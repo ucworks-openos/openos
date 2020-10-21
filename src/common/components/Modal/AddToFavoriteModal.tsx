@@ -15,6 +15,9 @@ import {
 } from "../../util";
 import Node from "../AddToFavoriteTreeNode";
 import moment from "moment";
+import imgHolder from "../../../assets/images/img_imgHolder.png";
+import togglePlusImg from "../../../assets/images/icon_toggle_plus.png";
+import toggleMinImg from "../../../assets/images/icon_toggle_min.png";
 
 type TaddToFavoriteModalProps = {
   selectedKeys: (string | number)[];
@@ -123,12 +126,12 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
         <Switcher>
           {!data?.expanded ? (
             <img
-              src="/images/icon_toggle_plus.png"
+              src={togglePlusImg}
               style={{ minWidth: `20px`, height: `21px` }}
             />
           ) : (
             <img
-              src="/images/icon_toggle_min.png"
+              src={toggleMinImg}
               style={{ minWidth: `20px`, height: `21px` }}
             />
           )}
@@ -162,7 +165,7 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
 
   const handleImageError = (image: any) => {
     image.target.onerror = null;
-    image.target.src = `/images/img_imgHolder.png`;
+    image.target.src = imgHolder;
   };
 
   // ANCHOR return
@@ -188,7 +191,7 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
                           src={
                             v?.userPicturePos && /^http/.test(v?.userPicturePos)
                               ? v?.userPicturePos
-                              : `/images/img_imgHolder.png`
+                              : imgHolder
                           }
                           style={{ width: `48px`, height: `48px` }}
                           alt="user-profile-picture"
