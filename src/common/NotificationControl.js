@@ -6,6 +6,7 @@ import {
 } from "../redux/actions/chat_actions";
 import { writeDebug, writeInfo, writeLog } from "./ipcCommunication/ipcLogger";
 import { addMessage, setCurrentMessage, setCurrentMessageListsType } from "../redux/actions/message_actions";
+import { ChatCommand } from "../enum/chatCommand";
 
 const electron = window.require("electron");
 
@@ -47,22 +48,44 @@ function NotificationControl() {
         electron.ipcRenderer.removeAllListeners('chatReceived');
         electron.ipcRenderer.on('chatReceived', (event, chat) => {
 
-            writeLog('------ chatReceived currentChatRoom:%s chat:%s', currentChatRoom?currentChatRoom.room_key:'', chat);
+            let selectedChatRoomKey =  sessionStorage.getItem('chatRoomKey');
+
+            writeLog('chatReceived currentChatRoom:%s chat:%s', selectedChatRoomKey, chat);
 
             // 본인이 보낸 메세지는 무시한다.
-            if (chat.sendId === sessionStorage.getItem('loginId')) return;
+            if (chat.sendId === sessionStorage.getItem('loginId')) {
+                writeLog("It's my message")
+                return;
+            } 
+            
+            switch(chat.chatCmd) {
+                case ChatCommand.CHAT_DATA_LINE: // 대화 메세지
+                
+                    if (chat.fontName.startsWith('EMOTICON')) {
+                        let emotiInfo = chat.fontName.split(String.fromCharCode(parseInt(13)));
 
-            //받은 메시지 화면에 반영해주기
-            writeLog('------ chatReceived', sessionStorage.getItem('chatRoomKey'), chat)
+                        let emotiChat = Object.create(chat);
+                        emotiChat.chatData = emotiInfo[1];
+                        dispatch(addReceivedChat(chat));
 
-            //if (sessionStorage.getItem('chatRoomKey')) { dispatch(addReceivedChat(chat)) };
-            dispatch(addReceivedChat(chat))
+                        // 이모티콘을 표출하고 메세지도 있다면 추가한다.
+                        if (chat.chatData != chat.destId) {
+                            dispatch(addReceivedChat(chat));
+                        }
+                    } else {
+                        dispatch(addReceivedChat(chat));
+                    }
 
-            console.log('selected chatRoom', sessionStorage.getItem('chatRoomKey'))
-            // 내가 대화 room_key에 해당하지 않는 페이지에 있을 때만 알림 받기
-            if (!sessionStorage.getItem('chatRoomKey') || chat.roomKey !== sessionStorage.getItem('chatRoomKey')) {
-                //알림 받기
-                showChatNoti(chat);
+                    // 내가 대화 room_key에 해당하지 않는 페이지에 있을 때만 알림 받기
+                    if (chat.roomKey !== selectedChatRoomKey) {
+                        //알림 받기
+                        showChatNoti(chat);
+                    }
+                    break;
+
+                case ChatCommand.CHAT_DATA_START_TYPE: // 메세지 입력중
+
+                    break;
             }
         });  
 

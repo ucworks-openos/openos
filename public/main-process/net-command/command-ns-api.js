@@ -488,7 +488,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, roomTitle) {
         let tmpBuf1 = adjustBufferMultiple4(concatBuf);
 
         let chatCmdBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);        // chat_cmd
-        chatCmdBuf.writeInt32LE(CmdCodes.CHAT.CHAT_DATA_LINE)
+        chatCmdBuf.writeInt32LE(CmdCodes.CHAT_DATA_LINE)
 
         let chatKeySizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);    // chatkey_size
         let chatKeyBuf = Buffer.from(roomKey + CmdConst.SEP_PIPE + idDatas);
@@ -587,7 +587,7 @@ function reqExitChatRoom(roomKey, userIds) {
         let tmpBuf1 = adjustBufferMultiple4(concatBuf);
 
         let chatCmdBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);        // chat_cmd
-        chatCmdBuf.writeInt32LE(CmdCodes.CAHT.CHAT_DEL_USER)
+        chatCmdBuf.writeInt32LE(CmdCodes.CHAT_DEL_USER)
 
         let chatKeySizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);    // chatkey_size
         let chatKeyBuf = Buffer.from(roomKey + CmdConst.SEP_PIPE + idDatas);
@@ -629,7 +629,7 @@ function reqChangeChatRoomName(roomKey, roomName, userIds) {
         
         // chat_cmd
         let chatCmdBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);        
-        chatCmdBuf.writeInt32LE(CmdCodes.CAHT.CHAT_CHANGE_TITLE)
+        chatCmdBuf.writeInt32LE(CmdCodes.CHAT_CHANGE_TITLE)
 
         // chatdata_size
         let chatDataSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);   
@@ -735,7 +735,7 @@ function reqInviteChatUser(roomKey, newRoomName, asIsUserIds, newUserIds) {
 
         // Chat Command
         let chatCmdBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);        // chat_cmd
-        chatCmdBuf.writeInt32LE(CmdCodes.CAHT.CHAT_ADD_USER)
+        chatCmdBuf.writeInt32LE(CmdCodes.CHAT_ADD_USER)
 
         // Chat Data
         let chatDataSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);   // chatdata_size

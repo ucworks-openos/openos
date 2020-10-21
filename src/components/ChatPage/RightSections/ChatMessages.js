@@ -25,12 +25,6 @@ function ChatMessages() {
     }
   }, [messagesEndRef, chatMessages]);
 
-  // useEffect(() => {
-  //     (chatMessages &&
-  //         getChatMessagesWithUserInfos()
-  //     )
-  // }, [chatMessages])
-
   useEffect(() => {
     if (currentChatRoom) {
       //새로 만든 채팅방(전 데이터가 데이테베이스에 없는)은 아직 데이터베이스에서 없기 때문에
@@ -51,22 +45,10 @@ function ChatMessages() {
     }
   }, [currentChatRoom]);
 
-  // const getChatMessagesWithUserInfos = async () => {
-  //     let newChatMessages = [];
-  //     for (let index = 0; index < chatMessages.length; index++) {
-  //         const element = chatMessages[index];
-  //         // let userInfoResult = await getUserInfos([element.chat_send_id])
-  //         // winston.info('userInfoResult.data.items', userInfoResult)
-  //         // element.userInfo = userInfoResult.data.items !== undefined ? userInfoResult.data.items.node_item : userInfoResult
-  //         newChatMessages.push(element)
-  //     }
-  //     setChatMessagesWithUserInfos(newChatMessages)
-  // }
-
   const renderChatMessages = () =>
     chatMessages &&
     chatMessages.map((chat, index) => {
-      // winston.info('chat', chat)
+      
       if (chat.chat_send_id === `${sessionStorage.getItem("loginId")}`) {
         return (
           <div key={index} className="speech-row speech-my">
@@ -78,7 +60,7 @@ function ChatMessages() {
                   <span className="time">
                     {" "}
                     {moment(chat.chat_send_date, "YYYYMMDDHHmm").format(
-                      "YYYY년 M월 D일 H시 m분"
+                      "HH:mm"
                     )}
                   </span>
                 </div>
@@ -108,7 +90,7 @@ function ChatMessages() {
                   <span className="unread-ppl read-all">{chat.read_count}</span>
                   <span className="time">
                     {moment(chat.chat_send_date, "YYYYMMDDHHmm").format(
-                      "YYYY년 M월 D일 H시 m분"
+                      "HH:mm"
                     )}
                   </span>
                 </div>
@@ -118,9 +100,11 @@ function ChatMessages() {
         );
       }
     });
+
   {
     console.log("chatMessages", chatMessages);
   }
+
   if (chatMessages) {
     return (
       <div className="chat-area">
