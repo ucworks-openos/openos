@@ -63,9 +63,9 @@ function MessageInputModal(props) {
 
     // SearchUser
     const handleSearchUser = async (e) => {
+        if (!searchText) return false;
         let result = await searchUsers(searchMode, searchText)
         let isAlreadySelectedUser;
-        setSearchText('')
         //검색으로 나온 유저가 없을 때
         if (result.data.root_node !== "") {
             let searchedUsers = result.data.root_node.node_item
