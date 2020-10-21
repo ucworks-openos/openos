@@ -517,7 +517,6 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, roomTitle) {
  * @param {String} roomKey 
  * @param {CHAT_ROOM_TYPE} roomType 
  */
-//function reqExitChatRoom(roomKey, roomType) {
 function reqExitChatRoom(roomKey, userIds) {
     return new Promise(async function(resolve, reject) {
 
@@ -538,7 +537,7 @@ function reqExitChatRoom(roomKey, userIds) {
 
         // roomType
         let roomTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
-        //roomTypeBuf.writeInt32LE(roomType);
+        roomTypeBuf.writeInt32LE(userIds.length>1?CHAT_ROOM_TYPE.MULTI:CHAT_ROOM_TYPE.SINGLE);
 
         let lineKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         //lineKeyBuf.write(lineKey, global.ENC);
@@ -625,10 +624,20 @@ function reqChangeChatRoomName(roomKey, roomName, userIds) {
             return;
         }
 
-        /*********************** */
-
+        /** REQ REAL DATA */
         let idDatas = userIds.join(CmdConst.SEP_PIPE);
+        
+        // chat_cmd
+        let chatCmdBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);        
+        chatCmdBuf.writeInt32LE(CmdCodes.CHAT_CHANGE_TITLE)
 
+        // chatdata_size
+        let chatDataSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);   
+        let chatDataBuf = Buffer.from(roomName);
+        chatDataSizeBuf.writeInt32LE(chatDataBuf.length);
+
+
+        /** REQ DEFAULT DATA */
         // roomKey
         let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         roomKeyBuf.write(roomKey, global.ENC);
@@ -637,7 +646,113 @@ function reqChangeChatRoomName(roomKey, roomName, userIds) {
 
         // roomType
         let roomTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
-        //roomTypeBuf.writeInt32LE(roomType);
+        roomTypeBuf.writeInt32LE(userIds.length>1?CHAT_ROOM_TYPE.MULTI:CHAT_ROOM_TYPE.SINGLE);
+
+        let lineKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
+        lineKeyBuf = adjustBufferMultiple4(lineKeyBuf);
+
+        let lineNumberBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        lineNumberBuf.writeInt32LE(0);
+
+        let unreadCountBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        unreadCountBuf.writeInt32LE(0);
+
+        let sendDate = OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
+        let sendDateBuf = Buffer.alloc(CmdConst.BUF_LEN_DATE);
+        //sendDateBuf.write(sendDate, global.ENC);
+        let ipBuf = Buffer.alloc(CmdConst.BUF_LEN_IP);
+
+        // Multiple4Size
+        let multiple4Length = getMultiple4Size(CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP);
+        let bufLen = CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP;
+        ipBuf = Buffer.concat([ipBuf, Buffer.alloc(multiple4Length - bufLen)])
+        winston.info('sendDate + IP', sendDate, ipBuf.length-CmdConst.BUF_LEN_IP)
+
+        let portBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+
+        //font_info
+        let fontSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);       // fontsize
+        let fontStyleBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);      // TFontStyles; ??
+        let fontColorBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);      // TColor; ??
+
+        let fontName = '맑은고딕';
+        let fontNameBuf = Buffer.alloc(CmdConst.BUF_LEN_FONTNAME); //fontName
+        fontNameBuf.write(fontName, global.ENC);
+        fontNameBuf = adjustBufferMultiple4(fontNameBuf)
+        winston.info('fontName', fontName, fontNameBuf.length)
+
+        let sendIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
+        sendIdBuf.write(global.USER.userId, global.ENC);
+
+        let sendNameBuf = Buffer.alloc(CmdConst.BUF_LEN_USERNAME);
+        sendNameBuf.write(global.USER.userName, global.ENC);
+
+        let encryptKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_ENCRYPT);
+        
+        let concatBuf = Buffer.concat([sendIdBuf, sendNameBuf, encryptKeyBuf])
+        let tmpBuf1 = adjustBufferMultiple4(concatBuf);
+
+        let chatKeySizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);    // chatkey_size
+        let chatKeyBuf = Buffer.from(roomKey + CmdConst.SEP_PIPE + idDatas);
+        chatKeySizeBuf.writeInt32LE(chatKeyBuf.length);
+
+        let destIdSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);     // destid_size
+        let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_CR);
+        destIdSizeBuf.writeInt32LE(destIdBuf.length);
+
+        var dataBuf = Buffer.concat([roomKeyBuf,roomTypeBuf,lineKeyBuf,lineNumberBuf,lineNumberBuf,sendDateBuf,ipBuf,portBuf,
+                    fontSizeBuf,fontStyleBuf,fontColorBuf,fontNameBuf,
+                    tmpBuf1, //sendIdBuf,sendNameBuf,encryptKeyBuf,
+                    chatCmdBuf, chatKeySizeBuf,chatDataSizeBuf,destIdSizeBuf, 
+                    chatKeyBuf,chatDataBuf,destIdBuf]);
+
+        nsCore.writeCommandNS(new CommandHeader(CmdCodes.SB_CHAT_USER_CHANGE, 0), dataBuf);
+    });
+}
+
+/**
+ * 대화상대 참여
+ * @param {String} roomKey 
+ * @param {String} newRoomName 
+ * @param {Array} asIsUserIds 
+ * @param {Array} newUserIds 
+ */
+function reqInviteChatUser(roomKey, newRoomName, asIsUserIds, newUserIds) {
+    return new Promise(async function(resolve, reject) {
+
+        if (!global.SERVER_INFO.NS.isConnected) {
+            reject(new Error('NS IS NOT CONNECTED!'));
+            return;
+        }
+
+        /** REQ REAL DATA */
+        //전체 참여자ID + CR_SEP + 대화방 이름 + CR_SEP + 채팅방 추가 참여자ID를 넣는다.
+        let userIds = Array.concat(asIsUserIds, newUserIds);
+        let idDatas = userIds.join(CmdConst.SEP_PIPE);
+        let inviteData = idDatas
+            + CmdConst.SEP_CR + newRoomName 
+            + CmdConst.SEP_CR + newUserIds.join(CmdConst.SEP_PIPE);
+
+        // Chat Command
+        let chatCmdBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);        // chat_cmd
+        chatCmdBuf.writeInt32LE(CmdCodes.CHAT_ADD_USER)
+
+        // Chat Data
+        let chatDataSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);   // chatdata_size
+        let chatDataBuf = Buffer.from(inviteData);
+        chatDataSizeBuf.writeInt32LE(chatDataBuf.length);
+
+
+        /** REQ DEFAULT DATA */
+        // roomKey
+        let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
+        roomKeyBuf.write(roomKey, global.ENC);
+        roomKeyBuf = adjustBufferMultiple4(roomKeyBuf);
+        winston.info('roomKey', roomKey , roomKeyBuf.length);
+
+        // roomType
+        let roomTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+        roomTypeBuf.writeInt32LE(userIds.length>1?CHAT_ROOM_TYPE.MULTI:CHAT_ROOM_TYPE.SINGLE);
 
         let lineKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         //lineKeyBuf.write(lineKey, global.ENC);
@@ -673,7 +788,6 @@ function reqChangeChatRoomName(roomKey, roomName, userIds) {
         fontNameBuf = adjustBufferMultiple4(fontNameBuf)
         winston.info('fontName', fontName, fontNameBuf.length)
 
-
         let sendIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
         sendIdBuf.write(global.USER.userId, global.ENC);
 
@@ -681,21 +795,13 @@ function reqChangeChatRoomName(roomKey, roomName, userIds) {
         sendNameBuf.write(global.USER.userName, global.ENC);
 
         let encryptKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_ENCRYPT);
-        //encryptKeyBuf.write(encData.encKey, global.ENC);
         
         let concatBuf = Buffer.concat([sendIdBuf, sendNameBuf, encryptKeyBuf])
         let tmpBuf1 = adjustBufferMultiple4(concatBuf);
 
-        let chatCmdBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);        // chat_cmd
-        chatCmdBuf.writeInt32LE(CmdCodes.CHAT_CHANGE_TITLE)
-
         let chatKeySizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);    // chatkey_size
         let chatKeyBuf = Buffer.from(roomKey + CmdConst.SEP_PIPE + idDatas);
         chatKeySizeBuf.writeInt32LE(chatKeyBuf.length);
-
-        let chatDataSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);   // chatdata_size
-        let chatDataBuf = Buffer.from(roomName);
-        chatDataSizeBuf.writeInt32LE(chatDataBuf.length);
 
         let destIdSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);     // destid_size
         let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_CR);
@@ -737,7 +843,6 @@ function reqUpdateMyAlias(myAlias) {
         }), dataBuf);
     });
 }
-
 
 /**
  * 나의 대화명을 입력합니다.
@@ -781,7 +886,9 @@ module.exports = {
     reqChatLineKey: reqChatLineKey,
     reqSendChatMessage: reqSendChatMessage,
     reqExitChatRoom: reqExitChatRoom,
+    reqChangeChatRoomName: reqChangeChatRoomName,
     reqUpdateMyAlias: reqUpdateMyAlias,
+    reqInviteChatUser: reqInviteChatUser,
     reqIpPhone: reqIpPhone,
     close: close,
 }

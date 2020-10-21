@@ -68,7 +68,7 @@ function ChatMessages() {
                                 </div>
                                 <div className="speech-info">
                                     <span className="unread-ppl">{chat.read_count}</span>
-                                    <span className="time">  {moment(chat.chat_send_date, "YYYYMMDDHHmm").format("YYYY년 M월 D일 H시 m분")}</span>
+                                    <span className="time">  {moment(chat.chat_send_date, "YYYYMMDDHHmm").format("hh:mm")}</span>
                                 </div>
                             </div>
                         </div>
@@ -93,7 +93,7 @@ function ChatMessages() {
                                 <div className="speech-info">
                                     <span className="unread-ppl read-all">{chat.read_count}</span>
                                     <span className="time">
-                                        {moment(chat.chat_send_date, "YYYYMMDDHHmm").format("YYYY년 M월 D일 H시 m분")}
+                                        {moment(chat.chat_send_date, "YYYYMMDDHHmm").format("HH:mm")}
                                     </span>
                                 </div>
                             </div>
