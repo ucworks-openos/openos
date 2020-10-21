@@ -349,8 +349,10 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   // Create Main Window
   mainWindow = new BrowserWindow({
     show: false,
-    width: 800,
-    height: 750,
+    width: 950,
+    height: 650,
+    minWidth: 950,
+    minHeight: 650,
     webPreferences: { nodeIntegration: true },
     icon: iconPath,
     ... {},
