@@ -55,7 +55,7 @@ function MessagesLists() {
                         </div>
                         <div className="list-row 2">
                             <div className="message-summary">
-                                {message.msg_subject}&nbsp;
+                                <div dangerouslySetInnerHTML={{ __html: message.msg_subject }} />
                             </div>
                         </div>
                         <div className="list-row 3">
