@@ -69,13 +69,16 @@ export default function (state = {}, action) {
       let lineKey = newMessage.lineKey;
       let destId = newMessage.destId;
       let userIdArray = destId.split("|");
+      let fontName = newMessage.fontName;
       let chatData = newMessage.chatData;
       let unreadCount = newMessage.unreadCount;
+
       const chatRoom = {
         selected_users: userIdArray,
         user_counts: userIdArray.length,
         chat_entry_ids: destId,
         unread_count: 0,
+        chat_font_name: fontName,
         chat_contents: chatData,
         chat_send_name: sendName,
         create_room_date: sendDate,
@@ -86,6 +89,7 @@ export default function (state = {}, action) {
 
       let chatMessageBody = {
         chat_contents: chatData,
+        chat_font_name: fontName,
         chat_send_name: sendName,
         chat_send_date: sendDate,
         read_count: unreadCount,

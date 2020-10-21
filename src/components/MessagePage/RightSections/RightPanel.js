@@ -69,7 +69,7 @@ function RightPanel() {
     <main className="message-main-wrap">
       <div className="message-title-wrap">
         <h4 className="message-title-single">
-          {message && message.msg_subject}
+          <div dangerouslySetInnerHTML={{ __html: message && message.msg_subject }} />
         </h4>
         <div className="message-action-wrap">
           <div

@@ -6,13 +6,14 @@ import {
 } from '../../../redux/actions/message_actions';
 // import ReactSelect from '../../../common/components/Select/ReactSelect';
 // import { userLists } from '../../../redux/mock-datas/user-lists';
+import { writeDebug, writeLog } from '../../../common/ipcCommunication/ipcLogger'
 import { getUserInfos, searchUsers } from '../../../common/ipcCommunication/ipcOrganization'
 import './MessageInputModal.css';
 import Alert from 'react-bootstrap/Alert'
 import { arrayLike } from '../../util';
 import { sendMessage } from '../../ipcCommunication/ipcMessage';
-import { writeLog } from '../../ipcCommunication/ipcLogger';
 import styled from 'styled-components';
+import winston from 'winston/lib/winston/config';
 
 function MessageInputModal(props) {
     const dispatch = useDispatch();
@@ -129,15 +130,16 @@ const initiate = () => {
             }, 2000)
             return;
         }
-
+        
         let tmpTitle = title;
         writeLog('tmpTitle', tmpTitle.trim().length);
 
         if (tmpTitle.trim().length === 0) {
+            tmpTitle = content.replace(/<[^>]+>/g, '');
+            writeDebug('message title', tmpTitle);
 
-            tmpTitle = content.substring(3, content.length - 4)
             if (tmpTitle.length > 20) {
-                tmpTitle = tmpTitle.substring(0, 20);
+                tmpTitle = tmpTitle.substring(0, 20) + '...';
             } 
 
             setTitle(tmpTitle);
