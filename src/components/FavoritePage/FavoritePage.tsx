@@ -20,6 +20,7 @@ import {
   convertToUser,
   find,
   getRandomNumber,
+  messageInputModalStyle,
   syncronize,
 } from "../../common/util";
 import { Efavorite, EnodeGubun } from "../../enum";
@@ -920,7 +921,7 @@ export default function FavoritePage() {
         onRequestClose={() => {
           setMessageModalVisible(false);
         }}
-        style={commonModalStyles}
+        style={messageInputModalStyle}
       >
         <MessageInputModal
           closeModalFunction={() => {
