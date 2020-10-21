@@ -7,6 +7,8 @@ import useConfig from "../../hooks/useConfig";
 import { makeCall } from "../../common/ipcCommunication/ipcIpPhone";
 import { writeWarn } from "../../common/ipcCommunication/ipcLogger";
 
+import imgHolder from "../../assets/images/img_imgHolder.png";
+
 type TOrganizationNodeProps = {
   data: TTreeNode;
   index: number;
@@ -83,7 +85,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
 
   const handleImageError = (image: any) => {
     image.target.onerror = null;
-    image.target.src = `./images/img_imgHolder.png`;
+    image.target.src = imgHolder;
   };
 
   const handleDetailToggle = (e: any) => {
@@ -105,11 +107,11 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
    */
   const handleMaleCall = () => {
     if (data && data.userTelIpphone) {
-      makeCall(data?.userTelIpphone)
+      makeCall(data?.userTelIpphone);
     } else {
-      writeWarn('make call fail! dest is empty!', data);
+      writeWarn("make call fail! dest is empty!", data);
     }
-  }
+  };
 
   return (
     <>
@@ -130,7 +132,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
                 src={
                   data?.userPicturePos && /^http/.test(data?.userPicturePos)
                     ? data?.userPicturePos
-                    : `/images/img_imgHolder.png`
+                    : imgHolder
                 }
                 style={{ width: `48px`, height: `48px` }}
                 alt="user-profile-picture"
@@ -152,7 +154,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
                           data?.userPicturePos &&
                           /^http/.test(data?.userPicturePos)
                             ? data?.userPicturePos
-                            : `/images/img_imgHolder.png`
+                            : imgHolder
                         }
                         alt="user-profile-picture"
                         style={{ width: `48px`, height: `48px` }}

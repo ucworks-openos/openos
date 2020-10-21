@@ -12,6 +12,7 @@ import { writeWarn } from "../../common/ipcCommunication/ipcLogger";
 import { arrayLike } from "../../common/util";
 import { EconnectType, EnodeGubun, EuserState } from "../../enum";
 import useConfig from "../../hooks/useConfig";
+import imgHolder from "../../assets/images/img_imgHolder.png";
 
 type TFavoriteNodeProps = {
   data: TTreeNode;
@@ -89,11 +90,11 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
    */
   const handleMaleCall = () => {
     if (data && data.userTelOffice) {
-      makeCall(data?.userTelOffice)
+      makeCall(data?.userTelOffice);
     } else {
-      writeWarn('make call fail! dest is empty!', data);
+      writeWarn("make call fail! dest is empty!", data);
     }
-  }
+  };
 
   const handleChat = () => {
     window.location.hash = `#/chat_from_organization/${data?.userId}`;
@@ -115,7 +116,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
 
   const handleImageError = (image: any) => {
     image.target.onerror = null;
-    image.target.src = `./images/img_imgHolder.png`;
+    image.target.src = imgHolder;
   };
 
   return (
@@ -137,7 +138,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
                 src={
                   data?.userPicturePos && /^http/.test(data?.userPicturePos)
                     ? data?.userPicturePos
-                    : `/images/img_imgHolder.png`
+                    : imgHolder
                 }
                 style={{ width: `48px`, height: `48px` }}
                 alt="user-profile-picture"
@@ -159,7 +160,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
                           data?.userPicturePos &&
                           /^http/.test(data?.userPicturePos)
                             ? data?.userPicturePos
-                            : `/images/img_imgHolder.png`
+                            : imgHolder
                         }
                         style={{ width: `48px`, height: `48px` }}
                         alt="user-profile-picture"
@@ -255,10 +256,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
               className="btn-quick message"
               onClick={handleMessageModal}
             ></div>
-            <div 
-              className="btn-quick call"
-              onClick={handleMaleCall}
-            ></div>
+            <div className="btn-quick call" onClick={handleMaleCall}></div>
           </div>
         </UserRow>
       )}

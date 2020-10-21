@@ -3,6 +3,9 @@ import useConfig from "../../../hooks/useConfig";
 import { login } from "../../ipcCommunication/ipcCommon";
 import { mapEnum } from "../../util";
 import "./SettingModal.css";
+import userThumbnailImg from "../../../assets/images/img_user-thumbnail.png";
+import themeDefaultImg from "../../../assets/images/theme-default.png";
+import themeDarkImg from "../../../assets/images/theme-dark.png";
 
 type TsettingModalProps = {
   closeModalFunction: () => void;
@@ -237,7 +240,7 @@ export default function SettingModal(props: TsettingModalProps) {
             <div className="setting-con-row theme">
               <div className="setting-con-option">
                 <img
-                  src="/images/theme-default.png"
+                  src={themeDefaultImg}
                   className="img-theme-label"
                   title="기본"
                 />
@@ -257,7 +260,7 @@ export default function SettingModal(props: TsettingModalProps) {
 
               <div className="setting-con-option">
                 <img
-                  src="/images/theme-dark.png"
+                  src={themeDarkImg}
                   className="img-theme-label"
                   title="어둡게"
                 />
@@ -435,7 +438,7 @@ export default function SettingModal(props: TsettingModalProps) {
             <div className="setting-con-row user-pic-area">
               <div className="user-pic-wrap">
                 <img
-                  src="img/img_user-thumbnail.png"
+                  src={userThumbnailImg}
                   alt="user-profile-picture"
                 />
               </div>
