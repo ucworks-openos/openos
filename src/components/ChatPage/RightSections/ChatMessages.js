@@ -45,60 +45,140 @@ function ChatMessages() {
     }
   }, [currentChatRoom]);
 
-  const renderChatMessages = () =>
+
+const renderChatMessages = () =>
     chatMessages &&
     chatMessages.map((chat, index) => {
-      
-      if (chat.chat_send_id === `${sessionStorage.getItem("loginId")}`) {
-        return (
-          <div key={index} className="speech-row speech-my">
-            <div className="speach-content-wrap">
-              <div className="speech-inner-wrap">
-                <div className="speech-content">{chat.chat_contents}</div>
-                <div className="speech-info">
-                  <span className="unread-ppl">{chat.read_count}</span>
-                  <span className="time">
-                    {" "}
-                    {moment(chat.chat_send_date, "YYYYMMDDHHmm").format(
-                      "HH:mm"
-                    )}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      } else {
-        return (
-          <div className="speech-row speech-others" key={index}>
-            <div className="user-pic-wrap">
-              <img
-                src={
-                  chat.user_picture_pos &&
-                  /^http/.test(chat.user_picture_pos.value)
-                    ? chat.user_picture_pos.value
-                    : imgHolder
-                }
-                alt="user-profile-picture"
-              />
-            </div>
-            <div className="speach-content-wrap">
-              <div className="speaker-info-wrap">{chat.chat_send_name}</div>
-              <div className="speech-inner-wrap">
-                <div className="speech-content">{chat.chat_contents}</div>
-                <div className="speech-info">
-                  <span className="unread-ppl read-all">{chat.read_count}</span>
-                  <span className="time">
-                    {moment(chat.chat_send_date, "YYYYMMDDHHmm").format(
-                      "HH:mm"
-                    )}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
+
+      /**
+       * 이모티콘 정보는 fontName에 있으며 chatData(contents)도 포함되는 경우도 있다. (chatData: 'bslee|kitt1' : 참여자 아이디가 들어 있음)
+       *   fontName: 'EMOTICON \r tab_02 \r 3.gif\r맑은 고딕 Semilight'
+       */
+
+      let hasMessage = true;
+      let hasEmoticon = chat.chat_font_name.startsWith('EMOTICON');
+      let emoName = '';
+      let emoTab = '';
+      if (hasEmoticon) {
+        let emotiInfo = chat.chat_font_name.split(String.fromCharCode(parseInt(13)));
+        emoTab = emotiInfo[1]
+        emoName = emotiInfo[2];
+        hasMessage = (chat.chat_contents?.trim().length > 0) && (chat.chat_contents !== chat.chat_entry_ids)
       }
+
+      let emoticon;
+      let message;
+
+
+      if (chat.chat_send_id === `${sessionStorage.getItem("loginId")}`) {
+
+        if (hasEmoticon) {
+          emoticon = (<div key={index} className="speech-row speech-my">
+                        <div className="speach-content-wrap">
+                          <div className="speech-inner-wrap">
+                            <img src={`./Emoticons/${emoTab}/${emoName}`} style={{ width: 110, height: 110 }} alt={`./Emoticons/${emoTab}/${emoName}`} loading="lazy"/>
+                            <div className="speech-info">
+                              <span className="unread-ppl">{chat.read_count}</span>
+                              <span className="time">
+                                {" "}
+                                {moment(chat.chat_send_date, "YYYYMMDDHHmm").format(
+                                  "HH:mm"
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>)
+                    }
+  
+        if (hasMessage) {
+          message = (<div key={index} className="speech-row speech-my">
+                      <div className="speach-content-wrap">
+                        <div className="speech-inner-wrap">
+                          <div className="speech-content">{chat.chat_contents}</div>
+                          <div className="speech-info">
+                            <span className="unread-ppl">{chat.read_count}</span>
+                            <span className="time">
+                              {" "}
+                              {moment(chat.chat_send_date, "YYYYMMDDHHmm").format(
+                                "HH:mm"
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>)
+        }
+
+      } else {
+
+        if (hasEmoticon) {
+          emoticon = (<div className="speech-row speech-others" key={`${index}_emo`}>
+                        <div className="user-pic-wrap">
+                          <img
+                            src={
+                              chat.user_picture_pos &&
+                              /^http/.test(chat.user_picture_pos.value)
+                                ? chat.user_picture_pos.value
+                                : imgHolder
+                            }
+                            alt="user-profile-picture"
+                          />
+                        </div>
+                        <div className="speach-content-wrap">
+                          <div className="speaker-info-wrap">{chat.chat_send_name}</div>
+                          <div className="speech-inner-wrap">
+                            <img src={`./Emoticons/${emoTab}/${emoName}`} style={{ width: 110, height: 110 }} alt={`./Emoticons/${emoTab}/${emoName}`} loading="lazy"/>
+                            <div className="speech-info">
+                              <span className="unread-ppl read-all">{chat.read_count}</span>
+                              <span className="time">
+                                {moment(chat.chat_send_date, "YYYYMMDDHHmm").format(
+                                  "HH:mm"
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>)
+                    }
+  
+        if (hasMessage) {
+          message = (<div className="speech-row speech-others" key={index}>
+                      <div className="user-pic-wrap">
+                        <img
+                          src={
+                            chat.user_picture_pos &&
+                            /^http/.test(chat.user_picture_pos.value)
+                              ? chat.user_picture_pos.value
+                              : imgHolder
+                          }
+                          alt="user-profile-picture"
+                        />
+                      </div>
+                      <div className="speach-content-wrap">
+                        <div className="speaker-info-wrap">{chat.chat_send_name}</div>
+                        <div className="speech-inner-wrap">
+                          <div className="speech-content">{chat.chat_contents}</div>
+                          <div className="speech-info">
+                            <span className="unread-ppl read-all">{chat.read_count}</span>
+                            <span className="time">
+                              {moment(chat.chat_send_date, "YYYYMMDDHHmm").format(
+                                "HH:mm"
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>)
+        }
+      }
+
+      return (
+        <div>
+          { emoticon }
+          { message }
+        </div>
+      );
     });
 
   {

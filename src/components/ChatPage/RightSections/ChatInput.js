@@ -4,6 +4,8 @@ import { addChatMessage } from "../../../redux/actions/chat_actions";
 import Alert from "react-bootstrap/Alert";
 import { getUserInfos } from "../../../common/ipcCommunication/ipcOrganization";
 import { arrayLike } from "../../../common/util";
+import EmojiPicker from "emoji-picker-react";
+import Modal from "react-modal";
 
 function ChatInput() {
   const dispatch = useDispatch();
@@ -11,6 +13,8 @@ function ChatInput() {
   const [inputValue, setInputValue] = useState("");
   const [isAlreadyTyped, setIsAlreadyTyped] = useState(false);
   const [isAlreadyRoomSelected, setIsAlreadyRoomSelected] = useState(false);
+  const [emojiPickerModalVisible, setEmojiPickerModalVisible] = useState(false);
+
   const inputRef = useRef(null);
   const loggedInUser = useSelector((state) => state.users.loggedInUser);
   const onInputValueChange = (e) => {
@@ -35,6 +39,15 @@ function ChatInput() {
     console.log(`focus input!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
     inputRef.current.focus();
   };
+
+  const handleEmojiPick = () => {
+    setEmojiPickerModalVisible(!emojiPickerModalVisible)
+  }
+
+  const handleEmojiClick = (event, emojiObject) => {
+    console.log(emojiObject.emoji);
+    setInputValue(inputValue + emojiObject.emoji);
+  }
 
   const onSubmit = async (event) => {
     let userNames;
@@ -124,12 +137,21 @@ function ChatInput() {
         </div>
 
         <div className="input-action-wrap">
+        <Modal isOpen={emojiPickerModalVisible} style={commonModalStyles} 
+          onRequestClose={() => {
+            setEmojiPickerModalVisible(false);
+          }}
+        >
+          <EmojiPicker onEmojiClick={handleEmojiClick} />
+          <div onClick = {() => {setEmojiPickerModalVisible(false);}} >X</div>
+        </Modal>
+
           <div
             className="input-action btn-txt"
             title="텍스트 (글꼴, 크기, 색상,표)"
           ></div>
           <div className="input-action btn-emoticon" title="이모티콘"></div>
-          <div className="input-action btn-emoji" title="이모지"></div>
+          <div className="input-action btn-emoji" title="이모지" onClick={handleEmojiPick} ></div>
           <div className="input-action btn-add-file" title="파일전송"></div>
           <div className="input-action btn-call" title="통화"></div>
           <div className="input-action btn-remote" title="원격제어"></div>
@@ -148,5 +170,17 @@ function ChatInput() {
     </>
   );
 }
+
+const commonModalStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+  },
+  overlay: { zIndex: 1000 },
+};
 
 export default ChatInput;

@@ -61,20 +61,7 @@ function NotificationControl() {
             switch(chat.chatCmd) {
                 case ChatCommand.CHAT_DATA_LINE: // 대화 메세지
                 
-                    if (chat.fontName.startsWith('EMOTICON')) {
-                        let emotiInfo = chat.fontName.split(String.fromCharCode(parseInt(13)));
-
-                        let emotiChat = Object.create(chat);
-                        emotiChat.chatData = emotiInfo[1];
-                        dispatch(addReceivedChat(chat));
-
-                        // 이모티콘을 표출하고 메세지도 있다면 추가한다.
-                        if (chat.chatData != chat.destId) {
-                            dispatch(addReceivedChat(chat));
-                        }
-                    } else {
-                        dispatch(addReceivedChat(chat));
-                    }
+                    dispatch(addReceivedChat(chat));
 
                     // 내가 대화 room_key에 해당하지 않는 페이지에 있을 때만 알림 받기
                     if (chat.roomKey !== selectedChatRoomKey) {

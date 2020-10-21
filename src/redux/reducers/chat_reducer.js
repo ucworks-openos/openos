@@ -89,6 +89,7 @@ export default function (state = {}, action) {
 
       let chatMessageBody = {
         chat_contents: chatData,
+        chat_font_name: fontName,
         chat_send_name: sendName,
         chat_send_date: sendDate,
         read_count: unreadCount,

@@ -105,6 +105,7 @@ export function addChatMessage(
   let request = {
     chat_contents: chatMessage,
     chat_send_name: senderName,
+    chat_font_name: '',
     chat_send_date: moment().format("YYYYMMDDHHmm"),
     read_count: 0,
     chat_send_id: senderId,
