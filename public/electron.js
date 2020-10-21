@@ -275,7 +275,7 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   winston.info('==================================================================')
   winston.info('== UCM MESSENGER START')
   winston.info('==')
-  winston.info('== IsDevMode:%s', isDev);
+  winston.info('== IsDevMode:%s', global.IS_DEV);
   winston.info('== LOCAL_IP:%s  MAC_ADDRESS:%s', OsUtil.getIpAddress(), await OsUtil.getMacAddress());
   winston.info('== PLATFORM:%s OS:%s VERSION:%s  USERNAME:%s', global.MY_PLATFORM, getOsInfo(), process.getSystemVersion(), process.env.USERNAME);
   winston.info('== COMPUTERNAME:%s USERDOMAIN:%s LANG:%s', process.env.COMPUTERNAME, process.env.USERDOMAIN, process.env.LANG);
