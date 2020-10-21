@@ -151,12 +151,16 @@ module.exports = Object.freeze({
     // 채팅구분
     CHAT_DATA_BASE               : CHAT_DATA_BASE, // 15000
     CHAT_DATA_LINE               : 0,
+    CHAT_ADD_USER                : CHAT_DATA_BASE + 1,
+    CHAT_DEL_USER                : CHAT_DATA_BASE + 2,
     CHAT_DATA_READ_OK            : CHAT_DATA_BASE + 31,
     CHAT_DATA_INVITE_OK          : CHAT_DATA_BASE + 32,
     CHAT_RECV_FILE               : CHAT_DATA_BASE + 35,
     CHAT_SEND_FILE               : CHAT_DATA_BASE + 36,
+    CHAT_CHANGE_TITLE            : CHAT_DATA_BASE + 37,
 
-
+    //
+    // FS COMMAND
     FS_BASE                      : FS_BASE, 
     FS_SERVER_BUSY               : FS_BASE + 999,
     FS_LOGINREADY                : FS_BASE + 1,
@@ -176,6 +180,7 @@ module.exports = Object.freeze({
     FS_PUT_UPGRADE_DATA          : FS_BASE + 14,
     FS_NO_KEY_HEADER             : FS_BASE + 20,
     FS_ERROR                     : FS_BASE + 21,
+    // FS COMMAND
 
 
 

@@ -72,45 +72,29 @@ const mainContextMenu = Menu.buildFromTemplate([
 // Tray Context Menu
 const trayContextMenu = Menu.buildFromTemplate([
   {
-    label: 'Window',
-    submenu: [
-      {
-        label: 'Exit',
-        click: async () => {
-          mainWindow.destroy(-1);
-        }
-      },
-      {
-        label: 'Logout',
-        click: async () => {
-          logout();
-        }
-      },
-      {
-        label: 'Show',
-        click: async () => {
-          mainWindow.show()
-        }
-      },
-      {
-        label: 'Hide',
-        click: async () => {
-          mainWindow.hide()
-        }
-      }
-    ]
+   
+    label: 'Exit',
+    click: async () => {
+      mainWindow.destroy(-1);
+    }
   },
   {
-    role: 'help',
-    submenu: [
-      {
-        label: 'Learn More',
-        click: async () => {
-          const { shell } = require('electron')
-          await shell.openExternal('https://electronjs.org')
-        }
-      }
-    ]
+    label: 'Logout',
+    click: async () => {
+      logout();
+    }
+  },
+  {
+    label: 'Show',
+    click: async () => {
+      mainWindow.show()
+    }
+  },
+  {
+    label: 'Hide',
+    click: async () => {
+      mainWindow.hide()
+    }
   }
 ]);
 
@@ -352,15 +336,12 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
     tray = new Tray(iconPath);
     tray.setToolTip('uc Messenger Application ');
     tray.setContextMenu(trayContextMenu);
+    tray.on('double-click', () => {
+      mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
+    })
   } catch(err) {
     winston.error('Tray Icon CreateFail! ', iconPath);
   }
-
-  
-
-  // tray.on('click', () => {
-  //   mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
-  // })
 
   // config file load
   readConfig();

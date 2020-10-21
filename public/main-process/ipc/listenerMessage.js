@@ -155,13 +155,41 @@ ipcMain.on('getChatList', async (event, roomId, lastLineKey = '9999999999999999'
 /**
  * exit chatRoom
  */
-ipcMain.on('exitChatRoom', async (event, roomId) => {
+ipcMain.on('exitChatRoom', async (event, roomId, chatUserIds) => {
   winston.debug('exitChatRoom', roomId)
-  nsAPI.reqExitChatRoom(roomId).then(function (resData) {
+  nsAPI.reqExitChatRoom(roomId, chatUserIds).then(function (resData) {
     winston.info('[IPC] exitChatRoom res:', resData)
     event.reply('res-exitChatRoom', resData);
   }).catch(function (err) {
     winston.info('[IPC] exitChatRoom res  Err:', err)
     event.reply('res-exitChatRoom', new ResData(false, err));
+  });
+});
+
+/**
+ * exit chatRoom
+ */
+ipcMain.on('changeChatRoomName', async (event, roomId, roomName, chatUserIds) => {
+  winston.debug('changeChatRoomName', roomId)
+  nsAPI.reqChangeChatRoomName(roomId, roomName, chatUserIds).then(function (resData) {
+    winston.info('[IPC] changeChatRoomName res:', resData)
+    event.reply('res-changeChatRoomName', resData);
+  }).catch(function (err) {
+    winston.info('[IPC] changeChatRoomName res  Err:', err)
+    event.reply('res-changeChatRoomName', new ResData(false, err));
+  });
+});
+
+/**
+ * inviteChatUser
+ */
+ipcMain.on('inviteChatUser', async (event, roomKey, newRoomName, asIsUserIds, newUserIds) => {
+  winston.debug('inviteChatUser', roomId)
+  nsAPI.reqInviteChatUser(roomKey, newRoomName, asIsUserIds, newUserIds).then(function (resData) {
+    winston.info('[IPC] inviteChatUser res:', resData)
+    event.reply('res-inviteChatUser', resData);
+  }).catch(function (err) {
+    winston.info('[IPC] inviteChatUser res  Err:', err)
+    event.reply('res-inviteChatUser', new ResData(false, err));
   });
 });

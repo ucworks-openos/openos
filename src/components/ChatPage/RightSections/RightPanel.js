@@ -14,6 +14,8 @@ function RightPanel() {
     false
   );
   const { currentChatRoom, chatRooms } = useSelector((state) => state.chats);
+  const loggedInUser = useSelector((state) => state.users.loggedInUser);
+
   const dispatch = useDispatch();
   // winston.info('currentChatRoom', currentChatRoom)
   const clickHamburgerButton = () => {
@@ -23,7 +25,11 @@ function RightPanel() {
     const rest = chatRooms.filter(
       (v) => v.room_key !== currentChatRoom.room_key
     );
-    exitChatRoom(currentChatRoom.room_key);
+
+    // 퇴장하는 아이디가 필요없다면 뺀다.
+    const userIdList = currentChatRoom.chat_entry_ids.split("|").filter((id) => id !== loggedInUser.user_id.value);
+
+    exitChatRoom(currentChatRoom.room_key, userIdList);
     dispatch(setChatRooms(rest));
     dispatch(setCurrentChatRoom(rest[0].room_key, rest));
   };

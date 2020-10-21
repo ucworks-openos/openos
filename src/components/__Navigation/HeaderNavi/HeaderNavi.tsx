@@ -73,6 +73,7 @@ export default function HeaderNavi() {
   }, []);
 
   const onAvatarClick = () => {
+    if (!sessionStorage.getItem(`loginId`)) return false;
     setAvatarDropDownIsOpen(!avatarDropDownIsOpen);
   };
   const onAvatarClose = () => {
