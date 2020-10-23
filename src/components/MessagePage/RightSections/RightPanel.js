@@ -161,6 +161,7 @@ function RightPanel() {
           setMessageModalVisible(false);
         }}
         style={messageInputModalStyle}
+        shouldCloseOnOverlayClick={false}
       >
         <MessageInputModal
           closeModalFunction={() => {

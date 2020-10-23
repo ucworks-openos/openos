@@ -842,28 +842,6 @@ a:hover,
   background-position: -375px center;
 }
 
-.list-dropdown {
-  position: fixed;
-  top: 136px;
-  padding: 12px 16px 16px;
-  box-shadow: 0px 0px 4px #dfe2e8;
-  border-radius: 8px;
-  background-color: #fff;
-  z-index: 9999;
-}
-.list-dropdown:after {
-  content: "";
-  position: absolute;
-  top: -8px;
-  left: 8px;
-  width: 0;
-  height: 0;
-  font-size: 0;
-  border-right: 6px solid transparent;
-  border-bottom: 8px solid #fff;
-  border-left: 6px solid transparent;
-}
-
 /***************************************************************************
                             5. responsive
 ***************************************************************************/

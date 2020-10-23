@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { getUserInfos } from "../../ipcCommunication/ipcOrganization";
 import imgHolder from "../../../assets/images/img_imgHolder.png";
 import { EuserState } from "../../../enum";
+import "./MemberTooltip.css";
 
-function MemberTooltip({ userIds }) {
+function MemberTooltip({ userIds, style, type }) {
   const [userInfos, setUserInfos] = useState([]);
 
   useEffect(() => {
@@ -18,10 +19,6 @@ function MemberTooltip({ userIds }) {
       }
     });
   }, [userIds]);
-
-  useEffect(() => {
-    console.log(`userInfos: `, userInfos);
-  });
 
   const renderUserItem =
     userInfos &&
@@ -59,11 +56,10 @@ function MemberTooltip({ userIds }) {
     ));
 
   return (
-    <ul
-      class="list-dropdown to-ppl-list"
-      style={{ maxHeight: "315px", overflowY: "auto" }}
-    >
-      <h6 class="list-dropdown-label">{`수신인 목록(${userInfos?.length})`}</h6>
+    <ul class="list-dropdown to-ppl-list" style={style}>
+      <h6 class="list-dropdown-label">{`${
+        type === `chat` ? `참여자 목록` : `수신인 목록`
+      }(${userInfos?.length})`}</h6>
       {renderUserItem}
     </ul>
   );

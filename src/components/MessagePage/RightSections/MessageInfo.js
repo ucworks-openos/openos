@@ -36,9 +36,11 @@ function MessageInfo() {
         tabIndex={1}
       >
         {renderRecvNames} {RecvCounts > 1 && `외 ${RecvCounts - 1}명`}
-        <MemberTooltipWrapper>
-          {isOpenTooltip && <MemberTooltip userIds={content.msg_recv_ids} />}
-        </MemberTooltipWrapper>
+        {isOpenTooltip && (
+          <MemberTooltipWrapper>
+            <MemberTooltip userIds={content.msg_recv_ids} type="message" />
+          </MemberTooltipWrapper>
+        )}
       </div>
       {/* <div className="message-info label to-label-date">수신일시</div>
             <div className="message-info to-date">2020-08-23(일) 오전 11:00</div> */}
@@ -50,7 +52,8 @@ function MessageInfo() {
 
 const MemberTooltipWrapper = styled.div`
   position: absolute;
-  left: -100px;
+  top: 25px;
+  left: -40px;
 `;
 
 export default MessageInfo;

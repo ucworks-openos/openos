@@ -271,6 +271,7 @@
     bottom: 0;
 }
 .btn-chat-ppl-info {
+    position: relative;
     display: flex;
     align-items:  center;
     margin-right: 12px;

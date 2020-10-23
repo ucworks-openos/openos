@@ -285,39 +285,6 @@
     color:#2F59B7;
 }
 
-.list-dropdown-label{margin-bottom:12px;}
-.user-single {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-    user-select:none;
-}
-.user-single:last-child {
-    margin-bottom: 0;
-}
-.list-dropdown .user-profile-state-wrap {
-    margin-right: 12px;
-}
-.list-dropdown h6 {
-    display: inline-block;
-}
-.list-dropdown .user-department:before {
-    content: "|";
-    color: #D5D7DC;
-    font-size: 0.7rem;
-    vertical-align: 2px;
-    margin: 0px 8px;
-}
-.user-single .row2 span {
-    font-size: 0.875rem;
-    letter-spacing: 0.35px;
-}
-.read-info-state {
-    color: #F26F6F;
-    font-weight: 500;
-}
-.read-info-date.unread{display: none;}
-.read-info-state.unread{color:#11378D;}
 .message-area {
     position: absolute;
     padding: 16px;

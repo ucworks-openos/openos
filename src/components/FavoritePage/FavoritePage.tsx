@@ -925,6 +925,7 @@ export default function FavoritePage() {
           setMessageModalVisible(false);
         }}
         style={messageInputModalStyle}
+        shouldCloseOnOverlayClick={false}
       >
         <MessageInputModal
           closeModalFunction={() => {

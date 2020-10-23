@@ -77,6 +77,7 @@ function LeftPanel() {
         isOpen={isOpenMessageInputModal}
         onRequestClose={MessageInputModalClose}
         style={messageInputModalStyle}
+        shouldCloseOnOverlayClick={false}
       >
         <MessageInputModal closeModalFunction={MessageInputModalClose} />
       </Modal>

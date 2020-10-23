@@ -345,12 +345,10 @@ Modal.setAppElement("#root");
 
 const settingModalStyles = {
   content: {
-    top: "50%",
-    left: "50%",
-    marginLeft: "-25%",
-    marginTop: "calc(-25% + 56px)",
-    width: "65%",
-    maxWidth: "960px",
+    top: "18vh",
+    left: "25vw",
+    // marginTop: "calc(-25% + 56px)",
+    width: "700px",
     height: "fit-content",
   },
   overlay: { zIndex: 1000 },

@@ -18,6 +18,15 @@ function RightPanel() {
   const { currentChatRoom, chatRooms } = useSelector((state) => state.chats);
   const loggedInUser = useSelector((state) => state.users.loggedInUser);
   const [searchbarVisible, setSearchbarVisible] = useState(false);
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+
+  const toggleTooltip = () => {
+    setTooltipVisible(!tooltipVisible);
+  };
+
+  const closeTooltip = () => {
+    setTooltipVisible(false);
+  };
 
   useEffect(() => {
     console.log(currentChatRoom);
@@ -47,14 +56,22 @@ function RightPanel() {
     <main className="chat-main-wrap">
       <div className="chat-title-wrap">
         <div className="chat-title-left-wrap">
-          <div className="btn-chat-ppl-info">
+          <div
+            className="btn-chat-ppl-info"
+            onClick={toggleTooltip}
+            onBlur={closeTooltip}
+            tabIndex={1}
+          >
             {currentChatRoom?.chat_entry_ids?.split(`|`).length}
+            {tooltipVisible && currentChatRoom?.chat_entry_ids && (
+              <MemberTooltipWrapper>
+                <MemberTooltip
+                  userIds={currentChatRoom?.chat_entry_ids}
+                  type="chat"
+                />
+              </MemberTooltipWrapper>
+            )}
           </div>
-          {currentChatRoom?.chat_entry_ids && (
-            <MemberTooltipWrapper>
-              <MemberTooltip userIds={currentChatRoom?.chat_entry_ids} />
-            </MemberTooltipWrapper>
-          )}
           <div className="chat-name" title={currentChatRoom?.chat_entry_names}>
             {currentChatRoom?.chat_entry_names}
           </div>
@@ -142,7 +159,7 @@ function RightPanel() {
 }
 
 const MemberTooltipWrapper = styled.div`
-  display: flex;
+  position: absolute;
+  top: 45px;
 `;
-
 export default RightPanel;
