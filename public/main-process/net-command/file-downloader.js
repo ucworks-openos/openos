@@ -181,7 +181,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                         // }
                         
                         //winston.debug('FS_DOWNLOADSEND ENC', encData, encKey, cipherTxt, fileEncKey);
-                        resolve(new ResData(true));
+                        resolve(new ResData(true, saveFilePath));
                         break;
                     default :
                         let rcvBuf = Buffer.from(resCmd.data);
@@ -210,7 +210,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                             break;
                         }
 
-                        resolve(new ResData(true));
+                        resolve(new ResData(true, saveFilePath));
 
                         break;
 
@@ -232,7 +232,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                             break;
                         }
 
-                        resolve(new ResData(true));
+                        resolve(new ResData(true, saveFilePath));
                         break;
 
                     default:

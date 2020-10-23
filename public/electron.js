@@ -14,7 +14,7 @@ const { createLiteralTypeNode } = require("typescript");
 const { readConfig } = require("./main-process/configuration/site-config");
 const { getOsInfo } = require("./main-process/utils/utils-os");
 const { PLATFORM } = require("./main-process/common/common-const");
-const { logout } = require("./main-process/main-handler");
+const { logoutProc } = require("./main-process/main-handler");
 
 const BrowserWindow = electron.BrowserWindow;
 const globalShortcut = electron.globalShortcut
@@ -48,7 +48,7 @@ const mainContextMenu = Menu.buildFromTemplate([
       {
         label: 'Logout',
         click: async () => {
-          logout();
+          logoutProc();
         }
       },
       {
@@ -81,7 +81,7 @@ const trayContextMenu = Menu.buildFromTemplate([
   {
     label: 'Logout',
     click: async () => {
-      logout();
+      logoutProc();
     }
   },
   {
@@ -107,6 +107,8 @@ global.IS_DEV = isDev;
 global.MY_PLATFORM = process.platform;
 
 global.ROOT_PATH = require('fs').realpathSync('./');
+
+global.DOWNLOAD_PATH = path.join(global.ROOT_PATH,'.download');
 
 // LOG PATH
 if (!global.IS_DEV) {

@@ -175,7 +175,7 @@ function RightPanel() {
 
       <MessageContent />
 
-      <MessageFiles />
+      <MessageFiles msgFiles={message?.msg_file_list} />
     </main>
   );
 }

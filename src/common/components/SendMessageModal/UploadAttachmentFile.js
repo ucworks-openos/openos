@@ -52,7 +52,6 @@ function UploadAttachmentFile(prop) {
             </div>
 
             <div class="attatched-file-wrap">
-                {writeDebug('attFileRander', prop.attachmentFiles)}
                 {prop.attachmentFiles.map((file, index) => {
                     return (
                         <div class="attatched-file-row" key={index}>

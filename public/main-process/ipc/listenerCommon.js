@@ -30,7 +30,7 @@ function decrypt(text) {
 
  return Buffer.concat([decrypted, decipher.final()]).toString();
 }
-const { logout } = require('../main-handler');
+const { logoutProc } = require('../main-handler');
 const { writeConfig } = require('../configuration/site-config')
 
 
@@ -102,9 +102,9 @@ ipcMain.on('login', async (event, loginData) => {
   };
 });
 
-/** logout */
+/** logoutProc */
 ipcMain.on('logout', async (event, ...args) => {
-  logout();
+  logoutProc();
   event.reply('res-logout', new ResData(true));
 });
 

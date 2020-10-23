@@ -13,14 +13,30 @@ const { send } = require('../ipc/ipc-cmd-sender');
 
 const defaultFileCmdLength = 8+4+CmdConst.BUF_LEN_FILEDATA; // header(8) + gubun(4) + data(4096)
 
+
+String.prototype.insert = function(index, string) {
+    if (index > 0) {
+        return this.substring(0, index) + string + this.substr(index);
+    }
+
+    return string + this;
+};
+
 async function reqDownloadFile(serverIp, serverPort, serverFileName, saveFilePath) {
+
+    // 같은 파일이 있다면 뒤에 숫자를 붙여준다.
+    let sameFileCnt = 1;
+    while (fs.existsSync(saveFilePath)) {
+        saveFilePath = saveFilePath.insert(saveFilePath.lastIndexOf('.')-1, `(${sameFileCnt++})`)
+    }
+
     return downloadFile(serverIp, serverPort, serverFileName, saveFilePath,
         function (serverFileName, downloadLength, fileLength) {
             // UI에서 진행률을 처리할수 있도록 전송되는 정보를 보내준다.
             send('download-file-progress', serverFileName, downloadLength, fileLength)
         }, 
         function(error) {
-
+            winston.err('downloadFile error', serverFileName, saveFilePath, error);
         });
 }
 
