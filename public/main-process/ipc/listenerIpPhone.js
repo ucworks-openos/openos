@@ -25,17 +25,3 @@ ipcMain.on('makeCall', (event, dest) => {
     event.reply('res-downloadFile', new ResData(false, err));
   });
 });
-
-
-// upload file
-ipcMain.on('uploadFile', (event, fileKey, filePath) => {
-
-  fsAPI.reqUploadFile(fileKey, filePath).then(function(resData)
-  {
-    winston.info('uploadFile res:', resData)
-    event.reply('res-uploadFile', resData);
-  }).catch(function(err) {
-    event.reply('res-uploadFile', new ResData(false, err));
-  });
-
-});

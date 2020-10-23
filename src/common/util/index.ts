@@ -141,3 +141,7 @@ export const messageInputModalStyle = {
   },
   overlay: { zIndex: 1000 },
 };
+
+export const removeTag = (text:String) => {
+  return text? text.replace(/<[^>]+>/g, '').replace('&nbsp', ' '): '';
+}

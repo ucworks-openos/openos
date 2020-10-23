@@ -23,7 +23,7 @@ import {
 } from "../../common/util";
 import { Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
-import MessageInputModal from "../../common/components/Modal/MessageInputModal";
+import MessageInputModal from "../../common/components/SendMessageModal/MessageInputModal";
 import AddToFavoriteModal from "../../common/components/Modal/AddToFavoriteModal";
 import AddGroupToFavoriteModal from "../../common/components/Modal/AddGroupToFavoriteModal";
 import { useDispatch } from "react-redux";

@@ -13,9 +13,9 @@ const { decryptMessage } = require('../utils/utils-crypto');
 /**
  * sendMessage
  */
-ipcMain.on('sendMessage', async (event, recvIds, recvNames, subject, message) => {
-
-  nsAPI.reqSendMessage(recvIds, recvNames, subject, message).then(function (resData) {
+ipcMain.on('sendMessage', async (event, recvIds, recvNames, subject, message, attFileInfo) => {
+  winston.info('[IPC] sendMessage ', {recvIds:recvIds, recvNames:recvNames, subject:subject, message:message, attFileInfo:attFileInfo})
+  nsAPI.reqSendMessage(recvIds, recvNames, subject, message, attFileInfo).then(function (resData) {
     winston.info('[IPC] sendMessage res:', resData)
     event.reply('res-sendMessage', resData);
   }).catch(function (err) {

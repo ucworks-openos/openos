@@ -3,12 +3,12 @@ import { writeDebug } from "./ipcLogger";
 const electron = window.require("electron")
 
 /** sendMessage */
-export const sendMessage = async (recvIds, recvNames, subject, message) => {
+export const sendMessage = async (recvIds, recvNames, subject, message, attFileInfo) => {
   return new Promise(function(resolve, reject) {
       electron.ipcRenderer.once('res-sendMessage', (event, arg) => {
           resolve(arg);
         })
-        electron.ipcRenderer.send('sendMessage', recvIds, recvNames, subject, message)
+        electron.ipcRenderer.send('sendMessage', recvIds, recvNames, subject, message, attFileInfo)
     });
 }
 

@@ -9,7 +9,7 @@ import {
 } from "../../../redux/actions/message_actions";
 import { messageInputModalStyle, delay } from "../../../common/util";
 import Modal from "react-modal";
-import MessageInputModal from "../../../common/components/Modal/MessageInputModal";
+import MessageInputModal from "../../../common/components/SendMessageModal/MessageInputModal";
 import moment from "moment";
 import HamburgerButton from "../../../common/components/HamburgerButton";
 
