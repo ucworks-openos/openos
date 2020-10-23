@@ -57,13 +57,13 @@ const Hamburger = styled.div`
   }
 `;
 
-export default function ({ active, clicked, propsFunction }) {
+export default function ({ active, clicked, propsFunction, closeFunction }) {
   return (
     <Hamburger
       active={active}
       className={clicked ? "btn_lnb_clicked" : "btn_lnb"}
       onClick={propsFunction}
-      onBlur={propsFunction}
+      onBlur={closeFunction}
       tabIndex={-1}
     >
       <span></span>

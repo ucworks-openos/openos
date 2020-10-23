@@ -71,7 +71,7 @@ function ChatRooms(props) {
               <div className="last-chat-from sub1"> {room.chat_send_name}</div>
               <div className="last-chat-time sub1">
                 {moment(room.create_room_date, "YYYYMMDDHHmm").format(
-                  "YYYY년 M월 D일 H시 m분"
+                  "YYYY. MM. DD. h:mm a"
                 )}
               </div>
             </div>

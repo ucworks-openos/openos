@@ -19,6 +19,7 @@ import {
   convertToUser,
   find,
   getRandomNumber,
+  messageInputModalStyle,
 } from "../../common/util";
 import { Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
@@ -691,7 +692,8 @@ export default function OrganizationPage() {
         onRequestClose={() => {
           setMessageModalVisible(false);
         }}
-        style={commonModalStyles}
+        style={messageInputModalStyle}
+        shouldCloseOnOverlayClick={false}
       >
         <MessageInputModal
           closeModalFunction={() => {

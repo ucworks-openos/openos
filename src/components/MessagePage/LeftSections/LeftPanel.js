@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCurrentMessageListsType } from "../../../redux/actions/message_actions";
 import Modal from "react-modal";
 import MessageInputModal from "../../../common/components/SendMessageModal/MessageInputModal";
+import { messageInputModalStyle } from "../../../common/util";
 
 function LeftPanel() {
   const [isOpenMessageInputModal, setIsOpenMessageInputModal] = useState(false);
@@ -66,7 +67,7 @@ function LeftPanel() {
         </div>
       </div>
 
-      <div className="chat-list-wrap">
+      <div className="message-list-wrap">
         <ul>
           <MessageLists />
         </ul>
@@ -75,7 +76,8 @@ function LeftPanel() {
       <Modal
         isOpen={isOpenMessageInputModal}
         onRequestClose={MessageInputModalClose}
-        style={CustomStyles}
+        style={messageInputModalStyle}
+        shouldCloseOnOverlayClick={false}
       >
         <MessageInputModal closeModalFunction={MessageInputModalClose} />
       </Modal>
@@ -84,18 +86,5 @@ function LeftPanel() {
 }
 
 export default LeftPanel;
-const CustomStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    minWidth: "460px",
-    height: "auto",
-    padding: "24px 24px 40px",
-    transform: "translate(-50%, -50%)",
-  },
-  overlay: { zIndex: 1000 },
-};
+
 Modal.setAppElement("#root");

@@ -103,6 +103,7 @@ module.exports = Object.freeze({
     NS_CHECK_SEND                : NS_BASE + 90,
     NS_GET_STATE                 : NS_BASE + 96,
     NS_STATE_LIST                : NS_BASE + 110,
+    NS_CHATROOM_UNREAD_CNT       : NS_BASE + 249,
     NS_CHATLINE_UNREAD_CNT       : NS_BASE + 250,
     NS_UNREADALL_COUNT           : NS_BASE + 262,
     NS_CHAT_LINEKEY              : NS_BASE + 640,

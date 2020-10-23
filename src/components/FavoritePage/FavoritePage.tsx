@@ -20,6 +20,7 @@ import {
   convertToUser,
   find,
   getRandomNumber,
+  messageInputModalStyle,
   syncronize,
 } from "../../common/util";
 import { Efavorite, EnodeGubun } from "../../enum";
@@ -689,6 +690,9 @@ export default function FavoritePage() {
             active={isHamburgerButtonClicked}
             clicked={isHamburgerButtonClicked}
             propsFunction={clickHamburgerButton}
+            closeFunction={() => {
+              setIsHamburgerButtonClicked(false);
+            }}
           />
           <ul
             className={
@@ -920,7 +924,8 @@ export default function FavoritePage() {
         onRequestClose={() => {
           setMessageModalVisible(false);
         }}
-        style={commonModalStyles}
+        style={messageInputModalStyle}
+        shouldCloseOnOverlayClick={false}
       >
         <MessageInputModal
           closeModalFunction={() => {

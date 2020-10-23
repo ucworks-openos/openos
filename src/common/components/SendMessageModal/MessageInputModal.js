@@ -10,12 +10,13 @@ import { writeDebug, writeError, writeInfo, writeLog } from '../../../common/ipc
 import { getUserInfos, searchUsers } from '../../../common/ipcCommunication/ipcOrganization'
 import './MessageInputModal.css';
 import Alert from 'react-bootstrap/Alert'
-import { arrayLike, delay } from '../../util';
+import { arrayLike, delay, removeTag } from '../../util';
 import { sendMessage } from '../../ipcCommunication/ipcMessage';
 import UploadAttachmentFile from './UploadAttachmentFile';
 import DragAndDropSupport from '../DragAndDropSupport';
 import { uploadFile } from '../../ipcCommunication/ipcFile';
 import { getTransFileData } from '../../util/fileUtil';
+import styled from 'styled-components';
 
 const electron = window.require("electron");
 const { remote } = window.require("electron")
@@ -23,7 +24,7 @@ const { remote } = window.require("electron")
 function MessageInputModal(props) {
     const dispatch = useDispatch();
     const [title, setTitle] = useState("")
-    const [content, setContent] = useState("")
+    const [content, setContent] = useState(props.initialContent)
     // const [sendTo, setSendTo] = useState([])
     const [selectedUsers, setSelectedUsers] = useState([])
     const [searchMode, setSearchMode] = useState('ALL');
@@ -36,7 +37,6 @@ function MessageInputModal(props) {
     const [isContentTyped, setIsContentTyped] = useState(false);
     const [isUserSelected, setIsUserSelected] = useState(false);
     const [sendBtnEnable, setSendBtnEnable] = useState(true);
-
     const [attachmentFiles, setAttachmentFiles] = useState([]);
 
     useEffect(() => {
@@ -54,10 +54,13 @@ function MessageInputModal(props) {
         sessionStorage.setItem('attachmentFiles', JSON.stringify(attachmentFiles));
     }, [attachmentFiles])
 
+    useEffect(() => {
+        const initiate = () => {
+            setTitle(props.initialTitle);
+        }
+        props.selectedNode && initiate();
+    }, [props.initialTitle])
 
-    const onEditorChange = (value) => {
-        setContent(value)
-    }
 
     const handleDrop = (files) => {
         //setFiles(files)
@@ -70,9 +73,6 @@ function MessageInputModal(props) {
         setAttachmentFiles(attachmentFiles.concat(fileList));
     }
 
-    const onTitleChange = (event) => {
-        setTitle(event.currentTarget.value)
-    }
 
     // const onSendToChange = (selectedItems) => {
     //     let newSendTo = [];
@@ -136,19 +136,30 @@ function MessageInputModal(props) {
             return;
         }
 
-        if (content.trim().length === 0) {
+        let hasAttachmentFiles = attachmentFiles.length > 0;
+        let tmpContent;
+        if (removeTag(content).trim().length === 0) {
+            if (hasAttachmentFiles) {
+                tmpContent = attachmentFiles[0].name;
 
-            setIsContentTyped(true)
-            setTimeout(() => {
-                setIsContentTyped(false)
-            }, 2000)
-            return;
+                if (attachmentFiles.length > 1) {
+                    tmpContent += ` 외 ${attachmentFiles.length - 1}건`
+                }
+
+                setContent(tmpContent);
+            } else {
+                setIsContentTyped(true)
+                setTimeout(() => {
+                    setIsContentTyped(false)
+                }, 2000)
+                return;
+            }
         }
         
         let tmpTitle = title;
-        writeLog('tmpTitle', tmpTitle.trim().length);
-        if (tmpTitle.trim().length === 0) {
-            tmpTitle = content.replace(/<[^>]+>/g, '');
+
+        if (!tmpTitle || tmpTitle.trim().length === 0) {
+            tmpTitle = removeTag(content);
             writeDebug('message title', tmpTitle);
 
             if (tmpTitle.length > 20) {
@@ -170,7 +181,7 @@ function MessageInputModal(props) {
         let recvNames = selectedUsers.map(user => user.user_name.value).join(',')
 
         
-        if (attachmentFiles.length > 0) {
+        if (hasAttachmentFiles) {
 
             // 파일전송 모니터링
             electron.ipcRenderer.on('upload-file-progress', (event, uploadKey, uploadedLength, fileLength) => {
@@ -191,6 +202,9 @@ function MessageInputModal(props) {
 
                 await delay(500);
             }
+            writeDebug('SEND MESSAGE', { recvIds:recvIds, recvNames:recvNames, tmpTitle:tmpTitle, content:content, attFileInfo:attFileInfo})
+            return;
+
 
             sendMessage(recvIds, recvNames, tmpTitle, content, attFileInfo);
 
@@ -248,23 +262,23 @@ function MessageInputModal(props) {
 
     const renderCheckedMember = () =>
         selectedUsers && selectedUsers.map((user) => (
-            <div class="to-ppl-added-single" key={user.user_id.value}
+            <div className="to-ppl-added-single" key={user.user_id.value}
                 onClick={() => onDeleteCheckedMemberClick(user.user_id.value)}> {user.user_name.value}
-                <button class="remove-ppl-added"></button>
+                <button className="remove-ppl-added"></button>
             </div>
         ));
 
     return (
         <div >
-            <h5 class="modal-title write-message">쪽지 쓰기</h5>
-            <div class="write-row to-ppl-wrap">
+            <h5 className="modal-title write-message">쪽지 쓰기</h5>
+            <div className="write-row to-ppl-wrap">
                 <input type="text"
                     onKeyDown={e => { e.keyCode === 13 && handleSearchUser() }}
-                    onChange={(e) => setSearchText(e.target.value)} class="to-ppl"
+                    onChange={(e) => setSearchText(e.target.value)} className="to-ppl"
                     placeholder="받는 사람의 이름을 입력한 후 + 버튼을 눌러주세요"
                     value={searchText}
                 />
-                <button class="add-ppl" onClick={handleSearchUser} value=""></button>
+                <button className="add-ppl" onClick={handleSearchUser} value=""></button>
             </div>
             {isUserSelected &&
                 <Alert variant="danger">
@@ -282,22 +296,25 @@ function MessageInputModal(props) {
                 </Alert>
             }
             {selectedUsers.length > 0 &&
-                <div class="write-row to-ppl-added">
+                <div className="write-row to-ppl-added">
                     {renderCheckedMember()}
                 </div>
             }
 
-            <div class="write-row subject-wrap">
-                <input type="text" class="subject" onChange={onTitleChange} value={title} placeholder="쪽지 제목을 입력해주세요" />
+            <div className="write-row subject-wrap">
+                <input type="text" className="subject" onChange={(e) => setTitle(e.target.value)} value={title} placeholder="쪽지 제목을 입력해주세요" />
             </div>
 
-            <DragAndDropSupport handleDrop={handleDrop} >
-                <QuillEditor
-                    placeholder={"쪽지 내용을 입력해주세요."}
-                    onEditorChange={onEditorChange}
-                    //onFilesChange={onFilesChange}
-                />
-            </DragAndDropSupport>
+            <EditorWrapper>
+                <DragAndDropSupport handleDrop={handleDrop} >
+                    <QuillEditor
+                        placeholder={"쪽지 내용을 입력해주세요."}
+                        onEditorChange={(value) => setContent(value)}
+                        //onFilesChange={onFilesChange}
+                        initialContent={content}
+                    />
+                </DragAndDropSupport>
+            </EditorWrapper>
 
             {isContentTyped &&
                 <Alert variant="danger">
@@ -307,18 +324,27 @@ function MessageInputModal(props) {
             <br />
 
             <UploadAttachmentFile attachmentFiles={attachmentFiles} setAttachmentFiles={setAttachmentFiles} />
-            
-            <div class="modal-btn-wrap">
-                <div class="btn-ghost-s cancel" onClick={props.closeModalFunction}>취소하기</div>
-                {sendBtnEnable?
-                    <div class="btn-solid-s submit" type="submit" onClick={onSubmit}>전송하기</div>
-                    :
-                    <div class="btn-solid-s ">전송하기</div>
-                }
                 
-            </div>
+                {sendBtnEnable?
+                    <div class="modal-btn-wrap">
+                        <div class="btn-ghost-s cancel" onClick={props.closeModalFunction}>취소하기</div>
+                        <div class="btn-solid-s submit" type="submit" onClick={onSubmit}>전송하기</div>
+                    </div>
+                :
+                    <div class="modal-btn-wrap">
+                        <div class="btn-ghost-s cancel" onClick={props.closeModalFunction}>취소하기</div>
+                        <div class="btn-solid-s ">전송하기</div>
+                        </div>
+                }
+           
         </div>
     )
 }
+
+
+const EditorWrapper = styled.div`
+width: 100%;
+    overflow: auto;
+`
 
 export default MessageInputModal

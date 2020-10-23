@@ -114,13 +114,14 @@ export default function HeaderNavi() {
 
   return (
     <div className="header">
-      <div className="btn-page-wrap">
+      {/* <div className="btn-page-wrap">
         <div className="btn-prev" title="이전으로"></div>
         <div className="btn-next disabled" title="앞으로"></div>
-      </div>
+      </div> */}
       <div
         onClick={handleRefresh}
         style={{
+          marginLeft: `20px`,
           width: `24px`,
           height: `24px`,
           cursor: `pointer`,
@@ -344,12 +345,10 @@ Modal.setAppElement("#root");
 
 const settingModalStyles = {
   content: {
-    top: "50%",
-    left: "50%",
-    marginLeft: "-25%",
-    marginTop: "calc(-25% + 56px)",
-    width: "65%",
-    maxWidth: "960px",
+    top: "18vh",
+    left: "25vw",
+    // marginTop: "calc(-25% + 56px)",
+    width: "700px",
     height: "fit-content",
   },
   overlay: { zIndex: 1000 },
