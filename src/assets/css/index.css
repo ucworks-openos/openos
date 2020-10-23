@@ -423,6 +423,70 @@ a:hover,
   padding: 16px;
 }
 
+.lnb {
+  margin-left: auto;
+}
+.btn_lnb {
+  width: 30px;
+  height: 30px;
+  padding: 6px 4px;
+  font-size: 0;
+  line-height: 0;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.btn_lnb span {
+  display: inline-block;
+  margin-bottom: 6px;
+  width: 100%;
+  height: 2px;
+  border-radius: 1px;
+  background-color: #555;
+  font-size: 0;
+  line-height: 0;
+  transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1),
+    background 0.5s cubic-bezier(0.77, 0.2, 0.05, 1), opacity 0.55s ease,
+    margin-bottom 0.5s ease;
+}
+
+.btn_lnb:hover span {
+  background-color: #2f59b7;
+}
+
+.lnb-menu-wrap {
+  display: block;
+  position: absolute;
+  right: 16px;
+  top: 55px;
+  background-color: #fff;
+  border: 1px solid #dfe2e8;
+  border-radius: 4px;
+  z-index: 1002;
+  user-select:none;
+}
+
+.lnb-menu-wrap-hide {
+  display: none;
+  user-select:none;
+}
+
+.lnb-menu-item {
+  padding: 8px 16px;
+  border-bottom: 1px solid #dfe2e8;
+  cursor: pointer;
+}
+.lnb-menu-item:last-child {
+  border-bottom: 0;
+}
+.lnb-menu-item:hover {
+  background-color: #f5f6f8;
+}
+.lnb-menu-item:hover * {
+  color: #11378d;
+}
+
+
 /***************************************************************************
                              page title wrap (공통)
 ***************************************************************************/
@@ -776,6 +840,28 @@ a:hover,
 }
 .btn-contact-action.float:hover {
   background-position: -375px center;
+}
+
+.list-dropdown {
+  position: fixed;
+  top: 136px;
+  padding: 12px 16px 16px;
+  box-shadow: 0px 0px 4px #dfe2e8;
+  border-radius: 8px;
+  background-color: #fff;
+  z-index: 9999;
+}
+.list-dropdown:after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 8px;
+  width: 0;
+  height: 0;
+  font-size: 0;
+  border-right: 6px solid transparent;
+  border-bottom: 8px solid #fff;
+  border-left: 6px solid transparent;
 }
 
 /***************************************************************************

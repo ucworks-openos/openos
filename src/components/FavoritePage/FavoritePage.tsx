@@ -690,6 +690,9 @@ export default function FavoritePage() {
             active={isHamburgerButtonClicked}
             clicked={isHamburgerButtonClicked}
             propsFunction={clickHamburgerButton}
+            closeFunction={() => {
+              setIsHamburgerButtonClicked(false);
+            }}
           />
           <ul
             className={

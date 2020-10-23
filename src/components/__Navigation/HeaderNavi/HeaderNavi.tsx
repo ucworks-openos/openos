@@ -114,13 +114,14 @@ export default function HeaderNavi() {
 
   return (
     <div className="header">
-      <div className="btn-page-wrap">
+      {/* <div className="btn-page-wrap">
         <div className="btn-prev" title="이전으로"></div>
         <div className="btn-next disabled" title="앞으로"></div>
-      </div>
+      </div> */}
       <div
         onClick={handleRefresh}
         style={{
+          marginLeft: `20px`,
           width: `24px`,
           height: `24px`,
           cursor: `pointer`,

@@ -67,7 +67,7 @@ function LeftPanel() {
         </div>
       </div>
 
-      <div className="chat-list-wrap">
+      <div className="message-list-wrap">
         <ul>
           <MessageLists />
         </ul>

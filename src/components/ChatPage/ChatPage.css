@@ -168,7 +168,8 @@
     margin: 0 auto;
 }
 .list-info-area {
-    width: calc(100% - 58px - 12px);
+    /* width: calc(100% - 58px - 12px); */
+    width: 100%;
 }
 .list-info-area .list-row {
     display: flex;
@@ -270,6 +271,8 @@
     bottom: 0;
 }
 .btn-chat-ppl-info {
+    display: flex;
+    align-items:  center;
     margin-right: 12px;
     font-size: 1.5rem;
     color: #b4b5b8;
@@ -293,11 +296,40 @@
     padding: 10px 16px;
     border-bottom: 1px solid #dfe2e8;
     align-items: center;
+    justify-content: space-between;
+}
+.chat-title-left-wrap {
+    position: relative;
+    display: flex;
+    width: 60%;
+}
+.chat-name {
+    width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 1.5rem;
+    font-family: "Noto Sans KR", "맑은 고딕", "Malgun Gothic", "돋움", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.5;
+  color: #000;
+    
+}
+.chat-info-area {
+    display: flex;
+    justify-content: flex-end;
+    /* padding: 4px 16px; */
+    /* border-bottom: 1px solid #DFE2E8; */
+    position: relative;
+    z-index: 1001;
+    height: 50px;
+    align-items: center;
 }
 .chat-local-search-wrap {
-    width: 14%;
-    min-width: 140px;
-    margin-left: auto;
+    /* width: 14%;
+    min-width: 140px; */
+    /* margin-left: auto; */
 }
 .chat-local-search {
     width: 100%;
@@ -312,7 +344,10 @@
     box-sizing: border-box;
 }
 .chat-action-wrap {
+    display: flex;
+    align-items: center;
     font-size: 0;
+    width: 40;
 }
 .chat-action,
 .chat-action.chat-favorite-toggle input[type="checkbox"] + .chat-favorite-toggle-inner,
@@ -325,6 +360,17 @@
     cursor: pointer;
     vertical-align: middle;
     font-size: 0;
+}
+.chat-action-search {
+    display: inline-block;
+    width: 26px;
+    height: 22px;
+    background-image: url("../../assets/images/btn_search_chat.png");
+    background-repeat: no-repeat;
+    cursor: pointer;
+    vertical-align: middle;
+    font-size: 0;
+    margin-right: 12px;
 }
 .chat-action.drawer {
     background-position: 0px 0px;
@@ -379,54 +425,7 @@
 .chat-action {
     margin-right: 12px;
 }
-.btn_lnb {
-    width: 30px;
-    height: 30px;
-    padding: 6px 4px;
-    font-size: 0;
-    line-height: 0;
-    border-radius: 15px;
-    cursor: pointer;
-}
-.btn_lnb span {
-    display: inline-block;
-    margin-bottom: 6px;
-    width: 100%;
-    height: 2px;
-    border-radius: 1px;
-    background-color: #555;
-    font-size: 0;
-    line-height: 0;
-    transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1), background 0.5s cubic-bezier(0.77, 0.2, 0.05, 1),
-        opacity 0.55s ease, margin-bottom 0.5s ease;
-}
-.btn_lnb:hover span {
-    background-color: #2f59b7;
-}
 
-.lnb-menu-wrap {
-    position: absolute;
-    right: 16px;
-    top: 55px;
-    background-color: #fff;
-    border: 1px solid #dfe2e8;
-    border-radius: 4px;
-    z-index: 1002;
-}
-.lnb-menu-item {
-    padding: 8px 16px;
-    border-bottom: 1px solid #dfe2e8;
-    cursor: pointer;
-}
-.lnb-menu-item:last-child {
-    border-bottom: 0;
-}
-.lnb-menu-item:hover {
-    background-color: #f5f6f8;
-}
-.lnb-menu-item:hover * {
-    color: #11378d;
-}
 .chat-area {
     position: absolute;
     padding: 16px;
@@ -507,12 +506,13 @@
 }
 .speech-content {
     position: relative;
-    max-width: 40%;
+    max-width: 60%;
     margin-right: 8px;
     padding: 6px 12px;
     border: 1px solid #dfe2e8;
     border-radius: 6px 8px 8px;
     background-color: #fff;
+    word-break: break-all;
 }
 .speech-content:after,
 .speech-content:before {
@@ -814,6 +814,25 @@
     text-align: center;
 }
 
-.lnb-menu-wrap-hide {
-    display: none;
+/***************************************************************************
+                            5. responsive
+***************************************************************************/
+@media (max-width:1024px){
+    .chat-list-area {width: 240px;}
+    .chat-list-single {padding: 12px 16px;}
+    .ppl-1x1 .list-thumb-area .user-pic-wrap {width: 40px;}
+    .ppl-1x2 .list-thumb-area .user-pic-wrap {width: 20px;}
+    .ppl-1x3 .list-thumb-area .user-pic-wrap {width: 18px;}
+    .ppl-1xn .list-thumb-area .user-pic-wrap {width: 18px;}
+    .list-thumb-area {
+        width: 40px;
+        height: 40px;
+    }
+    /* .list-info-area {width: calc( 100% - 40px - 12px );} */
+    .chat-main-wrap {left: 240px;}
+}
+@media (max-width:768px){
+}
+@media (max-width:414px){
+
 }
