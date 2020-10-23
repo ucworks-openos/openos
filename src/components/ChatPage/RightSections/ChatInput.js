@@ -36,18 +36,17 @@ function ChatInput() {
   };
 
   const handleFocusInput = () => {
-    console.log(`focus input!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
     inputRef.current.focus();
   };
 
   const handleEmojiPick = () => {
-    setEmojiPickerModalVisible(!emojiPickerModalVisible)
-  }
+    setEmojiPickerModalVisible(!emojiPickerModalVisible);
+  };
 
   const handleEmojiClick = (event, emojiObject) => {
     console.log(emojiObject.emoji);
     setInputValue(inputValue + emojiObject.emoji);
-  }
+  };
 
   const onSubmit = async (event) => {
     let userNames;
@@ -137,21 +136,33 @@ function ChatInput() {
         </div>
 
         <div className="input-action-wrap">
-        <Modal isOpen={emojiPickerModalVisible} style={commonModalStyles} 
-          onRequestClose={() => {
-            setEmojiPickerModalVisible(false);
-          }}
-        >
-          <EmojiPicker onEmojiClick={handleEmojiClick} />
-          <div onClick = {() => {setEmojiPickerModalVisible(false);}} >X</div>
-        </Modal>
+          <Modal
+            isOpen={emojiPickerModalVisible}
+            style={commonModalStyles}
+            onRequestClose={() => {
+              setEmojiPickerModalVisible(false);
+            }}
+          >
+            <EmojiPicker onEmojiClick={handleEmojiClick} />
+            <div
+              onClick={() => {
+                setEmojiPickerModalVisible(false);
+              }}
+            >
+              X
+            </div>
+          </Modal>
 
           <div
             className="input-action btn-txt"
             title="텍스트 (글꼴, 크기, 색상,표)"
           ></div>
           <div className="input-action btn-emoticon" title="이모티콘"></div>
-          <div className="input-action btn-emoji" title="이모지" onClick={handleEmojiPick} ></div>
+          <div
+            className="input-action btn-emoji"
+            title="이모지"
+            onClick={handleEmojiPick}
+          ></div>
           <div className="input-action btn-add-file" title="파일전송"></div>
           {/* <div className="input-action btn-call" title="통화"></div>
           <div className="input-action btn-remote" title="원격제어"></div>

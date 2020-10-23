@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ChatRooms from "./ChatRooms";
 import Modal from "react-modal";
 import ChatInvitationModal from "../../../common/components/Modal/ChatInvitationModal";
 
 function LeftPanel() {
   const [isOpenChatInputModal, setIsOpenChatInputModal] = useState(false);
+  const searchbarRef = useRef(null);
 
   const onOpenChatInputModalClick = () => {
     setIsOpenChatInputModal(true);
   };
   const ChatInputModalClose = () => {
     setIsOpenChatInputModal(false);
+  };
+  const handleClickSearchbar = () => {
+    searchbarRef.current.focus();
   };
   return (
     <div className="chat-list-area">
@@ -28,10 +32,14 @@ function LeftPanel() {
               className="chat-list-search-toggle"
               htmlFor="chat-list-search-toggle-check"
             ></label>
-            <div className="chat-list-search-wrap">
+            <div
+              className="chat-list-search-wrap"
+              onClick={handleClickSearchbar}
+            >
               <input
                 type="text"
-                placeholder="대화방 명, 참여자명, 대화내용 검색"
+                placeholder="대화방 명, 참여자 명, 대화 내용"
+                ref={searchbarRef}
               />
             </div>
           </div>
