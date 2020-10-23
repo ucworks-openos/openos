@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import MessageLists from "./MessageLists";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentMessageListsType } from "../../../redux/actions/message_actions";
@@ -9,6 +9,7 @@ import { messageInputModalStyle } from "../../../common/util";
 function LeftPanel() {
   const [isOpenMessageInputModal, setIsOpenMessageInputModal] = useState(false);
   const dispatch = useDispatch();
+  const searchbarRef = useRef(null);
   const currentMessageListType = useSelector(
     (state) => state.messages.currentMessageListType
   );
@@ -20,6 +21,9 @@ function LeftPanel() {
   };
   const MessageInputModalClose = () => {
     setIsOpenMessageInputModal(false);
+  };
+  const handleClickSearchbar = () => {
+    searchbarRef.current.focus();
   };
 
   return (
@@ -56,11 +60,15 @@ function LeftPanel() {
               className="message-list-search-toggle"
               htmlFor="message-list-search-toggle-check"
             ></label>
-            <div className="message-list-search-wrap">
+            <div
+              className="message-list-search-wrap"
+              onClick={handleClickSearchbar}
+            >
               <input
                 type="text"
                 // className="message-list-search"
                 placeholder="이름, 내용, 파일명, 일시 검색"
+                ref={searchbarRef}
               />
             </div>
           </div>
