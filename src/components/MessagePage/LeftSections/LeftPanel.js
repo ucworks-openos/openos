@@ -3,7 +3,7 @@ import MessageLists from "./MessageLists";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentMessageListsType } from "../../../redux/actions/message_actions";
 import Modal from "react-modal";
-import MessageInputModal from "../../../common/components/Modal/MessageInputModal";
+import MessageInputModal from "../../../common/components/SendMessageModal/MessageInputModal";
 
 function LeftPanel() {
   const [isOpenMessageInputModal, setIsOpenMessageInputModal] = useState(false);

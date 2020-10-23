@@ -45,6 +45,7 @@ async function reqUploadFile(uploadKey, filePath) {
             // could not Connect! check file Server
             return new ResData(false, 'Can not Connect to FS.');
         }
+        winston.debugRanderer('reqUploadFile Connect completed %s, %s, %s',uploadKey, fileLength);
 
         // 1. fs login
         res = await loginReady(global.USER.userId);
@@ -52,6 +53,8 @@ async function reqUploadFile(uploadKey, filePath) {
             close();
             return new ResData(false, res);
         }
+
+        winston.debugRanderer('reqUploadFile loginReady completed %s, %s, %s',uploadKey, fileLength);
 
         // 2. upload check
         let fileBaseName = require("path").basename(filePath);
@@ -61,6 +64,8 @@ async function reqUploadFile(uploadKey, filePath) {
             return new ResData(false, res);
         }
 
+        winston.debugRanderer('reqUploadFile uploadCheck completed %s, %s, %s',uploadKey, fileLength);
+
         // 3. 암호키를 전송한다.
         res = await setUploadFileEncKey();
         if (!res.resCode) {
@@ -68,12 +73,15 @@ async function reqUploadFile(uploadKey, filePath) {
             return new ResData(false, res);
         }
 
+        winston.debugRanderer('reqUploadFile setUploadFileEncKey completed %s, %s, %s',uploadKey, fileLength);
+
         // 4. 파일을 전송한다.
         res = await uploadFileStream(uploadKey, filePath);
         if (!res.resCode) {
             close();
             return new ResData(false, res);
         }
+        winston.debugRanderer('reqUploadFile uploadFileStream completed %s, %s, %s',uploadKey, fileLength);
 
         // 5. 파일 전송 완료        
         res = await endUploadFile();
@@ -130,8 +138,6 @@ function loginReady(userId) {
         fsAPI.writeCommandFS(cmd, dataBuf);
     });
 }
-
-
 
 //
 // upload functions

@@ -251,7 +251,7 @@ function NetTestPage() {
           <Col>
             <InputGroup >
               <InputGroup.Append>
-                <input type="file" name="myFile" onChange={handleSelectFile} />
+              <input type="file" name="myFile" onChange={handleSelectFile} />
               </InputGroup.Append>
               <FormControl
                 aria-label="Default"

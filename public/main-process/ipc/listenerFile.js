@@ -1,6 +1,8 @@
 
 const { ipcMain } = require('electron');
 const fsAPI = require('../net-command/command-fs-api');
+const winston = require('../../winston');
+const ResData = require('../ResData');
 
 
 // download file

@@ -113,7 +113,7 @@ function reqSignInNS() {
  * 쪽지를 보냅니다.
  * @param {String} userPass 
  */
-function reqSendMessage(recvIds, recvNames, subject, message) {
+function reqSendMessage(recvIds, recvNames, subject, message, attFileInfo) {
     return new Promise(async function(resolve, reject) {
 
         if (!global.SERVER_INFO.NS.isConnected) {
@@ -154,10 +154,13 @@ function reqSendMessage(recvIds, recvNames, subject, message) {
 
         // Message Data
         let cipherData = CryptoUtil.encryptMessage(message);
-
         let cipherContentBuf = Buffer.from(cipherData.cipherContent, global.ENC);
         cipherContentSizeBuf.writeInt32LE(cipherContentBuf.length);
         encryptKeyBuf.write(cipherData.encKey, global.ENC);
+
+        // Attachmenet File
+        let attFileInfoBuf = Buffer.from(attFileInfo);
+        fileSizeBuf.writeInt32LE(attFileInfoBuf.length);
 
         // default Header
         let dataBuf = Buffer.concat([

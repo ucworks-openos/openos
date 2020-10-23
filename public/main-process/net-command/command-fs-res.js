@@ -57,7 +57,7 @@ function receiveCmdProc(resCmd) {
         case CmdCodes.FS_UPLOADEND:
           let gubun = resCmd.data.readInt32LE(0);
           let dataStr = getStringWithoutEndOfString(resCmd.data, 4)
-          callCallback(resCmd.sendCmd, new ResData(true, gubun + '|' +dataStr));
+          callCallback(resCmd.sendCmd, new ResData(true, dataStr));
           break;
         default:
           winston.warn('FS_UPLOADEND  Response Fail! -  %s', resCmd.cmdCode);
