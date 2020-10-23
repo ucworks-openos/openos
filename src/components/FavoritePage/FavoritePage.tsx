@@ -690,6 +690,9 @@ export default function FavoritePage() {
             active={isHamburgerButtonClicked}
             clicked={isHamburgerButtonClicked}
             propsFunction={clickHamburgerButton}
+            closeFunction={() => {
+              setIsHamburgerButtonClicked(false);
+            }}
           />
           <ul
             className={
@@ -922,6 +925,7 @@ export default function FavoritePage() {
           setMessageModalVisible(false);
         }}
         style={messageInputModalStyle}
+        shouldCloseOnOverlayClick={false}
       >
         <MessageInputModal
           closeModalFunction={() => {

@@ -67,7 +67,7 @@ function LeftPanel() {
         </div>
       </div>
 
-      <div className="chat-list-wrap">
+      <div className="message-list-wrap">
         <ul>
           <MessageLists />
         </ul>
@@ -77,6 +77,7 @@ function LeftPanel() {
         isOpen={isOpenMessageInputModal}
         onRequestClose={MessageInputModalClose}
         style={messageInputModalStyle}
+        shouldCloseOnOverlayClick={false}
       >
         <MessageInputModal closeModalFunction={MessageInputModalClose} />
       </Modal>

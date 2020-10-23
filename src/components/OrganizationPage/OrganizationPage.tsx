@@ -693,6 +693,7 @@ export default function OrganizationPage() {
           setMessageModalVisible(false);
         }}
         style={messageInputModalStyle}
+        shouldCloseOnOverlayClick={false}
       >
         <MessageInputModal
           closeModalFunction={() => {
