@@ -10,6 +10,7 @@ export const MOVE_TO_CLICKED_CHAT_ROOM = "move_to_clicked_chat_room";
 export const SET_CURRENT_CHAT_ROOM_FROM_NOTI =
   "set_current_chat_room_from_noti";
 export const EMPTY_CHAT_MESSAGE = "empty_chat_message";
+export const SET_UNREAD_CHAT_ROOM_KEYS = "set_unread_chat_room_keys";
 
 export const GET_INITIAL_MESSAGE_LISTS = "get_initial_message_lists";
 export const GET_MESSAGE = "get_message";
@@ -18,5 +19,4 @@ export const SET_MESSAGE_LIST = "set_message_list";
 export const ADD_MESSAGE = "add_message";
 export const GET_MORE_MESSAGES = "get_more_messages";
 export const SET_CURRENT_MESSAGE_LISTS_TYPE = "set_current_message_lists_type";
-
 export const GET_LOGGED_IN_USER_INFO = "get_logged_in_user_info";

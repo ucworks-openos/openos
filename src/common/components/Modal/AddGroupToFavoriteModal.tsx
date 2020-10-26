@@ -14,10 +14,6 @@ import {
   syncronize,
 } from "../../util";
 import Node from "../AddToFavoriteTreeNode";
-import moment from "moment";
-import imgHolder from "../../../assets/images/img_imgHolder.png";
-import togglePlusImg from "../../../assets/images/icon_toggle_plus.png";
-import toggleMinImg from "../../../assets/images/icon_toggle_min.png";
 
 type TaddToFavoriteModalProps = {
   selectedGroupInfo: any;
@@ -130,12 +126,12 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
         <Switcher>
           {!data?.expanded ? (
             <img
-              src={togglePlusImg}
+              src="./images/icon_toggle_plus.png"
               style={{ minWidth: `20px`, height: `21px` }}
             />
           ) : (
             <img
-              src={toggleMinImg}
+              src="./images/icon_toggle_min.png"
               style={{ minWidth: `20px`, height: `21px` }}
             />
           )}
@@ -195,7 +191,7 @@ export default function AddToFavoriteModal(props: TaddToFavoriteModalProps) {
                           src={
                             v?.userPicturePos && /^http/.test(v?.userPicturePos)
                               ? v?.userPicturePos
-                              : imgHolder
+                              : "./images/img_imgHolder.png"
                           }
                           style={{ width: `48px`, height: `48px` }}
                           alt="user-profile-picture"

@@ -28,8 +28,6 @@ import AddToFavoriteModal from "../../common/components/Modal/AddToFavoriteModal
 import AddGroupToFavoriteModal from "../../common/components/Modal/AddGroupToFavoriteModal";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import togglePlusImg from "../../assets/images/icon_toggle_plus.png";
-import toggleMinImg from "../../assets/images/icon_toggle_min.png";
 
 let _orgCode: string = ``;
 
@@ -582,12 +580,12 @@ export default function OrganizationPage() {
         <Switcher>
           {!data?.expanded ? (
             <img
-              src={togglePlusImg}
+              src="./images/icon_toggle_plus.png"
               style={{ minWidth: `20px`, height: `21px` }}
             />
           ) : (
             <img
-              src={toggleMinImg}
+              src="./images/icon_toggle_min.png"
               style={{ minWidth: `20px`, height: `21px` }}
             />
           )}

@@ -4,6 +4,7 @@ import { showChatNoti } from "./ipcCommunication/ipcMessage";
 import {
   addReceivedChat,
   setCurrentChatRoomFromNoti,
+  setUnreadChatRoomKeys,
 } from "../redux/actions/chat_actions";
 import { writeDebug, writeInfo, writeLog } from "./ipcCommunication/ipcLogger";
 import {
@@ -69,10 +70,11 @@ function NotificationControl() {
         case ChatCommand.CHAT_DATA_LINE: // 대화 메세지
         case ChatCommand.CHAT_DATA_NEW_CHAT:
           dispatch(addReceivedChat(chat));
-
+          console.log(`new chat!!`, chat);
           // 내가 대화 room_key에 해당하지 않는 페이지에 있을 때만 알림 받기
           if (chat.roomKey !== selectedChatRoomKey) {
             //알림 받기
+
             showChatNoti(chat);
           }
           break;

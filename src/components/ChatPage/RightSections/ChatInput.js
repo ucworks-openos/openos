@@ -21,6 +21,18 @@ function ChatInput() {
     setInputValue(e.currentTarget.value);
   };
 
+  const handleNewLine = (e) => {
+    const {
+      which,
+      nativeEvent: { shiftKey },
+    } = e;
+
+    if (which === 13 && !shiftKey) {
+      e.preventDefault();
+      onSubmit();
+    }
+  };
+
   const getUserNames = async (userIds) => {
     const {
       data: {
@@ -115,16 +127,14 @@ function ChatInput() {
 
       <div className="chat-input-area">
         <div className="chat-input-wrap" onClick={handleFocusInput}>
-          <input
+          <textarea
             ref={inputRef}
             className="chat-input"
-            onKeyDown={(e) => {
-              e.keyCode === 13 && onSubmit();
-            }}
             value={inputValue}
             onChange={onInputValueChange}
             placeholder="채팅 내용을 입력해주세요."
-          ></input>
+            onKeyDown={handleNewLine}
+          ></textarea>
           <button
             onClick={onSubmit}
             type="submit"

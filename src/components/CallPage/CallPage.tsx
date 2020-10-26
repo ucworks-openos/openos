@@ -1,7 +1,5 @@
 import React from "react";
 import "./CallPage.css";
-import userThumbnailImg from "../../assets/images/img_user-thumbnail.png";
-import signatureImg from "../../assets/images/signiture-ci.svg";
 
 export default function CallPage() {
   return (
@@ -22,7 +20,10 @@ export default function CallPage() {
           <div className="call-dashboard-area">
             <div className="call-dashboard-col call-user-info-wrap">
               <div className="call-user-pic-wrap">
-                <img src={userThumbnailImg} alt="call-user-profile-picture" />
+                <img
+                  src="./images/img_user-thumbnail.png"
+                  alt="call-user-profile-picture"
+                />
               </div>
               <div className="call-user-info-wrap-inner">
                 <div className="call-inner-row call-user-info">
@@ -328,7 +329,7 @@ export default function CallPage() {
       </main>
 
       <div className="signiture-ci-wrap">
-        <img src={signatureImg} alt="signiture-ci" />
+        <img src="./images/signiture-ci.svg" alt="signiture-ci" />
       </div>
     </div>
   );

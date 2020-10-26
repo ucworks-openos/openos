@@ -56,10 +56,6 @@ function RightPanel() {
     setMessageModalVisible(true);
   };
 
-  useEffect(() => {
-    console.log(message);
-  });
-
   const initialContent = `
   <br/><br/> ---------------> original message <--------------- <br/>
   > 발신인: ${message?.msg_send_name} <br/>
