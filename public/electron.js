@@ -14,7 +14,7 @@ const { createLiteralTypeNode } = require("typescript");
 const { readConfig } = require("./main-process/configuration/site-config");
 const { getOsInfo } = require("./main-process/utils/utils-os");
 const { PLATFORM } = require("./main-process/common/common-const");
-const { logout } = require("./main-process/main-handler");
+const { logoutProc } = require("./main-process/main-handler");
 
 const BrowserWindow = electron.BrowserWindow;
 const globalShortcut = electron.globalShortcut
@@ -48,7 +48,7 @@ const mainContextMenu = Menu.buildFromTemplate([
       {
         label: 'Logout',
         click: async () => {
-          logout();
+          logoutProc();
         }
       },
       {
@@ -81,7 +81,7 @@ const trayContextMenu = Menu.buildFromTemplate([
   {
     label: 'Logout',
     click: async () => {
-      logout();
+      logoutProc();
     }
   },
   {
@@ -108,23 +108,33 @@ global.MY_PLATFORM = process.platform;
 
 global.ROOT_PATH = require('fs').realpathSync('./');
 
+// 개발모드 일때는 로그경로를 밖으로 뺀다.
+switch(global.MY_PLATFORM) {
+  case PLATFORM.MAC:
+  case PLATFORM.LINUX:
+    global.DEV_HOME = path.join(process.env.HOME, 'OpenOS', 'logs');
+    break;
+
+  case PLATFORM.WIN:
+  default:
+    global.DEV_HOME = path.join(process.env.USERPROFILE, 'OpenOS');
+    break;
+}
+
 // LOG PATH
 if (!global.IS_DEV) {
   global.LOG_PATH = path.join(global.ROOT_PATH,'logs');
 } else {
-  // 개발모드 일때는 로그경로를 밖으로 뺀다.
-  switch(global.MY_PLATFORM) {
-    case PLATFORM.MAC:
-    case PLATFORM.LINUX:
-      global.LOG_PATH = path.join(process.env.HOME, 'OpenOS', 'logs');
-      break;
-  
-    case PLATFORM.WIN:
-    default:
-      global.LOG_PATH = path.join(process.env.USERPROFILE, 'OpenOS', 'logs');
-      break;
-  }
+  global.LOG_PATH = path.join(global.DEV_HOME, 'logs');
 }
+
+// DOWNLOAD PATH
+if (!global.IS_DEV) {
+  global.DOWNLOAD_PATH = path.join(global.ROOT_PATH,'.download');
+} else {
+  global.DOWNLOAD_PATH = path.join(global.DEV_HOME,'.download');
+}
+
 
 global.MAIN_WINDOW = null;
 
@@ -245,6 +255,8 @@ global.BigFileLimit = 1024 * 1024 * 1024;
 global.TEMP = {
   buddyXml: ''
 }
+
+global.USE_FILE2GIGA = false;
 //#endregion GLOBAL 설정 정보
 
 

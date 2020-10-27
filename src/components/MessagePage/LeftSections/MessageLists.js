@@ -23,7 +23,7 @@ function MessagesLists() {
   );
 
   const onMessageClick = (messageId) => {
-    dispatch(getMessageHo(messageId));
+    //dispatch(getMessageHo(messageId));
     dispatch(setCurrentMessage(messageId));
   };
 

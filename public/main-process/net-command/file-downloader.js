@@ -53,6 +53,8 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
         let rcvCommand;
         let fsSock;
 
+        let dnFolder = require("path").dirname(saveFilePath);
+
         // Request Command를 보낸다.
         let writeCommand = function(cmdHeader, dataBuf = null){
             rcvCommand = null;
@@ -125,11 +127,16 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                         switch(resCmd.cmdCode) {
                             case CmdCodes.FS_DOWNLOADREADY:
                                 gubun = resCmd.data.readInt32LE(0);
-                                let lengthStr = BufUtil.getStringWithoutEndOfString(resCmd.data, 4);
-                                fileLength = Number(lengthStr) - 140;
 
+                                if (global.USE_FILE2GIGA) {
+                                    let lengthStr = BufUtil.getStringWithoutEndOfString(resCmd.data, 4);
+                                    fileLength = Number(lengthStr) - 140;
+                                } else {
+                                    fileLength = resCmd.size - 140;
+                                }
+                                
                                 // 3. encKey Reqeust
-                                winston.debug('3. encKey Reqeust', fileLength);
+                                winston.debug('3. encKey Reqeust. File length ', fileLength);
                                 let gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
                                 gubunBuf.writeInt32LE(1);
 
@@ -159,7 +166,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                         gubun = resCmd.data.readInt32LE(0);
                         let encData = BufUtil.getStringWithoutEndOfString(resCmd.data, 4);
                         
-                        winston.debug('file encKey %s', {encData:encData});
+                        winston.debug('FS_DOWNLOADSEND %s', {encData:encData});
                         // let spliterInx = encData.lastIndexOf(CmdConst.SEP_PIPE);
                         // let encKey = encData.substring(0, spliterInx-1);
                         // let cipherTxt = encData.substring(spliterInx+1);
@@ -181,7 +188,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                         // }
                         
                         //winston.debug('FS_DOWNLOADSEND ENC', encData, encKey, cipherTxt, fileEncKey);
-                        resolve(new ResData(true));
+                        
                         break;
                     default :
                         let rcvBuf = Buffer.from(resCmd.data);
@@ -210,8 +217,6 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                             break;
                         }
 
-                        resolve(new ResData(true));
-
                         break;
 
                     case CmdCodes.FS_DOWNLOADEND:
@@ -232,7 +237,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                             break;
                         }
 
-                        resolve(new ResData(true));
+                        resolve(new ResData(true, saveFilePath));
                         break;
 
                     default:
@@ -312,6 +317,9 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
             //chunk = CryptoUtil.decryptBufferRC4(CmdConst.SESSION_KEY, chunk);
             
             try {
+                // 다운로드 폴더 확인
+                !fs.existsSync(dnFolder) && fs.mkdirSync(dnFolder);
+
                 fs.appendFileSync(saveFilePath, chunk);
             } catch (err) {
                 winston.error('file write error %s', err)
@@ -329,6 +337,8 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
             winston.error('SERVER CONNECT FAIL! %s, %s', SVR, err)
             
             if (handleOnError) handleOnError(err)
+
+            resolve(new ResData(false, err));
             return false;
         }
     
@@ -346,6 +356,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
         fsSock.on('close', function(hadError){
             winston.warn("File Download Close. hadError: " + hadError);
             isConnected = false;
+            
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         fsSock.on('error', function(err){
@@ -354,6 +365,8 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
             winston.error("File Download error.  %s", err);
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             isConnected = false;
+            resolve(new ResData(false, err));
+            return;
         });
         
         // connection에서 timeout이 발생하면 메시지 출력
@@ -362,6 +375,8 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
 
             winston.warn('time out');
             isConnected = false;
+            resolve(new ResData(false, new Error('time out')));
+            return;
         });
 
 
@@ -385,6 +400,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
         } catch (err) {
             winston.error('Download File Fail! %s %s %s %s %s', serverIp, serverPort, serverFileName, saveFilePath, err);
             resolve(new ResData(false, err));
+            return;
         }
     });
 }

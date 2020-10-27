@@ -128,7 +128,7 @@ function initGlobal() {
     //#endregion GLOBAL 설정 정보
 }
 
-function logout(param) {
+function logoutProc(param) {
     try {
         nsAPI.close();
         dsAPI.close();
@@ -144,6 +144,6 @@ function logout(param) {
 }
   
 module.exports = {
-  logout:logout,
+  logoutProc:logoutProc,
   initGlobal:initGlobal,
 };
