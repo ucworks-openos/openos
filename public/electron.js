@@ -15,6 +15,7 @@ const { readConfig } = require("./main-process/configuration/site-config");
 const { getOsInfo } = require("./main-process/utils/utils-os");
 const { PLATFORM } = require("./main-process/common/common-const");
 const { logoutProc } = require("./main-process/main-handler");
+const Store = require("./main-process/common/file-store");
 
 const BrowserWindow = electron.BrowserWindow;
 const globalShortcut = electron.globalShortcut
@@ -98,7 +99,6 @@ const trayContextMenu = Menu.buildFromTemplate([
   }
 ]);
 
-
 /**
  * GLOBAL 정보는 선언을 하고 사용한다. (중앙관리)
  */
@@ -166,14 +166,6 @@ global.CERT = {
   enc: ''
 }
 /**
- * 기본 설정 정보
- */
-global.SITE_CONFIG = {
-  server_ip: '192.168.0.172',
-  server_port: '32551',
-  client_version: 652
-}
-/**
  * 서버 정보
  */
 global.SERVER_INFO = {
@@ -221,6 +213,14 @@ global.SERVER_INFO = {
   }
 }
 /**
+ * 기본 설정 정보
+ */
+global.SITE_CONFIG = {
+  server_ip: '192.168.0.172',
+  server_port: '32551',
+  client_version: 652
+}
+/**
  * 조직도 그룹 정보
  */
 global.ORG = {
@@ -242,21 +242,48 @@ global.FUNC_COMP_39 = {
  */
 global.ENC = "utf-8";
 
+/**
+ * 보낸 Command 관리용
+ */
 global.DS_SEND_COMMAND = {}
 global.CS_SEND_COMMAND = {}
 global.PS_SEND_COMMAND = {}
 global.NS_SEND_COMMAND = {}
 global.FS_SEND_COMMAND = {}
 
+/**
+ * Connection Check Interval 관리용
+ */
 global.NS_CONN_CHECK;
 
+/**
+ * 대용량 파일 제한
+ */
 global.BigFileLimit = 1024 * 1024 * 1024;
 
+/**
+ * 임시용
+ */
 global.TEMP = {
   buddyXml: ''
 }
 
+/**
+ * 2GB 허용 서버 여부
+ */
 global.USE_FILE2GIGA = false;
+
+/**
+ * 사용자 설정 정보
+ */
+global.USER_CONFIG = new Store({
+  configName: 'user-preferences',
+  defaults: {
+    autoLogin: true,
+    autoLoginId:'',
+    autoLoginPwd:''
+  }
+});
 //#endregion GLOBAL 설정 정보
 
 

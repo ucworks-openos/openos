@@ -2,22 +2,26 @@ import { writeInfo } from "./ipcLogger";
 
 const electron = window.require("electron");
 
+/**
+ * 자동로그인 여부를 저장합니다.
+ * @param {boolean} autoLoginFlag 
+ */
+export const setAutoLoginFlag = async (autoLoginFlag) => {
+  electron.ipcRenderer.send("setAutoLoginFlag", autoLoginFlag);
+};
+
+
 /** 로그인 요청을 합니다. */
 export const login = async (loginId, loginPwd, autoLogin) => {
   return new Promise(function (resolve, reject) {
-    let reqData = {
-      loginId,
-      loginPwd,
-      autoLogin,
-    };
 
     electron.ipcRenderer.once("res-login", (event, arg) => {
       console.log("LOGIN REQUEST res:", arg);
       resolve(arg);
     });
 
-    console.log("LOGIN REQUEST ipc:", reqData);
-    electron.ipcRenderer.send("login", reqData);
+    console.log("LOGIN REQUEST ipc:", loginId, loginPwd, autoLogin);
+    electron.ipcRenderer.send("login", loginId, loginPwd, autoLogin);
   });
 };
 
@@ -32,9 +36,7 @@ export const logout = () => {
     });
 
     electron.ipcRenderer.send("logout", null);
-
     sessionStorage.clear();
-    
   });
 };
 

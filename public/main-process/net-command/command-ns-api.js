@@ -200,7 +200,7 @@ function reqSendMessage(recvIds, recvNames, subject, message, attFileInfo) {
  */
 function reqDeleteMessage(msgGubun, msgKeys) {
     return new Promise(async function(resolve, reject) {
-        winston.info('----------- msgKeys', msgKeys)
+        winston.info('reqDeleteMessage msgKeys', msgKeys)
 
         if (!global.SERVER_INFO.NS.isConnected) {
             reject(new Error('NS IS NOT CONNECTED!'));

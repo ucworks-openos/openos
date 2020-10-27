@@ -28,9 +28,8 @@ function reqConnectDS () {
 /**
  * Login을 요청합니다.
  * @param {Object} loginData 
- * @param {boolean} connectionTry 
  */
-function reqLogin (loginData) {
+function reqLogin (loginId, loginPwd) {
     return new Promise(async function(resolve, reject) {
       
         // connect
@@ -51,7 +50,7 @@ function reqLogin (loginData) {
         }
         
         // GetServerInfo
-        let resData = await reqGetServerInfo(loginData.loginId);
+        let resData = await reqGetServerInfo(loginId);
         if (!resData.resCode) {
             reject(new Error(resData.data));
             return;
@@ -59,7 +58,7 @@ function reqLogin (loginData) {
         winston.debug('LOG IN STEP 1 --- GetServerInfo COMPLETED!' + JSON.stringify(resData));
 
         // GetUserRules
-        resData = await reqGetUserRules(loginData.loginId, loginData.loginPwd);
+        resData = await reqGetUserRules(loginId, loginPwd);
         if (!resData.resCode) {
             reject(new Error(resData.data));
             return;
@@ -67,7 +66,7 @@ function reqLogin (loginData) {
         winston.debug('LOG IN STEP 2 --- GetUserRules COMPLETED!' + JSON.stringify(resData));
 
         // HandshackDS
-        resData = await reqHandshackDS(loginData.loginId);
+        resData = await reqHandshackDS(loginId);
         if (!resData.resCode) {
             reject(new Error(resData.data));
             return;
@@ -75,7 +74,7 @@ function reqLogin (loginData) {
         winston.debug('LOG IN STEP 3 --- HandshackDS COMPLETED!' + JSON.stringify(resData));
 
         // SetSessionDS
-        resData = await reqSetSessionDS(loginData.loginId);
+        resData = await reqSetSessionDS(loginId);
         if (!resData.resCode) {
             reject(new Error(resData.data));
             return;
@@ -83,8 +82,7 @@ function reqLogin (loginData) {
         winston.debug('LOG IN STEP 4 --- SetSessionDS COMPLETED!' + JSON.stringify(resData));
 
         // 마지막 인증까지 완료되었다면 저장한다. 
-        global.USER.userId = loginData.loginId;
-        global.USER.userPass = loginData.userPass;
+        global.USER.userId = loginId;
         resolve(resData);
     });
 }

@@ -1,68 +1,71 @@
 const { ipcMain } = require('electron');
 const winston = require('../../winston')
 
+const CryptoUtil = require('../utils/utils-crypto');
+
 const dsAPI = require('../net-command/command-ds-api');
 const psAPI = require('../net-command/command-ps-api');
 const csAPI = require('../net-command/command-cs-api');
 const nsAPI = require('../net-command/command-ns-api');
 
 const ResData = require('../ResData');
-const commandConst = require('../net-command/command-const');
+const CmdConst = require('../net-command/command-const');
 
-const crypto = require("crypto");
-const ENCRYPTION_KEY = 'abcdefghijklmnop'.repeat(2); // Must be 256 bits (32 characters)
-const IV_LENGTH = 16; // For AES, this is always 16
-
-function encrypt(text) {
- const iv = crypto.randomBytes(IV_LENGTH);
- const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
- const encrypted = cipher.update(text);
-
- return iv.toString('hex') + ':' + Buffer.concat([encrypted, cipher.final()]).toString('hex');
-}
-
-function decrypt(text) {
- const textParts = text.split(':');
- const iv = Buffer.from(textParts.shift(), 'hex');
- const encryptedText = Buffer.from(textParts.join(':'), 'hex');
- const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
- const decrypted = decipher.update(encryptedText);
-
- return Buffer.concat([decrypted, decipher.final()]).toString();
-}
 const { logoutProc } = require('../main-handler');
 const { writeConfig } = require('../configuration/site-config')
 
+/**
+ * setAutoLoginFlag
+ */
+ipcMain.on('setAutoLoginFlag', async (event, autoLoginFlag) => {
+  winston.info('----', global.USER_CONFIG);
+  global.USER_CONFIG.set('autoLogin', autoLoginFlag)
+
+  // 자동로그인을 해제하면 비번을 날려버린다.
+  if (!autoLoginFlag) {
+    global.USER_CONFIG.set('autoLoginPwd', '')
+  }
+
+  winston.info('setAutoLoginFlag completed. arg:%s global:%s', autoLoginFlag, global.USER_CONFIG.get('autoLogin'));
+});
 
 /** login */ 
-ipcMain.on('login', async (event, loginData) => {
-  winston.debug('login Req : %s', loginData)
-  
-  let password;
-  let resData;
+ipcMain.on('login', async (event, loginId, loginPwd, isAutoLogin) => {
+  winston.debug('login Req : ',  loginId, loginPwd, isAutoLogin)
 
-  if (loginData.autoLogin) {
-    const decrypted = decrypt(loginData.loginPwd);
-    password = decrypted;
-  } else {
-    password = loginData.loginPwd
+  if (!loginId) {
+    winston.error('Login Id Empty!');
+    event.reply('res-login', new ResData(false, new Error('Login Id Empty!')));
+    return;
+  }
+  
+  winston.info('Auto Login. isAutoLogin:%s  configAugoLogin:%s', isAutoLogin && global.USER_CONFIG.get('autoLogin'));
+
+  if (isAutoLogin) {
+    let encPwd = global.USER_CONFIG.get('autoLoginPwd');
+    if (encPwd) {
+      loginPwd = CryptoUtil.decryptAES256(CmdConst.SESSION_KEY_AES256, encPwd);
+    } else {
+      winston.error('Can not auto login! password empty!');
+      event.reply('res-login', new ResData(false, new Error('Can not auto login! password empty!')));
+      return;
+    }
   }
 
   try {
     // DS로 로그인 요청을 하고
-    resData = await dsAPI.reqLogin(loginData, true);
-
+    resData = await dsAPI.reqLogin(loginId, loginPwd);
     winston.debug('login Req : %s', resData)
 
     // CS로 인증 요청을 하고
     if (resData.resCode) {
-      resData = await csAPI.reqCertifyCS(loginData.loginId, password, true);
+      resData = await csAPI.reqCertifyCS(loginId, loginPwd, true);
     } 
     else throw new Error('reqLogin fail!');
 
     // PS로 사용자 정보를 받고
     if (resData.resCode) {
-      resData = await psAPI.reqGetCondition(loginData.loginId)
+      resData = await psAPI.reqGetCondition(loginId)
     }
     else throw new Error('reqCertifyCS fail!');
 
@@ -73,26 +76,22 @@ ipcMain.on('login', async (event, loginData) => {
       global.ORG.orgGroupCode = resData.data.root_node.node_item.org_code.value;
       global.ORG.groupCode = resData.data.root_node.node_item.user_group_code.value;
 
-      resData = await nsAPI.reqconnectNS(loginData.loginId)
+      resData = await nsAPI.reqconnectNS(loginId)
     }
     else throw new Error('reqGetCondition fail!');
 
-    if (resData.resCode && !loginData.autoLogin) {
-      const encrypted = encrypt(password);
-      console.log(`encrypted `, encrypted);
-        resData = {
-          ...resData,
-          // autoLogin: crypto.createHash(`sha256`).update(loginData.loginPwd).digest(`hex`) 
-          autoLogin: encrypted
-        }
-      
-    }
-
     // 내상태를 Online으로 처리합니다.
-    nsAPI.reqChangeStatus(commandConst.STATE_ONLINE);
+    nsAPI.reqChangeStatus(CmdConst.STATE_ONLINE);
 
     // 로그인에 성공하면 내 상태 변경알림 요청을 합니다.
-    nsAPI.reqSetStatusMonitor([loginData.loginId]);
+    nsAPI.reqSetStatusMonitor([loginId]);
+
+    global.USER_CONFIG.set('autoLoginId', loginId);
+
+    // 자동로그인 요청이 아니나, 자동로그인에 체크를 했다면 저장해 준다.
+    if (!isAutoLogin && global.USER_CONFIG.get('autoLogin')) {
+      global.USER_CONFIG.set('autoLoginPwd', CryptoUtil.encryptAES256(CmdConst.SESSION_KEY_AES256, loginPwd));
+    }
 
     event.reply('res-login', new ResData(true, resData));
 
