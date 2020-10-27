@@ -13,6 +13,8 @@ import {
   EMPTY_CHAT_MESSAGE,
   SET_CHAT_ROOMS,
   SET_UNREAD_CHAT_ROOM_KEYS,
+  SET_EMOJI_VISIBLE,
+  SET_EMOTICON_VISIBLE,
 } from "./types";
 import {
   getChatRoomList,
@@ -31,6 +33,20 @@ function getUUID() {
   let tokens = uuidv4().split("-");
   return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
 }
+
+export const setEmoticonVisible = (boolean) => {
+  return {
+    type: SET_EMOTICON_VISIBLE,
+    payload: boolean,
+  };
+};
+
+export const setEmojiVisible = (boolean) => {
+  return {
+    type: SET_EMOJI_VISIBLE,
+    payload: boolean,
+  };
+};
 
 export const setUnreadChatRoomKeys = (chat) => {
   return {

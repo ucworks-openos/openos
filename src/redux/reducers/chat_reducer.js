@@ -12,6 +12,8 @@ import {
   EMPTY_CHAT_MESSAGE,
   SET_CHAT_ROOMS,
   SET_UNREAD_CHAT_ROOM_KEYS,
+  SET_EMOJI_VISIBLE,
+  SET_EMOTICON_VISIBLE,
 } from "../actions/types";
 
 export default function (
@@ -21,6 +23,16 @@ export default function (
   action
 ) {
   switch (action.type) {
+    case SET_EMOTICON_VISIBLE:
+      return {
+        ...state,
+        emoticonVisible: action.payload,
+      };
+    case SET_EMOJI_VISIBLE:
+      return {
+        ...state,
+        emojiVisible: action.payload,
+      };
     case GET_INITIAL_CHAT_ROOMS:
       return {
         ...state,

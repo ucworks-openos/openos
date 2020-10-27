@@ -1,22 +1,31 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addChatMessage } from "../../../redux/actions/chat_actions";
+import {
+  addChatMessage,
+  setEmojiVisible,
+  setEmoticonVisible,
+} from "../../../redux/actions/chat_actions";
 import Alert from "react-bootstrap/Alert";
 import { getUserInfos } from "../../../common/ipcCommunication/ipcOrganization";
 import { arrayLike } from "../../../common/util";
 import EmojiPicker from "emoji-picker-react";
 import Modal from "react-modal";
+import { Picker } from "emoji-mart";
+import "emoji-mart/css/emoji-mart.css";
+import EmoticonSelector from "../../../common/components/Editor/EmoticonSelector";
 
 function ChatInput() {
   const dispatch = useDispatch();
-  const currentChatRoom = useSelector((state) => state.chats.currentChatRoom);
+  const { currentChatRoom, emojiVisible, emoticonVisible } = useSelector(
+    (state) => state.chats
+  );
   const [inputValue, setInputValue] = useState("");
   const [isAlreadyTyped, setIsAlreadyTyped] = useState(false);
   const [isAlreadyRoomSelected, setIsAlreadyRoomSelected] = useState(false);
-  const [emojiPickerModalVisible, setEmojiPickerModalVisible] = useState(false);
 
   const inputRef = useRef(null);
   const loggedInUser = useSelector((state) => state.users.loggedInUser);
+
   const onInputValueChange = (e) => {
     setInputValue(e.currentTarget.value);
   };
@@ -51,13 +60,19 @@ function ChatInput() {
     inputRef.current.focus();
   };
 
-  const handleEmojiPick = () => {
-    setEmojiPickerModalVisible(!emojiPickerModalVisible);
+  const handleEmoticonPick = () => {
+    dispatch(setEmojiVisible(false));
+    dispatch(setEmoticonVisible(!emoticonVisible));
   };
 
-  const handleEmojiClick = (event, emojiObject) => {
-    console.log(emojiObject.emoji);
-    setInputValue(inputValue + emojiObject.emoji);
+  const handleEmojiPick = () => {
+    dispatch(setEmoticonVisible(false));
+    dispatch(setEmojiVisible(!emojiVisible));
+  };
+
+  const handleEmojiClick = (emoji, event) => {
+    setInputValue(inputValue + emoji.native);
+    dispatch(setEmojiVisible(false));
   };
 
   const onSubmit = async (event) => {
@@ -125,6 +140,31 @@ function ChatInput() {
         </div>
       )}
 
+      <Picker
+        showPreview={false}
+        showSkinTones={false}
+        set="apple"
+        emojiTooltip={true}
+        search
+        onClick={handleEmojiClick}
+        style={{
+          display: emojiVisible ? `block` : `none`,
+          position: `absolute`,
+          bottom: `165px`,
+          width: `100%`,
+        }}
+      />
+      <EmoticonSelector
+        style={{
+          display: emoticonVisible ? `block` : `none`,
+          backgroundColor: `#fff`,
+          height: `353px`,
+          position: `absolute`,
+          zIndex: `9999`,
+          bottom: `165px`,
+          width: `100%`,
+        }}
+      />
       <div className="chat-input-area">
         <div className="chat-input-wrap" onClick={handleFocusInput}>
           <textarea
@@ -146,28 +186,15 @@ function ChatInput() {
         </div>
 
         <div className="input-action-wrap">
-          <Modal
-            isOpen={emojiPickerModalVisible}
-            style={commonModalStyles}
-            onRequestClose={() => {
-              setEmojiPickerModalVisible(false);
-            }}
-          >
-            <EmojiPicker onEmojiClick={handleEmojiClick} />
-            <div
-              onClick={() => {
-                setEmojiPickerModalVisible(false);
-              }}
-            >
-              X
-            </div>
-          </Modal>
-
           <div
             className="input-action btn-txt"
             title="텍스트 (글꼴, 크기, 색상,표)"
           ></div>
-          <div className="input-action btn-emoticon" title="이모티콘"></div>
+          <div
+            className="input-action btn-emoticon"
+            title="이모티콘"
+            onClick={handleEmoticonPick}
+          ></div>
           <div
             className="input-action btn-emoji"
             title="이모지"
@@ -191,17 +218,5 @@ function ChatInput() {
     </>
   );
 }
-
-const commonModalStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-  },
-  overlay: { zIndex: 1000 },
-};
 
 export default ChatInput;

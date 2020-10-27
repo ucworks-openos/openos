@@ -437,7 +437,7 @@
 
 .chat-area {
     position: absolute;
-    padding: 16px;
+    padding: 0 16px;
     top: 52px;
     left: 0;
     right: 0;

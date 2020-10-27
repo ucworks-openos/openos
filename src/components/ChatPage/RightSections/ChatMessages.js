@@ -5,15 +5,32 @@ import moment from "moment";
 
 function ChatMessages() {
   const dispatch = useDispatch();
-  const chatMessages = useSelector((state) => state.chats.chatMessages);
-  const currentChatRoom = useSelector((state) => state.chats.currentChatRoom);
+  const {
+    currentChatRoom,
+    chatMessages,
+    emojiVisible,
+    emoticonVisible,
+  } = useSelector((state) => state.chats);
+
+  useEffect(() => {
+    if (emojiVisible) {
+      scrollToBottom();
+    }
+  }, [emojiVisible]);
+
+  useEffect(() => {
+    if (emoticonVisible) {
+      scrollToBottom();
+    }
+  }, [emoticonVisible]);
+
   // const [chatMessagesWithUserInfos, setChatMessagesWithUserInfos] = useState([])
   const messagesEndRef = useRef();
 
   const scrollToBottom = () => {
     messagesEndRef.current.scrollIntoView({
       behavior: "smooth",
-      block: "nearest",
+      block: "end",
       inline: "start",
     });
   };
@@ -204,7 +221,10 @@ function ChatMessages() {
 
   if (chatMessages) {
     return (
-      <div className="chat-area">
+      <div
+        className="chat-area"
+        style={{ bottom: (emojiVisible || emoticonVisible) && `520px` }}
+      >
         {renderChatMessages()}
         <div ref={messagesEndRef} />
       </div>

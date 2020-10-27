@@ -11,6 +11,8 @@ export const SET_CURRENT_CHAT_ROOM_FROM_NOTI =
   "set_current_chat_room_from_noti";
 export const EMPTY_CHAT_MESSAGE = "empty_chat_message";
 export const SET_UNREAD_CHAT_ROOM_KEYS = "set_unread_chat_room_keys";
+export const SET_EMOJI_VISIBLE = "set_emoji_visible";
+export const SET_EMOTICON_VISIBLE = "set_emoticon_visible";
 
 export const GET_INITIAL_MESSAGE_LISTS = "get_initial_message_lists";
 export const GET_MESSAGE = "get_message";
