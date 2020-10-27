@@ -14,21 +14,6 @@ const CmdConst = require('../net-command/command-const');
 const { logoutProc } = require('../main-handler');
 const { writeConfig } = require('../configuration/site-config')
 
-/**
- * setAutoLoginFlag
- */
-ipcMain.on('setAutoLoginFlag', async (event, autoLoginFlag) => {
-  winston.info('----', global.USER_CONFIG);
-  global.USER_CONFIG.set('autoLogin', autoLoginFlag)
-
-  // 자동로그인을 해제하면 비번을 날려버린다.
-  if (!autoLoginFlag) {
-    global.USER_CONFIG.set('autoLoginPwd', '')
-  }
-
-  winston.info('setAutoLoginFlag completed. arg:%s global:%s', autoLoginFlag, global.USER_CONFIG.get('autoLogin'));
-});
-
 /** login */ 
 ipcMain.on('login', async (event, loginId, loginPwd, isAutoLogin) => {
   winston.debug('login Req : ',  loginId, loginPwd, isAutoLogin)
@@ -41,6 +26,7 @@ ipcMain.on('login', async (event, loginId, loginPwd, isAutoLogin) => {
   
   winston.info('Auto Login. isAutoLogin:%s  configAugoLogin:%s', isAutoLogin && global.USER_CONFIG.get('autoLogin'));
 
+  // 자동로그인 요청이라면 저장된 비번을 확인한다.
   if (isAutoLogin) {
     let encPwd = global.USER_CONFIG.get('autoLoginPwd');
     if (encPwd) {
