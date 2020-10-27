@@ -28,10 +28,6 @@ function RightPanel() {
     setTooltipVisible(false);
   };
 
-  useEffect(() => {
-    console.log(currentChatRoom);
-  });
-
   const dispatch = useDispatch();
   // winston.info('currentChatRoom', currentChatRoom)
   const clickHamburgerButton = () => {

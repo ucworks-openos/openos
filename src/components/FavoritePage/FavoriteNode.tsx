@@ -12,7 +12,6 @@ import { writeWarn } from "../../common/ipcCommunication/ipcLogger";
 import { arrayLike } from "../../common/util";
 import { EconnectType, EnodeGubun, EuserState } from "../../enum";
 import useConfig from "../../hooks/useConfig";
-import imgHolder from "../../assets/images/img_imgHolder.png";
 
 type TFavoriteNodeProps = {
   data: TTreeNode;
@@ -116,7 +115,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
 
   const handleImageError = (image: any) => {
     image.target.onerror = null;
-    image.target.src = imgHolder;
+    image.target.src = "./images/img_imgHolder.png";
   };
 
   return (
@@ -138,7 +137,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
                 src={
                   data?.userPicturePos && /^http/.test(data?.userPicturePos)
                     ? data?.userPicturePos
-                    : imgHolder
+                    : "./images/img_imgHolder.png"
                 }
                 style={{ width: `48px`, height: `48px` }}
                 alt="user-profile-picture"
@@ -160,7 +159,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
                           data?.userPicturePos &&
                           /^http/.test(data?.userPicturePos)
                             ? data?.userPicturePos
-                            : imgHolder
+                            : "./images/img_imgHolder.png"
                         }
                         style={{ width: `48px`, height: `48px` }}
                         alt="user-profile-picture"

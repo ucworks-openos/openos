@@ -11,8 +11,6 @@ import Modal from "react-modal";
 import SettingModal from "../../../common/components/Modal/SettingModal";
 import useConfig from "../../../hooks/useConfig";
 import { getUserInfos } from "../../../common/ipcCommunication/ipcOrganization";
-import imgHolder from "../../../assets/images/img_imgHolder.png";
-import redoImg from "../../../assets/images/icon_redo.png";
 
 export default function HeaderNavi() {
   const [avatarDropDownIsOpen, setAvatarDropDownIsOpen] = useState(false);
@@ -105,7 +103,7 @@ export default function HeaderNavi() {
 
   const handleImageError = (image: any) => {
     image.target.onerror = null;
-    image.target.src = imgHolder;
+    image.target.src = "./images/img_imgHolder.png";
   };
 
   const handleRefresh = () => {
@@ -127,7 +125,7 @@ export default function HeaderNavi() {
           cursor: `pointer`,
         }}
       >
-        <img src={redoImg} />
+        <img src="./images/icon_redo.png" />
         {/* 아이콘 제작자 <a href="https://www.flaticon.com/kr/authors/becris" title="Becris">Becris</a> from <a href="https://www.flaticon.com/kr/" title="Flaticon"> www.flaticon.com</a> */}
       </div>
       {/* <form className="golbal-search-wrap">
@@ -189,7 +187,7 @@ export default function HeaderNavi() {
               src={
                 myInfo?.userPicturePos && /^http/.test(myInfo?.userPicturePos)
                   ? myInfo?.userPicturePos
-                  : imgHolder
+                  : "./images/img_imgHolder.png"
               }
               style={{ width: `40px`, height: `40px` }}
               alt="user-profile-picture"
@@ -212,7 +210,7 @@ export default function HeaderNavi() {
                     myInfo?.userPicturePos &&
                     /^http/.test(myInfo?.userPicturePos)
                       ? myInfo?.userPicturePos
-                      : imgHolder
+                      : "./images/img_imgHolder.png"
                   }
                   style={{ width: `40px`, height: `40px` }}
                   alt="user-profile-picture"

@@ -240,7 +240,7 @@ export default function SettingModal(props: TsettingModalProps) {
             <div className="setting-con-row theme">
               <div className="setting-con-option">
                 <img
-                  src={themeDefaultImg}
+                  src="./images/theme-default.png"
                   className="img-theme-label"
                   title="기본"
                 />
@@ -260,7 +260,7 @@ export default function SettingModal(props: TsettingModalProps) {
 
               <div className="setting-con-option">
                 <img
-                  src={themeDarkImg}
+                  src="./images/theme-dark.png"
                   className="img-theme-label"
                   title="어둡게"
                 />
@@ -438,7 +438,7 @@ export default function SettingModal(props: TsettingModalProps) {
             <div className="setting-con-row user-pic-area">
               <div className="user-pic-wrap">
                 <img
-                  src={userThumbnailImg}
+                  src="./images/img_user-thumbnail.png"
                   alt="user-profile-picture"
                 />
               </div>

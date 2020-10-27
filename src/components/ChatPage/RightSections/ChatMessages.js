@@ -2,19 +2,35 @@ import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getInitialChatMessages } from "../../../redux/actions/chat_actions";
 import moment from "moment";
-import imgHolder from "../../../assets/images/img_imgHolder.png";
 
 function ChatMessages() {
   const dispatch = useDispatch();
-  const chatMessages = useSelector((state) => state.chats.chatMessages);
-  const currentChatRoom = useSelector((state) => state.chats.currentChatRoom);
+  const {
+    currentChatRoom,
+    chatMessages,
+    emojiVisible,
+    emoticonVisible,
+  } = useSelector((state) => state.chats);
+
+  useEffect(() => {
+    if (emojiVisible) {
+      scrollToBottom();
+    }
+  }, [emojiVisible]);
+
+  useEffect(() => {
+    if (emoticonVisible) {
+      scrollToBottom();
+    }
+  }, [emoticonVisible]);
+
   // const [chatMessagesWithUserInfos, setChatMessagesWithUserInfos] = useState([])
   const messagesEndRef = useRef();
 
   const scrollToBottom = () => {
     messagesEndRef.current.scrollIntoView({
       behavior: "smooth",
-      block: "nearest",
+      block: "end",
       inline: "start",
     });
   };
@@ -31,11 +47,6 @@ function ChatMessages() {
       //데이터 베이스에서 메시지를 가져오면 안됨.
       //근데  채팅을 몇번 하고 난 후에 다시 들어올때도  last_line_key가  undefined이기에 ...
       //채팅 리스트들을 없앤다 .. 어떻게 해야 하나 ...?
-      console.log(
-        "getInitialChatMessages getInitialChatMessages getInitialChatMessages",
-        currentChatRoom.room_key,
-        currentChatRoom
-      );
       dispatch(
         getInitialChatMessages(
           currentChatRoom.room_key,
@@ -108,7 +119,9 @@ function ChatMessages() {
             <div key={index} className="speech-row speech-my">
               <div className="speach-content-wrap">
                 <div className="speech-inner-wrap">
-                  <div className="speech-content">{contents}</div>
+                  <div className="speech-content">
+                    <pre>{contents}</pre>
+                  </div>
                   <div className="speech-info">
                     <span className="unread-ppl">{chat.read_count}</span>
                     <span className="time">
@@ -133,7 +146,7 @@ function ChatMessages() {
                     chat.user_picture_pos &&
                     /^http/.test(chat.user_picture_pos.value)
                       ? chat.user_picture_pos.value
-                      : imgHolder
+                      : "./images/img_imgHolder.png"
                   }
                   alt="user-profile-picture"
                 />
@@ -172,7 +185,7 @@ function ChatMessages() {
                     chat.user_picture_pos &&
                     /^http/.test(chat.user_picture_pos.value)
                       ? chat.user_picture_pos.value
-                      : imgHolder
+                      : "./images/img_imgHolder.png"
                   }
                   alt="user-profile-picture"
                 />
@@ -206,13 +219,12 @@ function ChatMessages() {
       );
     });
 
-  {
-    console.log("chatMessages", chatMessages);
-  }
-
   if (chatMessages) {
     return (
-      <div className="chat-area">
+      <div
+        className="chat-area"
+        style={{ bottom: (emojiVisible || emoticonVisible) && `520px` }}
+      >
         {renderChatMessages()}
         <div ref={messagesEndRef} />
       </div>

@@ -12,6 +12,9 @@ import {
   SET_CURRENT_CHAT_ROOM_FROM_NOTI,
   EMPTY_CHAT_MESSAGE,
   SET_CHAT_ROOMS,
+  SET_UNREAD_CHAT_ROOM_KEYS,
+  SET_EMOJI_VISIBLE,
+  SET_EMOTICON_VISIBLE,
 } from "./types";
 import {
   getChatRoomList,
@@ -30,6 +33,27 @@ function getUUID() {
   let tokens = uuidv4().split("-");
   return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
 }
+
+export const setEmoticonVisible = (boolean) => {
+  return {
+    type: SET_EMOTICON_VISIBLE,
+    payload: boolean,
+  };
+};
+
+export const setEmojiVisible = (boolean) => {
+  return {
+    type: SET_EMOJI_VISIBLE,
+    payload: boolean,
+  };
+};
+
+export const setUnreadChatRoomKeys = (chat) => {
+  return {
+    type: SET_UNREAD_CHAT_ROOM_KEYS,
+    payload: chat,
+  };
+};
 
 export function setCurrentChatRoom(roomKey, chatRooms) {
   let realRequest = chatRooms.filter((c) => c.room_key === roomKey);
@@ -68,8 +92,6 @@ export async function getInitialChatRooms() {
 }
 
 export async function getInitialChatMessages(chatRoomId, lastLineKey) {
-  console.log("chatRoomId", chatRoomId);
-
   let getChatListsResult = await getChatList(chatRoomId, lastLineKey, 10);
 
   let request = [];
@@ -77,8 +99,6 @@ export async function getInitialChatMessages(chatRoomId, lastLineKey) {
   if (getChatLists !== undefined) {
     request = Array.isArray(getChatLists) ? getChatLists : [getChatLists];
   }
-  console.log("getChatLists request", request);
-
   return {
     type: GET_INITIAL_CHAT_MESSAGES,
     payload: request,
@@ -105,7 +125,7 @@ export function addChatMessage(
   let request = {
     chat_contents: chatMessage,
     chat_send_name: senderName,
-    chat_font_name: '',
+    chat_font_name: "",
     chat_send_date: moment().format("YYYYMMDDHHmm"),
     read_count: 0,
     chat_send_id: senderId,

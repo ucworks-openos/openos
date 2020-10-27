@@ -27,8 +27,6 @@ import { Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/SendMessageModal/MessageInputModal";
 import ModifyGroupModal from "../../common/components/Modal/ModifyGroupModal";
-import togglePlusImg from "../../assets/images/icon_toggle_plus.png";
-import toggleMinImg from "../../assets/images/icon_toggle_min.png";
 
 type TgetBuddyTreeReturnTypes = {
   buddyTree: TTreeNode[];
@@ -574,12 +572,12 @@ export default function FavoritePage() {
         <Switcher>
           {!data?.expanded ? (
             <img
-              src={togglePlusImg}
+              src="./images/icon_toggle_plus.png"
               style={{ minWidth: `20px`, height: `21px` }}
             />
           ) : (
             <img
-              src={toggleMinImg}
+              src="./images/icon_toggle_min.png"
               style={{ minWidth: `20px`, height: `21px` }}
             />
           )}
