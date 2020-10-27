@@ -39,7 +39,6 @@ function UploadAttachmentFile(prop) {
           fileList.push(getTransFileData(files[i]))
         }
 
-        writeDebug('addAttachmentFiles', prop.attachmentFiles, fileList);
         prop.setAttachmentFiles(prop.attachmentFiles.concat(fileList));
     }
 

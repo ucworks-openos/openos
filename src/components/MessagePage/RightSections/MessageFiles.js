@@ -1,6 +1,8 @@
 import React, {useState,useEffect} from 'react'
+import { pathToFileURL } from 'url';
 import { downloadFile } from '../../../common/ipcCommunication/ipcFile';
 import { writeDebug, writeInfo, writeWarn } from '../../../common/ipcCommunication/ipcLogger'
+import { shellOpenFolder, shellOpenItem } from '../../../common/ipcCommunication/ipcUtil';
 import { delay } from '../../../common/util';
 import { formatBytes } from '../../../common/util/fileUtil';
 
@@ -16,6 +18,8 @@ function MessageFiles(prop) {
      * 상위에서 파일 정보를 만들어 처리하도록만 한다.
      */
     const downloadPath = remote.getGlobal('DOWNLOAD_PATH')
+
+    const [isDownloadFolderOpen, setIsDownloadFolderOpen] = useState(true);
     
     useEffect(() => {
         writeDebug('file download path:', downloadPath);
@@ -24,7 +28,6 @@ function MessageFiles(prop) {
         // 파일전송 모니터링
         electron.ipcRenderer.removeAllListeners('download-file-progress')
         electron.ipcRenderer.on('download-file-progress', (event, svrName, downloadLength, fileLength) => {
-            writeDebug('download-file-progress', svrName, downloadLength, fileLength)
             let percentage = ((downloadLength/fileLength)*100).toFixed(0);
 
             fileDownloadProgress(svrName, percentage + '%', downloadPath);
@@ -42,13 +45,14 @@ function MessageFiles(prop) {
             if (prop.attachmentFiles[i].isCompleted) continue;
 
             let fullPath = downloadPath + '/' + prop.attachmentFiles[i].name;
-            writeDebug('downloadAttFile Before', prop.attachmentFiles[i])
             let resData = await downloadFile(prop.attachmentFiles[i].serverIp, prop.attachmentFiles[i].serverPort, prop.attachmentFiles[i].svrName, fullPath)
             writeInfo('file Download completed!', prop.attachmentFiles[i].name, resData)
             fileDownloadProgress(prop.attachmentFiles[i].svrName, 100, resData.data, true)
 
             delay(500)
         }
+
+        if (isDownloadFolderOpen) shellOpenFolder(downloadPath);
     }
 
     const downloadAttFile = (svrName) => {
@@ -56,47 +60,52 @@ function MessageFiles(prop) {
 
         if (attFile?.length > 0) {
             attFile = attFile[0];
-            writeDebug('downloadAttFile Before', svrName, attFile)
-
             downloadFile(attFile.serverIp, attFile.serverPort, attFile.svrName, downloadPath + '/' + attFile.name).then((resData) => {
                 writeInfo('file Download completed!', attFile.name, resData)
                 fileDownloadProgress(attFile.svrName, 100, resData.data, true)
-            })
 
+                if (isDownloadFolderOpen) shellOpenFolder(resData.data, true);
+            })
         } else {
             writeWarn('Can Not Find File.', svrName, prop.attachmentFiles);
         } 
     }
 
-    const executeFile = () => {
+    const executeFile = (svrName) => {
+        let attFile = prop.attachmentFiles.filter((file) => file.svrName === svrName);
+
+        if (attFile?.length > 0) {
+            attFile = attFile[0];
+            shellOpenItem(attFile.fullPath);
+        }
     }
 
-    const openFolder = () => {
+    const openFolder = (svrName) => {
+        let attFile = prop.attachmentFiles.filter((file) => file.svrName === svrName);
+
+        if (attFile?.length > 0) {
+            attFile = attFile[0];
+            shellOpenFolder(attFile.fullPath, true);
+        }
     }
 
     function fileDownloadProgress(svrName, percentage, fullPath = '', isCompleted = false) {
-        writeInfo('fileDownloadProgress!', svrName, percentage, isCompleted, fullPath)
         let fileList = JSON.parse(sessionStorage.getItem('sessionDnAttFiles'));
 
         fileList = fileList.map((file) => {
             if (file.svrName === svrName) {
-                let updateItem = {
-                    ...file,
-                    progress: percentage,
-                }
 
-                if (isCompleted) {
-                    updateItem = {
+                if (!file.isCompleted) {
+                    let updateItem = {
                         ...file,
+                        progress: percentage,
                         fullPath: fullPath,
                         isCompleted: isCompleted,
                     }
+
+                    return updateItem;
                 }
-
-                writeInfo('fileDownloadProgress!  updateItem', updateItem.svrName, updateItem.progress, updateItem.isCompleted)
-                return updateItem;
             }
-
             return file;
         });
         prop.setAttachmentFiles(fileList);
@@ -107,10 +116,10 @@ function MessageFiles(prop) {
             <div className="attatched-file-header-wrap">
                 <div className="attatched-file-title">첨부파일({prop.attachmentFiles.length})</div>
                 <div className="attatched-file-action open-folder">
-                    <input type="checkbox" id="open-folder-inner" />
+                    <input type="checkbox" id="open-folder-inner" checked={isDownloadFolderOpen} onClick={()=>{setIsDownloadFolderOpen((prev) => !prev)}} />
                     <label htmlFor="open-folder-inner" >다운로드 후 저장 폴더 열기</label>
                 </div>
-                <div className="attatched-file-action download-all" onClick={() => {saveAll()}}>전체 다운로드</div>
+                <div className="attatched-file-action download-all" onClick={()=>{saveAll()}}>전체 다운로드</div>
             </div>
             <div className="attatched-file-wrap">
                 {prop.attachmentFiles?.map((file, index) => {

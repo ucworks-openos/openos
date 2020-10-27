@@ -184,15 +184,12 @@ function MessageInputModal(props) {
             // 파일전송 모니터링
             electron.ipcRenderer.removeAllListeners('upload-file-progress')
             electron.ipcRenderer.on('upload-file-progress', (event, uploadKey, uploadedLength, fileLength) => {
-                writeDebug('upload-file-progress', uploadedLength, fileLength, uploadKey)
-
                 fileUploadProgress(uploadKey, ((uploadedLength/fileLength)*100).toFixed(0) + '%');
             });
 
             let attFileInfo = '';
             for (let i = 0; i < attachmentFiles.length; i++) {
                 let resData = await uploadFile(attachmentFiles[i].path, attachmentFiles[i].path);
-                writeInfo('fileUpload completed!',attachmentFiles[i].name, resData)
                 fileUploadProgress(attachmentFiles[i].path, '100%', resData.data);
 
                 attFileInfo += 
@@ -231,7 +228,6 @@ function MessageInputModal(props) {
     }
 
     function fileUploadProgress(uploadKey, percentage, svrFileName = '') {
-        writeInfo('fileUploadProgress!', uploadKey, percentage)
         let updateFileInfos = JSON.parse(sessionStorage.getItem('attachmentFiles'));
 
         updateFileInfos = updateFileInfos.map((file) => {
