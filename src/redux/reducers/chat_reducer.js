@@ -1,3 +1,4 @@
+import { addSyntheticTrailingComment } from "typescript";
 import {
   GET_INITIAL_CHAT_ROOMS,
   GET_INITIAL_CHAT_MESSAGES,
@@ -10,10 +11,28 @@ import {
   SET_CURRENT_CHAT_ROOM_FROM_NOTI,
   EMPTY_CHAT_MESSAGE,
   SET_CHAT_ROOMS,
+  SET_UNREAD_CHAT_ROOM_KEYS,
+  SET_EMOJI_VISIBLE,
+  SET_EMOTICON_VISIBLE,
 } from "../actions/types";
 
-export default function (state = {}, action) {
+export default function (
+  state = {
+    unreadChatRoomKeys: [],
+  },
+  action
+) {
   switch (action.type) {
+    case SET_EMOTICON_VISIBLE:
+      return {
+        ...state,
+        emoticonVisible: action.payload,
+      };
+    case SET_EMOJI_VISIBLE:
+      return {
+        ...state,
+        emojiVisible: action.payload,
+      };
     case GET_INITIAL_CHAT_ROOMS:
       return {
         ...state,
@@ -54,6 +73,13 @@ export default function (state = {}, action) {
       return {
         ...state,
         chatMessages: [],
+      };
+    case SET_UNREAD_CHAT_ROOM_KEYS:
+      return {
+        ...state,
+        unreadChatRoomKeys: [
+          ...new Set([...state.unreadChatRoomKeys, action.payload.roomKey]),
+        ],
       };
     case ADD_RECEIVED_CHAT:
       // 대화방이 없는데 추가할려고 하면 버린다.

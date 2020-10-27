@@ -28,7 +28,9 @@ function MemberTooltip({ userIds, style, type }) {
           <div class="user-pic-wrap">
             <img
               src={
-                user.user_picture_pos ? user.user_picture_pos.value : imgHolder
+                user.user_picture_pos
+                  ? user.user_picture_pos.value
+                  : "./images/img_imgHolder.png"
               }
               style={{ width: `48px`, height: `48px` }}
               alt="user-profile-picture"
@@ -71,7 +73,7 @@ export default MemberTooltip;
   /* <li class="user-single">
 <div class="user-profile-state-wrap">
     <div class="user-pic-wrap">
-        <img src={userThumbnail} alt="user-profile-picture" />
+        <img src="./images/img_imgHolder.png" alt="user-profile-picture" />
     </div>
     <div class="user-state online"></div>
 </div>

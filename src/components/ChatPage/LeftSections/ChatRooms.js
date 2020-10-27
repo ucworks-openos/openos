@@ -9,8 +9,9 @@ const electron = window.require("electron");
 
 function ChatRooms(props) {
   const dispatch = useDispatch();
-  const chatRooms = useSelector((state) => state.chats.chatRooms);
-  const currentChatRoom = useSelector((state) => state.chats.currentChatRoom);
+  const { chatRooms, currentChatRoom, unreadChatRoomKeys } = useSelector(
+    (state) => state.chats
+  );
   useEffect(() => {
     dispatch(getInitialChatRooms());
   }, []);
@@ -39,6 +40,8 @@ function ChatRooms(props) {
           : "";
       // ${receievePeopleCounts >= 4 ? "n" : receievePeopleCounts}
 
+      const isUnread = unreadChatRoomKeys.find((v) => v === room.room_key);
+
       return (
         <li
           className={`chat-list-single  ppl-1 ${isCurrentChatRoom}`}
@@ -54,12 +57,9 @@ function ChatRooms(props) {
             <div className="list-row 1">
               <div className="chat-ppl-num">{receievePeopleCounts}</div>
               <div className="chat-room-name">{renderSendTo}</div>
-              {/* {room.unread_count && room.unread_count !== "0"
-                                &&
-                                <div className="chat-counter unread">
-                                    {room.unread_count}
-                                </div>
-                            } */}
+              {room.unread_count && room.unread_count !== "0" && (
+                <div className="chat-counter unread">{room.unread_count}</div>
+              )}
             </div>
             <div className="list-row 2">
               <div className="last-chat">
