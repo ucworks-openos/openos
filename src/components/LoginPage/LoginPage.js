@@ -30,6 +30,7 @@ export default function LoginPage() {
     writeDebug('LoginPage Path',  window.location.hash)
     writeDebug('USER_CONFIG', remote.getGlobal('USER_CONFIG'))
 
+    // 모든 정보가 맞아야 자동로그인을 요청하도록 한다.
     if (!isLogout && autoLogin 
       && remote.getGlobal('USER_CONFIG').get('autoLoginId')
       && remote.getGlobal('USER_CONFIG').get('autoLoginPwd')) {
@@ -40,8 +41,10 @@ export default function LoginPage() {
     }
   }, []);
 
+
    useEffect(() => {
-    setAutoLoginFlag(autoLogin);
+    remote.getGlobal('USER_CONFIG').set('autoLogin', autoLogin)
+    remote.getGlobal('USER_CONFIG').set('autoLoginPwd', '') // 기존 저장된 비번도 날린다.
    }, [autoLogin])
 
 
