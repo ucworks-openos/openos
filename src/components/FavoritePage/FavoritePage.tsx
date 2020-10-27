@@ -25,7 +25,7 @@ import {
 } from "../../common/util";
 import { Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
-import MessageInputModal from "../../common/components/Modal/MessageInputModal";
+import MessageInputModal from "../../common/components/SendMessageModal/MessageInputModal";
 import ModifyGroupModal from "../../common/components/Modal/ModifyGroupModal";
 
 type TgetBuddyTreeReturnTypes = {

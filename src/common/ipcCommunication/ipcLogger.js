@@ -5,7 +5,7 @@ const electron = window.require("electron");
  * @param {*} xml 
  */
 export const writeLog = (msg, ...args) => {
-  electron.ipcRenderer.send(`writeLog`, msg, ...args);
+  sendToIPC(`writeLog`, msg, ...args);
 };
 
 /**
@@ -13,7 +13,7 @@ export const writeLog = (msg, ...args) => {
  * @param {*} xml 
  */
 export const writeDebug = (msg, ...args) => {
-  electron.ipcRenderer.send(`writeDebug`, msg, ...args);
+  sendToIPC(`writeDebug`, msg, ...args);
 };
 
 /**
@@ -21,7 +21,7 @@ export const writeDebug = (msg, ...args) => {
  * @param {*} xml 
  */
 export const writeInfo = (msg, ...args) => {
-  electron.ipcRenderer.send(`writeInfo`, msg, ...args);
+  sendToIPC(`writeInfo`, msg, ...args);
 };
 
 /**
@@ -29,14 +29,20 @@ export const writeInfo = (msg, ...args) => {
  * @param {*} xml 
  */
 export const writeWarn = (msg, ...args) => {
-  electron.ipcRenderer.send(`writeWarn`, msg, ...args);
+  sendToIPC(`writeWarn`, msg, ...args);
 };
 /**
  * write FileLog
  * @param {*} xml 
  */
 export const writeError = (msg, ...args) => {
-  electron.ipcRenderer.send(`writeError`, msg, ...args);
+  
+  sendToIPC(`writeError`, msg, ...args);
 };
+
+function sendToIPC(channel, msg, ...args) {
+  console.log(msg, ...args)
+  electron.ipcRenderer.send(channel, msg, ...args);
+}
 
 

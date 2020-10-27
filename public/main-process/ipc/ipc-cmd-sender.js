@@ -1,6 +1,8 @@
-const {ipcMain} = require('electron')
+const {ipcMain} = require('electron');
+const winston = require('../../winston');
 
 function send(channel, ...args) {
+  winston.debug('SendToRanderer', channel, ...args);
   global.MAIN_WINDOW.webContents.send(channel, ...args);
 }
 

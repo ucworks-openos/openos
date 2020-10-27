@@ -6,20 +6,25 @@ import {
 } from '../../../redux/actions/message_actions';
 // import ReactSelect from '../../../common/components/Select/ReactSelect';
 // import { userLists } from '../../../redux/mock-datas/user-lists';
-import { writeDebug, writeLog } from '../../../common/ipcCommunication/ipcLogger'
+import { writeDebug, writeError, writeInfo, writeLog } from '../../../common/ipcCommunication/ipcLogger'
 import { getUserInfos, searchUsers } from '../../../common/ipcCommunication/ipcOrganization'
 import './MessageInputModal.css';
 import Alert from 'react-bootstrap/Alert'
-import { arrayLike } from '../../util';
+import { arrayLike, delay, removeTag } from '../../util';
 import { sendMessage } from '../../ipcCommunication/ipcMessage';
+import UploadAttachmentFile from './UploadAttachmentFile';
+import DragAndDropSupport from '../DragAndDropSupport';
+import { uploadFile } from '../../ipcCommunication/ipcFile';
+import { getTransFileData } from '../../util/fileUtil';
 import styled from 'styled-components';
-import winston from 'winston/lib/winston/config';
+
+const electron = window.require("electron");
+const { remote } = window.require("electron")
 
 function MessageInputModal(props) {
     const dispatch = useDispatch();
     const [title, setTitle] = useState("")
-    const [content, setContent] = useState("")
-    const [files, setFiles] = useState([])
+    const [content, setContent] = useState(props.initialContent)
     // const [sendTo, setSendTo] = useState([])
     const [selectedUsers, setSelectedUsers] = useState([])
     const [searchMode, setSearchMode] = useState('ALL');
@@ -31,7 +36,9 @@ function MessageInputModal(props) {
     const [isTitleTyped, setIsTitleTyped] = useState(false);
     const [isContentTyped, setIsContentTyped] = useState(false);
     const [isUserSelected, setIsUserSelected] = useState(false);
-    
+    const [sendBtnEnable, setSendBtnEnable] = useState(true);
+    const [attachmentFiles, setAttachmentFiles] = useState([]);
+
     useEffect(() => {
         const initiate = async() => {
             if (!props.selectedNode.length) return false;
@@ -43,23 +50,29 @@ function MessageInputModal(props) {
     }, [props.selectedNode])
 
     useEffect(() => {
-const initiate = () => {
-    setTitle(props.initialTitle);
-}
+        writeDebug('attachmentFiles Change-', attachmentFiles);
+        sessionStorage.setItem('attachmentFiles', JSON.stringify(attachmentFiles));
+    }, [attachmentFiles])
+
+    useEffect(() => {
+        const initiate = () => {
+            setTitle(props.initialTitle);
+        }
         props.selectedNode && initiate();
     }, [props.initialTitle])
 
-    const onEditorChange = (value) => {
-        setContent(value)
+
+    const handleDrop = (files) => {
+        //setFiles(files)
+        let fileList = []
+        for (var i = 0; i < files.length; i++) {
+          if (!files[i].name) return
+          fileList.push(getTransFileData(files[i]))
+        }
+
+        setAttachmentFiles(attachmentFiles.concat(fileList));
     }
 
-    const onFilesChange = (files) => {
-        setFiles(files)
-    }
-
-    const onTitleChange = (event) => {
-        setTitle(event.currentTarget.value)
-    }
 
     // const onSendToChange = (selectedItems) => {
     //     let newSendTo = [];
@@ -113,6 +126,7 @@ const initiate = () => {
     }
 
     const onSubmit = async (event) => {
+        
         event.preventDefault();
         if (selectedUsers.length === 0) {
             setIsUserSelected(true)
@@ -122,20 +136,30 @@ const initiate = () => {
             return;
         }
 
-        if (content.trim().length === 0) {
+        let hasAttachmentFiles = attachmentFiles.length > 0;
+        let tmpContent;
+        if (removeTag(content).trim().length === 0) {
+            if (hasAttachmentFiles) {
+                tmpContent = attachmentFiles[0].name;
 
-            setIsContentTyped(true)
-            setTimeout(() => {
-                setIsContentTyped(false)
-            }, 2000)
-            return;
+                if (attachmentFiles.length > 1) {
+                    tmpContent += ` 외 ${attachmentFiles.length - 1}건`
+                }
+
+                setContent(tmpContent);
+            } else {
+                setIsContentTyped(true)
+                setTimeout(() => {
+                    setIsContentTyped(false)
+                }, 2000)
+                return;
+            }
         }
         
         let tmpTitle = title;
-        writeLog('tmpTitle', tmpTitle.trim().length);
 
-        if (tmpTitle.trim().length === 0) {
-            tmpTitle = content.replace(/<[^>]+>/g, '');
+        if (!tmpTitle || tmpTitle.trim().length === 0) {
+            tmpTitle = removeTag(content);
             writeDebug('message title', tmpTitle);
 
             if (tmpTitle.length > 20) {
@@ -151,17 +175,84 @@ const initiate = () => {
             // }, 2000)
             //return;
         }
+
+        setSendBtnEnable(false)
         let recvIds = selectedUsers.map(user => user.user_id.value).join('|')
         let recvNames = selectedUsers.map(user => user.user_name.value).join(',')
+
         
-        writeLog('sendMessage', recvIds, recvNames, tmpTitle, content);
-        sendMessage(recvIds, recvNames, tmpTitle, content);
-          
+        if (hasAttachmentFiles) {
+
+            // 파일전송 모니터링
+            electron.ipcRenderer.on('upload-file-progress', (event, uploadKey, uploadedLength, fileLength) => {
+                writeDebug('upload-file-progress', uploadedLength, fileLength, uploadKey)
+
+                updateFileUploadProgress(uploadKey, ((uploadedLength/fileLength)*100).toFixed(0) + '%');
+            });
+
+            let attFileInfo = '';
+            for (let i = 0; i < attachmentFiles.length; i++) {
+                let resData = await uploadFile(attachmentFiles[i].path, attachmentFiles[i].path);
+                writeInfo('fileUpload completed!',attachmentFiles[i].name, resData)
+                updateFileUploadProgress(attachmentFiles[i].path, '100%', resData.data);
+
+                
+                attFileInfo += 
+                    `${remote.getGlobal('SERVER_INFO').FS.pubip};${remote.getGlobal('SERVER_INFO').FS.port}|${attachmentFiles[i].name}|${attachmentFiles[i].size}|${resData.data}` 
+
+                await delay(500);
+            }
+            writeDebug('SEND MESSAGE', { recvIds:recvIds, recvNames:recvNames, tmpTitle:tmpTitle, content:content, attFileInfo:attFileInfo})
+            return;
+
+
+            sendMessage(recvIds, recvNames, tmpTitle, content, attFileInfo);
+
+
+            // 비동기로 돌아버려 순차적으로 처리되지 않는다.
+            // attachmentFiles.forEach(async(file) => {
+            //     writeInfo('Attachment Upload Req', file.name)
+
+            //     uploadFile(file.path, file.path).then(function(resData){
+            //         // IP;port|클라이언프 파일명|파일사이즈|서버파일명| ...
+            //         // 192.168.10.2;12554|1파일.txt|12,234|20110706112024237_1파일.txt.uxef| ...
+            //         writeInfo('fileUpload completed!',file.name, resData)
+            //         updateFileUploadProgress(file.path, '100%');
+    
+            //     }).catch(function(err){
+            //         writeError('File Upload Fail!', file, err);
+            //     });
+            //     await delay(500);
+            // })
+        } else {
+            writeLog('sendMessage', recvIds, recvNames, tmpTitle, content);
+            sendMessage(recvIds, recvNames, tmpTitle, content);
+        }
+
+           
         setContent("")
         setTitle("")
         setSelectedUsers([])
         props.closeModalFunction();
+    }
 
+    function updateFileUploadProgress(uploadKey, percentage, svrFileName = '') {
+        writeInfo('updateFileUploadProgress!', uploadKey, percentage)
+        let updateFileInfos = JSON.parse(sessionStorage.getItem('attachmentFiles'));
+
+        writeInfo('updateFileUploadProgress! ', updateFileInfos)
+
+        updateFileInfos = updateFileInfos.map((file) => {
+            if (file.path === uploadKey) {
+                const updateItem = {
+                    ...file,
+                    progress: percentage
+                }
+                return updateItem;
+            }
+            return file;
+        })
+        setAttachmentFiles(updateFileInfos);
     }
 
     const onDeleteCheckedMemberClick = (targetedUser) => {
@@ -176,7 +267,6 @@ const initiate = () => {
                 <button className="remove-ppl-added"></button>
             </div>
         ));
-
 
     return (
         <div >
@@ -212,45 +302,41 @@ const initiate = () => {
             }
 
             <div className="write-row subject-wrap">
-                <input type="text" className="subject" onChange={onTitleChange} value={title} placeholder="쪽지 제목을 입력해주세요" />
+                <input type="text" className="subject" onChange={(e) => setTitle(e.target.value)} value={title} placeholder="쪽지 제목을 입력해주세요" />
             </div>
-            {/* {isTitleTyped &&
-                <Alert variant="danger">
-                    먼저 쪽지 이름을 입력해 주세요.
-                </Alert>
-            } */}
+
             <EditorWrapper>
-            <QuillEditor
-                placeholder={"쪽지 내용을 입력해주세요."}
-                onEditorChange={onEditorChange}
-                onFilesChange={onFilesChange}
-                initialContent={props.initialContent}
-            />
+                <DragAndDropSupport handleDrop={handleDrop} >
+                    <QuillEditor
+                        placeholder={"쪽지 내용을 입력해주세요."}
+                        onEditorChange={(value) => setContent(value)}
+                        //onFilesChange={onFilesChange}
+                        initialContent={content}
+                    />
+                </DragAndDropSupport>
             </EditorWrapper>
+
             {isContentTyped &&
                 <Alert variant="danger">
                     쪽지 내용을 입력해 주세요.
                 </Alert>
             }
             <br />
-            <div className="write-row add-file-wrap">
-                <div className="add-file-title">첨부파일(1)</div>
-                <label for="btn-add-file" className="label-add-file btn-solid-s">첨부하기</label>
-                <input type="file" id="btn-add-file" className="btn-add-file" />
-            </div>
 
-            <div className="attatched-file-wrap">
-                <div className="attatched-file-row">
-                    <i className="icon-attatched-file"></i>
-                    <div className="label-attatched-file-name">02_asset_bmp.zip (100Mb)</div>
-                    <div className="btn-attatched-file-name-remove">삭제</div>
-                </div>
-            </div>
-
-            <div className="modal-btn-wrap">
-                <div className="btn-ghost-s cancel" onClick={props.closeModalFunction}>취소하기</div>
-                <div className="btn-solid-s submit" type="submit" onClick={onSubmit}>전송하기</div>
-            </div>
+            <UploadAttachmentFile attachmentFiles={attachmentFiles} setAttachmentFiles={setAttachmentFiles} />
+                
+                {sendBtnEnable?
+                    <div class="modal-btn-wrap">
+                        <div class="btn-ghost-s cancel" onClick={props.closeModalFunction}>취소하기</div>
+                        <div class="btn-solid-s submit" type="submit" onClick={onSubmit}>전송하기</div>
+                    </div>
+                :
+                    <div class="modal-btn-wrap">
+                        <div class="btn-ghost-s cancel" onClick={props.closeModalFunction}>취소하기</div>
+                        <div class="btn-solid-s ">전송하기</div>
+                        </div>
+                }
+           
         </div>
     )
 }
