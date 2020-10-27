@@ -4,86 +4,67 @@ import { useForm } from "react-hook-form";
 import SignitureCi from "../../common/components/SignitureCi";
 import styled from "styled-components";
 import Alert from "react-bootstrap/Alert";
-import { login } from "../../common/ipcCommunication/ipcCommon";
+import { login, setAutoLoginFlag } from "../../common/ipcCommunication/ipcCommon";
 import { useParams } from "react-router-dom";
-import { writeDebug, writeLog } from "../../common/ipcCommunication/ipcLogger";
+import { writeDebug, writeInfo, writeLog } from "../../common/ipcCommunication/ipcLogger";
 
-export default function Home(props) {
-  const { stopAutoLogin } = useParams();
-  const [autoLogin, setAutoLogin] = useState(
-    localStorage.getItem(`autoSwitch`) === `on`
-  );
-  const [id, setId] = useState(localStorage.getItem(`autoLoginId`));
-  const { register, errors, handleSubmit } = useForm({ mode: "onChange" });
+const { remote } = window.require("electron")
 
+export default function LoginPage() {
+  const [autoLogin, setAutoLogin] = useState(remote.getGlobal('USER_CONFIG').get('autoLogin'));
   const [isLoginFail, setIsLoginFail] = useState(false);
   const [failMessage, setFailMessage] = useState("");
 
+  // const { register, errors, handleSubmit } = useForm({ mode: "onChange" });
+  const { register, errors, handleSubmit } = useForm({
+    defaultValues: {
+      loginId: remote.getGlobal('USER_CONFIG').get('autoLoginId'),
+    }
+  });
+
+
+  // 로그아웃으로 처린된것인지 여부
+  const isLogout = window.location.hash.includes('/logout');
+
   useEffect(() => {
-    const initiate = async () => {
-      const resData = await login(
-        localStorage.getItem(`autoLoginId`),
-        localStorage.getItem(`autoLoginPw`),
-        true
-      );
+    writeDebug('LoginPage Path',  window.location.hash)
+    writeDebug('USER_CONFIG', remote.getGlobal('USER_CONFIG'))
 
-      console.log("Promiss login res", resData);
+    if (!isLogout && autoLogin 
+      && remote.getGlobal('USER_CONFIG').get('autoLoginId')
+      && remote.getGlobal('USER_CONFIG').get('autoLoginPwd')) {
 
-      if (resData.resCode) {
-        console.log("Login Success! ", resData);
-        sessionStorage.setItem("isLoginElectronApp", true);
-        sessionStorage.setItem(`loginId`, id);
-
-        window.location.hash = "#/favorite";
-        window.location.reload();
-      } else {
-        console.log("Login fail! Res:", resData);
-      }
-    };
-
-    console.log(`stopAutoLogin: `, stopAutoLogin);
-    if (
-      stopAutoLogin === `false` &&
-      localStorage.getItem(`autoSwitch`) === `on`
-    ) {
-      initiate();
+      let autoLoginId = remote.getGlobal('USER_CONFIG').get('autoLoginId')
+      writeDebug('Auto Login', autoLoginId)
+      loginRequest(autoLoginId, '', true);
     }
   }, []);
 
-  const handleIdChange = (e) => {
-    setId(e.target.value);
-  };
+   useEffect(() => {
+    setAutoLoginFlag(autoLogin);
+   }, [autoLogin])
 
-  const handleAutoLogin = () => {
-    setAutoLogin((prev) => !prev);
 
-    if (localStorage.getItem(`autoSwitch`) === `on`) {
-      localStorage.setItem(`autoSwitch`, `off`);
-    } else {
-      localStorage.setItem(`autoSwitch`, `on`);
-    }
-  };
-  const onSubmit = async (event) => {
-    console.log("LOGIN REQUEST:", event);
+  const onSubmit = async (data) => {
+    writeInfo('LOGIN CLICK', data.loginId)
+    writeInfo('LOGIN CLICK Data', data.loginId, data.loginPwd)
 
     setIsLoginFail(false);
     setFailMessage("");
+    loginRequest(data.loginId, data.loginPwd);
+  };
 
+  /**
+   * 로그인 요청
+   * @param {String} loginId 
+   * @param {String} loginPwd 
+   * @param {String} isAutoLogin 
+   */
+  async function loginRequest(loginId, loginPwd, isAutoLogin = false) {
     try {
-      const resData = await login(id, event.loginPwd, false);
+      const resData = await login(loginId, loginPwd, isAutoLogin);
 
-      console.log("Promiss login res", resData);
-
-      // * autoLoginId는 자동 로그인 시 아이디를 보여주기 위함.
-      // * 자동 로그인 시 resData 리턴값에 암호화된 id,비밀번호가 있음. 이를 localStorage에 넣어준다.
-      if (resData.resCode && autoLogin) {
-        localStorage.setItem(`autoLoginId`, id);
-        localStorage.setItem(`autoLoginPw`, resData.data.autoLogin);
-      }
       if (resData.resCode) {
-        sessionStorage.setItem("isLoginElectronApp", true);
-        sessionStorage.setItem(`loginId`, id);
-
         window.location.hash = "#/favorite";
         window.location.reload();
       } else {
@@ -94,14 +75,7 @@ export default function Home(props) {
       setIsLoginFail(true);
       setFailMessage("Login Fail! (Ex:" + error + ")");
     }
-  };
-
-  // electron.ipcRenderer.once('res-login', (event, data) => {
-  //   alert('Login Response! ' + JSON.stringify(data))
-  //   localStorage.setItem('isLoginElectronApp', true)
-  //   window.location.hash = '#/favorite';
-  //   window.location.reload();
-  // });
+  }
 
   return (
     <div className="sign-in">
@@ -116,20 +90,19 @@ export default function Home(props) {
               {" "}
               서비스 사용을 위해 로그인 해주세요 -
             </WelcomeWord>
+
             <div className="row">
               <input
                 type="text"
                 className="user-id-here"
                 name="loginId"
-                value={id}
-                onChange={handleIdChange}
-                aria-invalid={errors.id ? "true" : "false"}
+                aria-invalid={errors.loginId ? "true" : "false"}
                 placeholder="아이디를 입력해주세요"
-                // ref={register({
-                //   required: true,
-                // })}
+                ref={register({
+                  required: true,
+                })}
               />
-              {errors.id && (
+              {errors.loginId && (
                 <div className="err-msg">아이디는 필수입력항목입니다.</div>
               )}
             </div>
@@ -138,7 +111,7 @@ export default function Home(props) {
                 type="password"
                 className="user-pw-here"
                 name="loginPwd"
-                aria-invalid={errors.password ? "true" : "false"}
+                aria-invalid={errors.loginPwd ? "true" : "false"}
                 placeholder="비밀번호를 입력해주세요"
                 ref={register({
                   required: true,
@@ -146,7 +119,7 @@ export default function Home(props) {
                   minLength: 4,
                 })}
               />
-              {errors.password && (
+              {errors.loginPwd && (
                 <div className="err-msg">
                   비밀번호는 필수입력항목이며 4~12자 입니다.
                 </div>
@@ -161,7 +134,7 @@ export default function Home(props) {
                 <input
                   type="checkbox"
                   id="auto-sign-in-check"
-                  onChange={handleAutoLogin}
+                  onChange={()=>setAutoLogin(!autoLogin)}
                   checked={autoLogin}
                 />
                 <label className="sub2" htmlFor="auto-sign-in-check">

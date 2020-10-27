@@ -1,7 +1,7 @@
 
 const winston = require('../../winston');
 
-const MsgNoti = require('../notification/noti-manager');
+const notifyManager = require('../notification/noti-manager');
 const EncUtil = require('../utils/utils-crypto');
 const BufUtil = require('../utils/utils-buffer');
 
@@ -197,7 +197,7 @@ function notifyCmdProc(recvCmd) {
         }
         
 
-        MsgNoti.messageReceived({
+        notifyManager.messageReceived({
           encryptKey: encryptKey,
           key: key,
           gubun: gubun,
@@ -255,7 +255,7 @@ function notifyCmdProc(recvCmd) {
         sInx += CmdConst.BUF_LEN_INT;
 
 
-        MsgNoti.unreadCountReceived({
+        notifyManager.unreadCountReceived({
           userId: userId,
           msgCnt: msgCnt,
           chatCnt: chatCnt,
@@ -288,7 +288,7 @@ function notifyCmdProc(recvCmd) {
 
         statusList.forEach(status => {
           statusInfos = status.split(CmdConst.SEP_PT);
-          MsgNoti.userStatusChanged(statusInfos[0],statusInfos[1], statusInfos[2])
+          notifyManager.userStatusChanged(statusInfos[0],statusInfos[1], statusInfos[2])
         });
       } else {
         let rcvBuf = Buffer.from(recvCmd.data);
@@ -394,7 +394,7 @@ function notifyCmdProc(recvCmd) {
             + ', chatData:' + chatData
             + ', destId:' + destId)
 
-      MsgNoti.chatReceived({
+      notifyManager.chatReceived({
         roomKey:roomKey,
         roomType:roomType,
         lineKey:lineKey,
@@ -415,17 +415,36 @@ function notifyCmdProc(recvCmd) {
 
       break;
 
-    case CmdCodes.NS_CHATLINE_UNREAD_CNT :
+    case CmdCodes.NS_CHATROOM_UNREAD_CNT :
+    {
       let rcvBuf = Buffer.from(recvCmd.data);
-      let dataStr = rcvBuf.toString(global.ENC, 0);
-      winston.info('NS_CHATLINE_UNREAD_CNT Receive : %s', dataStr);
-      break;
+      let roomKey = BufUtil.getStringWithoutEndOfString(rcvBuf, 0, CmdConst.BUF_LEN_CHAT_ROOM_KEY);
+      let cntInx = BufUtil.getMultiple4Size(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
 
+      let unreadCnt = rcvBuf.readInt32LE(cntInx);
+
+      notifyManager.chatRoomUnreadCount(roomKey, unreadCnt);
+      break;
+    }
+    case CmdCodes.NS_CHATLINE_UNREAD_CNT :
+    {
+      let rcvBuf = Buffer.from(recvCmd.data);
+      let roomKey = BufUtil.getStringWithoutEndOfString(rcvBuf, 0, CmdConst.BUF_LEN_CHAT_ROOM_KEY);
+      let cntInx = BufUtil.getMultiple4Size(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
+
+      let cntSize = rcvBuf.readInt32LE(cntInx);
+      let cntInfo = BufUtil.getStringWithoutEndOfString(rcvBuf, cntInx + 4);
+
+      notifyManager.chatLineUnreadCount(roomKey, cntInfo);
+      winston.info('NS_CHATLINE_UNREAD_CNT Receive : %s', dataStr);
+    
+      break;
+    }
     case CmdCodes.NS_CHANGE_ALIAS :
       if (recvCmd.data) {
         let userId = BufUtil.getStringWithoutEndOfString(recvCmd.data, 0, CmdConst.BUF_LEN_USERID);        // 별칭 유저 아이디
         let alias = BufUtil.getStringWithoutEndOfString(recvCmd.data, getMultiple4Size(CmdConst.BUF_LEN_USERID));            // 별칭
-        MsgNoti.userAliasChanged({
+        notifyManager.userAliasChanged({
           userId: userId,
           alias: alias
         })

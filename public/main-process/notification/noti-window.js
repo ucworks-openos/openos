@@ -42,9 +42,7 @@ exports.showAlert = async function (notiType, notiId, title, message, senderName
   notiWin.menuBarVisible = false;
 
   let notifyFile = `file://${__dirname}/notify.html`;
-  winston.info(`>>>>>>>>>>>  `, notifyFile);
   notiWin.webContents.on('did-finish-load', () => {
-    winston.info(`>>>>>>>>>>>   LOAD COMPLETED!`);
     notiWin.webContents.executeJavaScript(`
       document.getElementById("notiType").value = '${notiType}';
       document.getElementById("notiId").value = '${notiId}';
