@@ -1,11 +1,15 @@
+import { writeDebug } from "./ipcLogger";
+
 const electron = window.require("electron")
 
 export const downloadFile = async (serverIp, serverPort, serverFileName, saveFilePath) => {
     return new Promise(function(resolve, reject) {
         electron.ipcRenderer.once('res-downloadFile', (event, arg) => {
             resolve(arg);
-          })
-          electron.ipcRenderer.send('downloadFile', serverIp, serverPort, serverFileName, saveFilePath);
+        })
+
+        writeDebug('downloadFile IPC', serverIp, serverPort, serverFileName, saveFilePath)
+        electron.ipcRenderer.send('downloadFile', serverIp, serverPort, serverFileName, saveFilePath);
       });
 }
 

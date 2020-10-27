@@ -9,103 +9,103 @@ const { remote } = window.require("electron")
 
 function MessageFiles(prop) {
 
-    const [attachmentFiles, setAttachmentFiles] = useState([]);
-
+    /**
+     * 이곳에서 attfile 정보를 만들러 Randering 할려고 했으나 
+     * 랜더링이 무한루프로 빠져버려.
+     * 
+     * 상위에서 파일 정보를 만들어 처리하도록만 한다.
+     */
     const downloadPath = remote.getGlobal('DOWNLOAD_PATH')
-    writeDebug('MESSAGE FILE', downloadPath, prop.msgFiles);
-
+    
     useEffect(() => {
-        sessionStorage.setItem('attachmentFiles', JSON.stringify(attachmentFiles));
-    }, [attachmentFiles])
-    
-    // 파일전송 모니터링
-    electron.ipcRenderer.removeAllListeners('download-file-progress')
-    electron.ipcRenderer.on('download-file-progress', (event, svrName, downloadLength, fileLength) => {
-        writeDebug('download-file-progress', svrName, downloadLength, fileLength)
+        writeDebug('file download path:', downloadPath);
+        writeDebug('attachment file:', prop.attachmentFiles);
+        
+        // 파일전송 모니터링
+        electron.ipcRenderer.removeAllListeners('download-file-progress')
+        electron.ipcRenderer.on('download-file-progress', (event, svrName, downloadLength, fileLength) => {
+            writeDebug('download-file-progress', svrName, downloadLength, fileLength)
+            let percentage = ((downloadLength/fileLength)*100).toFixed(0);
 
-        fileDownloadProgress(svrName, ((downloadLength/fileLength)*100).toFixed(0) + '%');
-    });
-    
-    if (prop.attachmentFiles) {
-        let fileList = [];
+            fileDownloadProgress(svrName, percentage + '%', downloadPath);
+        });
+     }, []);
 
-        let fileInfoPieces = prop.msgFiles.split('|');
-        for(let i=0; i < fileInfoPieces.length;) {
-            let serverInfos = fileInfoPieces[i++].split(';');
-            fileList.push({
-                serverIp:serverInfos[0],
-                serverPort: parseInt(serverInfos[1]),
-                name: fileInfoPieces[i++],
-                size: fileInfoPieces[i++],
-                svrName: fileInfoPieces[i++],
-              })
-        }
-   
-        setAttachmentFiles(attachmentFiles.concat(fileList));
-    }
+     useEffect(() => {
+        // ipc 이벤트로 넘어오면 state가 공유되지 않음으로 sessionStorage에서 관리한다.
+        sessionStorage.setItem('sessionDnAttFiles', JSON.stringify(prop.attachmentFiles));
+     }, [prop.attachmentFiles])
 
     const saveAll = async () => {
-        for (let i = 0; i < attachmentFiles.length; i++) {
+        for (let i = 0; i < prop.attachmentFiles.length; i++) {
 
-            if (attachmentFiles[i].isCompleted) continue;
+            if (prop.attachmentFiles[i].isCompleted) continue;
 
-            let fullPath = downloadPath + '/' + attachmentFiles[i].name;
-            writeDebug('downloadAttFile Before', attachmentFiles[i])
-            let resData = await downloadFile(attachmentFiles[i].serverIp, attachmentFiles[i].serverPort, attachmentFiles[i].svrName, fullPath)
-            writeInfo('file Download completed!', attachmentFiles[i].name, resData)
-            fileDownloadProgress(attachmentFiles[i].svrName, 100, resData.data)
+            let fullPath = downloadPath + '/' + prop.attachmentFiles[i].name;
+            writeDebug('downloadAttFile Before', prop.attachmentFiles[i])
+            let resData = await downloadFile(prop.attachmentFiles[i].serverIp, prop.attachmentFiles[i].serverPort, prop.attachmentFiles[i].svrName, fullPath)
+            writeInfo('file Download completed!', prop.attachmentFiles[i].name, resData)
+            fileDownloadProgress(prop.attachmentFiles[i].svrName, 100, resData.data, true)
 
             delay(500)
         }
     }
 
     const downloadAttFile = (svrName) => {
-        let attFile = attachmentFiles.filter((file) => file.svrName === svrName);
+        let attFile = prop.attachmentFiles.filter((file) => file.svrName === svrName);
 
-        if (attFile) {
-            writeDebug('downloadAttFile Before', attFile)
+        if (attFile?.length > 0) {
+            attFile = attFile[0];
+            writeDebug('downloadAttFile Before', svrName, attFile)
+
             downloadFile(attFile.serverIp, attFile.serverPort, attFile.svrName, downloadPath + '/' + attFile.name).then((resData) => {
-                fileDownloadProgress(attFile.svrName, 100, resData.data)
+                writeInfo('file Download completed!', attFile.name, resData)
+                fileDownloadProgress(attFile.svrName, 100, resData.data, true)
             })
 
         } else {
-            writeWarn('Can Not Find File.', svrName, attachmentFiles);
+            writeWarn('Can Not Find File.', svrName, prop.attachmentFiles);
         } 
     }
 
     const executeFile = () => {
-
     }
 
     const openFolder = () => {
-        
     }
 
-    function fileDownloadProgress(svrName, percentage, fullPath = '') {
-        writeInfo('fileDownloadProgress!', svrName, percentage)
-        let updateFileInfos = JSON.parse(sessionStorage.getItem('attachmentFiles'));
+    function fileDownloadProgress(svrName, percentage, fullPath = '', isCompleted = false) {
+        writeInfo('fileDownloadProgress!', svrName, percentage, isCompleted, fullPath)
+        let fileList = JSON.parse(sessionStorage.getItem('sessionDnAttFiles'));
 
-        updateFileInfos = updateFileInfos.map((file) => {
-            if (file.path === svrName) {
-                const updateItem = {
+        fileList = fileList.map((file) => {
+            if (file.svrName === svrName) {
+                let updateItem = {
                     ...file,
                     progress: percentage,
-                    fullPath: fullPath,
-                    isCompleted: percentage === 100,
                 }
+
+                if (isCompleted) {
+                    updateItem = {
+                        ...file,
+                        fullPath: fullPath,
+                        isCompleted: isCompleted,
+                    }
+                }
+
+                writeInfo('fileDownloadProgress!  updateItem', updateItem.svrName, updateItem.progress, updateItem.isCompleted)
                 return updateItem;
             }
+
             return file;
-        })
-        setAttachmentFiles(updateFileInfos);
+        });
+        prop.setAttachmentFiles(fileList);
     }
-
-
 
     return (
         <div className="attatched-file-area">
             <div className="attatched-file-header-wrap">
-                <div className="attatched-file-title">첨부파일({attachmentFiles.length})</div>
+                <div className="attatched-file-title">첨부파일({prop.attachmentFiles.length})</div>
                 <div className="attatched-file-action open-folder">
                     <input type="checkbox" id="open-folder-inner" />
                     <label htmlFor="open-folder-inner" >다운로드 후 저장 폴더 열기</label>
@@ -113,22 +113,22 @@ function MessageFiles(prop) {
                 <div className="attatched-file-action download-all" onClick={() => {saveAll()}}>전체 다운로드</div>
             </div>
             <div className="attatched-file-wrap">
-                {prop.attachmentFiles.map((file, index) => {
+                {prop.attachmentFiles?.map((file, index) => {
 
                     return (
                         <div className="attatched-file-row already-downloaded">
                             <i className="icon-attatched-file"></i>
-                            <div className="label-attatched-file-name">{file.name} ({formatBytes(file.size)})</div>
+                            <div className="label-attatched-file-name">{file.name} ({formatBytes(file.size)})  {file.progress}</div>
 
                             {file.isCompleted?
                                 <div >
-                                   {/* <div className="btn-attatched-file-save-other-name" onClick={() => {saveAs(file.svrName)}}>다른 이름으로 저장</div> */}
-                                    <div className="btn-attatched-file-open" onClick={() => {downloadAttFile(file.svrName)}}>저장</div>
+                                    <div className="btn-attatched-file-save-other-name" onClick={() => {executeFile(file.svrName)}}>&nbsp;&nbsp;열기</div>
+                                    <div className="btn-attatched-file-open" onClick={() => {openFolder(file.svrName)}}>&nbsp;&nbsp;폴더열기</div>
                                 </div>
                             :
                                 <div >
-                                    <div className="btn-attatched-file-save-other-name" onClick={() => {executeFile(file.svrName)}}>열기</div>
-                                    <div className="btn-attatched-file-open" onClick={() => {openFolder(file.svrName)}}>폴더열기</div>
+                                   {/* <div className="btn-attatched-file-save-other-name" onClick={() => {saveAs(file.svrName)}}>&nbsp;&nbsp;다른 이름으로 저장</div> */}
+                                    <div className="btn-attatched-file-open" onClick={() => {downloadAttFile(file.svrName)}}>&nbsp;&nbsp;저장</div>
                                 </div>
                             }
                             

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import MessageFiles from "./MessageFiles";
 import { deleteMessage } from "../../../common/ipcCommunication/ipcMessage";
 import {
+  getMessageHo,
   setCurrentMessage,
   setMessageList,
 } from "../../../redux/actions/message_actions";
@@ -12,20 +13,76 @@ import Modal from "react-modal";
 import MessageInputModal from "../../../common/components/SendMessageModal/MessageInputModal";
 import moment from "moment";
 import HamburgerButton from "../../../common/components/HamburgerButton";
+import { writeDebug } from "../../../common/ipcCommunication/ipcLogger";
 
 function RightPanel() {
+
+  //#region String trim ...
+  String.prototype.trimRight = function(trimStr) {
+    if (trimStr) {
+        const last = [...this].reverse().findIndex(char => char !== trimStr);
+        return this.substring(0, this.length - last);
+    }
+    return this;
+  };
+
+  String.prototype.trimLeft = function(trimStr) {
+      if (trimStr) {
+        // while(this.charAt(0)==charToRemove) {
+        //   this = this.substring(1);
+        // }
+
+        const first = [...this].findIndex(char => char !== trimStr);
+        return this.substring(first);
+      }
+      return this;
+  };
+  //#endregion String trim
+
   const dispatch = useDispatch();
 
-  const { message, messageLists, currentMessageListType } = useSelector(
+  const { message, currentMessage, messageLists, currentMessageListType } = useSelector(
     (state) => state.messages
   );
 
   const [messageModalVisible, setMessageModalVisible] = useState(false);
   const [replyTarget, setReplyTarget] = useState([]);
   const [initialTitle, setInitialTitle] = useState(``);
-  const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
-    false
-  );
+  const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(false);
+
+  const [attachmentFiles, setAttachmentFiles] = useState([]);
+
+
+  useEffect(() => {
+    writeDebug('CurrentMessage --  req getMessageHo ', currentMessage);
+    dispatch(getMessageHo(currentMessage));
+  }, [currentMessage]);
+  
+  // 메세지가 변경되면 첨부파일 정보를 설정한다.
+  useEffect(() => {
+    writeDebug('Message Detail ', message);
+
+    if (message?.msg_file_list) {
+      let fileList = [];
+
+      let fileInfoPieces = message?.msg_file_list.trimRight('|').split('|');
+      for(let i=0; i < fileInfoPieces.length;) {
+          let serverInfos = fileInfoPieces[i++].split(';');
+          fileList.push({
+              serverIp:serverInfos[0],
+              serverPort: parseInt(serverInfos[1]),
+              name: fileInfoPieces[i++],
+              size: fileInfoPieces[i++],
+              svrName: fileInfoPieces[i++],
+            })
+      }
+ 
+      setAttachmentFiles(fileList);
+    } else {
+      setAttachmentFiles([]);
+    }
+    
+  }, [message]);
 
   const onDeleteMessageClick = () => {
     deleteMessage(currentMessageListType, [message.msg_key]).then(() => {
@@ -55,10 +112,6 @@ function RightPanel() {
     setInitialTitle(`Fwd: ${message?.msg_subject}`);
     setMessageModalVisible(true);
   };
-
-  useEffect(() => {
-    console.log(message);
-  });
 
   const initialContent = `
   <br/><br/> ---------------> original message <--------------- <br/>
@@ -133,18 +186,6 @@ function RightPanel() {
             <li class="lnb-menu-item" onMouseDown={handleDelivery}>
               <h6>전달</h6>
             </li>
-            {/* <li class="lnb-menu-item">
-              <h6>새 쪽지 쓰기</h6>
-            </li>
-            <li class="lnb-menu-item">
-              <h6>채팅</h6>
-            </li> */}
-            {/* <li class="lnb-menu-item">
-              <h6>다운로드</h6>
-            </li>
-            <li class="lnb-menu-item">
-              <h6>인쇄</h6>
-            </li> */}
             <li
               class="lnb-menu-item"
               onMouseDown={() => onDeleteMessageClick()}
@@ -173,9 +214,9 @@ function RightPanel() {
         />
       </Modal>
 
-      <MessageContent />
+      <MessageContent message={message}/>
 
-      <MessageFiles msgFiles={message?.msg_file_list} />
+      <MessageFiles attachmentFiles={attachmentFiles} setAttachmentFiles={setAttachmentFiles} />
     </main>
   );
 }
