@@ -4,53 +4,61 @@ import { useForm } from "react-hook-form";
 import SignitureCi from "../../common/components/SignitureCi";
 import styled from "styled-components";
 import Alert from "react-bootstrap/Alert";
-import { login, setAutoLoginFlag } from "../../common/ipcCommunication/ipcCommon";
+import {
+  login,
+  setAutoLoginFlag,
+} from "../../common/ipcCommunication/ipcCommon";
 import { useParams } from "react-router-dom";
-import { writeDebug, writeInfo, writeLog } from "../../common/ipcCommunication/ipcLogger";
+import {
+  writeDebug,
+  writeInfo,
+  writeLog,
+} from "../../common/ipcCommunication/ipcLogger";
 
-const { remote } = window.require("electron")
+const { remote } = window.require("electron");
 
 export default function LoginPage() {
-  const [autoLogin, setAutoLogin] = useState(remote.getGlobal('USER_CONFIG').get('autoLogin'));
+  const [autoLogin, setAutoLogin] = useState(
+    remote.getGlobal("USER_CONFIG").get("autoLogin")
+  );
   const [isLoginFail, setIsLoginFail] = useState(false);
   const [failMessage, setFailMessage] = useState("");
 
   // const { register, errors, handleSubmit } = useForm({ mode: "onChange" });
   const { register, errors, handleSubmit } = useForm({
     defaultValues: {
-      loginId: remote.getGlobal('USER_CONFIG').get('autoLoginId'),
-    }
+      loginId: remote.getGlobal("USER_CONFIG").get("autoLoginId"),
+    },
   });
 
-
   // 로그아웃으로 처린된것인지 여부
-  const isLogout = window.location.hash.includes('/logout');
+  const isLogout = window.location.hash.includes("/logout");
 
   useEffect(() => {
-    writeDebug('LoginPage Path',  window.location.hash)
-    writeDebug('USER_CONFIG', remote.getGlobal('USER_CONFIG'))
+    writeDebug("LoginPage Path", window.location.hash);
+    writeDebug("USER_CONFIG", remote.getGlobal("USER_CONFIG"));
 
     // 모든 정보가 맞아야 자동로그인을 요청하도록 한다.
-    if (!isLogout && autoLogin 
-      && remote.getGlobal('USER_CONFIG').get('autoLoginId')
-      && remote.getGlobal('USER_CONFIG').get('autoLoginPwd')) {
-
-      let autoLoginId = remote.getGlobal('USER_CONFIG').get('autoLoginId')
-      writeDebug('Auto Login', autoLoginId)
-      loginRequest(autoLoginId, '', true);
+    if (
+      !isLogout &&
+      autoLogin &&
+      remote.getGlobal("USER_CONFIG").get("autoLoginId") &&
+      remote.getGlobal("USER_CONFIG").get("autoLoginPwd")
+    ) {
+      let autoLoginId = remote.getGlobal("USER_CONFIG").get("autoLoginId");
+      writeDebug("Auto Login", autoLoginId);
+      loginRequest(autoLoginId, "", true);
     }
   }, []);
 
-
-   useEffect(() => {
-    remote.getGlobal('USER_CONFIG').set('autoLogin', autoLogin)
-    remote.getGlobal('USER_CONFIG').set('autoLoginPwd', '') // 기존 저장된 비번도 날린다.
-   }, [autoLogin])
-
+  useEffect(() => {
+    remote.getGlobal("USER_CONFIG").set("autoLogin", autoLogin);
+    remote.getGlobal("USER_CONFIG").set("autoLoginPwd", ""); // 기존 저장된 비번도 날린다.
+  }, [autoLogin]);
 
   const onSubmit = async (data) => {
-    writeInfo('LOGIN CLICK', data.loginId)
-    writeInfo('LOGIN CLICK Data', data.loginId, data.loginPwd)
+    writeInfo("LOGIN CLICK", data.loginId);
+    writeInfo("LOGIN CLICK Data", data.loginId, data.loginPwd);
 
     setIsLoginFail(false);
     setFailMessage("");
@@ -59,9 +67,9 @@ export default function LoginPage() {
 
   /**
    * 로그인 요청
-   * @param {String} loginId 
-   * @param {String} loginPwd 
-   * @param {String} isAutoLogin 
+   * @param {String} loginId
+   * @param {String} loginPwd
+   * @param {String} isAutoLogin
    */
   async function loginRequest(loginId, loginPwd, isAutoLogin = false) {
     try {
@@ -71,6 +79,7 @@ export default function LoginPage() {
         sessionStorage.setItem(`loginId`, loginId)
 
         window.location.hash = "#/favorite";
+        sessionStorage.setItem("loginId", loginId);
         window.location.reload();
       } else {
         setIsLoginFail(true);
@@ -139,7 +148,7 @@ export default function LoginPage() {
                 <input
                   type="checkbox"
                   id="auto-sign-in-check"
-                  onChange={()=>setAutoLogin(!autoLogin)}
+                  onChange={() => setAutoLogin(!autoLogin)}
                   checked={autoLogin}
                 />
                 <label className="sub2" htmlFor="auto-sign-in-check">

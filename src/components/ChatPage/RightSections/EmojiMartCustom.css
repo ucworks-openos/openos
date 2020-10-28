@@ -1,0 +1,38 @@
+.emoji-mart {
+    position: absolute;
+            bottom: 165px;
+            height: 353px;
+            width: 100% !important;
+            border-radius: 0px;
+}
+
+.emoji-mart-bar {
+    width: 100%;
+    border-bottom: 1px solid #dfe2e8 !important;
+}
+
+.emoji-mart-anchors {
+    display: flex;
+    justify-content: flex-start;
+    width: 400px;
+}
+
+.emoji-mart-anchor-bar {
+    display: none;
+}
+
+.emoji-mart-search input {
+    z-index: 999;
+    position: absolute;
+    top: -44px;
+    right: 50px;
+    width: 170px;
+}
+
+.emoji-mart-search-icon {
+    display: none;
+}
+
+.emoji-mart-scroll {
+    height: 300px;
+}

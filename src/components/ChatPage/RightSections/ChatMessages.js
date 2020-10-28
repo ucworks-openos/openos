@@ -69,9 +69,7 @@ function ChatMessages() {
       let emoName = "";
       let emoTab = "";
       if (hasEmoticon) {
-        let emotiInfo = chat.chat_font_name.split(
-          String.fromCharCode(parseInt(13))
-        );
+        let emotiInfo = chat.chat_font_name.split(` `);
         emoTab = emotiInfo[1];
         emoName = emotiInfo[2];
         hasMessage =
@@ -90,7 +88,7 @@ function ChatMessages() {
       if (chat.chat_send_id === `${sessionStorage.getItem("loginId")}`) {
         if (hasEmoticon) {
           emoticon = (
-            <div key={index} className="speech-row speech-my">
+            <div className="speech-row speech-my">
               <div className="speach-content-wrap">
                 <div className="speech-inner-wrap">
                   <img

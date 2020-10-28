@@ -413,7 +413,7 @@ function reqChatLineKey(chatRoomKey) {
  * @param {String} userIds 
  * @param {String} message 
  */
-function reqSendChatMessage(roomKey, lineKey, userIds, message, roomTitle) {
+function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTitle) {
     return new Promise(async function(resolve, reject) {
 
         if (!global.SERVER_INFO.NS.isConnected) {
@@ -472,7 +472,6 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, roomTitle) {
         let fontStyleBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);      // TFontStyles; ??
         let fontColorBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);      // TColor; ??
 
-        let fontName = '맑은고딕';
         let fontNameBuf = Buffer.alloc(CmdConst.BUF_LEN_FONTNAME); //fontName
         fontNameBuf.write(fontName, global.ENC);
         fontNameBuf = adjustBufferMultiple4(fontNameBuf)
