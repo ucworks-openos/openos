@@ -64,12 +64,12 @@ export const getChatRoomByRoomKey = async (roomId) => {
 
 
 /** sendChatMessage */
-export const sendChatMessage = async (chatUserIds, chatMessage, roomKey = null, roomTitle) => {
+export const sendChatMessage = async (chatUserIds, chatMessage, chatFontName, roomKey = null, roomTitle) => {
   return new Promise(function(resolve, reject) {
       electron.ipcRenderer.once('res-sendChatMessage', (event, arg) => {
           resolve(arg);
         })
-        electron.ipcRenderer.send('sendChatMessage', chatUserIds, chatMessage, roomKey, roomTitle)
+        electron.ipcRenderer.send('sendChatMessage', chatUserIds, chatMessage, chatFontName, roomKey, roomTitle)
     });
 }
 

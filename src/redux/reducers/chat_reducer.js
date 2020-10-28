@@ -14,6 +14,7 @@ import {
   SET_UNREAD_CHAT_ROOM_KEYS,
   SET_EMOJI_VISIBLE,
   SET_EMOTICON_VISIBLE,
+  SET_CURRENT_EMOTICON,
 } from "../actions/types";
 
 export default function (
@@ -23,6 +24,11 @@ export default function (
   action
 ) {
   switch (action.type) {
+    case SET_CURRENT_EMOTICON:
+      return {
+        ...state,
+        currentEmoticon: action.payload,
+      };
     case SET_EMOTICON_VISIBLE:
       return {
         ...state,

@@ -710,6 +710,13 @@
     vertical-align: middle;
     font-size: 0;
 }
+.input-action-file-wrapper {
+    display: inline-block;
+    vertical-align: middle;
+}
+.input-action-file-wrapper input {
+    display: none;
+}
 .input-action.btn-txt {
     background-position: 0px 0px;
 }

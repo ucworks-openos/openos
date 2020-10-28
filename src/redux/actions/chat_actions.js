@@ -15,6 +15,7 @@ import {
   SET_UNREAD_CHAT_ROOM_KEYS,
   SET_EMOJI_VISIBLE,
   SET_EMOTICON_VISIBLE,
+  SET_CURRENT_EMOTICON,
 } from "./types";
 import {
   getChatRoomList,
@@ -33,6 +34,13 @@ function getUUID() {
   let tokens = uuidv4().split("-");
   return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
 }
+
+export const setCurrentEmoticon = (currentEmoticon) => {
+  return {
+    type: SET_CURRENT_EMOTICON,
+    payload: currentEmoticon,
+  };
+};
 
 export const setEmoticonVisible = (boolean) => {
   return {
@@ -109,6 +117,7 @@ export function addChatMessage(
   chatUsersId,
   chatUserNames,
   chatMessage,
+  chatFontName,
   isNewChat,
   chatRoomId = null,
   senderName,
@@ -119,13 +128,14 @@ export function addChatMessage(
   sendChatMessage(
     userIds,
     chatMessage,
+    chatFontName,
     isNewChat ? null : chatRoomId,
     chatUserNames
   );
   let request = {
     chat_contents: chatMessage,
     chat_send_name: senderName,
-    chat_font_name: "",
+    chat_font_name: chatFontName,
     chat_send_date: moment().format("YYYYMMDDHHmm"),
     read_count: 0,
     chat_send_id: senderId,
