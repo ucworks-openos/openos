@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addChatMessage,
+  setCurrentEmoticon,
   setEmojiVisible,
   setEmoticonVisible,
 } from "../../../redux/actions/chat_actions";
@@ -12,19 +13,32 @@ import EmojiPicker from "emoji-picker-react";
 import Modal from "react-modal";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
+import "./EmojiMartCustom.css";
 import EmoticonSelector from "../../../common/components/Editor/EmoticonSelector";
+import styled from "styled-components";
 
 function ChatInput() {
   const dispatch = useDispatch();
-  const { currentChatRoom, emojiVisible, emoticonVisible } = useSelector(
-    (state) => state.chats
-  );
+  const {
+    currentChatRoom,
+    emojiVisible,
+    emoticonVisible,
+    currentEmoticon,
+  } = useSelector((state) => state.chats);
   const [inputValue, setInputValue] = useState("");
   const [isAlreadyTyped, setIsAlreadyTyped] = useState(false);
   const [isAlreadyRoomSelected, setIsAlreadyRoomSelected] = useState(false);
 
   const inputRef = useRef(null);
   const loggedInUser = useSelector((state) => state.users.loggedInUser);
+
+  useEffect(() => {
+    return () => {
+      dispatch(setEmojiVisible(false));
+      dispatch(setEmoticonVisible(false));
+      dispatch(setCurrentEmoticon(``));
+    };
+  }, []);
 
   const onInputValueChange = (e) => {
     setInputValue(e.currentTarget.value);
@@ -40,6 +54,10 @@ function ChatInput() {
       e.preventDefault();
       onSubmit();
     }
+  };
+
+  const handleEmojiVisible = () => {
+    dispatch(setEmojiVisible(false));
   };
 
   const getUserNames = async (userIds) => {
@@ -105,12 +123,16 @@ function ChatInput() {
         currentChatRoom.chat_entry_ids,
         userNames,
         inputValue,
+        currentEmoticon ? currentEmoticon : `맑은 고딕`,
         false,
         currentChatRoom.room_key,
         loggedInUser.user_name.value,
         loggedInUser.user_id.value
       )
     );
+    dispatch(setEmojiVisible(false));
+    dispatch(setEmoticonVisible(false));
+    dispatch(setCurrentEmoticon(``));
   };
 
   return (
@@ -140,31 +162,21 @@ function ChatInput() {
         </div>
       )}
 
-      <Picker
-        showPreview={false}
-        showSkinTones={false}
-        set="apple"
-        emojiTooltip={true}
-        search
-        onClick={handleEmojiClick}
-        style={{
-          display: emojiVisible ? `block` : `none`,
-          position: `absolute`,
-          bottom: `165px`,
-          width: `100%`,
-        }}
-      />
-      <EmoticonSelector
-        style={{
-          display: emoticonVisible ? `block` : `none`,
-          backgroundColor: `#fff`,
-          height: `353px`,
-          position: `absolute`,
-          zIndex: `9999`,
-          bottom: `165px`,
-          width: `100%`,
-        }}
-      />
+      <div>
+        <Picker
+          showPreview={false}
+          showSkinTones={false}
+          emojiTooltip={true}
+          onClick={handleEmojiClick}
+          style={{
+            display: emojiVisible ? `block` : `none`,
+          }}
+        />
+        <Hover emojiVisible={emojiVisible} onClick={handleEmojiVisible}>
+          <CloseButton />
+        </Hover>
+      </div>
+      <EmoticonSelector visible={emoticonVisible ? true : false} />
       <div className="chat-input-area">
         <div className="chat-input-wrap" onClick={handleFocusInput}>
           <textarea
@@ -218,5 +230,26 @@ function ChatInput() {
     </>
   );
 }
+
+const Hover = styled.div`
+  display: ${(props) => (props.emojiVisible ? `block` : `none`)};
+  position: absolute;
+  bottom: 480px;
+  right: 10px;
+  padding: 5px 10px;
+  border-radius: 50%;
+  &:hover {
+    background-color: #dfe2e8;
+    cursor: pointer;
+  }
+`;
+
+const CloseButton = styled.div`
+  background-image: url(./images/btn_close.png);
+  width: 10px;
+  height: 20px;
+  background-repeat: no-repeat;
+  background-position: 0px center;
+`;
 
 export default ChatInput;

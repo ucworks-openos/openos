@@ -1,5 +1,9 @@
 import React, { useEffect } from "react";
-import { setCurrentChatRoom } from "../../../redux/actions/chat_actions";
+import {
+  setCurrentChatRoom,
+  setEmojiVisible,
+  setEmoticonVisible,
+} from "../../../redux/actions/chat_actions";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
@@ -18,6 +22,8 @@ function ChatRooms(props) {
 
   const onChatRoomClick = (roomKey) => {
     dispatch(setCurrentChatRoom(roomKey, chatRooms));
+    dispatch(setEmojiVisible(false));
+    dispatch(setEmoticonVisible(false));
   };
 
   const renderChatRoom = () =>
