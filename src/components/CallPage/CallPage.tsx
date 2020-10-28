@@ -7,57 +7,8 @@ export default function CallPage() {
       <main className="call-main-wrap">
         <div className="call-page-title-wrap">
           <h4 className="call-title">전화</h4>
-          <div className="call-action-wrap">
-            <div className="call-action call-pick-up" title="당겨받기"></div>
-            <div className="call-action call-forwarding" title="착신전환"></div>
-            <div
-              className="call-action call-reservation"
-              title="통화예약"
-            ></div>
-          </div>
         </div>
         <div className="call-main-inner">
-          <div className="call-dashboard-area">
-            <div className="call-dashboard-col call-user-info-wrap">
-              <div className="call-user-pic-wrap">
-                <img
-                  src="./images/img_user-thumbnail.png"
-                  alt="call-user-profile-picture"
-                />
-              </div>
-              <div className="call-user-info-wrap-inner">
-                <div className="call-inner-row call-user-info">
-                  <h6 className="call-user-name">홍길동</h6>
-                  <span className="call-user-position">과장</span>
-                  <span className="call-user-department">개발팀</span>
-                </div>
-                <div className="call-inner-row call-user-contact">
-                  <span className="call-user-phone">3653</span>
-                  <span className="call-user-mobile">010-1234-5678</span>
-                </div>
-              </div>
-            </div>
-            <div className="call-dashboard-col call-today-wrap">
-              <div className="call-inner-row num-today-call-wrap">
-                <div className="num-today-call">6</div>
-                <div className="label-today-call">하루통화</div>
-              </div>
-              <div className="call-inner-row num-today-call-info-wrap">
-                <span className="num-today-make-call">5</span>
-                <span className="num-today-get-call">1</span>
-              </div>
-            </div>
-            <div className="call-dashboard-col call-missed-wrap">
-              <div className="call-inner-row num-missed-call-wrap">
-                <div className="num-missed-call">4</div>
-                <div className="label-missed-call">부재중 전화</div>
-              </div>
-              <div className="call-inner-row missed-call-info-wrap">
-                <span className="missed-date">PM 02:42:33</span>
-                <span className="missed-phone-num">010-1234-5678</span>
-              </div>
-            </div>
-          </div>
           <div className="make-a-call-area-small">
             <h6 className="section-title">전화걸기</h6>
             <div className="make-a-call-inner">
@@ -293,37 +244,6 @@ export default function CallPage() {
                 </tbody>
               </table>
             </div>
-          </div>
-        </div>
-        <div className="side-rht">
-          <div className="side-title-wrap">
-            <div className="side-tab blf current">BLF</div>
-            <div className="side-tab fav">즐겨찾기</div>
-          </div>
-          <div className="side-list-wrap">
-            <ul>
-              <li className="side-list-single">
-                <div className="call-user-state online"></div>
-                <h6 className="call-user-name">김하나</h6>
-                <span className="call-user-position">과장</span>
-                <span className="call-user-department">개발팀</span>
-                <h6 className="phone-num">3655</h6>
-              </li>
-              <li className="side-list-single">
-                <div className="call-user-state onCall"></div>
-                <h6 className="call-user-name">이두리</h6>
-                <span className="call-user-position">주임</span>
-                <span className="call-user-department">개발팀</span>
-                <h6 className="phone-num">3656</h6>
-              </li>
-              <li className="side-list-single">
-                <div className="call-user-state atTable"></div>
-                <h6 className="call-user-name">최서이</h6>
-                <span className="call-user-position">사원</span>
-                <span className="call-user-department">개발팀</span>
-                <h6 className="phone-num">3657</h6>
-              </li>
-            </ul>
           </div>
         </div>
       </main>

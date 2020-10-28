@@ -31,6 +31,11 @@ function RouterPage() {
 
   writeInfo('RouterPage Path', Object.create(window.location), window.location.hash);
 
+  // 로그인이나 로그아웃으로 로그인페이지로 인입시 세션 정보는 날린다.
+  if (window.location.hash?.includes("/logout") || window.location.hash?.includes("/login") || window.location.hash == "#/") {
+    sessionStorage.clear()
+  }
+
   return (
     <HashRouter>
       {/* <MyErrorBoundary> */}

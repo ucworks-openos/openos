@@ -620,6 +620,8 @@ header .call-user-pic-wrap{border:0;}
     right: 360px;
     bottom: 0;
     padding: 16px;
+    width: 100%;
+    height: 100%
 }
 .call-dashboard-area {
     display: flex;

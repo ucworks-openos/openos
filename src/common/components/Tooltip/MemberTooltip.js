@@ -8,8 +8,8 @@ function MemberTooltip({ userIds, style, type }) {
   const [userInfos, setUserInfos] = useState([]);
 
   useEffect(() => {
-    let convertedUserIds = userIds.split("|");
-    getUserInfos(convertedUserIds).then(function (results) {
+    let chatUserIds = userIds;
+    getUserInfos(chatUserIds).then(function (results) {
       if (results.data.items && results.data.items.node_item !== "") {
         setUserInfos(
           Array.isArray(results.data.items.node_item)

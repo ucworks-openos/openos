@@ -43,8 +43,7 @@ function Sidebar() {
 
   const onLogOutClick = () => {
     logout().then(function (resData) {
-
-
+      writeInfo('Logoiut By SideNavi');
     });
   };
 

@@ -15,6 +15,7 @@ import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 import "./EmojiMartCustom.css";
 import EmoticonSelector from "../../../common/components/Editor/EmoticonSelector";
+import { getDispUserNames } from "../../../common/util/userUtil";
 import styled from "styled-components";
 
 function ChatInput() {
@@ -76,20 +77,6 @@ function ChatInput() {
     dispatch(setEmojiVisible(false));
   };
 
-  const getUserNames = async (userIds) => {
-    const {
-      data: {
-        items: { node_item: userSchemaMaybeArr },
-      },
-    } = await getUserInfos(userIds);
-    // *  사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
-    const userSchema = arrayLike(userSchemaMaybeArr);
-    // * 가져온 정보를 가공. 이 때 selectedKeys 유저가 Favorite 유저와 중복됟 시 중복 표기 해 줌.
-    const result = userSchema.map((v) => v.user_name.value).join(`, `);
-    console.log(result);
-    return result;
-  };
-
   const handleFocusInput = () => {
     inputRef.current.focus();
   };
@@ -112,7 +99,7 @@ function ChatInput() {
   const onSubmit = async (event) => {
     let userNames;
     if (!currentChatRoom.chat_entry_names) {
-      userNames = await getUserNames(
+      userNames = await getDispUserNames(
         currentChatRoom?.chat_entry_ids?.split("|")
       );
     } else {

@@ -35,6 +35,9 @@ export default function LoginPage() {
   const isLogout = window.location.hash.includes("/logout");
 
   useEffect(() => {
+    // 로그인시는 기존 세션 정보를 모두 버린다.
+    sessionStorage.clear();
+
     writeDebug("LoginPage Path", window.location.hash);
     writeDebug("USER_CONFIG", remote.getGlobal("USER_CONFIG"));
 
@@ -53,7 +56,12 @@ export default function LoginPage() {
 
   useEffect(() => {
     remote.getGlobal("USER_CONFIG").set("autoLogin", autoLogin);
-    remote.getGlobal("USER_CONFIG").set("autoLoginPwd", ""); // 기존 저장된 비번도 날린다.
+
+    if (!autoLogin) {
+      remote.getGlobal("USER_CONFIG").set("autoLoginPwd", ""); // 기존 저장된 비번도 날린다.
+    }
+
+    writeDebug("Auto Login Flag Changed!", autoLogin);
   }, [autoLogin]);
 
   const onSubmit = async (data) => {
@@ -76,8 +84,9 @@ export default function LoginPage() {
       const resData = await login(loginId, loginPwd, isAutoLogin);
 
       if (resData.resCode) {
+        sessionStorage.setItem(`loginId`, loginId)
+        
         window.location.hash = "#/favorite";
-        sessionStorage.setItem("loginId", loginId);
         window.location.reload();
       } else {
         setIsLoginFail(true);

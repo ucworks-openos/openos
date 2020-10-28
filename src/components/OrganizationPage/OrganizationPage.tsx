@@ -19,8 +19,8 @@ import {
   convertToUser,
   find,
   getRandomNumber,
-  messageInputModalStyle,
 } from "../../common/util";
+import { commonModalStyles, messageInputModalStyle } from "../../common/styles";
 import { Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/SendMessageModal/MessageInputModal";
@@ -775,18 +775,6 @@ export default function OrganizationPage() {
     </div>
   );
 }
-
-const commonModalStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-  },
-  overlay: { zIndex: 1000 },
-};
 
 const Switcher = styled.div`
   background-color: #ebedf1;
