@@ -60,8 +60,28 @@ function chatReceived(chatData) {
 
 /** 대화명 변경 수신 */
 function userAliasChanged(aliasData) {
-  winston.debug('userAliasChanged! ', JSON.stringify(aliasData));
+  winston.info('userAliasChanged! ', JSON.stringify(aliasData));
   send('userAliasChanged', aliasData)
+}
+
+/**
+ * chatRoomUnreadCount
+ * @param {*} roomKey 
+ * @param {*} cnt 
+ */
+function chatRoomUnreadCount(roomKey, cnt) {
+  winston.info('chatRoomUnreadCount! ', roomKey, cnt);
+  send('chatRoomUnreadCount', roomKey, cnt)
+}
+
+/**
+ * chatLineUnreadCount
+ * @param {*} roomKey 
+ * @param {*} cnt 
+ */
+function chatLineUnreadCount(roomKey, cntInfo) {
+  winston.info('chatLineUnreadCount! ', roomKey, cntInfo);
+  send('chatLineUnreadCount', roomKey, cntInfo)
 }
 
 module.exports = {
@@ -69,5 +89,7 @@ module.exports = {
     unreadCountReceived: unreadCountReceived,
     userStatusChanged: userStatusChanged,
     chatReceived: chatReceived,
-    userAliasChanged: userAliasChanged
+    userAliasChanged: userAliasChanged,
+    chatRoomUnreadCount: chatRoomUnreadCount,
+    chatLineUnreadCount:chatLineUnreadCount
   }

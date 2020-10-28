@@ -14,7 +14,8 @@ const { createLiteralTypeNode } = require("typescript");
 const { readConfig } = require("./main-process/configuration/site-config");
 const { getOsInfo } = require("./main-process/utils/utils-os");
 const { PLATFORM } = require("./main-process/common/common-const");
-const { logout } = require("./main-process/main-handler");
+const { logoutProc } = require("./main-process/main-handler");
+const Store = require("./main-process/common/file-store");
 
 const BrowserWindow = electron.BrowserWindow;
 const globalShortcut = electron.globalShortcut
@@ -48,7 +49,7 @@ const mainContextMenu = Menu.buildFromTemplate([
       {
         label: 'Logout',
         click: async () => {
-          logout();
+          logoutProc();
         }
       },
       {
@@ -81,7 +82,7 @@ const trayContextMenu = Menu.buildFromTemplate([
   {
     label: 'Logout',
     click: async () => {
-      logout();
+      logoutProc();
     }
   },
   {
@@ -98,7 +99,6 @@ const trayContextMenu = Menu.buildFromTemplate([
   }
 ]);
 
-
 /**
  * GLOBAL 정보는 선언을 하고 사용한다. (중앙관리)
  */
@@ -108,23 +108,33 @@ global.MY_PLATFORM = process.platform;
 
 global.ROOT_PATH = require('fs').realpathSync('./');
 
+// 개발모드 일때는 로그경로를 밖으로 뺀다.
+switch(global.MY_PLATFORM) {
+  case PLATFORM.MAC:
+  case PLATFORM.LINUX:
+    global.DEV_HOME = path.join(process.env.HOME, 'OpenOS', 'logs');
+    break;
+
+  case PLATFORM.WIN:
+  default:
+    global.DEV_HOME = path.join(process.env.USERPROFILE, 'OpenOS');
+    break;
+}
+
 // LOG PATH
 if (!global.IS_DEV) {
   global.LOG_PATH = path.join(global.ROOT_PATH,'logs');
 } else {
-  // 개발모드 일때는 로그경로를 밖으로 뺀다.
-  switch(global.MY_PLATFORM) {
-    case PLATFORM.MAC:
-    case PLATFORM.LINUX:
-      global.LOG_PATH = path.join(process.env.HOME, 'OpenOS', 'logs');
-      break;
-  
-    case PLATFORM.WIN:
-    default:
-      global.LOG_PATH = path.join(process.env.USERPROFILE, 'OpenOS', 'logs');
-      break;
-  }
+  global.LOG_PATH = path.join(global.DEV_HOME, 'logs');
 }
+
+// DOWNLOAD PATH
+if (!global.IS_DEV) {
+  global.DOWNLOAD_PATH = path.join(global.ROOT_PATH,'.download');
+} else {
+  global.DOWNLOAD_PATH = path.join(global.DEV_HOME,'.download');
+}
+
 
 global.MAIN_WINDOW = null;
 
@@ -154,14 +164,6 @@ global.CERT = {
   challenge: '',
   session: '',
   enc: ''
-}
-/**
- * 기본 설정 정보
- */
-global.SITE_CONFIG = {
-  server_ip: '192.168.0.172',
-  server_port: '32551',
-  client_version: 652
 }
 /**
  * 서버 정보
@@ -211,6 +213,14 @@ global.SERVER_INFO = {
   }
 }
 /**
+ * 기본 설정 정보
+ */
+global.SITE_CONFIG = {
+  server_ip: '192.168.0.172',
+  server_port: '32551',
+  client_version: 652
+}
+/**
  * 조직도 그룹 정보
  */
 global.ORG = {
@@ -232,19 +242,48 @@ global.FUNC_COMP_39 = {
  */
 global.ENC = "utf-8";
 
+/**
+ * 보낸 Command 관리용
+ */
 global.DS_SEND_COMMAND = {}
 global.CS_SEND_COMMAND = {}
 global.PS_SEND_COMMAND = {}
 global.NS_SEND_COMMAND = {}
 global.FS_SEND_COMMAND = {}
 
+/**
+ * Connection Check Interval 관리용
+ */
 global.NS_CONN_CHECK;
 
+/**
+ * 대용량 파일 제한
+ */
 global.BigFileLimit = 1024 * 1024 * 1024;
 
+/**
+ * 임시용
+ */
 global.TEMP = {
   buddyXml: ''
 }
+
+/**
+ * 2GB 허용 서버 여부
+ */
+global.USE_FILE2GIGA = false;
+
+/**
+ * 사용자 설정 정보
+ */
+global.USER_CONFIG = new Store({
+  configName: 'user-preferences',
+  defaults: {
+    autoLogin: true,
+    autoLoginId:'',
+    autoLoginPwd:''
+  }
+});
 //#endregion GLOBAL 설정 정보
 
 

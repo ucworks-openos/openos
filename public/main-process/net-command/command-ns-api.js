@@ -10,7 +10,7 @@ const nsCore = require('../net-core/network-ns-core');
 const { adjustBufferMultiple4, getMultiple4Size } = require('../utils/utils-buffer');
 const { MSG_TYPE, MSG_DATA_TYPE, CHAT_ROOM_TYPE, DATE_FORMAT } = require('../common/common-const');
 const ResData = require('../ResData');
-const { logout } = require('../main-handler');
+
 
 /**
  * 연결을 종료합니다.
@@ -159,7 +159,7 @@ function reqSendMessage(recvIds, recvNames, subject, message, attFileInfo) {
         encryptKeyBuf.write(cipherData.encKey, global.ENC);
 
         // Attachmenet File
-        let attFileInfoBuf = Buffer.from(attFileInfo);
+        let attFileInfoBuf = Buffer.from(attFileInfo, global.ENC);
         fileSizeBuf.writeInt32LE(attFileInfoBuf.length);
 
         // default Header
@@ -183,6 +183,7 @@ function reqSendMessage(recvIds, recvNames, subject, message, attFileInfo) {
         // Data Add
         dataBuf = Buffer.concat([dataBuf
             , cipherContentBuf
+            , attFileInfoBuf
             , destNamesBuf
             , destIdsBuf]);
 
@@ -199,7 +200,7 @@ function reqSendMessage(recvIds, recvNames, subject, message, attFileInfo) {
  */
 function reqDeleteMessage(msgGubun, msgKeys) {
     return new Promise(async function(resolve, reject) {
-        winston.info('----------- msgKeys', msgKeys)
+        winston.info('reqDeleteMessage msgKeys', msgKeys)
 
         if (!global.SERVER_INFO.NS.isConnected) {
             reject(new Error('NS IS NOT CONNECTED!'));

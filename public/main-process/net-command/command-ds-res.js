@@ -7,7 +7,7 @@ var CmdConst = require('./command-const');
 const { callCallback } = require('./command-utils');
 const { parseXmlToJSON } = require('../utils/utils-xmlParser')
 const { getMultiple4Size } = require('../utils/utils-buffer');
-const { parseRuleInfo } = require('../configuration/envi-config');
+const { parseRuleInfo } = require('../configuration/rule-parser');
 
 
 /**

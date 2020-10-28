@@ -8,6 +8,7 @@ const ResData = require('../ResData');
 // download file
 ipcMain.on('downloadFile', (event, serverIp, serverPort, serverFileName, saveFilePath) => {
 
+  winston.debug('downloadFile req:', serverIp, serverPort, serverFileName, saveFilePath)
   fsAPI.reqDownloadFile(serverIp, serverPort, serverFileName, saveFilePath).then(function(resData)
   {
     winston.info('downloadFile res:', resData)

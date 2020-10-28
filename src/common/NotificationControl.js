@@ -37,7 +37,6 @@ function NotificationControl() {
 
   //알림 수신처리
   useEffect(() => {
-    writeInfo("----------   NorificationControl Loaded!");
 
     //
     // 페이지 변경요청

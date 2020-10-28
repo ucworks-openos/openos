@@ -24,7 +24,7 @@ const { remote } = window.require("electron")
 function MessageInputModal(props) {
     const dispatch = useDispatch();
     const [title, setTitle] = useState("")
-    const [content, setContent] = useState(props.initialContent)
+    const [content, setContent] = useState('')
     // const [sendTo, setSendTo] = useState([])
     const [selectedUsers, setSelectedUsers] = useState([])
     const [searchMode, setSearchMode] = useState('ALL');
@@ -50,7 +50,6 @@ function MessageInputModal(props) {
     }, [props.selectedNode])
 
     useEffect(() => {
-        writeDebug('attachmentFiles Change-', attachmentFiles);
         sessionStorage.setItem('attachmentFiles', JSON.stringify(attachmentFiles));
     }, [attachmentFiles])
 
@@ -137,7 +136,7 @@ function MessageInputModal(props) {
         }
 
         let hasAttachmentFiles = attachmentFiles.length > 0;
-        let tmpContent;
+        let tmpContent = content;
         if (removeTag(content).trim().length === 0) {
             if (hasAttachmentFiles) {
                 tmpContent = attachmentFiles[0].name;
@@ -159,7 +158,7 @@ function MessageInputModal(props) {
         let tmpTitle = title;
 
         if (!tmpTitle || tmpTitle.trim().length === 0) {
-            tmpTitle = removeTag(content);
+            tmpTitle = removeTag(tmpContent);
             writeDebug('message title', tmpTitle);
 
             if (tmpTitle.length > 20) {
@@ -180,34 +179,26 @@ function MessageInputModal(props) {
         let recvIds = selectedUsers.map(user => user.user_id.value).join('|')
         let recvNames = selectedUsers.map(user => user.user_name.value).join(',')
 
-        
         if (hasAttachmentFiles) {
 
             // 파일전송 모니터링
+            electron.ipcRenderer.removeAllListeners('upload-file-progress')
             electron.ipcRenderer.on('upload-file-progress', (event, uploadKey, uploadedLength, fileLength) => {
-                writeDebug('upload-file-progress', uploadedLength, fileLength, uploadKey)
-
-                updateFileUploadProgress(uploadKey, ((uploadedLength/fileLength)*100).toFixed(0) + '%');
+                fileUploadProgress(uploadKey, ((uploadedLength/fileLength)*100).toFixed(0) + '%');
             });
 
             let attFileInfo = '';
             for (let i = 0; i < attachmentFiles.length; i++) {
                 let resData = await uploadFile(attachmentFiles[i].path, attachmentFiles[i].path);
-                writeInfo('fileUpload completed!',attachmentFiles[i].name, resData)
-                updateFileUploadProgress(attachmentFiles[i].path, '100%', resData.data);
+                fileUploadProgress(attachmentFiles[i].path, '100%', resData.data);
 
-                
                 attFileInfo += 
-                    `${remote.getGlobal('SERVER_INFO').FS.pubip};${remote.getGlobal('SERVER_INFO').FS.port}|${attachmentFiles[i].name}|${attachmentFiles[i].size}|${resData.data}` 
+                    `${remote.getGlobal('SERVER_INFO').FS.pubip};${remote.getGlobal('SERVER_INFO').FS.port}|${attachmentFiles[i].name}|${attachmentFiles[i].size}|${resData.data}|` 
 
                 await delay(500);
             }
-            writeDebug('SEND MESSAGE', { recvIds:recvIds, recvNames:recvNames, tmpTitle:tmpTitle, content:content, attFileInfo:attFileInfo})
-            return;
 
-
-            sendMessage(recvIds, recvNames, tmpTitle, content, attFileInfo);
-
+            sendMessage(recvIds, recvNames, tmpTitle, tmpContent, attFileInfo);
 
             // 비동기로 돌아버려 순차적으로 처리되지 않는다.
             // attachmentFiles.forEach(async(file) => {
@@ -217,7 +208,7 @@ function MessageInputModal(props) {
             //         // IP;port|클라이언프 파일명|파일사이즈|서버파일명| ...
             //         // 192.168.10.2;12554|1파일.txt|12,234|20110706112024237_1파일.txt.uxef| ...
             //         writeInfo('fileUpload completed!',file.name, resData)
-            //         updateFileUploadProgress(file.path, '100%');
+            //         fileUploadProgress(file.path, '100%');
     
             //     }).catch(function(err){
             //         writeError('File Upload Fail!', file, err);
@@ -236,11 +227,8 @@ function MessageInputModal(props) {
         props.closeModalFunction();
     }
 
-    function updateFileUploadProgress(uploadKey, percentage, svrFileName = '') {
-        writeInfo('updateFileUploadProgress!', uploadKey, percentage)
+    function fileUploadProgress(uploadKey, percentage, svrFileName = '') {
         let updateFileInfos = JSON.parse(sessionStorage.getItem('attachmentFiles'));
-
-        writeInfo('updateFileUploadProgress! ', updateFileInfos)
 
         updateFileInfos = updateFileInfos.map((file) => {
             if (file.path === uploadKey) {
@@ -311,7 +299,7 @@ function MessageInputModal(props) {
                         placeholder={"쪽지 내용을 입력해주세요."}
                         onEditorChange={(value) => setContent(value)}
                         //onFilesChange={onFilesChange}
-                        initialContent={content}
+                        initialContent={props.initialContent}
                     />
                 </DragAndDropSupport>
             </EditorWrapper>

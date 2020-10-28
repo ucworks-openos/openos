@@ -4,14 +4,13 @@ import moment from "moment";
 import MemberTooltip from "../../../common/components/Tooltip/MemberTooltip";
 import styled from "styled-components";
 
-function MessageInfo() {
-  const content = useSelector((state) => state.messages.message);
+function MessageInfo(prop) {
   const [isOpenTooltip, setIsOpenTooltip] = useState(false);
-  const renderRecvNames = content.msg_recv_name.split(",")[0];
-  const RecvCounts = content.msg_recv_name.split(",").length;
+  const renderRecvNames = prop.message?.msg_recv_name.split(",")[0];
+  const RecvCounts = prop.message?.msg_recv_name.split(",").length;
 
   const toggleTooltip = () => {
-    content.msg_res_gubun !== `5` && setIsOpenTooltip((prev) => !prev);
+    prop.message?.msg_res_gubun !== `5` && setIsOpenTooltip((prev) => !prev);
   };
 
   const closeTooltip = () => {
@@ -21,10 +20,10 @@ function MessageInfo() {
   return (
     <div className="message-info-area">
       <div className="message-info label from-label-ppl">발신인</div>
-      <div className="message-info from-ppl-name"> {content.msg_send_name}</div>
+      <div className="message-info from-ppl-name"> {prop.message?.msg_send_name}</div>
       <div className="message-info label from-label date">발신일시</div>
       <div className="message-info from-date">
-        {moment(content.msg_send_date, "YYYYMMDDHHmm").format(
+        {moment(prop.message?.msg_send_date, "YYYYMMDDHHmm").format(
           "YYYY년 M월 D일 H시 m분"
         )}
       </div>
@@ -38,7 +37,7 @@ function MessageInfo() {
         {renderRecvNames} {RecvCounts > 1 && `외 ${RecvCounts - 1}명`}
         {isOpenTooltip && (
           <MemberTooltipWrapper>
-            <MemberTooltip userIds={content.msg_recv_ids} type="message" />
+            <MemberTooltip userIds={prop.message?.msg_recv_ids} type="message" />
           </MemberTooltipWrapper>
         )}
       </div>

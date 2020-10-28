@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import { useSelector } from "react-redux";
 import { Route, Switch, HashRouter } from "react-router-dom";
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
+import { writeInfo } from "../common/ipcCommunication/ipcLogger";
 
 const Sidebar = React.lazy(() => import("./__Navigation/SideNavi/SideNavi"));
 const NavigationBar = React.lazy(
@@ -27,6 +28,9 @@ const chatTestPage = React.lazy(() => import("./TestPages/ChatTestPage"));
 const TeamSpacePage = React.lazy(() => import("./TeamSpacePage/TeamSpacePage"));
 
 function RouterPage() {
+
+  writeInfo('RouterPage Path', Object.create(window.location), window.location.hash);
+
   return (
     <HashRouter>
       {/* <MyErrorBoundary> */}
@@ -39,9 +43,10 @@ function RouterPage() {
         )}
         <Switch>
           <Route exact path="/" component={LoginPage} />
+          <Route exact path="/login" component={LoginPage} />
+          <Route exact path="/logout" component={LoginPage} />
           <Route exact path="/favorite" component={FavoritePage} />
           <Route exact path="/organization" component={OrganizationPage} />
-          <Route exact path="/login/:stopAutoLogin" component={LoginPage} />
           <Route exact path="/about" component={AboutPage} />
           <Route exact path="/message" component={MessagePage} />
           <Route exact path="/chat" component={ChatPage} />
@@ -75,7 +80,7 @@ function RouterPage() {
 }
 
 if (!window.location.hash || window.location.hash === "#/") {
-  window.location.hash = `#/login/${false}`;
+  window.location.hash = `#/login`;
 }
 
 export default RouterPage;

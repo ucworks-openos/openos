@@ -128,7 +128,7 @@ function initGlobal() {
     //#endregion GLOBAL 설정 정보
 }
 
-function logout(param) {
+function logoutProc() {
     try {
         nsAPI.close();
         dsAPI.close();
@@ -139,11 +139,11 @@ function logout(param) {
     }
     
     initGlobal();
-    goto('login')
+    goto('logout')
     winston.info('logout completed!');
 }
   
 module.exports = {
-  logout:logout,
+  logoutProc:logoutProc,
   initGlobal:initGlobal,
 };

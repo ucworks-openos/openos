@@ -39,7 +39,6 @@ function UploadAttachmentFile(prop) {
           fileList.push(getTransFileData(files[i]))
         }
 
-        writeDebug('addAttachmentFiles', prop.attachmentFiles, fileList);
         prop.setAttachmentFiles(prop.attachmentFiles.concat(fileList));
     }
 
@@ -52,7 +51,6 @@ function UploadAttachmentFile(prop) {
             </div>
 
             <div class="attatched-file-wrap">
-                {writeDebug('attFileRander', prop.attachmentFiles)}
                 {prop.attachmentFiles.map((file, index) => {
                     return (
                         <div class="attatched-file-row" key={index}>
