@@ -33,12 +33,28 @@ function ChatInput() {
   const loggedInUser = useSelector((state) => state.users.loggedInUser);
 
   useEffect(() => {
+    const electron = window.require("electron");
+    electron.ipcRenderer.on(
+      "upload-file-progress",
+      (event, uploadKey, uploadedLength, fileLength) => {
+        console.log(
+          uploadKey,
+          ((uploadedLength / fileLength) * 100).toFixed(0) + "%"
+        );
+      }
+    );
+    console.log(`file monitoring start...`);
     return () => {
+      electron.ipcRenderer.removeAllListeners("upload-file-progress");
       dispatch(setEmojiVisible(false));
       dispatch(setEmoticonVisible(false));
       dispatch(setCurrentEmoticon(``));
     };
   }, []);
+
+  const handleSelectFile = (e) => {
+    console.log(`file selected: `, e.target.files);
+  };
 
   const onInputValueChange = (e) => {
     setInputValue(e.currentTarget.value);
@@ -212,7 +228,19 @@ function ChatInput() {
             title="이모지"
             onClick={handleEmojiPick}
           ></div>
-          <div className="input-action btn-add-file" title="파일전송"></div>
+          <div class="input-action-file-wrapper">
+            <label for="btn-add-file">
+              <div className="input-action btn-add-file" title="파일전송"></div>
+            </label>
+            <input
+              type="file"
+              multiple="multiple"
+              id="btn-add-file"
+              class="btn-add-file"
+              onChange={handleSelectFile}
+            />
+          </div>
+
           {/* <div className="input-action btn-call" title="통화"></div>
           <div className="input-action btn-remote" title="원격제어"></div>
           <div

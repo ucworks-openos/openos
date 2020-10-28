@@ -436,7 +436,6 @@ function notifyCmdProc(recvCmd) {
       let cntInfo = BufUtil.getStringWithoutEndOfString(rcvBuf, cntInx + 4);
 
       notifyManager.chatLineUnreadCount(roomKey, cntInfo);
-      winston.info('NS_CHATLINE_UNREAD_CNT Receive : %s', dataStr);
     
       break;
     }
