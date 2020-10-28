@@ -15,6 +15,8 @@ const { decryptMessage } = require('../utils/utils-crypto');
  */
 ipcMain.on('sendMessage', async (event, recvIds, recvNames, subject, message, attFileInfo) => {
   winston.info('[IPC] sendMessage ', {recvIds:recvIds, recvNames:recvNames, subject:subject, message:message, attFileInfo:attFileInfo})
+  
+  
   nsAPI.reqSendMessage(recvIds, recvNames, subject, message, attFileInfo).then(function (resData) {
     winston.info('[IPC] sendMessage res:', resData)
     event.reply('res-sendMessage', resData);
@@ -118,6 +120,7 @@ ipcMain.on('sendChatMessage', async (event, chatUserIds, chatMessage, roomKey = 
   nsAPI.reqChatLineKey(roomKey).then(function (resData) {
     winston.info('[IPC] getChatLineKey res:', resData)
     if (resData.resCode) {
+      
       nsAPI.reqSendChatMessage(roomKey, resData.data.lineKey, chatUserIds, chatMessage, roomTitle).then(function (resData) {
         winston.info('[IPC] sendChatMessage res:', resData)
         event.reply('res-sendChatMessage', resData);
@@ -167,7 +170,7 @@ ipcMain.on('exitChatRoom', async (event, roomId, chatUserIds) => {
 });
 
 /**
- * exit chatRoom
+ * changeChatRoomName
  */
 ipcMain.on('changeChatRoomName', async (event, roomId, roomName, chatUserIds) => {
   winston.debug('changeChatRoomName', roomId)

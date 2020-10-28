@@ -1,3 +1,9 @@
+export { formatBytes } from "./fileUtil";
+export { getDispUserNames } from "./userUtil";
+export { getChatRoomName, getChatUserIds } from "./chatUtil";
+export { getPreviousStackInfo } from "./commonUtil";
+
+
 export function mapEnum<T>(
   enumerable: T,
   callback: (key: string, i: number) => any
@@ -126,20 +132,6 @@ export const syncronize = (tree: TTreeNode[]) => {
   const xml = new xml2js.Builder().buildObject(requestBody);
 
   saveBuddyData(xml);
-};
-
-export const messageInputModalStyle = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    width: "510px",
-    padding: "24px 24px 40px",
-    transform: "translate(-50%, -50%)",
-  },
-  overlay: { zIndex: 1000 },
 };
 
 export const removeTag = (text:String) => {

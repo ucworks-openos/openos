@@ -15,6 +15,7 @@ import {
 import moment from 'moment';
 import { writeLog } from "../../common/ipcCommunication/ipcLogger";
 import { getChatRoomByRoomKey } from "../../common/ipcCommunication/ipcMessage";
+import { getChatUserIds } from "../../common/util";
 
 function ChatPage(props) {
     const dispatch = useDispatch();
@@ -47,7 +48,7 @@ function ChatPage(props) {
                 let roomInfo = resData.data;
                 writeLog('moveToClickedChatRoom', roomInfo)   
                 
-                let selectedUsers = roomInfo.chat_entry_ids.split("|")
+                let selectedUsers = getChatUserIds(roomInfo.chat_entry_ids)
                 const chatRoomBody = {
                     selected_users: selectedUsers,
                     user_counts: selectedUsers.length,

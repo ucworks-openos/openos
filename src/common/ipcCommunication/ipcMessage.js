@@ -96,8 +96,12 @@ export const exitChatRoom = (roomId, chatUserIds) => {
 
 /** changeChatRoomName */
 export const changeChatRoomName = (roomId, roomName, chatUserIds) => {
-  writeDebug('changeChatRoomName', roomId, roomName, chatUserIds)
+  writeDebug('changeChatRoomName', {roomId:roomId, roomName:roomName, chatUserIds:chatUserIds})
   electron.ipcRenderer.send('changeChatRoomName', roomId, roomName, chatUserIds)
 }
 
-
+/** inviteChatUser */
+export const inviteChatUser = (roomKey, newRoomName, asIsUserIds, newUserIds) => {
+  writeDebug('inviteChatUser', {roomKey:roomKey, newRoomName:newRoomName, asIsUserIds:asIsUserIds, newUserIds:newUserIds})
+  electron.ipcRenderer.send('inviteChatUser', roomKey, newRoomName, asIsUserIds, newUserIds)
+}

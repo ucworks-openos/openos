@@ -68,6 +68,8 @@ export default function LoginPage() {
       const resData = await login(loginId, loginPwd, isAutoLogin);
 
       if (resData.resCode) {
+        sessionStorage.setItem(`loginId`, loginId)
+
         window.location.hash = "#/favorite";
         window.location.reload();
       } else {

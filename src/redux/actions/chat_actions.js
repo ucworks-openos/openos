@@ -23,6 +23,7 @@ import {
 } from "../../common/ipcCommunication/ipcMessage";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
+import { getChatUserIds } from "../../common/util";
 /**
  * 32자리 UUID를 반환합니다
  */
@@ -114,7 +115,7 @@ export function addChatMessage(
   senderName,
   senderId
 ) {
-  let userIds = chatUsersId.split("|");
+  let userIds = getChatUserIds(chatUsersId);
 
   sendChatMessage(
     userIds,
@@ -262,31 +263,3 @@ export async function moveToClickedChatRoom(request) {
     payload: realRequest,
   };
 }
-
-// export function getMoreChatMessages(bandId, page = 1) {
-//     const request = axios.get(`${SERVER_URI}:5000/api/talk?bandId=${bandId}&page=${page}`)
-//         .then(response => response.data);
-
-//     return {
-//         type: GET_MORE_CHATS_MESSAGES,
-//         payload: request
-//     }
-// }
-
-// export async function getInitialChatRooms() {
-//     const getChatRoomListResponse = await getChatRoomList(0, 100)
-//     let chatRoomWithMembers = []
-//     getChatRoomListResponse.data.table.row.forEach(async chatRoomItem => {
-//         let convertedIds = chatRoomItem.chat_entry_ids.split('|')
-//         const getUserInfosResponse = await getUserInfos(convertedIds)
-//         chatRoomItem.userInfos = Array.isArray(getUserInfosResponse.data.items.node_item) ? getUserInfosResponse.data.items.node_item : [getUserInfosResponse.data.items.node_item]
-//         chatRoomWithMembers.push(chatRoomItem)
-//     })
-
-//     winston.info('chatRoomWithMembers request: ', chatRoomWithMembers)
-
-//     return {
-//         type: GET_INITIAL_CHAT_ROOMS,
-//         payload: chatRoomWithMembers
-//     }
-// }
