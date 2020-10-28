@@ -35,9 +35,9 @@ function receiveCmdProc(recvCmd) {
           callCallback(recvCmd.sendCmd, new ResData(true));
           break;
 
-        case NS_USER_DISCONNECT:
-        case NS_SERVER_BUSY:
-        case NS_SERVER_CLOSE:
+        case CmdCodes.NS_USER_DISCONNECT:
+        case CmdCodes.NS_SERVER_BUSY:
+        case CmdCodes.NS_SERVER_CLOSE:
         default :
         {
           let rcvBuf = Buffer.from(recvCmd.data);
