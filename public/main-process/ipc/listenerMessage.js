@@ -108,7 +108,7 @@ ipcMain.on('getChatRoomByRoomKey', async (event, roomKey) => {
  */
 ipcMain.on('sendChatMessage', async (event, chatUserIds, chatMessage, chatFontName, roomKey = null, roomTitle = '', type) => {
 
-  winston.info('[IPC] sendChatMessage :', roomKey, chatUserIds, chatMessage);
+  winston.info('[IPC] sendChatMessage :', roomKey, chatUserIds, chatMessage, type);
 
   // RoomKey가 없다면 만든다.
   if (!roomKey) {
@@ -143,9 +143,9 @@ ipcMain.on('sendChatMessage', async (event, chatUserIds, chatMessage, chatFontNa
 /**
  * getChatList
  */
-ipcMain.on('getChatList', async (event, roomId, lastLineKey = '9999999999999999', rowLimit = 30) => {
+ipcMain.on('getChatList', async (event, roomId, lastLineKey, rowLimit) => {
 
-  fetchAPI.reqGetChatList(roomId, lastLineKey = '9999999999999999', rowLimit = 100).then(function (resData) {
+  fetchAPI.reqGetChatList(roomId, lastLineKey, rowLimit).then(function (resData) {
     winston.info('[IPC] getChatList res:', resData)
     event.reply('res-getChatList', resData);
   }).catch(function (err) {

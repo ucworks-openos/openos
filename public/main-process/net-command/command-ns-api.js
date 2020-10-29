@@ -415,6 +415,7 @@ function reqChatLineKey(chatRoomKey) {
  */
 function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTitle, type) {
     return new Promise(async function(resolve, reject) {
+        console.log(`this is type`,type);
 
         if (!global.SERVER_INFO.NS.isConnected) {
             reject(new Error('NS IS NOT CONNECTED!'));
@@ -491,7 +492,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTi
         let tmpBuf1 = adjustBufferMultiple4(concatBuf);
 
         let chatCmdBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);        // chat_cmd
-        chatCmdBuf.writeInt32LE(type === `chat` ? CmdCodes.CHAT_DATA_LINE : CmdCodes.CHAT_RECV_FILE)
+        chatCmdBuf.writeInt32LE(type.toString() === "U" ? CmdCodes.CHAT_DATA_LINE : CmdCodes.CHAT_RECV_FILE)
 
         let chatKeySizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);    // chatkey_size
         let chatKeyBuf = Buffer.from(roomKey + CmdConst.SEP_PIPE + idDatas);

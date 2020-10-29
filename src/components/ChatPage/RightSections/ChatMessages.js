@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getInitialChatMessages } from "../../../redux/actions/chat_actions";
 import moment from "moment";
+import { EchatType } from "../../../enum";
+import styled from "styled-components";
 
 function ChatMessages() {
   const dispatch = useDispatch();
@@ -47,12 +49,7 @@ function ChatMessages() {
       //데이터 베이스에서 메시지를 가져오면 안됨.
       //근데  채팅을 몇번 하고 난 후에 다시 들어올때도  last_line_key가  undefined이기에 ...
       //채팅 리스트들을 없앤다 .. 어떻게 해야 하나 ...?
-      dispatch(
-        getInitialChatMessages(
-          currentChatRoom.room_key,
-          currentChatRoom.last_line_key
-        )
-      );
+      dispatch(getInitialChatMessages(currentChatRoom.room_key));
     }
   }, [currentChatRoom]);
 
@@ -64,32 +61,46 @@ function ChatMessages() {
        *   fontName: 'EMOTICON \r tab_02 \r 3.gif\r맑은 고딕 Semilight'
        */
 
-      let hasMessage = true;
-      let hasEmoticon = chat.chat_font_name.startsWith("EMOTICON");
-      let emoName = "";
-      let emoTab = "";
-      if (hasEmoticon) {
-        let emotiInfo = chat.chat_font_name.split(` `);
-        emoTab = emotiInfo[1];
-        emoName = emotiInfo[2];
-        hasMessage =
-          chat.chat_contents?.trim().length > 0 &&
-          chat.chat_contents !== chat.chat_entry_ids;
+      if (
+        !chat.chat_contents?.trim().length ||
+        chat.chat_contents === chat.chat_entry_ids
+      ) {
+        return null;
       }
 
-      let emoticon;
-      let message;
+      const chatType = chat.chat_type;
+
+      const hasEmoticon = chat.chat_font_name?.startsWith("EMOTICON");
+      const emoTab = chat.chat_font_name?.split(` `)?.[1];
+      const emoName = chat.chat_font_name?.split(` `)?.[2];
+
+      let composed = chat.chat_contents.split(`|`);
+      let fileName;
+      let fileSize;
+      let serverIp;
+      let serverPort;
+      let serverFileName;
+      if (chatType === EchatType.file.toString() && composed.length > 3) {
+        fileName = composed[0];
+        fileSize = composed[1];
+        serverIp = composed[3].split(`;`)[0];
+        serverPort = composed[3].split(`;`)[1];
+        serverFileName = composed[4];
+      }
 
       const contents =
         chat.chat_type === `U`
           ? chat.chat_contents
           : chat.chat_contents.split(`|`)[0];
 
-      if (chat.chat_send_id === `${sessionStorage.getItem("loginId")}`) {
-        message = (
+      const myChat =
+        chat.chat_send_id === `${sessionStorage.getItem("loginId")}`;
+
+      if (myChat) {
+        return (
           <div key={index} className="speech-row speech-my">
             <div className="speech-content-wrap-mine">
-              {hasEmoticon && (
+              {chatType === EchatType.emoticon.toString() && hasEmoticon && (
                 <>
                   <div className="speech-info-wrap">
                     <div className="speech-info">
@@ -110,27 +121,37 @@ function ChatMessages() {
                 </>
               )}
 
-              {hasMessage && (
-                <div className="speech-inner-wrap">
+              <div className="speech-inner-wrap">
+                {chatType !== EchatType.file.toString() ? (
                   <div className="speech-content">
                     <pre>{contents}</pre>
                   </div>
-                  <div className="speech-info">
-                    <span className="unread-ppl">{chat.read_count}</span>
-                    <span className="time">
-                      {" "}
-                      {moment(chat.chat_send_date, "YYYYMMDDHHmm").format(
-                        "HH:mm"
-                      )}
-                    </span>
-                  </div>
+                ) : (
+                  <FileInfo>
+                    <div>
+                      <div>{fileName}</div>
+                      <div>{fileSize}</div>
+                    </div>
+                    <div>
+                      <img src="./images/icon_attatched_file.png" />
+                    </div>
+                  </FileInfo>
+                )}
+                <div className="speech-info">
+                  <span className="unread-ppl">{chat.read_count}</span>
+                  <span className="time">
+                    {" "}
+                    {moment(chat.chat_send_date, "YYYYMMDDHHmm").format(
+                      "HH:mm"
+                    )}
+                  </span>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         );
       } else {
-        message = (
+        return (
           <div className="speech-row speech-others" key={index}>
             <div className="user-pic-wrap">
               <img
@@ -145,7 +166,7 @@ function ChatMessages() {
             </div>
             <div className="speech-content-wrap-his">
               <div className="speaker-info-wrap">{chat.chat_send_name}</div>
-              {hasEmoticon && (
+              {chatType === EchatType.emoticon.toString() && hasEmoticon && (
                 <div className="speech-info-wrap">
                   <img
                     src={`./Emoticons/${emoTab}/${emoName}`}
@@ -164,35 +185,36 @@ function ChatMessages() {
                   </div>
                 </div>
               )}
-              {hasMessage && (
-                <div className="speech-inner-wrap">
+              <div className="speech-inner-wrap">
+                {chatType !== EchatType.file.toString() ? (
                   <div className="speech-content">
                     <pre>{contents}</pre>
                   </div>
-
-                  <div className="speech-info">
-                    <span className="unread-ppl read-all">
-                      {chat.read_count}
-                    </span>
-                    <span className="time">
-                      {moment(chat.chat_send_date, "YYYYMMDDHHmm").format(
-                        "HH:mm"
-                      )}
-                    </span>
-                  </div>
+                ) : (
+                  <FileInfo>
+                    <div>
+                      <div>{fileName}</div>
+                      <div>{fileSize}</div>
+                    </div>
+                    <div>
+                      <img src="./images/icon_attatched_file.png" />
+                    </div>
+                  </FileInfo>
+                )}
+                <div className="speech-info">
+                  <span className="unread-ppl">{chat.read_count}</span>
+                  <span className="time">
+                    {" "}
+                    {moment(chat.chat_send_date, "YYYYMMDDHHmm").format(
+                      "HH:mm"
+                    )}
+                  </span>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         );
       }
-
-      return (
-        <div>
-          {emoticon}
-          {message}
-        </div>
-      );
     });
 
   if (chatMessages) {
@@ -209,5 +231,21 @@ function ChatMessages() {
     return <div className="chat-area"></div>;
   }
 }
+
+const FileInfo = styled.div`
+  display: flex;
+  background-color: #fff;
+  & > div:nth-child(1) {
+  }
+  & > div:nth-child(2) {
+    background-color: #fff;
+    border-radius: 50%;
+    padding: 5px 10px;
+    & > img {
+      width: 24px;
+      height: 24px;
+    }
+  }
+`;
 
 export default ChatMessages;

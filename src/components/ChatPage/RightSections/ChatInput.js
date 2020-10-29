@@ -19,6 +19,7 @@ import { getDispUserNames } from "../../../common/util/userUtil";
 import styled from "styled-components";
 import { uploadFile } from "../../../common/ipcCommunication/ipcFile";
 import { sendChatMessage } from "../../../common/ipcCommunication/ipcMessage";
+import { EchatType } from "../../../enum";
 
 function ChatInput() {
   const dispatch = useDispatch();
@@ -88,7 +89,7 @@ function ChatInput() {
           currentChatRoom.room_key,
           loggedInUser.user_name.value,
           loggedInUser.user_id.value,
-          `file`
+          EchatType.file
         )
       );
 
@@ -169,7 +170,8 @@ function ChatInput() {
         false,
         currentChatRoom.room_key,
         loggedInUser.user_name.value,
-        loggedInUser.user_id.value
+        loggedInUser.user_id.value,
+        currentEmoticon ? EchatType.emoticon : EchatType.chat
       )
     );
     dispatch(setEmojiVisible(false));

@@ -66,6 +66,7 @@ export const getChatRoomByRoomKey = async (roomId) => {
 /** sendChatMessage */
 export const sendChatMessage = async (chatUserIds, chatMessage, chatFontName, roomKey = null, roomTitle, type) => {
   console.log(`chatMessage: `, chatMessage);
+  console.log(`chat type: `, type)
   return new Promise(function(resolve, reject) {
       electron.ipcRenderer.once('res-sendChatMessage', (event, arg) => {
           resolve(arg);
@@ -75,7 +76,8 @@ export const sendChatMessage = async (chatUserIds, chatMessage, chatFontName, ro
 }
 
 /** getChatList */
-export const getChatList = async (roomId, lastLineKey = '9999999999999999', rowLimit = 30) => {
+export const getChatList = async (roomId, lastLineKey, rowLimit) => {
+  console.log(`lastLineKey: `, lastLineKey);
   return new Promise(function(resolve, reject) {
       electron.ipcRenderer.once('res-getChatList', (event, arg) => {
           resolve(arg);

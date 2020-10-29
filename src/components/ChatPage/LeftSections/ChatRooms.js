@@ -23,30 +23,26 @@ function ChatRooms(props) {
     dispatch(getInitialChatRooms());
   }, []);
 
-  useEffect(() => {
-    console.log(chatRooms, currentChatRoom);
-  });
-
   const onChatRoomClick = (roomKey) => {
     dispatch(setCurrentChatRoom(roomKey, chatRooms));
     dispatch(setEmojiVisible(false));
     dispatch(setEmoticonVisible(false));
   };
 
-	const renderChatRoom = () =>
-	chatRooms &&
-	chatRooms.map((room) => {
-		let chatUserIds = room && getChatUserIds(room.chat_entry_ids);
-        let chatUserCount = chatUserIds && chatUserIds.length;
-        
-        let roomName = getChatRoomName(room.chat_entry_names, chatUserIds);
-		const isCurrentChatRoom =
-		room && room.room_key === currentChatRoom.room_key
-			? "current-chat"
-			: "";
-		// ${chatUserCount >= 4 ? "n" : chatUserCount}
+  const renderChatRoom = () =>
+    chatRooms &&
+    chatRooms.map((room) => {
+      let chatUserIds = room && getChatUserIds(room.chat_entry_ids);
+      let chatUserCount = chatUserIds && chatUserIds.length;
 
-		const isUnread = unreadChatRoomKeys.find((v) => v === room.room_key);
+      let roomName = getChatRoomName(room.chat_entry_names, chatUserIds);
+      const isCurrentChatRoom =
+        room && room.room_key === currentChatRoom.room_key
+          ? "current-chat"
+          : "";
+      // ${chatUserCount >= 4 ? "n" : chatUserCount}
+
+      const isUnread = unreadChatRoomKeys.find((v) => v === room.room_key);
 
       return (
         <li
@@ -57,7 +53,9 @@ function ChatRooms(props) {
           <div className="list-info-area">
             <div className="list-row 1">
               <div className="chat-ppl-num">{chatUserCount}</div>
-              <div className="chat-room-name"><span key={uuidv4()}>{roomName}</span></div>
+              <div className="chat-room-name">
+                <span key={uuidv4()}>{roomName}</span>
+              </div>
               {room.unread_count && room.unread_count !== "0" && (
                 <div className="chat-counter unread">{room.unread_count}</div>
               )}
@@ -80,7 +78,6 @@ function ChatRooms(props) {
         </li>
       );
     });
-
 
   if (chatRooms === undefined || (chatRooms && chatRooms[0] === undefined)) {
     return <div></div>;
