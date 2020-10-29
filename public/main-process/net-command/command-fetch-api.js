@@ -9,7 +9,7 @@ const CmdConst = require('./command-const');
 const SqlConst = require('./command-const-sql');
 const fetchCore = require('../net-core/network-fetch-core');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
-const { DATE_FORMAT, MSG_TYPE } = require('../common/common-const');
+const { DATE_FORMAT, MSG_TYPE, DML_KIND } = require('../common/common-const');
 const { decryptMessage } = require('../utils/utils-crypto');
 const { realpathSync } = require('fs');
 
@@ -59,7 +59,7 @@ function reqMessageList(msgType, rowOffset = 0, rowLimit = 100) {
     query = query.replace(':ROW_LIMIT:', rowLimit);
     query = query.replace(':ROW_OFFSET:', rowOffset);
 
-    return selectToServer(query, queryKey)
+    return queryToServer(query, queryKey)
 }
 
 /**
@@ -74,7 +74,7 @@ function reqGetMessageDetail(msgKey) {
         query = query.replace(':MSG_KEY:', msgKey);
         
         try {
-            let resData = await selectToServer(query, queryKey);
+            let resData = await queryToServer(query, queryKey);
 
             if (resData.resCode) {
                 let encryptKey = resData.data.table.row.encrypt_key
@@ -116,7 +116,7 @@ function reqDeleteMessage(msgType, msgKeys) {
 
     if (!msgKeys) return;
 
-    let queryKey = 'GET_MSG_LIST_' + msgType + '_' + global.USER.userId + '_' + OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
+    let queryKey = 'GET_MSG_DELETE_MSGKEY_' + msgType + '_' + global.USER.userId + '_' + OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
 
     let query = ''
     switch(msgType) {
@@ -136,7 +136,7 @@ function reqDeleteMessage(msgType, msgKeys) {
     let keyTmp = msgKeys.join("','");
     query = query.replace(':MSG_KEYS:', "'" + keyTmp + "')");
 
-    return selectToServer(query, queryKey)
+    return queryToServer(query, queryKey, DML_KIND.DELETE)
 }
 
 /**
@@ -151,7 +151,7 @@ async function reqChatRoomList( rowOffset = 0, rowLimit = 100) {
     query = query.replace(':ROW_OFFSET:', rowOffset);
 
     
-    let res = await selectToServer(query, queryKey);
+    let res = await queryToServer(query, queryKey);
 
     try {
         if (Array.isArray(res.data.table.row)) {
@@ -180,7 +180,7 @@ async function reqChatRoomByRoomKey(roomKey) {
     query = query.replace(':USER_ID:', global.USER.userId);
 
     
-    let res = await selectToServer(query, queryKey);
+    let res = await queryToServer(query, queryKey);
 
     try {
         if (res.data.table.row){
@@ -206,7 +206,7 @@ async function reqGetChatList(roomId, lastLineKey = '9999999999999999', rowLimit
     query = query.replace(':LINE_KEY:', lastLineKey);
     query = query.replace(':ROW_LIMIT:', rowLimit);
     
-    let res = await selectToServer(query, queryKey);
+    let res = await queryToServer(query, queryKey);
 
     try {
         if (Array.isArray(res.data.table.row)) {
@@ -225,13 +225,28 @@ async function reqGetChatList(roomId, lastLineKey = '9999999999999999', rowLimit
     return res;
 }
 
+/**
+ * 대화방 이름 변경
+ * @param {String} roomId 
+ * @param {String} chatEntryNames 
+ */
+async function reqChangeChatRoomName(roomId, chatEntryNames) {
+    
+    let queryKey = 'UPDATE_CHAT_ROOM_TITLE_' + global.USER.userId + '_' + OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS);
+    let query = SqlConst.SQL_update_tbl_chat_room_title_from_server;
+    query = query.replace(':CHAT_ENTRY_NAMES:', chatEntryNames);
+    query = query.replace(':ROOM_KEY:', roomId);
+    
+    let res = await queryToServer(query, queryKey, DML_KIND.UPDATE);
+    return res;
+}
 
 /**
- * selectToServer
+ * queryToServer
  * @param {String} query 
  * @param {String} queryKey 
  */
-function selectToServer(query, queryKey) {
+function queryToServer(query, queryKey, dmlKind = DML_KIND.SELECT) {
     return new Promise(async function(resolve, reject) {
 
         await fetchCore.connectFETCH(); // 무조건 새로 붙인다.
@@ -258,7 +273,7 @@ function selectToServer(query, queryKey) {
         let rowOrPageBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);      // 1. Page단위로 쿼리를 보내는 경우 - 보고 싶은 페이지 번호를 보낸다.
         
         let dmlBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);            // 1->select, 2->insert, 3->update, 4->delete 5->sync select(count), 6-sync select - row갯수 포함한것
-        dmlBuf.writeInt32LE(1);
+        dmlBuf.writeInt32LE(dmlKind);
 
         let querySizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
         let queryBuf = Buffer.from(query, global.ENC);
@@ -285,5 +300,6 @@ module.exports = {
     reqChatRoomList: reqChatRoomList,
     reqChatRoomByRoomKey: reqChatRoomByRoomKey,
     reqGetChatList: reqGetChatList,
+    reqChangeChatRoomName: reqChangeChatRoomName,
     close: close
 }

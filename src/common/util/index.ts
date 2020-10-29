@@ -1,6 +1,6 @@
 export { formatBytes } from "./fileUtil";
 export { getDispUserNames } from "./userUtil";
-export { getChatRoomName, getChatUserIds } from "./chatUtil";
+export { getChatRoomName, getChatUserIds, getChatRoomType } from "./chatUtil";
 export { getPreviousStackInfo } from "./commonUtil";
 
 

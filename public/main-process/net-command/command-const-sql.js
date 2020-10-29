@@ -75,5 +75,7 @@ module.exports = Object.freeze({
     ' ORDER BY a.line_key ASC'+
     ' LIMIT :ROW_LIMIT: ', // OFFSET :from_rows ';
 
-    
+    SQL_update_tbl_chat_room_title_from_server:
+    'UPDATE tbl_chat_room SET chat_entry_names = \':CHAT_ENTRY_NAMES:\' '+
+    ' WHERE room_key = \':ROOM_KEY:\'',
 });     

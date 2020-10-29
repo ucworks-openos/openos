@@ -25,7 +25,9 @@ import {
 } from "../../common/ipcCommunication/ipcMessage";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
-import { getChatUserIds } from "../../common/util";
+import { getChatUserIds, getChatRoomType, getChatRoomName, getDispUserNames } from "../../common/util";
+
+
 /**
  * 32자리 UUID를 반환합니다
  */
@@ -211,12 +213,14 @@ export async function addChatRoomFromOrganization(orgMembers) {
     selected_users: finalSelectedKeys,
     user_counts: newFinal.length,
     chat_entry_ids: newFinal.join("|"),
+    chat_entry_names: await getDispUserNames(finalSelectedKeys),
     unread_count: 0,
     chat_content: "",
     last_line_key: "9999999999999999",
     chat_send_name: sessionStorage.getItem(`loginName`),
     create_room_date: moment().format("YYYYMMDDHHmm"),
     chat_send_id: sessionStorage.getItem(`loginId`),
+    room_type: getChatRoomType(newFinal),
   };
 
   if (request.user_counts === 2) {

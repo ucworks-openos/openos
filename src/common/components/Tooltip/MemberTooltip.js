@@ -11,6 +11,7 @@ function MemberTooltip({ userIds, style, type }) {
     let chatUserIds = userIds;
     getUserInfos(chatUserIds).then(function (results) {
       if (results.data.items && results.data.items.node_item !== "") {
+
         setUserInfos(
           Array.isArray(results.data.items.node_item)
             ? results.data.items.node_item

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    addChatRoom
+    addChatRoom, updateCurrentChatRoom
 } from '../../../redux/actions/chat_actions';
 import { searchUsers } from '../../ipcCommunication/ipcOrganization'
 import '../SendMessageModal/MessageInputModal.css';
@@ -9,6 +9,8 @@ import Alert from 'react-bootstrap/Alert'
 import moment from 'moment';
 import { inviteChatUser } from '../../ipcCommunication/ipcMessage';
 import { getDispUserNames } from '../../util/userUtil';
+import { writeDebug, writeError, writeInfo } from '../../ipcCommunication/ipcLogger';
+import { arrayLike, getChatRoomName, getChatUserIds, getChatRoomType } from '../../util';
 
 function ChatInvitationModal(props) {
     const dispatch = useDispatch();
@@ -18,7 +20,12 @@ function ChatInvitationModal(props) {
     const [isAlreadyCheckedUser, setIsAlreadyCheckedUser] = useState(false);
     const [isNoUser, setIsNoUser] = useState(false);
     const [isUserSelected, setIsUserSelected] = useState(false);
-    const loggedInUser = useSelector(state => state.users.loggedInUser)
+    const loggedInUser = useSelector(state => state.users.loggedInUser);
+    const currRoom = props.currRoom;
+
+    useEffect(() => {
+        writeInfo('ChatInvitationModal:', currRoom);
+    }, []);
 
     // SearchUser
     const handleSearchUser = async (e) => {
@@ -27,35 +34,32 @@ function ChatInvitationModal(props) {
         setSearchText('')
         //검색으로 나온 유저가 없을 때
         if (result.data.root_node !== "") {
-            let searchedUsers = result.data.root_node.node_item
-            //검색으로 나온 유저들 1명이상일 때
-            if (searchedUsers.length > 1) {
-                //이미 선택되어 있는 사람이 없을 때는 검색으로 나온 유저를 다 넣어주기 
-                if (selectedUsers.length === 0) {
-                    setSelectedUsers(searchedUsers)
-                    //이미 선택되어 있는 사람이 있을 때
-                } else {
-                    let arr1 = selectedUsers
-                    let arr2 = searchedUsers
-                    //두개의 배열을 합친 다음에 겹치는 것들을 지우기
-                    //winston.info(!arr1.find(f => f.user_id.value === user_id.value))  는 return boolean 이다. 그래서 true면 concat 되고 아니면 filtering 된다.
-                    //find은 원래 조건에 맞는 첫번째 아이템을 return 하는데 !arr.find 하므로써 같은게 있는것에 !반대를 하니깐 같은데 있을 때 false를 배출해줍니다. 
-                    let arr3 = arr1.concat(arr2.filter(({ user_id }) => !arr1.find(f => f.user_id.value === user_id.value)));
-                    setSelectedUsers(arr3)
-                }
-                //검색으로 나온 유저가 1명일 때    
-            } else {
-                isAlreadySelectedUser = selectedUsers.filter(user => user.user_id.value === result.data.root_node.node_item.user_id.value).length !== 0
-                if (isAlreadySelectedUser) {
-                    setIsAlreadyCheckedUser(true)
-                    setTimeout(() => {
-                        setIsAlreadyCheckedUser(false)
-                    }, 2000)
-                } else {
-                    setSelectedUsers([...selectedUsers, result.data.root_node.node_item])
-                }
+            let searchedUsers = arrayLike(result.data.root_node.node_item)
+            
+            // 본인은 초대 대상에서 제외
+            try {
+                searchedUsers = searchedUsers.filter(({ user_id }) => user_id.value !== loggedInUser.user_id.value)
+            } catch(error) {
+
+                writeError('ChatInviteModal handleSearchUser Error',loggedInUser, searchedUsers, error)
+                return;
             }
-            //검색으로 나온 유저가 없을때
+            
+
+            //검색으로 나온 유저들 1명이상일 때
+            //이미 선택되어 있는 사람이 없을 때는 검색으로 나온 유저를 다 넣어주기 
+            if (selectedUsers.length === 0) {
+                setSelectedUsers(searchedUsers)
+                //이미 선택되어 있는 사람이 있을 때
+            } else {
+                let arr1 = selectedUsers
+                let arr2 = searchedUsers
+                //두개의 배열을 합친 다음에 겹치는 것들을 지우기
+                //winston.info(!arr1.find(f => f.user_id.value === user_id.value))  는 return boolean 이다. 그래서 true면 concat 되고 아니면 filtering 된다.
+                //find은 원래 조건에 맞는 첫번째 아이템을 return 하는데 !arr.find 하므로써 같은게 있는것에 !반대를 하니깐 같은데 있을 때 false를 배출해줍니다. 
+                let arr3 = arr1.concat(arr2.filter(({ user_id }) => !arr1.find(f => f.user_id.value === user_id.value)));
+                setSelectedUsers(arr3)
+            }
         } else {
             setIsNoUser(true)
             setTimeout(() => {
@@ -65,7 +69,7 @@ function ChatInvitationModal(props) {
     }
 
 
-    const onSubmit = (event) => {
+    const onSubmit = async (event) => {
         event.preventDefault();
         //만약 유저가 선택 안되어 있다면 선택 먼저 하고 진행
         if (selectedUsers.length === 0) {
@@ -76,41 +80,69 @@ function ChatInvitationModal(props) {
             return;
         }
         
-        let entryUsers = selectedUsers
+        let selectedUserIds = [];
+        selectedUsers.forEach(({ user_id }) => selectedUserIds.push(user_id.value));
+        
 
         // 기존 대화방에 추가하는지, 신규로 대화를 하는지 구분하여 처리
-        if (props.chatRoomKey) {
+        // 1:1 -> 1:N으로 변하는 경우는 새로운 방을 생성한다. room_type:2 -> 1:N
+        if (currRoom?.room_type === '2') {
+            let asIsUserIds = getChatUserIds(currRoom.chat_entry_ids);
+            let allUserIds = asIsUserIds.concat(selectedUserIds);
+            allUserIds = [...new Set(allUserIds)] // 중복제거
 
             // 전체 대화 사용자
-            let allUserIds = props.userIds.concat(entryUsers);
+            let roomName = ''
+            if (currRoom.chat_entry_names?.startsWith('UCWARE_CHAT_ROOM_TITLE')) {
+                roomName = currRoom.chat_entry_names;
+            } else {
+                roomName = await getDispUserNames(allUserIds)
+            }
+            
+            writeInfo('UserInvite:', selectedUserIds)
+            inviteChatUser(currRoom.room_key, roomName, asIsUserIds, selectedUserIds);
 
-            let roomName = props.roomName;
-            if (!roomName) {
-                getDispUserNames(allUserIds)
+            const upChatRoom = {
+                ... currRoom,
+                chat_entry_names: roomName,
+                chat_entry_ids: allUserIds.join('|')
             }
 
-            inviteChatUser(props.chatRoomKey, roomName, props.userIds, entryUsers);
+            // 기존방 변경
+            dispatch(updateCurrentChatRoom(upChatRoom));
 
-        } else {
+        } else { // 방을 새롭게 만드는 경우
+            selectedUserIds.push(loggedInUser.user_id.value) // 본인 추가
 
-            // entryUsers에는 자기 자신도 포함해서 넣어주기 
-            entryUsers.push(loggedInUser)
+            // 기존방이 있다면
+            if (currRoom) {
+                let asIsUserIds = getChatUserIds(currRoom.chat_entry_ids);
+                selectedUserIds = asIsUserIds.concat(selectedUserIds)
+            }
 
-            let userIdArray = [];
-            selectedUsers.map(user => userIdArray.push(user.user_id.value))
-            //보내줘야 하는 형식으로 유저 ID들을 만들어 보내주기
-            let chatEntryIds = entryUsers.map(user => user.user_id.value).join("|")
+            selectedUserIds = [...new Set(selectedUserIds)] // 중복제거
+
+            let chatEntryIds = selectedUserIds.join('|')
+
+            writeInfo('CreateNewChat:', selectedUserIds)
+
             const chatRoomBody = {
-                selected_users: userIdArray,
-                user_counts: chatEntryIds.length,
+                // selected_users: userIdArray,
+                // user_counts: chatEntryIds.length,
+                // chat_entry_ids: chatEntryIds,
+                selected_users: selectedUserIds,
+                user_counts: selectedUserIds.length,
                 chat_entry_ids: chatEntryIds,
+                chat_entry_names: await getDispUserNames(selectedUserIds),
                 unread_count: 0,
                 chat_content: "",
                 last_line_key: '9999999999999999',
                 chat_send_name: loggedInUser.user_name.value,
                 create_room_date: moment().format("YYYYMMDDHHmm"),
                 chat_send_id: loggedInUser.user_id.value,
+                room_type: getChatRoomType(selectedUserIds)
             }
+
             //채팅룸을 추가하기
             dispatch(addChatRoom(chatRoomBody));
         }
@@ -166,7 +198,7 @@ function ChatInvitationModal(props) {
 
             <div class="modal-btn-wrap">
                 <div class="btn-ghost-s cancel" onClick={props.closeModalFunction}>취소하기</div>
-                <div class="btn-solid-s submit" type="submit" onClick={onSubmit}>전송하기</div>
+                <div class="btn-solid-s submit" type="submit" onClick={onSubmit}>대화하기</div>
             </div>
         </>
     )

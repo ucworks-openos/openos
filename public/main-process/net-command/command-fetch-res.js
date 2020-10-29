@@ -54,7 +54,7 @@ function responseCmdProc(recvCmd) {
         let result = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx); // 그냥 남은거 다 받는다.
         sInx += resultSize;
 
-        winston.debug('FETCH_SQL_REQUEST  xml ', result)
+        //winston.debug('FETCH_SQL_REQUEST  xml ', result)
         parseXmlToJSON(result).then(function(jsonData) {
           callCallback(recvCmd.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {
