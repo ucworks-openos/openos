@@ -25,8 +25,6 @@ function ChatPage(props) {
   const orgMembers = props.match.params["orgMembers"];
 
   useEffect(() => {
-    dispatch(getLogginedInUserInfo(sessionStorage.getItem("loginId")));
-
       if (roomKey) {
           getChatRoomByRoomKey(roomKey).then((resData) => {
               let roomInfo = resData.data;

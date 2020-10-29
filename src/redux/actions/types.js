@@ -23,4 +23,4 @@ export const SET_MESSAGE_LIST = "set_message_list";
 export const ADD_MESSAGE = "add_message";
 export const GET_MORE_MESSAGES = "get_more_messages";
 export const SET_CURRENT_MESSAGE_LISTS_TYPE = "set_current_message_lists_type";
-export const GET_LOGGED_IN_USER_INFO = "get_logged_in_user_info";
+export const SET_LOGIN_USER_INFO = "set_login_user_info";

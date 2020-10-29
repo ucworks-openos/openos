@@ -6,7 +6,6 @@ import styled from "styled-components";
 import Alert from "react-bootstrap/Alert";
 import {
   login,
-  setAutoLoginFlag,
 } from "../../common/ipcCommunication/ipcCommon";
 import { useParams } from "react-router-dom";
 import {
@@ -17,7 +16,13 @@ import {
 
 const { remote } = window.require("electron");
 
-export default function LoginPage() {
+type TsettingModalProps = {
+  loginSucessProc: (loginedId:string) => void;
+};
+
+export default function LoginPage(props:TsettingModalProps) {
+  const { loginSucessProc } = props;
+
   const [autoLogin, setAutoLogin] = useState(
     remote.getGlobal("USER_CONFIG").get("autoLogin")
   );
@@ -28,6 +33,7 @@ export default function LoginPage() {
   const { register, errors, handleSubmit } = useForm({
     defaultValues: {
       loginId: remote.getGlobal("USER_CONFIG").get("autoLoginId"),
+      loginPwd: ''
     },
   });
 
@@ -64,7 +70,7 @@ export default function LoginPage() {
     writeDebug("Auto Login Flag Changed!", autoLogin);
   }, [autoLogin]);
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data:any) => {
     writeInfo("LOGIN CLICK", data.loginId);
     writeInfo("LOGIN CLICK Data", data.loginId, data.loginPwd);
 
@@ -79,15 +85,12 @@ export default function LoginPage() {
    * @param {String} loginPwd
    * @param {String} isAutoLogin
    */
-  async function loginRequest(loginId, loginPwd, isAutoLogin = false) {
+  async function loginRequest(loginId:string, loginPwd:string, isAutoLogin = false) {
     try {
       const resData = await login(loginId, loginPwd, isAutoLogin);
 
       if (resData.resCode) {
-        sessionStorage.setItem(`loginId`, loginId)
-        
-        window.location.hash = "#/favorite";
-        window.location.reload();
+        loginSucessProc(loginId);
       } else {
         setIsLoginFail(true);
         setFailMessage("Login Fail! (" + resData.data + ")");

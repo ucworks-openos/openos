@@ -1,24 +1,20 @@
 import React, { useState, useEffect, SyntheticEvent } from "react";
 import "./HeaderNavi.css";
-import userAvatarThumbnail from "../../../assets/images/img_user-thumbnail.png";
 import {
   logout,
   changeStatus,
 } from "../../../common/ipcCommunication/ipcCommon";
-import { convertToUser, delay } from "../../../common/util";
 import { EuserState } from "../../../enum";
 import Modal from "react-modal";
 import SettingModal from "../../../common/components/Modal/SettingModal";
 import useConfig from "../../../hooks/useConfig";
-import { getUserInfos } from "../../../common/ipcCommunication/ipcOrganization";
 import { writeDebug, writeInfo } from "../../../common/ipcCommunication/ipcLogger";
+
 
 export default function HeaderNavi() {
   const [avatarDropDownIsOpen, setAvatarDropDownIsOpen] = useState(false);
   const [myInfo, setMyInfo] = useState<TUser>({});
-  const [settingModalVisible, setSettingModalVisible] = useState<boolean>(
-    false
-  );
+  const [settingModalVisible, setSettingModalVisible] = useState<boolean>(false);
   const {
     setTheme,
     setScope,
@@ -32,14 +28,16 @@ export default function HeaderNavi() {
     setUseProxy,
   } = useConfig();
 
-  const getProfile = async (id: string) => {
-    const {
-      data: {
-        items: { node_item: profileSchema },
-      },
-    } = await getUserInfos([id]);
-    return convertToUser(profileSchema);
-  };
+  useEffect(() => {
+    let loginUserStr = sessionStorage.getItem('loginUserData');
+    var userProfile = loginUserStr&&JSON.parse(loginUserStr);
+
+    writeDebug('HeaderNavi userProfile-- ', userProfile)
+
+    getConfig();
+    setMyInfo(userProfile);
+
+  }, []);
 
   const getConfig = () => {
     const rawConfig = localStorage.getItem(sessionStorage.getItem(`loginId`)!);
@@ -59,19 +57,6 @@ export default function HeaderNavi() {
       setUseProxy(config.useProxy);
     }
   };
-
-  useEffect(() => {
-    const initiate = async () => {
-      await delay(2000);
-      if (!sessionStorage.getItem(`loginId`)) return false;
-      const profile = await getProfile(sessionStorage.getItem(`loginId`)!);
-      getConfig();
-      setMyInfo(profile);
-    };
-
-    writeDebug('HeaderNavi -- sessionStorage.getItem(`loginId`)', sessionStorage.getItem(`loginId`))
-    initiate();
-  }, []);
 
   const onAvatarClick = () => {
     if (!sessionStorage.getItem(`loginId`)) return false;
@@ -198,7 +183,7 @@ export default function HeaderNavi() {
             />
           </div>
           <div
-            className={`user-state ${EuserState[Number(myInfo.userState)]}`}
+            className={`user-state ${EuserState[Number(myInfo?.userState)]}`}
           ></div>
         </div>
         {avatarDropDownIsOpen && (

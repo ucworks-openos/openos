@@ -144,9 +144,15 @@ global.MAIN_WINDOW = null;
 global.USER = {
   userId: null,
   userName: '',
-  userPass: '',
-  authMethod: '' // 사용처??  그냥 로그인시 넘겨줌 BASE64
+  authMethod: '', // 사용처??  그냥 로그인시 넘겨줌 BASE64
+  profile:{}
 }
+
+/**
+ * 사용자 상세 정보
+ */
+global.USER_PROFILE = {}
+
 /**
  * 암호화 (보안) 처리 정보
  */

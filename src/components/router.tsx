@@ -1,8 +1,13 @@
-import React, { Suspense } from "react";
-import { useSelector } from "react-redux";
+import React, { useState, Suspense } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch, HashRouter } from "react-router-dom";
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
-import { writeInfo } from "../common/ipcCommunication/ipcLogger";
+import { writeDebug, writeError, writeInfo } from "../common/ipcCommunication/ipcLogger";
+import { getUserInfos } from "../common/ipcCommunication/ipcOrganization";
+import { convertToUser } from "../common/util";
+import { setLoginUserInfo } from "../redux/actions/user_actions";
+
+const { remote } = window.require("electron")
 
 const Sidebar = React.lazy(() => import("./__Navigation/SideNavi/SideNavi"));
 const NavigationBar = React.lazy(
@@ -28,12 +33,45 @@ const chatTestPage = React.lazy(() => import("./TestPages/ChatTestPage"));
 const TeamSpacePage = React.lazy(() => import("./TeamSpacePage/TeamSpacePage"));
 
 function RouterPage() {
+  const dispatch = useDispatch()
 
-  writeInfo('RouterPage Path', Object.create(window.location), window.location.hash);
 
-  // 로그인이나 로그아웃으로 로그인페이지로 인입시 세션 정보는 날린다.
-  if (window.location.hash?.includes("/logout") || window.location.hash?.includes("/login") || window.location.hash == "#/") {
-    sessionStorage.clear()
+  writeInfo('RouterPage Path:%s  LoginUser:%s', window.location.hash, remote.getGlobal('USER'));
+
+
+  const loginSucessProc = (loginedId:string) => {
+    
+    writeInfo('loginSuccessProc --', loginedId);
+    
+    getProfile(loginedId).then((loginUserData) => {
+
+      writeInfo('loginSuccessProc Completed!', remote.getGlobal('USER'))
+      writeDebug('loginSuccessProc Completed!', loginUserData)
+      
+      // 로그인된 사용자 정보를 넣는다.
+      sessionStorage.setItem(`loginId`, loginedId)
+      sessionStorage.setItem('loginUserData', JSON.stringify(loginUserData));
+      dispatch(setLoginUserInfo(loginUserData));
+
+      window.location.hash = "#/favorite";
+      window.location.reload();
+    }).catch((err) => {
+      writeError('loginSucessProc Error', loginedId, err);
+    })
+  };
+
+  const getProfile = async (id: string) => {
+    const {
+      data: {
+        items: { node_item: profileSchema },
+      },
+    } = await getUserInfos([id]);
+    return convertToUser(profileSchema);
+  };
+
+  /** LoginPage Randerer */
+  const loginRanderer = () => {
+    return <LoginPage loginSucessProc={loginSucessProc} />
   }
 
   return (
@@ -43,13 +81,18 @@ function RouterPage() {
         {sessionStorage.getItem("isLoginElectronApp") && (
           <>
             {" "}
-            <NavigationBar /> <Sidebar />{" "}
+            <NavigationBar /> 
+            <Sidebar />
+            {" "}
           </>
         )}
         <Switch>
-          <Route exact path="/" component={LoginPage} />
-          <Route exact path="/login" component={LoginPage} />
-          <Route exact path="/logout" component={LoginPage} />
+
+          {/* login page */}
+          <Route exact path="/"  render={loginRanderer} />
+          <Route exact path="/login" render={loginRanderer}  />
+          <Route exact path="/logout" render={loginRanderer}  />
+
           <Route exact path="/favorite" component={FavoritePage} />
           <Route exact path="/organization" component={OrganizationPage} />
           <Route exact path="/about" component={AboutPage} />
@@ -85,6 +128,7 @@ function RouterPage() {
 }
 
 if (!window.location.hash || window.location.hash === "#/") {
+  writeDebug('location.hash `#/login');
   window.location.hash = `#/login`;
 }
 
