@@ -71,7 +71,7 @@ function ChatInput() {
 
       let userNames;
       if (!currentChatRoom.chat_entry_names) {
-        userNames = await getUserNames(
+        userNames = await getDispUserNames(
           currentChatRoom?.chat_entry_ids?.split("|")
         );
       } else {
