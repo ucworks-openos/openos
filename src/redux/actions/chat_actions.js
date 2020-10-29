@@ -16,6 +16,7 @@ import {
   SET_EMOJI_VISIBLE,
   SET_EMOTICON_VISIBLE,
   SET_CURRENT_EMOTICON,
+  UPDATE_CURRENT_CHAT_ROOM,
 } from "./types";
 import {
   getChatRoomList,
@@ -158,6 +159,13 @@ export function addReceivedChat(newMessage) {
 export function emptyChatMessages() {
   return {
     type: EMPTY_CHAT_MESSAGE,
+  };
+}
+
+export async function updateCurrentChatRoom(newRoom) {
+  return {
+    type: UPDATE_CURRENT_CHAT_ROOM,
+    payload: newRoom,
   };
 }
 

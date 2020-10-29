@@ -64,8 +64,6 @@ function ChatMessages() {
        *   fontName: 'EMOTICON \r tab_02 \r 3.gif\r맑은 고딕 Semilight'
        */
 
-      console.log(`chat: `, chat);
-
       let hasMessage = true;
       let hasEmoticon = chat.chat_font_name.startsWith("EMOTICON");
       let emoName = "";
