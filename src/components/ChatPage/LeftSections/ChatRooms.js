@@ -23,6 +23,10 @@ function ChatRooms(props) {
     dispatch(getInitialChatRooms());
   }, []);
 
+  useEffect(() => {
+    console.log(chatRooms, currentChatRoom);
+  });
+
   const onChatRoomClick = (roomKey) => {
     dispatch(setCurrentChatRoom(roomKey, chatRooms));
     dispatch(setEmojiVisible(false));
