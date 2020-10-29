@@ -3,16 +3,18 @@ import "../../assets/css/Modal.css";
 import useTree from "../../hooks/useTree";
 import { syncronize } from "../../common/util";
 import { changeChatRoomName } from "../../common/ipcCommunication/ipcMessage";
+import { writeError } from "../../common/ipcCommunication/ipcLogger";
 
 type ChangeRoomNameProp = {
   closeModalFunction: () => void;
+  changeChatRoomNameProc: (roomName:String) => void;
   chatRoomKey: string;
   asIsRoomName: string;
-  chatUserIds: Array<String>
+  chatUserIds: Array<String>;
 };
 
 export default function ChangeChatRoomModal(props: ChangeRoomNameProp) {
-  const { closeModalFunction, chatRoomKey, asIsRoomName, chatUserIds } = props;
+  const { closeModalFunction, changeChatRoomNameProc, chatRoomKey, asIsRoomName, chatUserIds } = props;
   const [chatRoomName, setChatRoomName] = useState(asIsRoomName);
 
   const onCloseModalClick = () => {
@@ -20,7 +22,12 @@ export default function ChangeChatRoomModal(props: ChangeRoomNameProp) {
   };
 
   const onSubmitClick = async () => {
-    changeChatRoomName(chatRoomKey, chatRoomName, chatUserIds)
+
+    // 입력값이 변경된 경우만 처리
+    if (asIsRoomName !== chatRoomName) {
+      changeChatRoomNameProc(chatRoomName);
+    }
+    
     closeModalFunction();
   };
 

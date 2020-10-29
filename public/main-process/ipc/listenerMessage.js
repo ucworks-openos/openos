@@ -119,6 +119,7 @@ ipcMain.on('sendChatMessage', async (event, chatUserIds, chatMessage, chatFontNa
 
   nsAPI.reqChatLineKey(roomKey).then(function (resData) {
     winston.info('[IPC] getChatLineKey res:', resData)
+
     if (resData.resCode) {
       nsAPI.reqSendChatMessage(roomKey, resData.data.lineKey, chatUserIds, chatMessage, chatFontName, roomTitle, type).then(function (resData) {
         winston.info('[IPC] sendChatMessage res:', resData)
@@ -171,15 +172,28 @@ ipcMain.on('exitChatRoom', async (event, roomId, chatUserIds) => {
 /**
  * changeChatRoomName
  */
-ipcMain.on('changeChatRoomName', async (event, roomId, roomName, chatUserIds) => {
-  winston.debug('changeChatRoomName', roomId)
-  nsAPI.reqChangeChatRoomName(roomId, roomName, chatUserIds).then(function (resData) {
-    winston.info('[IPC] changeChatRoomName res:', resData)
-    event.reply('res-changeChatRoomName', resData);
+ipcMain.on('changeChatRoomName', async (event, roomId, chatEntryNames, chatUserIds) => {
+  // 이름 업데이트
+  fetchAPI.reqChangeChatRoomName(roomId, chatEntryNames).then((resData) => {
+    
+    // 이름 업데이트 알림
+    nsAPI.reqChangeChatRoomName(roomId, chatEntryNames, chatUserIds).then(function (resData) {
+      winston.info('[IPC] changeChatRoomName res:', resData)
+      event.reply('res-changeChatRoomName', resData);
+    }).catch(function (err) {
+      winston.info('[IPC] changeChatRoomName res  Err:', err)
+      event.reply('res-changeChatRoomName', new ResData(false, err));
+    });
+
   }).catch(function (err) {
     winston.info('[IPC] changeChatRoomName res  Err:', err)
     event.reply('res-changeChatRoomName', new ResData(false, err));
   });
+
+  let res = {roomId:roomId, chatEntryNames:chatEntryNames};
+  winston.info('[IPC] changeChatRoomName sucess!', res)
+  event.reply('res-changeChatRoomName', new ResData(true, res));
+
 });
 
 /**

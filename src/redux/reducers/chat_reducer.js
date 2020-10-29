@@ -25,18 +25,6 @@ export default function (
   action
 ) {
   switch (action.type) {
-    case UPDATE_CURRENT_CHAT_ROOM:
-      return {
-        ...state,
-        chatRooms: state.chatRooms.map((chatRoom) => {
-          if (chatRoom.room_key !== action.payload.room_key) {
-            return chatRoom;
-          } else {
-            return action.payload;
-          }
-        }),
-        currentChatRoom: action.payload,
-      };
     case SET_CURRENT_EMOTICON:
       return {
         ...state,
@@ -81,6 +69,20 @@ export default function (
         currentChatRoom: action.payload,
         chatMessages: action.payload.chatLists,
       };
+
+    case UPDATE_CURRENT_CHAT_ROOM:
+      return {
+        ...state,
+        chatRooms: state.chatRooms.map((chatRoom) => {
+          if (chatRoom.room_key !== action.payload.room_key) {
+            return chatRoom;
+          } else {
+            return action.payload;
+          }
+        }),
+        currentChatRoom: action.payload,
+      };
+
     case MOVE_TO_CLICKED_CHAT_ROOM:
       return {
         ...state,
@@ -129,7 +131,7 @@ export default function (
         create_room_date: sendDate,
         chat_send_id: sendId,
         room_key: roomKey,
-        last_line_key: lineKey,
+        //last_line_key: lineKey,
       };
 
       let chatMessageBody = {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    addChatRoom
+    addChatRoom, updateCurrentChatRoom
 } from '../../../redux/actions/chat_actions';
 import { searchUsers } from '../../ipcCommunication/ipcOrganization'
 import '../SendMessageModal/MessageInputModal.css';
@@ -10,7 +10,7 @@ import moment from 'moment';
 import { inviteChatUser } from '../../ipcCommunication/ipcMessage';
 import { getDispUserNames } from '../../util/userUtil';
 import { writeDebug, writeError, writeInfo } from '../../ipcCommunication/ipcLogger';
-import { arrayLike, getChatRoomName } from '../../util';
+import { arrayLike, getChatRoomName, getChatUserIds, getChatRoomType } from '../../util';
 
 function ChatInvitationModal(props) {
     const dispatch = useDispatch();
@@ -20,10 +20,11 @@ function ChatInvitationModal(props) {
     const [isAlreadyCheckedUser, setIsAlreadyCheckedUser] = useState(false);
     const [isNoUser, setIsNoUser] = useState(false);
     const [isUserSelected, setIsUserSelected] = useState(false);
-    const loggedInUser = useSelector(state => state.users.loggedInUser)
+    const loggedInUser = useSelector(state => state.users.loggedInUser);
+    const currRoom = props.currRoom;
 
     useEffect(() => {
-        writeInfo('ChatInvitationModal:', JSON.stringify(props));
+        writeInfo('ChatInvitationModal:', currRoom);
     }, []);
 
     // SearchUser
@@ -81,46 +82,67 @@ function ChatInvitationModal(props) {
         
         let selectedUserIds = [];
         selectedUsers.forEach(({ user_id }) => selectedUserIds.push(user_id.value));
-        let allUserIds = props.chatUserIds.concat(selectedUserIds);
-        allUserIds.push(loggedInUser.user_id.value) // 본인 추가
-        allUserIds = [...new Set(allUserIds)] // 중복제거
+        
 
         // 기존 대화방에 추가하는지, 신규로 대화를 하는지 구분하여 처리
-        // 1:1 -> 1:N으로 변하는 경우는 새로운 방을 생성한다.
-        if (props.chatRoomKey && props.chatUserIds.length > 2) {
+        // 1:1 -> 1:N으로 변하는 경우는 새로운 방을 생성한다. room_type:2 -> 1:N
+        if (currRoom?.room_type === '2') {
+            let asIsUserIds = getChatUserIds(currRoom.chat_entry_ids);
+            let allUserIds = asIsUserIds.concat(selectedUserIds);
+            allUserIds = [...new Set(allUserIds)] // 중복제거
 
             // 전체 대화 사용자
             let roomName = ''
-            if (props.chatEntryName?.startsWith('UCWARE_CHAT_ROOM_TITLE')) {
-                roomName = getChatRoomName(props.chatEntryName, allUserIds);
+            if (currRoom.chat_entry_names?.startsWith('UCWARE_CHAT_ROOM_TITLE')) {
+                roomName = currRoom.chat_entry_names;
             } else {
                 roomName = await getDispUserNames(allUserIds)
             }
             
             writeInfo('UserInvite:', selectedUserIds)
-            //inviteChatUser(props.chatRoomKey, roomName, props.chatUserIds, selectedUserIds);
-            inviteChatUser(props.chatRoomKey, roomName, props.chatUserIds, selectedUserIds);
-        } else {
-            
-            let chatEntryIds = allUserIds.join('|')
+            inviteChatUser(currRoom.room_key, roomName, asIsUserIds, selectedUserIds);
 
-            writeInfo('CreateNewChat:', allUserIds)
+            const upChatRoom = {
+                ... currRoom,
+                chat_entry_names: roomName,
+                chat_entry_ids: allUserIds.join('|')
+            }
+
+            // 기존방 변경
+            dispatch(updateCurrentChatRoom(upChatRoom));
+
+        } else { // 방을 새롭게 만드는 경우
+            selectedUserIds.push(loggedInUser.user_id.value) // 본인 추가
+
+            // 기존방이 있다면
+            if (currRoom) {
+                let asIsUserIds = getChatUserIds(currRoom.chat_entry_ids);
+                selectedUserIds = asIsUserIds.concat(selectedUserIds)
+            }
+
+            selectedUserIds = [...new Set(selectedUserIds)] // 중복제거
+
+            let chatEntryIds = selectedUserIds.join('|')
+
+            writeInfo('CreateNewChat:', selectedUserIds)
 
             const chatRoomBody = {
                 // selected_users: userIdArray,
                 // user_counts: chatEntryIds.length,
                 // chat_entry_ids: chatEntryIds,
-                selected_users: allUserIds,
-                user_counts: allUserIds.length,
+                selected_users: selectedUserIds,
+                user_counts: selectedUserIds.length,
                 chat_entry_ids: chatEntryIds,
-                chat_entry_names: await getDispUserNames(allUserIds),
+                chat_entry_names: await getDispUserNames(selectedUserIds),
                 unread_count: 0,
                 chat_content: "",
                 last_line_key: '9999999999999999',
                 chat_send_name: loggedInUser.user_name.value,
                 create_room_date: moment().format("YYYYMMDDHHmm"),
                 chat_send_id: loggedInUser.user_id.value,
+                room_type: getChatRoomType(selectedUserIds)
             }
+
             //채팅룸을 추가하기
             dispatch(addChatRoom(chatRoomBody));
         }

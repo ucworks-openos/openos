@@ -32,6 +32,13 @@ module.exports = Object.freeze({
         YYYYMMDDHHmmssSSS: 'YYYYMMDDHHmmssSSS',
         YYYYMMDDHHmmss: 'YYYYMMDDHHmmss',
     },
-    
+
+    // 1->select, 2->insert, 3->update, 4->delete 5->sync select(count), 6-sync select - row갯수 포함한것
+    DML_KIND: {
+        SELECT: 1,
+        INSERT: 2, 
+        UPDATE: 3,
+        DELETE: 4, 
+    }
      
 });     

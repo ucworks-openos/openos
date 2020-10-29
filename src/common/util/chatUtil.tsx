@@ -41,3 +41,11 @@ export const getChatUserIds = (chatEntryIds:String) => {
         return []  // 다시 요청 하지 않도록 수정한다.
     }
 };
+
+/**
+ * 참여자에 따른  RoomType를 지정해 준다.
+ * @param chatUserIds 
+ */
+export const getChatRoomType = (chatUserIds:Array<String>) => {
+    return chatUserIds?.length<=2?1:2;
+}

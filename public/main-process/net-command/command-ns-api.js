@@ -512,6 +512,8 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTi
                     chatKeyBuf,chatDataBuf,destIdBuf]);
 
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.SB_CHAT_DATA, 0), dataBuf);
+
+        resolve(new ResData(true, {roomKey, lineKey, userIds, message, fontName, roomTitle, type}))
     });
 }
 

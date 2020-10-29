@@ -6,7 +6,7 @@ import {
   setCurrentChatRoomFromNoti,
   setUnreadChatRoomKeys,
 } from "../redux/actions/chat_actions";
-import { writeDebug, writeInfo, writeLog } from "./ipcCommunication/ipcLogger";
+import { writeDebug, writeInfo, writeLog, writeWarn } from "./ipcCommunication/ipcLogger";
 import {
   addMessage,
   setCurrentMessage,
@@ -59,6 +59,8 @@ function NotificationControl() {
         chat
       );
 
+
+
       // 본인이 보낸 메세지는 무시한다.
       if (chat.sendId === sessionStorage.getItem("loginId")) {
         writeLog("It's my message");
@@ -79,6 +81,9 @@ function NotificationControl() {
           break;
 
         case ChatCommand.CHAT_DATA_START_TYPE: // 메세지 입력중
+        case ChatCommand.CHAT_CHANGE_TITLE:
+        default:
+          writeWarn('UNPROCESSED CHAT COMMAND ', chat)
           break;
       }
     });
