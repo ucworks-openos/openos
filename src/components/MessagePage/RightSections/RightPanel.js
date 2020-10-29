@@ -8,7 +8,8 @@ import {
   setCurrentMessage,
   setMessageList,
 } from "../../../redux/actions/message_actions";
-import { messageInputModalStyle, delay } from "../../../common/util";
+import { delay } from "../../../common/util";
+import { messageInputModalStyle } from "../../../common/styles";
 import Modal from "react-modal";
 import MessageInputModal from "../../../common/components/SendMessageModal/MessageInputModal";
 import moment from "moment";
@@ -51,7 +52,6 @@ function RightPanel() {
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(false);
 
   const [attachmentFiles, setAttachmentFiles] = useState([]);
-
 
   useEffect(() => {
     writeDebug('CurrentMessage --  req getMessageHo ', currentMessage);
@@ -216,7 +216,11 @@ function RightPanel() {
 
       <MessageContent message={message}/>
 
-      <MessageFiles attachmentFiles={attachmentFiles} setAttachmentFiles={setAttachmentFiles} />
+      { attachmentFiles.length>0 &&
+          <MessageFiles attachmentFiles={attachmentFiles} setAttachmentFiles={setAttachmentFiles} />
+      }
+
+      
     </main>
   );
 }

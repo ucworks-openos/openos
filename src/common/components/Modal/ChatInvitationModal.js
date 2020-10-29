@@ -7,6 +7,8 @@ import { searchUsers } from '../../ipcCommunication/ipcOrganization'
 import '../SendMessageModal/MessageInputModal.css';
 import Alert from 'react-bootstrap/Alert'
 import moment from 'moment';
+import { inviteChatUser } from '../../ipcCommunication/ipcMessage';
+import { getDispUserNames } from '../../util/userUtil';
 
 function ChatInvitationModal(props) {
     const dispatch = useDispatch();
@@ -73,27 +75,46 @@ function ChatInvitationModal(props) {
             }, 2000)
             return;
         }
+        
         let entryUsers = selectedUsers
-        // entryUsers에는 자기 자신도 포함해서 넣어주기 
-        entryUsers.push(loggedInUser)
 
-        let userIdArray = [];
-        selectedUsers.map(user => userIdArray.push(user.user_id.value))
-        //보내줘야 하는 형식으로 유저 ID들을 만들어 보내주기
-        let chatEntryIds = entryUsers.map(user => user.user_id.value).join("|")
-        const chatRoomBody = {
-            selected_users: userIdArray,
-            user_counts: chatEntryIds.length,
-            chat_entry_ids: chatEntryIds,
-            unread_count: 0,
-            chat_content: "",
-            last_line_key: '9999999999999999',
-            chat_send_name: loggedInUser.user_name.value,
-            create_room_date: moment().format("YYYYMMDDHHmm"),
-            chat_send_id: loggedInUser.user_id.value,
+        // 기존 대화방에 추가하는지, 신규로 대화를 하는지 구분하여 처리
+        if (props.chatRoomKey) {
+
+            // 전체 대화 사용자
+            let allUserIds = props.userIds.concat(entryUsers);
+
+            let roomName = props.roomName;
+            if (!roomName) {
+                getDispUserNames(allUserIds)
+            }
+
+            inviteChatUser(props.chatRoomKey, roomName, props.userIds, entryUsers);
+
+        } else {
+
+            // entryUsers에는 자기 자신도 포함해서 넣어주기 
+            entryUsers.push(loggedInUser)
+
+            let userIdArray = [];
+            selectedUsers.map(user => userIdArray.push(user.user_id.value))
+            //보내줘야 하는 형식으로 유저 ID들을 만들어 보내주기
+            let chatEntryIds = entryUsers.map(user => user.user_id.value).join("|")
+            const chatRoomBody = {
+                selected_users: userIdArray,
+                user_counts: chatEntryIds.length,
+                chat_entry_ids: chatEntryIds,
+                unread_count: 0,
+                chat_content: "",
+                last_line_key: '9999999999999999',
+                chat_send_name: loggedInUser.user_name.value,
+                create_room_date: moment().format("YYYYMMDDHHmm"),
+                chat_send_id: loggedInUser.user_id.value,
+            }
+            //채팅룸을 추가하기
+            dispatch(addChatRoom(chatRoomBody));
         }
-        //채팅룸을 추가하기
-        dispatch(addChatRoom(chatRoomBody));
+
         setSelectedUsers([])
         props.closeModalFunction();
     }

@@ -27,7 +27,6 @@ export const logout = () => {
     });
 
     electron.ipcRenderer.send("logout", null);
-    sessionStorage.clear();
   });
 };
 

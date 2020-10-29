@@ -132,17 +132,19 @@ function reqGetUserInfos(userIds) {
             return;
         }
 
-        let idDatas = '';
-        userIds.forEach(function(userId){
-            idDatas += idDatas?CmdConst.SEP_CR+userId:userId;
-          });
+        if (userIds) {
+            let idDatas = '';
+            idDatas = userIds.join(CmdConst.SEP_CR);
+            winston.info('reqUserInfos ----' , idDatas);
 
-        winston.info('reqUserInfos ----' , idDatas);
-
-        var dataBuf = Buffer.from(idDatas, global.ENC);
-        psCore.writeCommandPS(new CommandHeader(CmdCodes.PS_GET_USERS_INFO, 0, function(resData){
-            resolve(resData);
-        }), dataBuf);
+            var dataBuf = Buffer.from(idDatas, global.ENC);
+            psCore.writeCommandPS(new CommandHeader(CmdCodes.PS_GET_USERS_INFO, 0, function(resData){
+                resolve(resData);
+            }), dataBuf);
+        } else {
+            reject(new Error('UserId Empty!', userIds));
+            return;
+        }
     });
 }
 

@@ -11,6 +11,7 @@ import Modal from "react-modal";
 import SettingModal from "../../../common/components/Modal/SettingModal";
 import useConfig from "../../../hooks/useConfig";
 import { getUserInfos } from "../../../common/ipcCommunication/ipcOrganization";
+import { writeDebug, writeInfo } from "../../../common/ipcCommunication/ipcLogger";
 
 export default function HeaderNavi() {
   const [avatarDropDownIsOpen, setAvatarDropDownIsOpen] = useState(false);
@@ -67,6 +68,8 @@ export default function HeaderNavi() {
       getConfig();
       setMyInfo(profile);
     };
+
+    writeDebug('HeaderNavi -- sessionStorage.getItem(`loginId`)', sessionStorage.getItem(`loginId`))
     initiate();
   }, []);
 
@@ -84,10 +87,7 @@ export default function HeaderNavi() {
 
   const handleLogout = (e: SyntheticEvent) => {
     logout().then(function (resData) {
-      sessionStorage.removeItem("isLoginElectronApp");
-      // props.history.push('/favorite')
-      window.location.hash = `#/login/${true}`;
-      window.location.reload();
+      writeInfo('Logoiut By HeaderNavi');
     });
   };
 
