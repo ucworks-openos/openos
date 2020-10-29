@@ -15,6 +15,7 @@ import ChangeChatRoomModal from "../ChangeChatRoomNameModal";
 import { commonModalStyles, messageInputModalStyle } from "../../../common/styles";
 import { getChatRoomName, getChatUserIds, getDispUserNames } from "../../../common/util";
 import ChatInvitationModal from "../../../common/components/Modal/ChatInvitationModal";
+import { writeInfo } from "../../../common/ipcCommunication/ipcLogger";
 
 function RightPanel() {
   const dispatch = useDispatch();
@@ -37,9 +38,12 @@ function RightPanel() {
   useEffect(() => {
     async function fetchData() {
       if (currentChatRoom) {
-        let userIds = await getChatUserIds(currentChatRoom?.chat_entry_ids);
-        setChatRoomName(currentChatRoom.chat_entry_names?getChatRoomName(currentChatRoom.chat_entry_names): await getDispUserNames(chatUserIds))
-        setChatUserIds(chatUserIds)
+        let userIds = getChatUserIds(currentChatRoom.chat_entry_ids);
+
+        writeInfo('Chat RightPanel', userIds, currentChatRoom)
+
+        setChatRoomName(currentChatRoom.chat_entry_names?getChatRoomName(currentChatRoom.chat_entry_names): await getDispUserNames(userIds))
+        setChatUserIds(userIds)
       }
     }
     
@@ -79,14 +83,14 @@ function RightPanel() {
    * handleInviteUser
    */
   const handleInviteUser = () => {
-
+    setInviteUserModalVisible(true);
   }
 
   /**
    * handleChangeRoomName
    */
   const handleChangeRoomName = () => {
-
+    setChangeRoomNameModalVisible(true);
   }
 
   return (
@@ -205,6 +209,7 @@ function RightPanel() {
               }}
               chatRoomKey={currentChatRoom.room_key}
               asIsRoomName={chatRoomName}
+              chatUserIds={chatUserIds}
             />
           </Modal>
 
@@ -222,7 +227,7 @@ function RightPanel() {
 
               chatRoomKey={currentChatRoom.room_key}
               chatUserIds = {chatUserIds}
-              roomName = {chatRoomName}
+              chatEntryName = {currentChatRoom.chat_entry_names}
             />
           </Modal>
         </div>

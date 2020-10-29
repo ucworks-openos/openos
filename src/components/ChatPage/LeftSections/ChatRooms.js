@@ -32,14 +32,11 @@ function ChatRooms(props) {
 	const renderChatRoom = () =>
 	chatRooms &&
 	chatRooms.map((room) => {
-		let chatUserIds = room && getChatUserIds(room.chat_entry_ids);
-        let chatUserCount = chatUserIds && chatUserIds.length;
-        
-        let roomName = getChatRoomName(room.chat_entry_names, chatUserIds);
-		const isCurrentChatRoom =
-		room && room.room_key === currentChatRoom.room_key
-			? "current-chat"
-			: "";
+    let chatUserIds = room && getChatUserIds(room.chat_entry_ids);
+    let chatUserCount = chatUserIds && chatUserIds.length;
+    let roomName = getChatRoomName(room.chat_entry_names, chatUserIds);
+
+    const isCurrentChatRoom = room && room.room_key === currentChatRoom.room_key? "current-chat": "";
 		// ${chatUserCount >= 4 ? "n" : chatUserCount}
 
 		const isUnread = unreadChatRoomKeys.find((v) => v === room.room_key);

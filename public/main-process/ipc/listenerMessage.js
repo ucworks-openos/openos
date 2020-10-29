@@ -186,7 +186,8 @@ ipcMain.on('changeChatRoomName', async (event, roomId, roomName, chatUserIds) =>
  * inviteChatUser
  */
 ipcMain.on('inviteChatUser', async (event, roomKey, newRoomName, asIsUserIds, newUserIds) => {
-  winston.debug('inviteChatUser', roomId)
+  winston.debug('inviteChatUser', {roomKey:roomKey, newRoomName:newRoomName, asIsUserIds:asIsUserIds, newUserIds:newUserIds})
+
   nsAPI.reqInviteChatUser(roomKey, newRoomName, asIsUserIds, newUserIds).then(function (resData) {
     winston.info('[IPC] inviteChatUser res:', resData)
     event.reply('res-inviteChatUser', resData);

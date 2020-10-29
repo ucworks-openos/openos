@@ -730,7 +730,7 @@ function reqInviteChatUser(roomKey, newRoomName, asIsUserIds, newUserIds) {
 
         /** REQ REAL DATA */
         //전체 참여자ID + CR_SEP + 대화방 이름 + CR_SEP + 채팅방 추가 참여자ID를 넣는다.
-        let userIds = Array.concat(asIsUserIds, newUserIds);
+        let userIds = asIsUserIds.concat(newUserIds);
         let idDatas = userIds.join(CmdConst.SEP_PIPE);
         let inviteData = idDatas
             + CmdConst.SEP_CR + newRoomName 
