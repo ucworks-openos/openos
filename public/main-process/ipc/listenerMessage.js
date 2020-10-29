@@ -104,7 +104,7 @@ ipcMain.on('getChatRoomByRoomKey', async (event, roomKey) => {
 /**
  * sendChatMessage
  */
-ipcMain.on('sendChatMessage', async (event, chatUserIds, chatMessage, chatFontName, roomKey = null, roomTitle = '') => {
+ipcMain.on('sendChatMessage', async (event, chatUserIds, chatMessage, chatFontName, roomKey = null, roomTitle = '', type) => {
 
   winston.info('[IPC] sendChatMessage :', roomKey, chatUserIds, chatMessage);
 
@@ -118,7 +118,7 @@ ipcMain.on('sendChatMessage', async (event, chatUserIds, chatMessage, chatFontNa
   nsAPI.reqChatLineKey(roomKey).then(function (resData) {
     winston.info('[IPC] getChatLineKey res:', resData)
     if (resData.resCode) {
-      nsAPI.reqSendChatMessage(roomKey, resData.data.lineKey, chatUserIds, chatMessage, chatFontName, roomTitle).then(function (resData) {
+      nsAPI.reqSendChatMessage(roomKey, resData.data.lineKey, chatUserIds, chatMessage, chatFontName, roomTitle, type).then(function (resData) {
         winston.info('[IPC] sendChatMessage res:', resData)
         event.reply('res-sendChatMessage', resData);
 

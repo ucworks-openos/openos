@@ -502,8 +502,37 @@
 .speech-others .speach-content-wrap {
     width: calc(100% - 40px);
 }
+.speech-content-wrap-mine {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 100%;
+}
+.speech-content-wrap-mine img {
+    width: 110px;
+    height: 110px;
+    margin: 7px 0 7px 5px;
+}
+.speech-content-wrap-his {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+}
+.speech-content-wrap-his img {
+    width: 110px;
+    height: 110px;
+    margin: 7px 0 7px 5px;
+}
+.speech-info-wrap {
+    display: flex;
+    align-items: center;
+}
 .speaker-info-wrap {
     font-weight: 500;
+}
+.speech-inner-wrap {
+    width: 60%;
 }
 .speech-inner-wrap,
 .speech-info span {

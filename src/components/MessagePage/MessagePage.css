@@ -356,6 +356,9 @@
 .attatched-file-action:hover{
     color: #2F59B7;
 }
+.btn-attached-wrap {
+    display: flex;
+}
 .attatched-file-action.open-folder:after,.btn-attatched-file-save-other-name:after {
     content: "|";
     margin: 0 8px;

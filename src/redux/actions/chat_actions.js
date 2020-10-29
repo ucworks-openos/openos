@@ -121,7 +121,8 @@ export function addChatMessage(
   isNewChat,
   chatRoomId = null,
   senderName,
-  senderId
+  senderId,
+  type = `chat`
 ) {
   let userIds = chatUsersId.split("|");
 
@@ -130,7 +131,8 @@ export function addChatMessage(
     chatMessage,
     chatFontName,
     isNewChat ? null : chatRoomId,
-    chatUserNames
+    chatUserNames,
+    type
   );
   let request = {
     chat_contents: chatMessage,

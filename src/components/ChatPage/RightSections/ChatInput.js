@@ -8,7 +8,7 @@ import {
 } from "../../../redux/actions/chat_actions";
 import Alert from "react-bootstrap/Alert";
 import { getUserInfos } from "../../../common/ipcCommunication/ipcOrganization";
-import { arrayLike } from "../../../common/util";
+import { arrayLike, delay } from "../../../common/util";
 import EmojiPicker from "emoji-picker-react";
 import Modal from "react-modal";
 import { Picker } from "emoji-mart";
@@ -16,6 +16,8 @@ import "emoji-mart/css/emoji-mart.css";
 import "./EmojiMartCustom.css";
 import EmoticonSelector from "../../../common/components/Editor/EmoticonSelector";
 import styled from "styled-components";
+import { uploadFile } from "../../../common/ipcCommunication/ipcFile";
+import { sendChatMessage } from "../../../common/ipcCommunication/ipcMessage";
 
 function ChatInput() {
   const dispatch = useDispatch();
@@ -32,8 +34,10 @@ function ChatInput() {
   const inputRef = useRef(null);
   const loggedInUser = useSelector((state) => state.users.loggedInUser);
 
+  const electron = window.require("electron");
+  const { remote } = window.require("electron");
+
   useEffect(() => {
-    const electron = window.require("electron");
     electron.ipcRenderer.on(
       "upload-file-progress",
       (event, uploadKey, uploadedLength, fileLength) => {
@@ -52,8 +56,43 @@ function ChatInput() {
     };
   }, []);
 
-  const handleSelectFile = (e) => {
-    console.log(`file selected: `, e.target.files);
+  const handleSelectFile = async (e) => {
+    const files = e.target.files;
+    console.log(`file selected: `, files);
+
+    for (let i = 0; i < files.length; i++) {
+      const resData = await uploadFile(files[i].path, files[i].path);
+      console.log(`file upload complete: `, resData.data);
+
+      const fileInfo = `${files[i].name}|${files[i].size}|SAVE_SERVER|${
+        remote.getGlobal("SERVER_INFO").FS.pubip
+      };${remote.getGlobal("SERVER_INFO").FS.port}|${resData.data}|`;
+
+      let userNames;
+      if (!currentChatRoom.chat_entry_names) {
+        userNames = await getUserNames(
+          currentChatRoom?.chat_entry_ids?.split("|")
+        );
+      } else {
+        userNames = currentChatRoom.chat_entry_names;
+      }
+
+      dispatch(
+        addChatMessage(
+          currentChatRoom.chat_entry_ids,
+          userNames,
+          fileInfo,
+          currentEmoticon ? currentEmoticon : `맑은 고딕`,
+          false,
+          currentChatRoom.room_key,
+          loggedInUser.user_name.value,
+          loggedInUser.user_id.value,
+          `file`
+        )
+      );
+
+      await delay(500);
+    }
   };
 
   const onInputValueChange = (e) => {
@@ -118,7 +157,7 @@ function ChatInput() {
     } else {
       userNames = currentChatRoom.chat_entry_names;
     }
-    if (inputValue.trim().length === 0) {
+    if (inputValue.trim().length === 0 && !currentEmoticon) {
       setIsAlreadyTyped(true);
       setTimeout(() => {
         setIsAlreadyTyped(false);
