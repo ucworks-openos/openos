@@ -50,8 +50,9 @@ function RouterPage() {
       
       // 로그인된 사용자 정보를 넣는다.
       sessionStorage.setItem(`loginId`, loginedId)
-      sessionStorage.setItem('loginUserData', JSON.stringify(loginUserData));
-      dispatch(setLoginUserInfo(loginUserData));
+
+      remote.getGlobal('USER').profile = loginUserData;
+
 
       window.location.hash = "#/favorite";
       window.location.reload();

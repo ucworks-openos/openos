@@ -10,6 +10,8 @@ import SettingModal from "../../../common/components/Modal/SettingModal";
 import useConfig from "../../../hooks/useConfig";
 import { writeDebug, writeInfo } from "../../../common/ipcCommunication/ipcLogger";
 
+const { remote } = window.require("electron")
+
 
 export default function HeaderNavi() {
   const [avatarDropDownIsOpen, setAvatarDropDownIsOpen] = useState(false);
@@ -29,13 +31,10 @@ export default function HeaderNavi() {
   } = useConfig();
 
   useEffect(() => {
-    let loginUserStr = sessionStorage.getItem('loginUserData');
-    var userProfile = loginUserStr&&JSON.parse(loginUserStr);
-
-    writeDebug('HeaderNavi userProfile-- ', userProfile)
+    writeDebug('HeaderNavi GLOBAL profile-- ', remote.getGlobal('USER').profile)
 
     getConfig();
-    setMyInfo(userProfile);
+    setMyInfo(remote.getGlobal('USER').profile);
 
   }, []);
 

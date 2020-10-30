@@ -3,7 +3,6 @@ import "./ChatPage.css";
 import LeftPanel from "./LeftSections/LeftPanel";
 import RightPanel from "./RightSections/RightPanel";
 import { useDispatch, useSelector } from "react-redux";
-import { getLogginedInUserInfo } from "../../redux/actions/user_actions";
 import {
   emptyChatMessages,
   moveToClickedChatRoom,
@@ -17,11 +16,12 @@ import { getChatUserIds } from "../../common/util";
 
 function ChatPage(props) {
   const dispatch = useDispatch();
+  const { remote } = window.require("electron")
+
+  const loginUser = remote.getGlobal('USER');
   const chatRooms = useSelector((state) => state.chats.chatRooms);
 
   const roomKey = props.match.params["roomKey"];
-  const members = props.match.params["members"];
-  const message = props.match.params["message"];
   const orgMembers = props.match.params["orgMembers"];
 
   useEffect(() => {
@@ -38,9 +38,9 @@ function ChatPage(props) {
                   unread_count: 0,
                   room_key: roomKey,
                   chat_contents: roomInfo.chat_contents,
-                  chat_send_name: sessionStorage.getItem("loginName"),
+                  chat_send_name: loginUser.userName,
                   create_room_date: moment().format("YYYYMMDDHHmm"),
-                  chat_send_id: sessionStorage.getItem("loginId"),
+                  chat_send_id: loginUser.userId,
                   last_line_key: '9999999999999999'
               }
               dispatch(moveToClickedChatRoom(chatRoomBody));  

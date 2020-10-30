@@ -23,6 +23,7 @@ function initGlobal() {
       userId: undefined,
       userName: undefined,
       userPass: undefined,
+      profile: undefined,
       authMethod: undefined // 사용처??  그냥 로그인시 넘겨줌 BASE64
     }
     /**
