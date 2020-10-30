@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { showChatNoti } from "./ipcCommunication/ipcMessage";
+import { answerCall } from "./ipcCommunication/ipcIpPhone";
 import {
   addReceivedChat,
   setCurrentChatRoomFromNoti,
@@ -150,6 +151,9 @@ function NotificationControl() {
           //     writeLog('notiTitleClick--');
           //     window.location.hash = `#/chat/${roomKey}/${allMembers}/${message}`;
           // }
+          break;
+        case "NOTI_PHONE_CALLED":
+          answerCall(noti.notiId)
           break;
         default:
           writeLog("Unknown Noti Title Click", noti);
