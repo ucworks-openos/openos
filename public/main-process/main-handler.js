@@ -20,10 +20,11 @@ function initGlobal() {
      * 사용자 정보
      */
     global.USER = {
-      userId: null,
-      userName: '',
-      userPass: '',
-      authMethod: '' // 사용처??  그냥 로그인시 넘겨줌 BASE64
+      userId: undefined,
+      userName: undefined,
+      userPass: undefined,
+      profile: undefined,
+      authMethod: undefined // 사용처??  그냥 로그인시 넘겨줌 BASE64
     }
     /**
      * 암호화 (보안) 처리 정보

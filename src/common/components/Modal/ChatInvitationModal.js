@@ -14,13 +14,16 @@ import { arrayLike, getChatRoomName, getChatUserIds, getChatRoomType } from '../
 
 function ChatInvitationModal(props) {
     const dispatch = useDispatch();
+    const { remote } = window.require("electron")
+
     const [selectedUsers, setSelectedUsers] = useState([])
     const [searchMode, setSearchMode] = useState('ALL');
     const [searchText, setSearchText] = useState('');
     const [isAlreadyCheckedUser, setIsAlreadyCheckedUser] = useState(false);
     const [isNoUser, setIsNoUser] = useState(false);
     const [isUserSelected, setIsUserSelected] = useState(false);
-    const loggedInUser = useSelector(state => state.users.loggedInUser);
+    
+    const loginUser = remote.getGlobal('USER');
     const currRoom = props.currRoom;
 
     useEffect(() => {
@@ -38,20 +41,18 @@ function ChatInvitationModal(props) {
             
             // 본인은 초대 대상에서 제외
             try {
-                searchedUsers = searchedUsers.filter(({ user_id }) => user_id.value !== loggedInUser.user_id.value)
+                searchedUsers = searchedUsers.filter(({ user_id }) => user_id.value !== loginUser.userId)
             } catch(error) {
-
-                writeError('ChatInviteModal handleSearchUser Error',loggedInUser, searchedUsers, error)
+                writeError('ChatInviteModal handleSearchUser Error',loginUser, searchedUsers, error)
                 return;
             }
-            
 
             //검색으로 나온 유저들 1명이상일 때
             //이미 선택되어 있는 사람이 없을 때는 검색으로 나온 유저를 다 넣어주기 
             if (selectedUsers.length === 0) {
                 setSelectedUsers(searchedUsers)
-                //이미 선택되어 있는 사람이 있을 때
-            } else {
+                
+            } else {//이미 선택되어 있는 사람이 있을 때
                 let arr1 = selectedUsers
                 let arr2 = searchedUsers
                 //두개의 배열을 합친 다음에 겹치는 것들을 지우기
@@ -112,7 +113,7 @@ function ChatInvitationModal(props) {
             dispatch(updateCurrentChatRoom(upChatRoom));
 
         } else { // 방을 새롭게 만드는 경우
-            selectedUserIds.push(loggedInUser.user_id.value) // 본인 추가
+            selectedUserIds.push(loginUser.userId) // 본인 추가
 
             // 기존방이 있다면
             if (currRoom) {
@@ -137,9 +138,9 @@ function ChatInvitationModal(props) {
                 unread_count: 0,
                 chat_content: "",
                 last_line_key: '9999999999999999',
-                chat_send_name: loggedInUser.user_name.value,
+                chat_send_name: loginUser.userName,
                 create_room_date: moment().format("YYYYMMDDHHmm"),
-                chat_send_id: loggedInUser.user_id.value,
+                chat_send_id: loginUser.userId,
                 room_type: getChatRoomType(selectedUserIds)
             }
 

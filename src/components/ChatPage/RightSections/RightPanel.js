@@ -20,8 +20,9 @@ import { writeError, writeInfo } from "../../../common/ipcCommunication/ipcLogge
 
 function RightPanel() {
   const dispatch = useDispatch();
+  const { remote } = window.require("electron")
 
-  const loggedInUser = useSelector((state) => state.users.loggedInUser);
+  const loginUser = remote.getGlobal('USER');
   const { currentChatRoom, chatRooms } = useSelector((state) => state.chats);
 
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
@@ -77,7 +78,7 @@ function RightPanel() {
     
     // 퇴장하는 아이디가 필요없다면 뺀다.
     let userIdList = getChatUserIds(currentChatRoom.chat_entry_ids);
-    userIdList = userIdList.filter((id) => id !== loggedInUser.user_id.value);
+    userIdList = userIdList.filter((id) => id !== loginUser.userId);
 
     exitChatRoom(currentChatRoom.room_key, userIdList);
     if (newRooms?.length > 0) {

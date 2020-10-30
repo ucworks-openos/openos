@@ -8,7 +8,6 @@ import {
   getInitialMessageLists,
   setCurrentMessageListsType,
 } from "../../redux/actions/message_actions";
-import { getLogginedInUserInfo } from "../../redux/actions/user_actions";
 
 function MessagePage() {
   const dispatch = useDispatch();
@@ -18,7 +17,6 @@ function MessagePage() {
 
   useEffect(() => {
     dispatch(setCurrentMessageListsType("RECV"));
-    dispatch(getLogginedInUserInfo(sessionStorage.getItem("loginId")));
   }, []);
 
   useEffect(() => {
