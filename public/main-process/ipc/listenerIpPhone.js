@@ -2,7 +2,8 @@
 const { ipcMain } = require('electron');
 const { reqIpPhone } = require('../net-command/command-ns-api');
 const ResData = require('../ResData');
-const util = require('util')
+const util = require('util');
+const winston = require('../../winston');
 
 
 // download file
@@ -17,6 +18,7 @@ ipcMain.on('makeCall', (event, dest) => {
   
   let makeCallXml = util.format(makeCallXmlFormat, global.USER.userId, dest);
 
+  winston.debug('makeCall-', makeCallXml)
   reqIpPhone(makeCallXml).then(function(resData)
   {
     winston.info('downloadFile res:', resData)
