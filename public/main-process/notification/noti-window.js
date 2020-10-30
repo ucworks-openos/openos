@@ -53,7 +53,25 @@ exports.showAlert = async function (notiType, notiId, title, message, senderName
     `);
   })
   
+  notiWin.setTitle(notiId);
   notiWin.loadURL(notifyFile)
     .then(() => {})
     .catch((err) => {winston.err('showAlert fail!', err)});
+}
+
+/**
+ * 알림 아이디가 동일하다면 닫습니다.
+ * @param {String} notiId 
+ */
+exports.closeAlert = async function (notiId) {
+  winston.info('Close Alert', notiId);
+  if (notiWin) {
+    try {
+      if (notiWin.title === notiId) {
+        notiWin.close();
+      }
+    } catch (err) {
+      winston.error('Noti Alert Close Fail!', notiId, err);
+    }
+  }
 }

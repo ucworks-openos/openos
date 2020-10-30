@@ -1,7 +1,14 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { makeCall } from "../../common/ipcCommunication/ipcIpPhone";
 import "./CallPage.css";
 
 export default function CallPage() {
+  const [telNum, setTelNum] = useState<string>(sessionStorage.getItem('callPage_telNum')||'');
+
+  useEffect(()=>{
+    sessionStorage.setItem('callPage_telNum', telNum);
+  }, [telNum])
+
   return (
     <div className="call-contens-wrap">
       <main className="call-main-wrap">
@@ -15,8 +22,19 @@ export default function CallPage() {
               <input
                 className="input-make-a-call"
                 placeholder="전화번호를 하이픈 - 없이 입력해주세요"
+                onChange={(e) => {
+                  const re = /^[0-9\b]+$/;
+                  if (e.target.value == '' || re.test(e.target.value)) {
+                    setTelNum(e.target.value)
+                  }
+                }}
+                value={telNum}
               />
-              <div className="btn-make-a-call" />
+              <div className="btn-make-a-call" onClick={async ()=> {
+                if (telNum?.length>2) {
+                  makeCall(telNum);
+                }
+              }} />
             </div>
           </div>
           <div className="call-history-area">

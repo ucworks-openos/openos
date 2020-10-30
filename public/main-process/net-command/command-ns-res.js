@@ -11,6 +11,7 @@ const CmdConst = require('./command-const');
 
 const { callCallback } = require('./command-utils');
 const { getMultiple4DiffSize, getMultiple4Size } = require('../utils/utils-buffer');
+const { parseXmlToJSON } = require('../utils/utils-xmlParser');
 
 /**
  * 수신한 Command를 처리합니다. 
@@ -256,7 +257,7 @@ function notifyCmdProc(recvCmd) {
 
 
         notifyManager.unreadCountReceived({
-          userId: userId,
+          userId: userId.trim(),
           msgCnt: msgCnt,
           chatCnt: chatCnt,
           alertCnt: alertCnt,
@@ -413,6 +414,38 @@ function notifyCmdProc(recvCmd) {
         destId:destId
       })
 
+      break;
+
+    case CmdCodes.NS_PHONE_STATE_LIST : 
+
+      let tmp = recvCmd.data.toString(global.ENC);
+      try {
+        let stateLists = tmp.split(CmdConst.SEP_CR);
+        let stateDatas = stateLists[0].split(CmdConst.SEP_PT);
+        let userId = stateDatas[0];
+        let stateGubun = stateDatas[1];
+        let phoneState = stateDatas[2];
+
+        notifyManager.phoneStatusChange(userId, stateGubun, phoneState);
+
+      } catch (err) {
+        winston.error('NS_PHONE_STATE_LIST Proc Error! ', tmp, err)
+      }
+      break;
+
+    case CmdCodes.NS_IPPHONE_RECV_DATA:
+      let rcvBuf = Buffer.from(recvCmd.data);
+      let user_Id = BufUtil.getStringWithoutEndOfString(rcvBuf, 0, CmdConst.BUF_LEN_USERID);
+      let cntInx = BufUtil.getMultiple4Size(CmdConst.BUF_LEN_USERID);
+
+      let xmlSize = rcvBuf.readInt32LE(cntInx);
+      let stateXml = BufUtil.getStringWithoutEndOfString(rcvBuf, cntInx + 4);
+
+      parseXmlToJSON(stateXml, false).then((jsonObj) => {
+        notifyManager.ipPhoneAlert(jsonObj);
+      }).catch((err) => {
+        winston.err('IPPHONE_RECV_DATA  Parsing Error!', stateXml, err);
+      });
       break;
 
     case CmdCodes.NS_CHATROOM_UNREAD_CNT :
