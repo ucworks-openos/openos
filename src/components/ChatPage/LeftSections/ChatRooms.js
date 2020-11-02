@@ -34,8 +34,8 @@ function ChatRooms(props) {
     chatRooms.map((room) => {
       let chatUserIds = room && getChatUserIds(room.chat_entry_ids);
       let chatUserCount = chatUserIds && chatUserIds.length;
-
       let roomName = getChatRoomName(room.chat_entry_names, chatUserIds);
+
       const isCurrentChatRoom =
         room && room.room_key === currentChatRoom.room_key
           ? "current-chat"
@@ -56,9 +56,9 @@ function ChatRooms(props) {
               <div className="chat-room-name">
                 <span key={uuidv4()}>{roomName}</span>
               </div>
-              {room.unread_count && room.unread_count !== "0" && (
+              {/* {room.unread_count && room.unread_count !== "0" && (
                 <div className="chat-counter unread">{room.unread_count}</div>
-              )}
+              )} */}
             </div>
             <div className="list-row 2">
               <div className="last-chat">

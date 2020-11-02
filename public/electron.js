@@ -112,7 +112,7 @@ global.ROOT_PATH = require('fs').realpathSync('./');
 switch(global.MY_PLATFORM) {
   case PLATFORM.MAC:
   case PLATFORM.LINUX:
-    global.DEV_HOME = path.join(process.env.HOME, 'OpenOS', 'logs');
+    global.DEV_HOME = path.join(process.env.HOME, 'OpenOS');
     break;
 
   case PLATFORM.WIN:
@@ -130,9 +130,9 @@ if (!global.IS_DEV) {
 
 // DOWNLOAD PATH
 if (!global.IS_DEV) {
-  global.DOWNLOAD_PATH = path.join(global.ROOT_PATH,'.download');
+  global.DOWNLOAD_PATH = path.join(global.ROOT_PATH,'download');
 } else {
-  global.DOWNLOAD_PATH = path.join(global.DEV_HOME,'.download');
+  global.DOWNLOAD_PATH = path.join(global.DEV_HOME,'download');
 }
 
 

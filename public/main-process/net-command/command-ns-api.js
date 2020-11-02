@@ -415,8 +415,6 @@ function reqChatLineKey(chatRoomKey) {
  */
 function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTitle, type) {
     return new Promise(async function(resolve, reject) {
-        console.log(`this is type`,type);
-
         if (!global.SERVER_INFO.NS.isConnected) {
             reject(new Error('NS IS NOT CONNECTED!'));
             return;
@@ -492,7 +490,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTi
         let tmpBuf1 = adjustBufferMultiple4(concatBuf);
 
         let chatCmdBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);        // chat_cmd
-        chatCmdBuf.writeInt32LE(type.toString() === "U" ? CmdCodes.CHAT_DATA_LINE : CmdCodes.CHAT_RECV_FILE)
+        chatCmdBuf.writeInt32LE(type.toString() === "R" ? CmdCodes.CHAT_RECV_FILE : CmdCodes.CHAT_DATA_LINE)
 
         let chatKeySizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);    // chatkey_size
         let chatKeyBuf = Buffer.from(roomKey + CmdConst.SEP_PIPE + idDatas);
@@ -513,6 +511,8 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTi
                     chatKeyBuf,chatDataBuf,destIdBuf]);
 
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.SB_CHAT_DATA, 0), dataBuf);
+
+        resolve(new ResData(true, {roomKey, lineKey, userIds, message, fontName, roomTitle, type}))
     });
 }
 
@@ -731,7 +731,7 @@ function reqInviteChatUser(roomKey, newRoomName, asIsUserIds, newUserIds) {
 
         /** REQ REAL DATA */
         //전체 참여자ID + CR_SEP + 대화방 이름 + CR_SEP + 채팅방 추가 참여자ID를 넣는다.
-        let userIds = Array.concat(asIsUserIds, newUserIds);
+        let userIds = asIsUserIds.concat(newUserIds);
         let idDatas = userIds.join(CmdConst.SEP_PIPE);
         let inviteData = idDatas
             + CmdConst.SEP_CR + newRoomName 

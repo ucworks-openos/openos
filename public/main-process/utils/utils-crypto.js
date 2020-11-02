@@ -51,19 +51,29 @@ function encryptBufferRC4(key, buf) {
 
 /**
  * RC4 암호 문자열을 복호화 합니다.
- * @param {String}} key 
+ * @param {String} key 
  * @param {String} ciphertext 
  */
 function decryptRC4(key, ciphertext) {
 
-    //winston.info('[decryptRC4] -----------------  key:' + key + ', ciphertext :' + ciphertext + '')
-    //var keyHash = crypto.createHash('sha256').update(key).digest();
-    var keyHash = Buffer.from(key, global.ENC);
-    var decipher = crypto.createDecipheriv('rc4', keyHash,'' );
-    var text = decipher.update( ciphertext, 'hex','utf8');
-    return text;
+    try {
+        //winston.info('[decryptRC4] -----------------  key:' + key + ', ciphertext :' + ciphertext + '')
+        //var keyHash = crypto.createHash('sha256').update(key).digest();
+        var keyHash = Buffer.from(key, global.ENC);
+        var decipher = crypto.createDecipheriv('rc4', keyHash,'' );
+        var text = decipher.update( ciphertext, 'hex','utf8');
+        return text;
+    } catch (err) {
+        winston.error('decryptRC4 Error', {key:key, ciphertext:ciphertext}, err)
+        return 'decrypt-fail';
+    }
 }
 
+/**
+ * decryptBufferRC4
+ * @param {String} key 
+ * @param {Buffer} cipherBuf 
+ */
 function decryptBufferRC4(key, cipherBuf) {
     var keyHash = Buffer.from(key, global.ENC);
     var decipher = crypto.createDecipheriv('rc4', keyHash,'' );

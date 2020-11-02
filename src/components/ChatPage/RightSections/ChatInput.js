@@ -89,7 +89,7 @@ function ChatInput() {
           currentChatRoom.room_key,
           loggedInUser.user_name.value,
           loggedInUser.user_id.value,
-          EchatType.file
+          EchatType.file.toString()
         )
       );
 
@@ -133,7 +133,6 @@ function ChatInput() {
 
   const handleEmojiClick = (emoji, event) => {
     setInputValue(inputValue + emoji.native);
-    dispatch(setEmojiVisible(false));
   };
 
   const onSubmit = async (event) => {
@@ -171,7 +170,9 @@ function ChatInput() {
         currentChatRoom.room_key,
         loggedInUser.user_name.value,
         loggedInUser.user_id.value,
-        currentEmoticon ? EchatType.emoticon : EchatType.chat
+        currentEmoticon
+          ? EchatType.emoticon.toString()
+          : EchatType.chat.toString()
       )
     );
     dispatch(setEmojiVisible(false));

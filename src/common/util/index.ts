@@ -1,8 +1,7 @@
 export { formatBytes } from "./fileUtil";
 export { getDispUserNames } from "./userUtil";
-export { getChatRoomName, getChatUserIds } from "./chatUtil";
+export { getChatRoomName, getChatUserIds, getChatRoomType } from "./chatUtil";
 export { getPreviousStackInfo } from "./commonUtil";
-
 
 export function mapEnum<T>(
   enumerable: T,
@@ -134,6 +133,6 @@ export const syncronize = (tree: TTreeNode[]) => {
   saveBuddyData(xml);
 };
 
-export const removeTag = (text:String) => {
-  return text? text.replace(/<[^>]+>/g, '').replace('&nbsp', ' '): '';
-}
+export const removeTag = (text: String) => {
+  return text ? text.replace(/<[^>]+>/g, "").replace("&nbsp", " ") : "";
+};

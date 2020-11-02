@@ -77,7 +77,6 @@ export const sendChatMessage = async (chatUserIds, chatMessage, chatFontName, ro
 
 /** getChatList */
 export const getChatList = async (roomId, lastLineKey, rowLimit) => {
-  console.log(`lastLineKey: `, lastLineKey);
   return new Promise(function(resolve, reject) {
       electron.ipcRenderer.once('res-getChatList', (event, arg) => {
           resolve(arg);
@@ -98,9 +97,15 @@ export const exitChatRoom = (roomId, chatUserIds) => {
 }
 
 /** changeChatRoomName */
-export const changeChatRoomName = (roomId, roomName, chatUserIds) => {
-  writeDebug('changeChatRoomName', {roomId:roomId, roomName:roomName, chatUserIds:chatUserIds})
-  electron.ipcRenderer.send('changeChatRoomName', roomId, roomName, chatUserIds)
+export const changeChatRoomName = (roomId, chatEntryNames, chatUserIds) => {
+  writeDebug('changeChatRoomName', {roomId:roomId, chatEntryNames:chatEntryNames, chatUserIds:chatUserIds})
+
+  return new Promise(function(resolve, reject) {
+    electron.ipcRenderer.once('res-changeChatRoomName', (event, arg) => {
+        resolve(arg);
+      })
+      electron.ipcRenderer.send('changeChatRoomName', roomId, chatEntryNames, chatUserIds)
+  });
 }
 
 /** inviteChatUser */

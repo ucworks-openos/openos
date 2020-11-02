@@ -2,6 +2,7 @@ import { addSyntheticTrailingComment } from "typescript";
 import {
   GET_INITIAL_CHAT_ROOMS,
   GET_INITIAL_CHAT_MESSAGES,
+  SET_CHAT_MESSAGES,
   SET_CURRENT_CHAT_ROOM,
   // GET_MORE_CHATS_MESSAGES,
   ADD_CHAT_MESSAGE,
@@ -25,17 +26,10 @@ export default function (
   action
 ) {
   switch (action.type) {
-    case UPDATE_CURRENT_CHAT_ROOM:
+    case SET_CHAT_MESSAGES:
       return {
         ...state,
-        chatRooms: state.chatRooms.map((chatRoom) => {
-          if (chatRoom.room_key !== action.payload.room_key) {
-            return chatRoom;
-          } else {
-            return action.payload;
-          }
-        }),
-        currentChatRoom: action.payload,
+        chatMessages: action.payload,
       };
     case SET_CURRENT_EMOTICON:
       return {
@@ -81,6 +75,20 @@ export default function (
         currentChatRoom: action.payload,
         chatMessages: action.payload.chatLists,
       };
+
+    case UPDATE_CURRENT_CHAT_ROOM:
+      return {
+        ...state,
+        chatRooms: state.chatRooms.map((chatRoom) => {
+          if (chatRoom.room_key !== action.payload.room_key) {
+            return chatRoom;
+          } else {
+            return action.payload;
+          }
+        }),
+        currentChatRoom: action.payload,
+      };
+
     case MOVE_TO_CLICKED_CHAT_ROOM:
       return {
         ...state,
@@ -129,7 +137,7 @@ export default function (
         create_room_date: sendDate,
         chat_send_id: sendId,
         room_key: roomKey,
-        last_line_key: lineKey,
+        //last_line_key: lineKey,
       };
 
       let chatMessageBody = {

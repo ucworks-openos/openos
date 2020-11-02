@@ -3,10 +3,11 @@ import HamburgerButton from "../../../common/components/HamburgerButton";
 import ChatInput from "./ChatInput";
 import ChatMessages from "./ChatMessages";
 import { useDispatch, useSelector } from "react-redux";
-import { exitChatRoom } from "../../../common/ipcCommunication/ipcMessage";
+import { changeChatRoomName, exitChatRoom } from "../../../common/ipcCommunication/ipcMessage";
 import {
   setChatRooms,
   setCurrentChatRoom,
+  updateCurrentChatRoom,
 } from "../../../redux/actions/chat_actions";
 import MemberTooltip from "../../../common/components/Tooltip/MemberTooltip";
 import styled from "styled-components";
@@ -15,6 +16,7 @@ import ChangeChatRoomModal from "../ChangeChatRoomNameModal";
 import { commonModalStyles, messageInputModalStyle } from "../../../common/styles";
 import { getChatRoomName, getChatUserIds, getDispUserNames } from "../../../common/util";
 import ChatInvitationModal from "../../../common/components/Modal/ChatInvitationModal";
+import { writeError, writeInfo } from "../../../common/ipcCommunication/ipcLogger";
 
 function RightPanel() {
   const dispatch = useDispatch();
@@ -32,14 +34,21 @@ function RightPanel() {
 
   const [chatRoomName, setChatRoomName] = useState('');
   const [chatUserIds, setChatUserIds] = useState([]);
-  
 
   useEffect(() => {
     async function fetchData() {
       if (currentChatRoom) {
-        let userIds = await getChatUserIds(currentChatRoom?.chat_entry_ids);
-        setChatRoomName(currentChatRoom.chat_entry_names?getChatRoomName(currentChatRoom.chat_entry_names): await getDispUserNames(chatUserIds))
-        setChatUserIds(chatUserIds)
+        let userIds = getChatUserIds(currentChatRoom.chat_entry_ids);
+
+        writeInfo('Chat RightPanel', {
+          room_key:currentChatRoom.room_key,
+          room_type:currentChatRoom.room_type,
+          chat_entry_ids:currentChatRoom.chat_entry_ids,
+          chat_entry_names:currentChatRoom.chat_entry_names,
+          room_type:currentChatRoom.room_type});
+
+        setChatRoomName(currentChatRoom.chat_entry_names?getChatRoomName(currentChatRoom.chat_entry_names): await getDispUserNames(userIds))
+        setChatUserIds(userIds)
       }
     }
     
@@ -62,31 +71,52 @@ function RightPanel() {
    * handleExitChatRoom
    */
   const handleExitChatRoom = () => {
-    const rest = chatRooms.filter(
+    const newRooms = chatRooms.filter(
       (v) => v.room_key !== currentChatRoom.room_key
     );
-
+    
     // 퇴장하는 아이디가 필요없다면 뺀다.
     let userIdList = getChatUserIds(currentChatRoom.chat_entry_ids);
     userIdList = userIdList.filter((id) => id !== loggedInUser.user_id.value);
 
     exitChatRoom(currentChatRoom.room_key, userIdList);
-    dispatch(setChatRooms(rest));
-    dispatch(setCurrentChatRoom(rest[0].room_key, rest));
+    if (newRooms?.length > 0) {
+      dispatch(setChatRooms(newRooms));
+      dispatch(setCurrentChatRoom(newRooms[0].room_key, newRooms));
+    } else {
+      dispatch(setChatRooms([]));
+      dispatch(setCurrentChatRoom('', []));
+    }
   };
 
   /**
    * handleInviteUser
    */
   const handleInviteUser = () => {
-
+    setInviteUserModalVisible(true);
   }
 
   /**
    * handleChangeRoomName
    */
   const handleChangeRoomName = () => {
+    setChangeRoomNameModalVisible(true);
+  }
 
+  const changeChatRoomNameProc = (newRoomName) => {
+    let chatEntryNames = 'UCWARE_CHAT_ROOM_TITLE' + String.fromCharCode(20) + newRoomName;
+
+    changeChatRoomName(currentChatRoom.room_key, chatEntryNames, chatUserIds).then((resData) => {
+      if (resData.resCode){
+        const upChatRoom = {
+          ... currentChatRoom,
+          chat_entry_names: chatEntryNames
+        }
+    
+        // 기존방 변경
+        dispatch(updateCurrentChatRoom(upChatRoom));
+      }
+    }).catch((err) => { writeError('changeChatRoomName fail!', currentChatRoom.room_key, chatEntryNames, err) })
   }
 
   return (
@@ -205,6 +235,8 @@ function RightPanel() {
               }}
               chatRoomKey={currentChatRoom.room_key}
               asIsRoomName={chatRoomName}
+              chatUserIds={chatUserIds}
+              changeChatRoomNameProc={changeChatRoomNameProc}
             />
           </Modal>
 
@@ -220,9 +252,7 @@ function RightPanel() {
                 setInviteUserModalVisible(false);
               }}
 
-              chatRoomKey={currentChatRoom.room_key}
-              chatUserIds = {chatUserIds}
-              roomName = {chatRoomName}
+              currRoom={currentChatRoom}
             />
           </Modal>
         </div>

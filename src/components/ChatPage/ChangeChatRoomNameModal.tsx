@@ -2,33 +2,38 @@ import React, { useEffect, useState } from "react";
 import "../../assets/css/Modal.css";
 import useTree from "../../hooks/useTree";
 import { syncronize } from "../../common/util";
+import { changeChatRoomName } from "../../common/ipcCommunication/ipcMessage";
+import { writeError } from "../../common/ipcCommunication/ipcLogger";
 
 type ChangeRoomNameProp = {
   closeModalFunction: () => void;
-  chatRoomChangeCompleted: () => void;
+  changeChatRoomNameProc: (roomName:String) => void;
   chatRoomKey: string;
   asIsRoomName: string;
+  chatUserIds: Array<String>;
 };
 
 export default function ChangeChatRoomModal(props: ChangeRoomNameProp) {
-  const { closeModalFunction, chatRoomKey, asIsRoomName } = props;
+  const { closeModalFunction, changeChatRoomNameProc, chatRoomKey, asIsRoomName, chatUserIds } = props;
   const [chatRoomName, setChatRoomName] = useState(asIsRoomName);
-
-  useEffect(() => {
-  
-  }, []);
 
   const onCloseModalClick = () => {
     closeModalFunction();
   };
 
   const onSubmitClick = async () => {
+
+    // 입력값이 변경된 경우만 처리
+    if (asIsRoomName !== chatRoomName) {
+      changeChatRoomNameProc(chatRoomName);
+    }
+    
     closeModalFunction();
   };
 
   return (
     <div>
-      <h5>즐겨찾기 그룹 수정</h5>
+      <h5>대화방 이름 설정</h5>
       <input
         value={chatRoomName}
         onChange={(e) => setChatRoomName(e.currentTarget.value)}

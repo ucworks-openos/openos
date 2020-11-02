@@ -1,5 +1,5 @@
 import { arrayLike, getPreviousStackInfo } from ".";
-import { writeDebug } from "../ipcCommunication/ipcLogger";
+import { writeDebug, writeError } from "../ipcCommunication/ipcLogger";
 import { getUserInfos } from "../ipcCommunication/ipcOrganization";
 
 /**
@@ -9,11 +9,6 @@ import { getUserInfos } from "../ipcCommunication/ipcOrganization";
  * @param {Number} viewUserCnt 
  */
 export const getDispUserNames = async (userIds, viewUserCnt = 0) => {
-
-  writeDebug('--------------------', userIds, getPreviousStackInfo())
-  userIds.forEach((id) => {
-    writeDebug('--------------------', userIds)
-  })
 
   if (!userIds) return ''
   
@@ -29,9 +24,16 @@ export const getDispUserNames = async (userIds, viewUserCnt = 0) => {
       items: { node_item: userSchemaMaybeArr },
     },
   } = await getUserInfos(reqUserIds);
-  // *  사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
-  let userSchema = arrayLike(userSchemaMaybeArr);
-  // * 가져온 정보를 가공. 이 때 selectedKeys 유저가 Favorite 유저와 중복됟 시 중복 표기 해 줌.
-  let result = userSchema.map((v) => v.user_name.value).join(`, `);
+
+  let result = '';
+  try {
+    // *  사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
+    let userSchema = arrayLike(userSchemaMaybeArr);
+    // * 가져온 정보를 가공. 이 때 selectedKeys 유저가 Favorite 유저와 중복됟 시 중복 표기 해 줌.
+    result = userSchema.map((v) => v.user_name.value).join(`, `);
+  } catch (error) {
+    writeError('getDispUserNames Error.', {reqUserIds:reqUserIds, userSchemaMaybeArr:userSchemaMaybeArr, error:error});
+  }
+
   return result + moreInfo;
 };
