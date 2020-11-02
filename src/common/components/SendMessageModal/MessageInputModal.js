@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
 import QuillEditor from '../../../common/components/Editor/QuillEditor';
-import {
-    addMessage
-} from '../../../redux/actions/message_actions';
-// import ReactSelect from '../../../common/components/Select/ReactSelect';
-// import { userLists } from '../../../redux/mock-datas/user-lists';
 import { writeDebug, writeError, writeInfo, writeLog } from '../../../common/ipcCommunication/ipcLogger'
 import { getUserInfos, searchUsers } from '../../../common/ipcCommunication/ipcOrganization'
 import './MessageInputModal.css';
@@ -22,18 +16,13 @@ const electron = window.require("electron");
 const { remote } = window.require("electron")
 
 function MessageInputModal(props) {
-    const dispatch = useDispatch();
     const [title, setTitle] = useState("")
     const [content, setContent] = useState('')
-    // const [sendTo, setSendTo] = useState([])
     const [selectedUsers, setSelectedUsers] = useState([])
     const [searchMode, setSearchMode] = useState('ALL');
     const [searchText, setSearchText] = useState('');
-    const loggedInUser = useSelector(state => state.users.loggedInUser)
-    const currentMessageListType = useSelector(state => state.messages.currentMessageListType)
     const [isAlreadyCheckedUser, setIsAlreadyCheckedUser] = useState(false);
     const [isNoUser, setIsNoUser] = useState(false);
-    const [isTitleTyped, setIsTitleTyped] = useState(false);
     const [isContentTyped, setIsContentTyped] = useState(false);
     const [isUserSelected, setIsUserSelected] = useState(false);
     const [sendBtnEnable, setSendBtnEnable] = useState(true);

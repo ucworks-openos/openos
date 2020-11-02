@@ -91,7 +91,7 @@ declare global {
   };
 
   type TProfileState = {
-    myInfo: TUser;
+    userProfile: TUser;
   };
 
   type TOrganizationSearchState = {

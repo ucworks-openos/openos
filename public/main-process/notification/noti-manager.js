@@ -5,7 +5,7 @@ const { send } = require('../ipc/ipc-cmd-sender');
 const { getDispSize } = require('../utils/utils-os');
 const cmdConst = require('../net-command/command-const');
 const notiType = require('../common/noti-type');
-const { showAlert } = require('./noti-window');
+const { showAlert, closeAlert } = require('./noti-window');
 
 var notiWin;
 
@@ -84,6 +84,60 @@ function chatLineUnreadCount(roomKey, cntInfo) {
   send('chatLineUnreadCount', roomKey, cntInfo)
 }
 
+/**
+ * 
+ * @param {String} userId 
+ * @param {String} stateGubun 
+ * @param {String} phoneStatus 
+ */
+function phoneStatusChange(userId, stateGubun, phoneStatus) {
+  send('phoneStatusChange', userId, stateGubun, phoneStatus)
+}
+
+function ipPhoneAlert(alertInfo) {
+  winston.info('ipPhoneAlert info:', alertInfo)
+
+  if (alertInfo) {
+    /*{
+      PresenceUpdate: {
+        user: { uid: 'bslee' },
+        update: { type: 'event' },
+        call: {
+          callid: 'callid',
+          callparty: 'CALLED',
+          num: '3650',
+          state: 'CS_ALERTING',   // or state: 'CS_DISCONNECTED',
+          sysdisconnect: 'ON',
+          position: ''
+        }
+      }
+    }*/
+
+    // 나에 대한 알림일때
+    if (alertInfo.PresenceUpdate.user.uid === global.USER.userId) {
+      let callInfo = alertInfo.PresenceUpdate.call;
+      switch(callInfo.state) {
+        case 'CS_ALERTING':
+
+        
+          switch(callInfo.callparty) {
+            case 'CALLED':
+              showAlert(notiType.NOTI_PHONE_CALLED, 'CALLED', '전화수신', `[${callInfo.num}] 전화수신`, callInfo.num);
+              break;
+            case 'CALLING':
+              // 발신은 전화가 안옴
+              break;
+          }
+          break;
+
+        case 'CS_DISCONNECTED':
+          closeAlert('CALLED')
+          break;
+      }
+    }
+  }
+}
+
 module.exports = {
     messageReceived: messageReceived,
     unreadCountReceived: unreadCountReceived,
@@ -91,5 +145,7 @@ module.exports = {
     chatReceived: chatReceived,
     userAliasChanged: userAliasChanged,
     chatRoomUnreadCount: chatRoomUnreadCount,
-    chatLineUnreadCount:chatLineUnreadCount
+    chatLineUnreadCount: chatLineUnreadCount,
+    phoneStatusChange: phoneStatusChange,
+    ipPhoneAlert: ipPhoneAlert
   }

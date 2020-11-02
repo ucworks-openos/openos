@@ -103,6 +103,7 @@ module.exports = Object.freeze({
     NS_CHECK_SEND                : NS_BASE + 90,
     NS_GET_STATE                 : NS_BASE + 96,
     NS_STATE_LIST                : NS_BASE + 110,
+    NS_PHONE_STATE_LIST          : NS_BASE + 111,
     NS_CHATROOM_UNREAD_CNT       : NS_BASE + 249,
     NS_CHATLINE_UNREAD_CNT       : NS_BASE + 250,
     NS_UNREADALL_COUNT           : NS_BASE + 262,
@@ -112,7 +113,8 @@ module.exports = Object.freeze({
 
     //#region IPPHONE COMMAND
     NS_IPPHONE_BASE                 : IPPHONE_BASE,
-    NS_IPPHONE_DATA                 : IPPHONE_BASE + 3,
+    NS_IPPHONE_DATA                 : IPPHONE_BASE + 3, // 보낼때
+    NS_IPPHONE_RECV_DATA            : IPPHONE_BASE + 6, // 받을때
     //#endregion IPPHONE COMMAND
     //#endregion NS COMMAND
 

@@ -221,12 +221,15 @@ export async function addChatRoom(request) {
 }
 
 export async function addChatRoomFromOrganization(orgMembers) {
+  const loginUser = window.require("electron").remote.getGlobal('USER')
+
   // 여기서 체크해야할것은 만약 1:1 채팅이면
   // 이미 만들어진 채팅 방이 있는지 체크해서
   // 있다면 그 채팅방의 채팅 리스트를 보내주기
   let finalSelectedKeys = orgMembers.split("|");
   let newFinal = finalSelectedKeys;
-  newFinal.push(sessionStorage.getItem(`loginId`));
+  newFinal.push(loginUser.userId);
+
   const request = {
     selected_users: finalSelectedKeys,
     user_counts: newFinal.length,
@@ -235,9 +238,9 @@ export async function addChatRoomFromOrganization(orgMembers) {
     unread_count: 0,
     chat_content: "",
     last_line_key: "9999999999999999",
-    chat_send_name: sessionStorage.getItem(`loginName`),
+    chat_send_name: loginUser.userName,
     create_room_date: moment().format("YYYYMMDDHHmm"),
-    chat_send_id: sessionStorage.getItem(`loginId`),
+    chat_send_id: loginUser.userId,
     room_type: getChatRoomType(newFinal),
   };
 

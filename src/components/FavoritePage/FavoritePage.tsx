@@ -27,6 +27,10 @@ import { Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/SendMessageModal/MessageInputModal";
 import ModifyGroupModal from "../../common/components/Modal/ModifyGroupModal";
+import { writeDebug } from "../../common/ipcCommunication/ipcLogger";
+
+const electron = window.require("electron")
+const { remote } = window.require("electron")
 
 type TgetBuddyTreeReturnTypes = {
   buddyTree: TTreeNode[];
@@ -104,6 +108,17 @@ export default function FavoritePage() {
     finalSelectedKeys,
   ]);
 
+  // 로그인 사용자 정보 변경
+  useEffect(() => {
+    var loginUser = remote.getGlobal('USER');
+    writeDebug('FavoritePage -- ', loginUser)
+
+    // 로그인이 성공했다.
+    if (loginUser?.userId) {
+      !treeData.length && initiate();
+    }
+  }, []);
+
   // ANCHOR effect
   useEffect(() => {
     if (!rightClickedKey) {
@@ -129,103 +144,103 @@ export default function FavoritePage() {
     initiate();
   }, [targetInfo]);
 
-  useEffect(() => {
-    const getBuddyTree = async (): Promise<TgetBuddyTreeReturnTypes> => {
-      const {
-        data: {
-          contacts: { node: responseMaybeArr },
-        },
-      } = await getBuddyList();
+  const getBuddyTree = async (): Promise<TgetBuddyTreeReturnTypes> => {
+    writeDebug('FavoritePage --getBuddyTree')
 
-      // * response가 하나일 경우를 가정하여 배열로 감쌈.
-      const response = arrayLike(responseMaybeArr);
-      // * 친구 id만 추출하기 위해 hierarchy object -> flat array로 convert
-      const flatten = spread(response, []);
-      const userIds = flatten
-        .filter((v: any) => v.gubun === EnodeGubun.FAVORITE_USER)
-        .map((v: any) => v.id);
-      const groupIds = flatten
-        .filter((v: any) => v.gubun === EnodeGubun.GROUP)
-        .map((v: any) => v.id);
+    const {
+      data: {
+        contacts: { node: responseMaybeArr },
+      },
+    } = await getBuddyList();
 
-      const {
-        data: {
-          items: { node_item: userSchemaMaybeArr },
-        },
-      } = await getUserInfos(userIds);
+    // * response가 하나일 경우를 가정하여 배열로 감쌈.
+    const response = arrayLike(responseMaybeArr);
+    // * 친구 id만 추출하기 위해 hierarchy object -> flat array로 convert
+    const flatten = spread(response, []);
+    const userIds = flatten
+      .filter((v: any) => v.gubun === EnodeGubun.FAVORITE_USER)
+      .map((v: any) => v.id);
+    const groupIds = flatten
+      .filter((v: any) => v.gubun === EnodeGubun.GROUP)
+      .map((v: any) => v.id);
 
-      // * 사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
-      // * 해쉬맵에 사용자 상세정보 매핑
-      const userSchema = arrayLike(userSchemaMaybeArr).reduce(
-        (prev: any, cur: any, i: number) => {
-          prev[cur.user_id?.value] = convertToUser(cur);
-          return prev;
-        },
-        {}
-      );
+    const {
+      data: {
+        items: { node_item: userSchemaMaybeArr },
+      },
+    } = await getUserInfos(userIds);
 
-      // * gubun, name, id ->  gubun, title, key, children 등 트리 형식으로 convert
-      const convertResponseToTree = (tree: any) => {
-        return tree.map((v: any) => {
-          if (v.gubun === EnodeGubun.GROUP) {
-            const spareRandomKey = getRandomNumber();
-            return {
-              gubun: v.gubun,
-              id: v.id ? v.id : `GROUP_${spareRandomKey}`,
-              level: v.level ? v.level : `0`,
-              name: v.name,
-              pid: v.pid,
-              title: v.name,
-              key: v.id ? v.id : `GROUP_${spareRandomKey}`,
-              children: convertResponseToTree(arrayLike(v.node)),
-            };
-          } else {
-            return {
-              gubun: v.gubun,
-              id: v.id,
-              level: v.level,
-              name: v.name,
-              pid: v.pid,
-              title: v.name,
-              key: v.id.concat(`_`, getRandomNumber()),
-              ...userSchema[v.id],
-            };
-          }
-        });
-      };
+    // * 사용자 상세 정보가 하나일 경우를 가정하여 배열로 감쌈.
+    // * 해쉬맵에 사용자 상세정보 매핑
+    const userSchema = arrayLike(userSchemaMaybeArr).reduce(
+      (prev: any, cur: any, i: number) => {
+        prev[cur.user_id?.value] = convertToUser(cur);
+        return prev;
+      },
+      {}
+    );
 
-      const root = convertResponseToTree(response);
-      console.log(`root: `, root);
-
-      // 즐겨찾기 없을 경우 생성.
-      const spareRoot: TTreeNode[] = [
-        {
-          gubun: EnodeGubun.GROUP,
-          id: Efavorite.FAVORITE,
-          level: "0",
-          name: Efavorite.FAVORITE,
-          title: Efavorite.FAVORITE,
-          key: Efavorite.FAVORITE,
-          pid: undefined,
-          children: [],
-        },
-      ];
-
-      return {
-        buddyTree: root.length ? root : spareRoot,
-        userIds,
-        groupIds,
-      };
+    // * gubun, name, id ->  gubun, title, key, children 등 트리 형식으로 convert
+    const convertResponseToTree = (tree: any) => {
+      return tree.map((v: any) => {
+        if (v.gubun === EnodeGubun.GROUP) {
+          const spareRandomKey = getRandomNumber();
+          return {
+            gubun: v.gubun,
+            id: v.id ? v.id : `GROUP_${spareRandomKey}`,
+            level: v.level ? v.level : `0`,
+            name: v.name,
+            pid: v.pid,
+            title: v.name,
+            key: v.id ? v.id : `GROUP_${spareRandomKey}`,
+            children: convertResponseToTree(arrayLike(v.node)),
+          };
+        } else {
+          return {
+            gubun: v.gubun,
+            id: v.id,
+            level: v.level,
+            name: v.name,
+            pid: v.pid,
+            title: v.name,
+            key: v.id.concat(`_`, getRandomNumber()),
+            ...userSchema[v.id],
+          };
+        }
+      });
     };
 
-    const initiate = async () => {
-      const { buddyTree, userIds, groupIds } = await getBuddyTree();
-      setTreeData(buddyTree);
-      setStatusMonitor(userIds);
-      setExpandedKeys(groupIds);
+    const root = convertResponseToTree(response);
+    console.log(`root: `, root);
+
+    // 즐겨찾기 없을 경우 생성.
+    const spareRoot: TTreeNode[] = [
+      {
+        gubun: EnodeGubun.GROUP,
+        id: Efavorite.FAVORITE,
+        level: "0",
+        name: Efavorite.FAVORITE,
+        title: Efavorite.FAVORITE,
+        key: Efavorite.FAVORITE,
+        pid: undefined,
+        children: [],
+      },
+    ];
+
+    return {
+      buddyTree: root.length ? root : spareRoot,
+      userIds,
+      groupIds,
     };
-    !treeData.length && initiate();
-  }, []);
+  };
+
+  const initiate = async () => {
+    writeDebug('FavoritePage --initiate')
+    const { buddyTree, userIds, groupIds } = await getBuddyTree();
+    setTreeData(buddyTree);
+    setStatusMonitor(userIds);
+    setExpandedKeys(groupIds);
+  };
 
   // ANCHOR handler
   const handleSendGroupMessage = async () => {

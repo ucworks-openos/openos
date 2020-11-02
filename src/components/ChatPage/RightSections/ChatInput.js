@@ -7,10 +7,7 @@ import {
   setEmoticonVisible,
 } from "../../../redux/actions/chat_actions";
 import Alert from "react-bootstrap/Alert";
-import { getUserInfos } from "../../../common/ipcCommunication/ipcOrganization";
 import { arrayLike, delay } from "../../../common/util";
-import EmojiPicker from "emoji-picker-react";
-import Modal from "react-modal";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 import "./EmojiMartCustom.css";
@@ -23,6 +20,9 @@ import { EchatType } from "../../../enum";
 
 function ChatInput() {
   const dispatch = useDispatch();
+  const electron = window.require("electron");
+  const { remote } = window.require("electron");
+
   const {
     currentChatRoom,
     emojiVisible,
@@ -34,10 +34,7 @@ function ChatInput() {
   const [isAlreadyRoomSelected, setIsAlreadyRoomSelected] = useState(false);
 
   const inputRef = useRef(null);
-  const loggedInUser = useSelector((state) => state.users.loggedInUser);
-
-  const electron = window.require("electron");
-  const { remote } = window.require("electron");
+  const loginUser = remote.getGlobal("USER");
 
   useEffect(() => {
     electron.ipcRenderer.on(
@@ -87,8 +84,8 @@ function ChatInput() {
           currentEmoticon ? currentEmoticon : `맑은 고딕`,
           false,
           currentChatRoom.room_key,
-          loggedInUser.user_name.value,
-          loggedInUser.user_id.value,
+          loginUser.userName,
+          loginUser.userId,
           EchatType.file.toString()
         )
       );
@@ -168,8 +165,8 @@ function ChatInput() {
         currentEmoticon ? currentEmoticon : `맑은 고딕`,
         false,
         currentChatRoom.room_key,
-        loggedInUser.user_name.value,
-        loggedInUser.user_id.value,
+        loginUser.userName,
+        loginUser.userId,
         currentEmoticon
           ? EchatType.emoticon.toString()
           : EchatType.chat.toString()
