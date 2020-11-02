@@ -15,6 +15,8 @@ import EmoticonSelector from "../../../common/components/Editor/EmoticonSelector
 import { getDispUserNames } from "../../../common/util/userUtil";
 import styled from "styled-components";
 import { uploadFile } from "../../../common/ipcCommunication/ipcFile";
+import { sendChatMessage } from "../../../common/ipcCommunication/ipcMessage";
+import { EchatType } from "../../../enum";
 
 function ChatInput() {
   const dispatch = useDispatch();
@@ -32,8 +34,7 @@ function ChatInput() {
   const [isAlreadyRoomSelected, setIsAlreadyRoomSelected] = useState(false);
 
   const inputRef = useRef(null);
-  const loginUser = remote.getGlobal('USER');
-
+  const loginUser = remote.getGlobal("USER");
 
   useEffect(() => {
     electron.ipcRenderer.on(
@@ -85,7 +86,7 @@ function ChatInput() {
           currentChatRoom.room_key,
           loginUser.userName,
           loginUser.userId,
-          `file`
+          EchatType.file.toString()
         )
       );
 
@@ -129,7 +130,6 @@ function ChatInput() {
 
   const handleEmojiClick = (emoji, event) => {
     setInputValue(inputValue + emoji.native);
-    dispatch(setEmojiVisible(false));
   };
 
   const onSubmit = async (event) => {
@@ -166,7 +166,10 @@ function ChatInput() {
         false,
         currentChatRoom.room_key,
         loginUser.userName,
-        loginUser.userId
+        loginUser.userId,
+        currentEmoticon
+          ? EchatType.emoticon.toString()
+          : EchatType.chat.toString()
       )
     );
     dispatch(setEmojiVisible(false));

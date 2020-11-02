@@ -36,3 +36,9 @@ export enum EconfigTab {
   동작,
   연결,
 }
+
+export enum EchatType {
+  chat = "U",
+  emoticon = "E",
+  file = "R",
+}

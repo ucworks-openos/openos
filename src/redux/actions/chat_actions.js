@@ -2,6 +2,7 @@ import axios from "axios";
 import {
   GET_INITIAL_CHAT_ROOMS,
   GET_INITIAL_CHAT_MESSAGES,
+  SET_CHAT_MESSAGES,
   SET_CURRENT_CHAT_ROOM,
   GET_MORE_CHATS_MESSAGES,
   ADD_CHAT_ROOM_FROM_ORGANIZATION,
@@ -25,8 +26,12 @@ import {
 } from "../../common/ipcCommunication/ipcMessage";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
-import { getChatUserIds, getChatRoomType, getChatRoomName, getDispUserNames } from "../../common/util";
-
+import {
+  getChatUserIds,
+  getChatRoomType,
+  getChatRoomName,
+  getDispUserNames,
+} from "../../common/util";
 
 /**
  * 32자리 UUID를 반환합니다
@@ -38,6 +43,13 @@ function getUUID() {
   let tokens = uuidv4().split("-");
   return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
 }
+
+export const setChatMessages = (newChatMessages) => {
+  return {
+    type: SET_CHAT_MESSAGES,
+    payload: newChatMessages,
+  };
+};
 
 export const setCurrentEmoticon = (currentEmoticon) => {
   return {
@@ -103,8 +115,12 @@ export async function getInitialChatRooms() {
   };
 }
 
-export async function getInitialChatMessages(chatRoomId, lastLineKey) {
-  let getChatListsResult = await getChatList(chatRoomId, lastLineKey, 10);
+export async function getInitialChatMessages(
+  chatRoomId,
+  lastLineKey = "9999999999999999",
+  rowLimit = 99999
+) {
+  let getChatListsResult = await getChatList(chatRoomId, lastLineKey, rowLimit);
 
   let request = [];
   let getChatLists = getChatListsResult.data.table.row;
@@ -126,7 +142,7 @@ export function addChatMessage(
   chatRoomId = null,
   senderName,
   senderId,
-  type = `chat`
+  type
 ) {
   let userIds = getChatUserIds(chatUsersId);
 
@@ -143,8 +159,10 @@ export function addChatMessage(
     chat_send_name: senderName,
     chat_font_name: chatFontName,
     chat_send_date: moment().format("YYYYMMDDHHmm"),
+    line_key: moment().valueOf().toString(),
     read_count: 0,
     chat_send_id: senderId,
+    chat_type: type,
   };
   return {
     type: ADD_CHAT_MESSAGE,

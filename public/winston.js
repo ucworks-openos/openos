@@ -75,7 +75,7 @@ function getMainLogger() {
   });
   
   if(process.env.NODE_ENV !== 'production'){
-    main_logger.add(new winston.transports.Console(consoleLogOption)) // 개발 시 console로도 출력
+    //main_logger.add(new winston.transports.Console(consoleLogOption)) // 개발 시 console로도 출력
   }
 
   return main_logger;

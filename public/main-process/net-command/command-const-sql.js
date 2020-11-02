@@ -60,7 +60,8 @@ module.exports = Object.freeze({
 
     /** 이전대화 목록 조회 */
     SQL_select_tbl_chat_recv_line_server_redis:
-    'SELECT b.room_key, a.read_count, b.unread_count, b.line_key, b.line_number, b.line_num_date, b.chat_entry_ids, b.chat_entry_names, '+
+    'SELECT F1.* FROM ' +
+    '(SELECT b.room_key, a.read_count, b.unread_count, b.line_key, b.line_number, b.line_num_date, b.chat_entry_ids, b.chat_entry_names, '+
     '       b.chat_send_id, b.chat_send_name, b.chat_send_date, b.chat_type, '+
     '       b.chat_font_name, b.chat_font_size, b.chat_font_color, b.chat_font_style, '+
     '       b.chat_encrypt_key, b.chat_contents '+
@@ -72,8 +73,9 @@ module.exports = Object.freeze({
     '   AND (a.line_key < \':LINE_KEY:\')  '+
     '   AND (a.room_key = b.room_key) '+
     '   AND (a.line_key = b.line_key) '+
-    ' ORDER BY a.line_key ASC'+
-    ' LIMIT :ROW_LIMIT: ', // OFFSET :from_rows ';
+    ' ORDER BY a.line_key DESC'+
+    ' LIMIT :ROW_LIMIT: ) F1'+ // OFFSET :from_rows ';
+    ' ORDER BY F1.line_key ASC',
 
     SQL_update_tbl_chat_room_title_from_server:
     'UPDATE tbl_chat_room SET chat_entry_names = \':CHAT_ENTRY_NAMES:\' '+

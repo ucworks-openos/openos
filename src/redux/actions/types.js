@@ -1,5 +1,6 @@
 export const GET_INITIAL_CHAT_ROOMS = "get_initial_chat_rooms";
 export const GET_INITIAL_CHAT_MESSAGES = "get_initial_chat_messages";
+export const SET_CHAT_MESSAGES = "set_chat_messages";
 export const SET_CURRENT_CHAT_ROOM = "set_current_chat_room";
 export const SET_CHAT_ROOMS = "set_chat_rooms";
 // export const GET_MORE_CHATS_MESSAGES = 'get_more_chats_messages';
