@@ -159,6 +159,7 @@ export function addChatMessage(
     chat_send_name: senderName,
     chat_font_name: chatFontName,
     chat_send_date: moment().format("YYYYMMDDHHmm"),
+    line_key: moment().valueOf().toString(),
     read_count: 0,
     chat_send_id: senderId,
     chat_type: type,

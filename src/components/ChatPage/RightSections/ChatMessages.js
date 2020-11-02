@@ -193,7 +193,10 @@ function ChatMessages() {
           {/* <span className="unread-ppl">{chat.read_count}</span> */}
           <span className="time">
             {" "}
-            {moment(chat.chat_send_date, "YYYYMMDDHHmm").format("HH:mm")}
+            {moment(
+              new Date(chat.line_key?.substring(0, 10) * 1000),
+              "YYYYMMDDHHmm"
+            ).format("HH:mm")}
           </span>
         </div>
       );
