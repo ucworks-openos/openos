@@ -3,7 +3,6 @@ export { getDispUserNames } from "./userUtil";
 export { getChatRoomName, getChatUserIds, getChatRoomType } from "./chatUtil";
 export { getPreviousStackInfo } from "./commonUtil";
 
-
 export function mapEnum<T>(
   enumerable: T,
   callback: (key: string, i: number) => any
@@ -134,6 +133,6 @@ export const syncronize = (tree: TTreeNode[]) => {
   saveBuddyData(xml);
 };
 
-export const removeTag = (text:String) => {
-  return text? text.replace(/<[^>]+>/g, '').replace('&nbsp', ' '): '';
-}
+export const removeTag = (text: String) => {
+  return text ? text.replace(/<[^>]+>/g, "").replace("&nbsp", " ") : "";
+};
