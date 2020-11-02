@@ -9,7 +9,11 @@ import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
 import { getInitialChatRooms } from "../../../redux/actions/chat_actions";
 import { getDispUserNames } from "../../../common/util/userUtil";
-import { getChatRoomName, getChatUserIds } from "../../../common/util";
+import {
+  getChatRoomName,
+  getChatUserIds,
+  lineKeyParser,
+} from "../../../common/util";
 import { writeDebug } from "../../../common/ipcCommunication/ipcLogger";
 
 const electron = window.require("electron");
@@ -69,9 +73,7 @@ function ChatRooms(props) {
             <div className="list-row 3">
               <div className="last-chat-from sub1"> {room.chat_send_name}</div>
               <div className="last-chat-time sub1">
-                {moment(room.create_room_date, "YYYYMMDDHHmm").format(
-                  "YYYY. MM. DD. h:mm a"
-                )}
+                {lineKeyParser(room.last_line_key, `YYYY. MM. DD. HH:mm`)}
               </div>
             </div>
           </div>

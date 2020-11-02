@@ -17,6 +17,7 @@ import styled from "styled-components";
 import { uploadFile } from "../../../common/ipcCommunication/ipcFile";
 import { sendChatMessage } from "../../../common/ipcCommunication/ipcMessage";
 import { EchatType } from "../../../enum";
+import DragAndDropSupport from "../../../common/components/DragAndDropSupport";
 
 function ChatInput() {
   const dispatch = useDispatch();
@@ -96,6 +97,42 @@ function ChatInput() {
 
   const onInputValueChange = (e) => {
     setInputValue(e.currentTarget.value);
+  };
+
+  const handleDrop = async (files) => {
+    for (let i = 0; i < files.length; i++) {
+      const resData = await uploadFile(files[i].path, files[i].path);
+      console.log(`file upload complete: `, resData.data);
+
+      const fileInfo = `${files[i].name}|${files[i].size}|SAVE_SERVER|${
+        remote.getGlobal("SERVER_INFO").FS.pubip
+      };${remote.getGlobal("SERVER_INFO").FS.port}|${resData.data}|`;
+
+      let userNames;
+      if (!currentChatRoom.chat_entry_names) {
+        userNames = await getDispUserNames(
+          currentChatRoom?.chat_entry_ids?.split("|")
+        );
+      } else {
+        userNames = currentChatRoom.chat_entry_names;
+      }
+
+      dispatch(
+        addChatMessage(
+          currentChatRoom.chat_entry_ids,
+          userNames,
+          fileInfo,
+          currentEmoticon ? currentEmoticon : `맑은 고딕`,
+          false,
+          currentChatRoom.room_key,
+          loginUser.userName,
+          loginUser.userId,
+          EchatType.file.toString()
+        )
+      );
+
+      await delay(500);
+    }
   };
 
   const handleNewLine = (e) => {
@@ -184,7 +221,7 @@ function ChatInput() {
           style={{
             position: "absolute",
             left: "0",
-            bottom: "187px",
+            bottom: "150px",
             width: "100%",
           }}
         >
@@ -196,7 +233,7 @@ function ChatInput() {
           style={{
             position: "absolute",
             left: "0",
-            bottom: "187px",
+            bottom: "150px",
             width: "100%",
           }}
         >
@@ -219,25 +256,28 @@ function ChatInput() {
         </Hover>
       </div>
       <EmoticonSelector visible={emoticonVisible ? true : false} />
+
       <div className="chat-input-area">
-        <div className="chat-input-wrap" onClick={handleFocusInput}>
-          <textarea
-            ref={inputRef}
-            className="chat-input"
-            value={inputValue}
-            onChange={onInputValueChange}
-            placeholder="채팅 내용을 입력해주세요."
-            onKeyDown={handleNewLine}
-          ></textarea>
-          <button
-            onClick={onSubmit}
-            type="submit"
-            style={{ width: "78px", height: "48px" }}
-            className="btn-ghost-m"
-          >
-            전송
-          </button>
-        </div>
+        <DragAndDropSupport handleDrop={handleDrop}>
+          <div className="chat-input-wrap" onClick={handleFocusInput}>
+            <textarea
+              ref={inputRef}
+              className="chat-input"
+              value={inputValue}
+              onChange={onInputValueChange}
+              placeholder="채팅 내용을 입력해주세요."
+              onKeyDown={handleNewLine}
+            ></textarea>
+            <button
+              onClick={onSubmit}
+              type="submit"
+              style={{ width: "78px", height: "48px" }}
+              className="btn-ghost-m"
+            >
+              전송
+            </button>
+          </div>
+        </DragAndDropSupport>
 
         <div className="input-action-wrap">
           <div
