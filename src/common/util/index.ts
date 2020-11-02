@@ -1,3 +1,4 @@
+import moment from "moment";
 export { formatBytes } from "./fileUtil";
 export { getDispUserNames } from "./userUtil";
 export { getChatRoomName, getChatUserIds, getChatRoomType } from "./chatUtil";
@@ -135,4 +136,12 @@ export const syncronize = (tree: TTreeNode[]) => {
 
 export const removeTag = (text: String) => {
   return text ? text.replace(/<[^>]+>/g, "").replace("&nbsp", " ") : "";
+};
+
+export const lineKeyParser = (lineKey: string, format: string = `YYYYMMDD`) => {
+  if (!lineKey) return "";
+  return moment(
+    new Date(Number(lineKey?.substring(0, 10)) * 1000),
+    "YYYYMMDDHHmm"
+  ).format(format);
 };
