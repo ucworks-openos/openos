@@ -169,6 +169,7 @@ export default function (
       };
     case ADD_CHAT_MESSAGE:
       state.currentChatRoom.chat_contents = action.payload.chat_contents;
+      state.currentChatRoom.last_line_key = action.payload.line_key;
       let newChatRoomsWithoutCurrentChatRoom = state.chatRooms.filter(
         (room) => room.room_key !== state.currentChatRoom.room_key
       );

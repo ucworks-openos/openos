@@ -460,6 +460,7 @@
     height: 30px;
     margin-bottom: 16px;
     margin-left: -16px;
+    margin-top: 8px;
     text-align: center;
 }
 .divider-txt {
@@ -532,7 +533,7 @@
     font-weight: 500;
 }
 .speech-inner-wrap {
-    width: 60%;
+    width: 80%;
 }
 .speech-inner-wrap,
 .speech-info span {
@@ -544,8 +545,6 @@
 }
 .speech-content {
     position: relative;
-    max-width: 60%;
-    /* margin-right: 8px; */
     padding: 6px 12px;
     border: 1px solid #dfe2e8;
     border-radius: 6px 8px 8px;

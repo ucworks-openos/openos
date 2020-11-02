@@ -1,20 +1,30 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  addChatMessage,
   getInitialChatMessages,
   setChatMessages,
 } from "../../../redux/actions/chat_actions";
 import moment from "moment";
 import { EchatType } from "../../../enum";
 import styled from "styled-components";
-import { formatBytes } from "../../../common/util";
-import { downloadFile } from "../../../common/ipcCommunication/ipcFile";
+import {
+  delay,
+  formatBytes,
+  getDispUserNames,
+  lineKeyParser,
+} from "../../../common/util";
+import {
+  downloadFile,
+  uploadFile,
+} from "../../../common/ipcCommunication/ipcFile";
 import path from "path";
 import {
   shellOpenFolder,
   shellOpenItem,
 } from "../../../common/ipcCommunication/ipcUtil";
 import { Img } from "react-image";
+import DragAndDropSupport from "../../../common/components/DragAndDropSupport";
 
 const { remote } = window.require("electron");
 const fs = remote.require("fs");
@@ -25,11 +35,12 @@ function ChatMessages() {
 
   const {
     currentChatRoom,
-    chatRooms,
     chatMessages,
     emojiVisible,
     emoticonVisible,
+    currentEmoticon,
   } = useSelector((state) => state.chats);
+  const loginUser = remote.getGlobal("USER");
 
   useEffect(() => {
     if (emojiVisible) {
@@ -43,12 +54,47 @@ function ChatMessages() {
     }
   }, [emoticonVisible]);
 
+  const handleDrop = async (files) => {
+    for (let i = 0; i < files.length; i++) {
+      const resData = await uploadFile(files[i].path, files[i].path);
+      console.log(`file upload complete: `, resData.data);
+
+      const fileInfo = `${files[i].name}|${files[i].size}|SAVE_SERVER|${
+        remote.getGlobal("SERVER_INFO").FS.pubip
+      };${remote.getGlobal("SERVER_INFO").FS.port}|${resData.data}|`;
+
+      let userNames;
+      if (!currentChatRoom.chat_entry_names) {
+        userNames = await getDispUserNames(
+          currentChatRoom?.chat_entry_ids?.split("|")
+        );
+      } else {
+        userNames = currentChatRoom.chat_entry_names;
+      }
+
+      dispatch(
+        addChatMessage(
+          currentChatRoom.chat_entry_ids,
+          userNames,
+          fileInfo,
+          currentEmoticon ? currentEmoticon : `맑은 고딕`,
+          false,
+          currentChatRoom.room_key,
+          loginUser.userName,
+          loginUser.userId,
+          EchatType.file.toString()
+        )
+      );
+
+      await delay(500);
+    }
+  };
+
   // const [chatMessagesWithUserInfos, setChatMessagesWithUserInfos] = useState([])
   const messagesEndRef = useRef();
 
   const scrollToBottom = () => {
     messagesEndRef.current.scrollIntoView({
-      behavior: "smooth",
       block: "end",
       inline: "start",
     });
@@ -100,7 +146,7 @@ function ChatMessages() {
 
   const renderChatMessages = () =>
     chatMessages &&
-    chatMessages.map((chat, index) => {
+    chatMessages.map((chat, index, list) => {
       /**
        * 이모티콘 정보는 fontName에 있으며 chatData(contents)도 포함되는 경우도 있다. (chatData: 'bslee|kitt1' : 참여자 아이디가 들어 있음)
        *   fontName: 'EMOTICON \r tab_02 \r 3.gif\r맑은 고딕 Semilight'
@@ -140,6 +186,18 @@ function ChatMessages() {
 
       const myChat =
         chat.chat_send_id === `${sessionStorage.getItem("loginId")}`;
+
+      const divider = (lineKey) => {
+        if (!lineKey) return <></>;
+        return (
+          <div class="divider-wrap speech-date">
+            <div class="divider-txt">
+              {lineKeyParser(lineKey, `YYYY년 MM월 DD일`)}
+            </div>
+            <div class="divider" />
+          </div>
+        );
+      };
 
       const fileInfo = () => (
         <FileInfo>
@@ -191,118 +249,126 @@ function ChatMessages() {
       const speechInfo = () => (
         <div className="speech-info">
           {/* <span className="unread-ppl">{chat.read_count}</span> */}
-          <span className="time">
-            {" "}
-            {moment(
-              new Date(chat.line_key?.substring(0, 10) * 1000),
-              "YYYYMMDDHHmm"
-            ).format("HH:mm")}
-          </span>
+          <span className="time"> {lineKeyParser(chat.line_key, `HH:mm`)}</span>
         </div>
       );
 
       if (myChat) {
         return (
-          <div key={index} className="speech-row speech-my">
-            <div className="speech-content-wrap-mine">
-              {chatType === EchatType.emoticon.toString() && hasEmoticon && (
-                <>
-                  <div className="speech-info-wrap">
-                    {!contents && speechInfo()}
-                    <Img
-                      src={[
-                        `./Emoticons/${emoTab}/${emoName}`,
-                        `./images/no_image.jpg`,
-                      ]}
-                      alt={`./Emoticons/${emoTab}/${emoName}`}
-                    />
-                  </div>
-                </>
-              )}
-
-              <div className="speech-inner-wrap">
-                {chatType === EchatType.file.toString() ? (
+          <>
+            {index === 0
+              ? divider(chat.line_key)
+              : lineKeyParser(list[index - 1].line_key) !==
+                  lineKeyParser(chat.line_key) && divider(chat.line_key)}
+            <div key={index} className="speech-row speech-my">
+              <div className="speech-content-wrap-mine">
+                {chatType === EchatType.emoticon.toString() && hasEmoticon && (
                   <>
-                    {fileInfo()}
-                    {speechInfo()}
-                  </>
-                ) : contents ? (
-                  <>
-                    <div className="speech-content">
-                      <pre>{contents}</pre>
+                    <div className="speech-info-wrap">
+                      {!contents && speechInfo()}
+                      <Img
+                        src={[
+                          `./Emoticons/${emoTab}/${emoName}`,
+                          `./images/no_image.jpg`,
+                        ]}
+                        alt={`./Emoticons/${emoTab}/${emoName}`}
+                      />
                     </div>
-                    {speechInfo()}
                   </>
-                ) : (
-                  <></>
                 )}
+
+                <div className="speech-inner-wrap">
+                  {chatType === EchatType.file.toString() ? (
+                    <>
+                      {fileInfo()}
+                      {speechInfo()}
+                    </>
+                  ) : contents ? (
+                    <>
+                      <div className="speech-content">
+                        <pre>{contents}</pre>
+                      </div>
+                      {speechInfo()}
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          </>
         );
       } else {
         return (
-          <div className="speech-row speech-others" key={index}>
-            <div className="user-pic-wrap">
-              <img
-                src={
-                  chat.user_picture_pos &&
-                  /^http/.test(chat.user_picture_pos.value)
-                    ? chat.user_picture_pos.value
-                    : "./images/img_imgHolder.png"
-                }
-                alt="user-profile-picture"
-              />
-            </div>
-            <div className="speech-content-wrap-his">
-              <div className="speaker-info-wrap">{chat.chat_send_name}</div>
-              {chatType === EchatType.emoticon.toString() && hasEmoticon && (
-                <>
-                  <div className="speech-info-wrap">
-                    <Img
-                      src={[
-                        `./Emoticons/${emoTab}/${emoName}`,
-                        `./images/no_image.jpg`,
-                      ]}
-                      alt={`./Emoticons/${emoTab}/${emoName}`}
-                      loading="lazy"
-                    />
-                    {!contents && speechInfo()}
-                  </div>
-                </>
-              )}
-              <div className="speech-inner-wrap">
-                {chatType === EchatType.file.toString() ? (
+          <>
+            {index === 0
+              ? divider(chat.line_key)
+              : lineKeyParser(list[index - 1].line_key) !==
+                  lineKeyParser(chat.line_key) && divider(chat.line_key)}
+            <div className="speech-row speech-others" key={index}>
+              <div className="user-pic-wrap">
+                <img
+                  src={
+                    chat.user_picture_pos &&
+                    /^http/.test(chat.user_picture_pos.value)
+                      ? chat.user_picture_pos.value
+                      : "./images/img_imgHolder.png"
+                  }
+                  alt="user-profile-picture"
+                />
+              </div>
+              <div className="speech-content-wrap-his">
+                <div className="speaker-info-wrap">{chat.chat_send_name}</div>
+                {chatType === EchatType.emoticon.toString() && hasEmoticon && (
                   <>
-                    {fileInfo()}
-                    {speechInfo()}
-                  </>
-                ) : contents ? (
-                  <>
-                    <div className="speech-content">
-                      <pre>{contents}</pre>
+                    <div className="speech-info-wrap">
+                      <Img
+                        src={[
+                          `./Emoticons/${emoTab}/${emoName}`,
+                          `./images/no_image.jpg`,
+                        ]}
+                        alt={`./Emoticons/${emoTab}/${emoName}`}
+                        loading="lazy"
+                      />
+                      {!contents && speechInfo()}
                     </div>
-                    {speechInfo()}
                   </>
-                ) : (
-                  <></>
                 )}
+                <div className="speech-inner-wrap">
+                  {chatType === EchatType.file.toString() ? (
+                    <>
+                      {fileInfo()}
+                      {speechInfo()}
+                    </>
+                  ) : contents ? (
+                    <>
+                      <div className="speech-content">
+                        <pre>{contents}</pre>
+                      </div>
+                      {speechInfo()}
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          </>
         );
       }
     });
 
   if (chatMessages) {
     return (
-      <div
-        className="chat-area"
-        style={{ bottom: (emojiVisible || emoticonVisible) && `520px` }}
-      >
-        {renderChatMessages()}
-        <div ref={messagesEndRef} />
-      </div>
+      <DragAndDropSupport handleDrop={handleDrop}>
+        <div
+          className="chat-area"
+          style={{ bottom: (emojiVisible || emoticonVisible) && `520px` }}
+        >
+          {renderChatMessages()}
+          <div ref={messagesEndRef} />
+        </div>
+      </DragAndDropSupport>
     );
   } else {
     return <div className="chat-area"></div>;
