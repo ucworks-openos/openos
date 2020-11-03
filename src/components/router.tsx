@@ -79,7 +79,7 @@ function RouterPage() {
     <HashRouter>
       {/* <MyErrorBoundary> */}
       <Suspense fallback={<div>Loading...</div>}>
-        {sessionStorage.getItem("isLoginElectronApp") && (
+        {remote.getGlobal('USER').userId && (
           <>
             {" "}
             <NavigationBar /> 

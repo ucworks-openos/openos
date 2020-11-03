@@ -60,8 +60,7 @@ function RightPanel() {
   
   // 메세지가 변경되면 첨부파일 정보를 설정한다.
   useEffect(() => {
-    writeDebug('Message Detail ', message);
-
+    
     if (message?.msg_file_list) {
       let fileList = [];
 
@@ -85,6 +84,8 @@ function RightPanel() {
   }, [message]);
 
   const onDeleteMessageClick = () => {
+    if (!message) return
+
     deleteMessage(currentMessageListType, [message.msg_key]).then(() => {
       dispatch(
         setMessageList(
@@ -96,18 +97,21 @@ function RightPanel() {
   };
 
   const handleReply = () => {
+    if (!message) return
     setReplyTarget([message?.msg_send_id]);
     setInitialTitle(`Re: ${message?.msg_subject}`);
     setMessageModalVisible(true);
   };
 
   const handleReplyAll = () => {
+    if (!message) return
     setReplyTarget(message?.msg_recv_ids.split(`|`));
     setInitialTitle(`Re: ${message?.msg_subject}`);
     setMessageModalVisible(true);
   };
 
   const handleDelivery = () => {
+    if (!message) return
     setReplyTarget([]);
     setInitialTitle(`Fwd: ${message?.msg_subject}`);
     setMessageModalVisible(true);
