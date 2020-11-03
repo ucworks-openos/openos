@@ -63,11 +63,11 @@ exports.showAlert = async function (notiType, notiId, title, message, senderName
  * 알림 아이디가 동일하다면 닫습니다.
  * @param {String} notiId 
  */
-exports.closeAlert = async function (notiId) {
+exports.closeAlert = async function (notiId = '') {
   winston.info('Close Alert', notiId);
   if (notiWin) {
     try {
-      if (notiWin.title === notiId) {
+      if (notiId === '' || notiWin.title === notiId) {
         notiWin.close();
       }
     } catch (err) {

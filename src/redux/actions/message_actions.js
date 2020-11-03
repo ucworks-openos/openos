@@ -12,6 +12,7 @@ import {
   getMessageDetail,
 } from "../../common/ipcCommunication/ipcMessage";
 import moment from "moment";
+import { writeError } from "../../common/ipcCommunication/ipcLogger";
 
 export function setCurrentMessage(messageKey) {
   return {
@@ -29,13 +30,28 @@ export function setMessageList(list) {
 
 export async function getInitialMessageLists(messageType) {
   const request = await getMessage(messageType, 0, 10);
-  return {
-    type: GET_INITIAL_MESSAGE_LISTS,
-    payload: request.data.table.row,
-  };
+  try {
+    return {
+      type: GET_INITIAL_MESSAGE_LISTS,
+      payload: request.data.table.row,
+    };
+  } catch (err) {
+    writeError('getInitialMessageLists Fail!', messageType, request )
+    return {
+      type: GET_INITIAL_MESSAGE_LISTS,
+      payload: [],
+    };
+  }
 }
 
 export async function getMessageHo(messageKey) {
+  if (!messageKey) {
+    return {
+      type: GET_MESSAGE,
+      payload: undefined,
+    };
+  } 
+
   const request = await getMessageDetail(messageKey);
   // let request = messageLists.filter(msg => msg.msg_key === messageKey)
   return {

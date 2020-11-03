@@ -145,7 +145,6 @@ ipcMain.on('saveConfig', (event, configData) => {
   writeConfig();
 });
 
-
 /**
  * decrypt message
  */

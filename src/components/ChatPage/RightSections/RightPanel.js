@@ -5,6 +5,7 @@ import ChatMessages from "./ChatMessages";
 import { useDispatch, useSelector } from "react-redux";
 import { changeChatRoomName, exitChatRoom } from "../../../common/ipcCommunication/ipcMessage";
 import {
+  setChatMessages,
   setChatRooms,
   setCurrentChatRoom,
   updateCurrentChatRoom,
@@ -72,6 +73,9 @@ function RightPanel() {
    * handleExitChatRoom
    */
   const handleExitChatRoom = () => {
+
+    if (!currentChatRoom) return;
+
     const newRooms = chatRooms.filter(
       (v) => v.room_key !== currentChatRoom.room_key
     );
@@ -85,8 +89,11 @@ function RightPanel() {
       dispatch(setChatRooms(newRooms));
       dispatch(setCurrentChatRoom(newRooms[0].room_key, newRooms));
     } else {
+      setChatRoomName('');
+      setChatUserIds([]);
       dispatch(setChatRooms([]));
       dispatch(setCurrentChatRoom('', []));
+      dispatch(setChatMessages([]));
     }
   };
 

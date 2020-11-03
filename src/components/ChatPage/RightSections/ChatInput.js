@@ -47,7 +47,6 @@ function ChatInput() {
         );
       }
     );
-    console.log(`file monitoring start...`);
     return () => {
       electron.ipcRenderer.removeAllListeners("upload-file-progress");
       dispatch(setEmojiVisible(false));
@@ -96,10 +95,13 @@ function ChatInput() {
   };
 
   const onInputValueChange = (e) => {
+    if (!currentChatRoom) return;
     setInputValue(e.currentTarget.value);
   };
 
   const handleDrop = async (files) => {
+    if (!currentChatRoom) return;
+
     for (let i = 0; i < files.length; i++) {
       const resData = await uploadFile(files[i].path, files[i].path);
       console.log(`file upload complete: `, resData.data);
@@ -156,20 +158,25 @@ function ChatInput() {
   };
 
   const handleEmoticonPick = () => {
+    if (!currentChatRoom) return;
     dispatch(setEmojiVisible(false));
     dispatch(setEmoticonVisible(!emoticonVisible));
   };
 
   const handleEmojiPick = () => {
+    if (!currentChatRoom) return;
     dispatch(setEmoticonVisible(false));
     dispatch(setEmojiVisible(!emojiVisible));
   };
 
   const handleEmojiClick = (emoji, event) => {
+    if (!currentChatRoom) return;
     setInputValue(inputValue + emoji.native);
   };
 
   const onSubmit = async (event) => {
+    if (!currentChatRoom) return;
+
     let userNames;
     if (!currentChatRoom.chat_entry_names) {
       userNames = await getDispUserNames(
@@ -298,27 +305,18 @@ function ChatInput() {
             <label for="btn-add-file">
               <div className="input-action btn-add-file" title="파일전송"></div>
             </label>
+          {currentChatRoom?
             <input
-              type="file"
-              multiple="multiple"
-              id="btn-add-file"
-              class="btn-add-file"
-              onChange={handleSelectFile}
+            type="file"
+            multiple="multiple"
+            id="btn-add-file"
+            class="btn-add-file"
+            onChange={handleSelectFile}
             />
+            :
+            <div class="btn-add-file" ></div>
+          }
           </div>
-
-          {/* <div className="input-action btn-call" title="통화"></div>
-          <div className="input-action btn-remote" title="원격제어"></div>
-          <div
-            className="input-action btn-shake-window"
-            title="상대창 흔들기"
-          ></div>
-          <div className="input-action btn-send-capture" title="캡처전송"></div>
-          <div
-            className="input-action btn-send-survey"
-            title="설문보내기"
-          ></div>
-          <div className="input-action btn-save-chat" title="대화저장"></div> */}
         </div>
       </div>
     </>

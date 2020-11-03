@@ -11,15 +11,27 @@ import {
 export default function (state = {}, action) {
   switch (action.type) {
     case GET_INITIAL_MESSAGE_LISTS:
-      return {
-        ...state,
-        messageLists: action.payload,
-        currentMessage: action.payload[0]?.msg_key,
-        page: 1,
-        // * 몇개 가져왔는지 count. 만약 10개 가져왔다면 더보기 버튼 보여주고, 10개 미만일 경우 더보기 버튼을 히든 처리
-        messageCounts: action.payload.length,
-        messageDefaultCounts: 10,
-      };
+      if (action.payload?.length > 0) {
+        return {
+          ...state,
+          messageLists: action.payload,
+          currentMessage: action.payload[0].msg_key,
+          page: 1,
+          // * 몇개 가져왔는지 count. 만약 10개 가져왔다면 더보기 버튼 보여주고, 10개 미만일 경우 더보기 버튼을 히든 처리
+          messageCounts: action.payload.length,
+          messageDefaultCounts: 10,
+        };
+      } else {
+        return {
+          ...state,
+          messageLists: [],
+          currentMessage: undefined,
+          page: 1,
+          // * 몇개 가져왔는지 count. 만약 10개 가져왔다면 더보기 버튼 보여주고, 10개 미만일 경우 더보기 버튼을 히든 처리
+          messageCounts: 0,
+          messageDefaultCounts: 10,
+        };
+      }
     case GET_MESSAGE:
       return { ...state, message: action.payload };
     case SET_CURRENT_MESSAGE:

@@ -1,19 +1,40 @@
 import React, { useEffect, useState } from "react";
-import { makeCall } from "../../common/ipcCommunication/ipcIpPhone";
+import Modal from "react-modal";
+import { commonModalStyles } from "../../common/styles";
+import {
+  clearCall,
+  makeCall,
+  pickupCall,
+} from "../../common/ipcCommunication/ipcIpPhone";
 import "./CallPage.css";
+import CallForwardingModal from "./CallForwardingModal";
+import Axios from "axios";
 
 export default function CallPage() {
-  const [telNum, setTelNum] = useState<string>(sessionStorage.getItem('callPage_telNum')||'');
+  const [telNum, setTelNum] = useState<string>(
+    sessionStorage.getItem("callPage_telNum") || ""
+  );
+  const [callForwardingModalVisible, setCallForwardingModalVisible] = useState(
+    false
+  );
 
-  useEffect(()=>{
-    sessionStorage.setItem('callPage_telNum', telNum);
-  }, [telNum])
+  useEffect(() => {
+    sessionStorage.setItem("callPage_telNum", telNum);
+  }, [telNum]);
 
   return (
     <div className="call-contens-wrap">
       <main className="call-main-wrap">
         <div className="call-page-title-wrap">
           <h4 className="call-title">전화</h4>
+          <div className="call-action-wrap">
+            {/* <div className="call-action call-pick-up" title="당겨받기" onClick={()=>pickupCall('3647')}></div> */}
+            <div
+              className="call-action call-forwarding"
+              title="착신전환"
+              onClick={() => setCallForwardingModalVisible(true)}
+            ></div>
+          </div>
         </div>
         <div className="call-main-inner">
           <div className="make-a-call-area-small">
@@ -24,26 +45,49 @@ export default function CallPage() {
                 placeholder="전화번호를 하이픈 - 없이 입력해주세요"
                 onChange={(e) => {
                   const re = /^[0-9\b]+$/;
-                  if (e.target.value == '' || re.test(e.target.value)) {
-                    setTelNum(e.target.value)
+                  if (e.target.value == "" || re.test(e.target.value)) {
+                    setTelNum(e.target.value);
                   }
                 }}
                 value={telNum}
               />
-              <div className="btn-make-a-call" onClick={async ()=> {
-                if (telNum?.length>2) {
-                  makeCall(telNum);
-                }
-              }} />
+              <div
+                className="btn-make-a-call"
+                onClick={async () => {
+                  if (telNum?.length > 2) {
+                    makeCall(telNum);
+                  }
+                }}
+              />
+              &nbsp;
+              <div
+                className="icon-call-info missed"
+                onClick={async () => {
+                  clearCall("");
+                }}
+              />
+              <Modal
+                isOpen={callForwardingModalVisible}
+                onRequestClose={() => {
+                  setCallForwardingModalVisible(false);
+                }}
+                style={commonModalStyles}
+              >
+                <CallForwardingModal
+                  closeModalFunction={() => {
+                    setCallForwardingModalVisible(false);
+                  }}
+                />
+              </Modal>
             </div>
           </div>
           <div className="call-history-area">
             <div className="section-title">
-              <span className="section-title-inner">전화 이력</span>
+              {/* <span className="section-title-inner">전화 이력</span>
               <span className="section-title-tab current">전체</span>
               <span className="section-title-tab">수신</span>
               <span className="section-title-tab">발신</span>
-              <span className="section-title-tab">부재</span>
+              <span className="section-title-tab">부재</span> */}
             </div>
             <div className="call-history-table-area">
               <table className="call-history-table">
@@ -59,7 +103,7 @@ export default function CallPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
+                  {/* <tr>
                     <td>
                       <i className="icon-call-info make" title="발신"></i>
                     </td>
@@ -258,7 +302,7 @@ export default function CallPage() {
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
-                  </tr>
+                  </tr> */}
                 </tbody>
               </table>
             </div>

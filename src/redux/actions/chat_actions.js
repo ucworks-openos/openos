@@ -202,7 +202,7 @@ export async function addChatRoom(request) {
   // 여기서 체크해야할것은 만약 1:1 채팅이면
   // 이미 만들어진 채팅 방이 있는지 체크해서
   // 있다면 그 채팅방의 채팅 리스트를 보내주기
-  if (request.user_counts === 2) {
+  if (request.user_counts <= 2) {
     let chatRoomKey = request.selected_users.sort().join("|");
     request.room_key = chatRoomKey;
     let getChatListsResult = await getChatList(
@@ -233,26 +233,32 @@ export async function addChatRoomFromOrganization(orgMembers) {
 
   // 여기서 체크해야할것은 만약 1:1 채팅이면
   // 이미 만들어진 채팅 방이 있는지 체크해서
-  // 있다면 그 채팅방의 채팅 리스트를 보내주기
-  let finalSelectedKeys = orgMembers.split("|");
-  let newFinal = finalSelectedKeys;
-  newFinal.push(loginUser.userId);
+  // 있다면 그 채팅방의 채팅 리스트를 보내주기 
+  let chatUsers = orgMembers.split("|");
+  
+  chatUsers.push(loginUser.userId);
+  chatUsers=[...new Set(chatUsers)] 
 
+  let withoutMeUsers = chatUsers.filter(
+    (id) => id !== loginUser.userId
+  );
   const request = {
-    selected_users: finalSelectedKeys,
-    user_counts: newFinal.length,
-    chat_entry_ids: newFinal.join("|"),
-    chat_entry_names: await getDispUserNames(finalSelectedKeys),
+    selected_users: chatUsers,
+    user_counts: chatUsers.length,
+    chat_entry_ids: chatUsers.join("|"),
+    chat_entry_names: await getDispUserNames(withoutMeUsers),
     unread_count: 0,
     chat_content: "",
     last_line_key: "9999999999999999",
     chat_send_name: loginUser.userName,
     create_room_date: moment().format("YYYYMMDDHHmm"),
     chat_send_id: loginUser.userId,
-    room_type: getChatRoomType(newFinal),
+    room_type: getChatRoomType(chatUsers),
   };
 
-  if (request.user_counts === 2) {
+  console.log('addChatRoomFromOrganization', request)
+
+  if (request.user_counts <= 2) {
     let chatRoomKey = request.selected_users.sort().join("|");
     request.room_key = chatRoomKey;
     let getChatListsResult = await getChatList(
