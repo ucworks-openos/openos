@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../../../assets/css/Modal.css";
-import { EnodeGubun } from "../../../enum";
 import useTree from "../../../hooks/useTree";
-import moment from "moment";
-import { getInitialChatMessages } from "../../../redux/actions/chat_actions";
 import { syncronize } from "../../util";
 
 type TaddGroupModal = {

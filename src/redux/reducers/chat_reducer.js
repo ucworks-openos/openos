@@ -17,6 +17,7 @@ import {
   SET_EMOTICON_VISIBLE,
   SET_CURRENT_EMOTICON,
   UPDATE_CURRENT_CHAT_ROOM,
+  GET_ADDITIONAL_CHAT_MESSAGES,
 } from "../actions/types";
 
 export default function (
@@ -60,6 +61,11 @@ export default function (
       return {
         ...state,
         chatMessages: action.payload,
+      };
+    case GET_ADDITIONAL_CHAT_MESSAGES:
+      return {
+        ...state,
+        chatMessages: [...action.payload, ...state.chatMessages],
       };
     // case GET_MORE_CHATS_MESSAGES:
     //     return { ...state, chats: [...action.payload, ...state.chats], chatLength: action.payload.length, type: "normal" }

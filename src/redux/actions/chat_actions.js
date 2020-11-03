@@ -2,6 +2,7 @@ import axios from "axios";
 import {
   GET_INITIAL_CHAT_ROOMS,
   GET_INITIAL_CHAT_MESSAGES,
+  GET_ADDITIONAL_CHAT_MESSAGES,
   SET_CHAT_MESSAGES,
   SET_CURRENT_CHAT_ROOM,
   GET_MORE_CHATS_MESSAGES,
@@ -115,10 +116,10 @@ export async function getInitialChatRooms() {
   };
 }
 
-export async function getInitialChatMessages(
+export async function getChatMessages(
   chatRoomId,
   lastLineKey = "9999999999999999",
-  rowLimit = 99999
+  rowLimit = 50
 ) {
   let getChatListsResult = await getChatList(chatRoomId, lastLineKey, rowLimit);
 
@@ -127,10 +128,17 @@ export async function getInitialChatMessages(
   if (getChatLists !== undefined) {
     request = Array.isArray(getChatLists) ? getChatLists : [getChatLists];
   }
-  return {
-    type: GET_INITIAL_CHAT_MESSAGES,
-    payload: request,
-  };
+  if (lastLineKey === "9999999999999999") {
+    return {
+      type: GET_INITIAL_CHAT_MESSAGES,
+      payload: request,
+    };
+  } else {
+    return {
+      type: GET_ADDITIONAL_CHAT_MESSAGES,
+      payload: request,
+    };
+  }
 }
 
 export function addChatMessage(
@@ -221,7 +229,7 @@ export async function addChatRoom(request) {
 }
 
 export async function addChatRoomFromOrganization(orgMembers) {
-  const loginUser = window.require("electron").remote.getGlobal('USER')
+  const loginUser = window.require("electron").remote.getGlobal("USER");
 
   // 여기서 체크해야할것은 만약 1:1 채팅이면
   // 이미 만들어진 채팅 방이 있는지 체크해서
