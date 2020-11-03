@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addChatMessage,
-  getInitialChatMessages,
+  getChatMessages,
+  setChatAnchor,
   setChatMessages,
 } from "../../../redux/actions/chat_actions";
 import moment from "moment";
@@ -25,6 +26,7 @@ import {
 } from "../../../common/ipcCommunication/ipcUtil";
 import { Img } from "react-image";
 import DragAndDropSupport from "../../../common/components/DragAndDropSupport";
+import useIntersectionObserver from "../../../hooks/useIntersectionObserver";
 
 const { remote } = window.require("electron");
 const fs = remote.require("fs");
@@ -32,27 +34,60 @@ const downloadPath = remote.getGlobal("DOWNLOAD_PATH");
 
 function ChatMessages() {
   const dispatch = useDispatch();
-
+  const rootRef = useRef(null);
+  const targetRef = useRef(null);
+  const messageEndRef = useRef(null);
+  const dummyRef = useRef(null);
   const {
     currentChatRoom,
     chatMessages,
     emojiVisible,
     emoticonVisible,
     currentEmoticon,
+    chatAnchor,
+    lastReceivedChatMessages,
   } = useSelector((state) => state.chats);
+
+  useEffect(() => {
+    if (currentChatRoom) {
+      //새로 만든 채팅방(전 데이터가 데이테베이스에 없는)은 아직 데이터베이스에서 없기 때문에
+      //데이터 베이스에서 메시지를 가져오면 안됨.
+      //근데  채팅을 몇번 하고 난 후에 다시 들어올때도  last_line_key가  undefined이기에 ...
+      //채팅 리스트들을 없앤다 .. 어떻게 해야 하나 ...?
+      dispatch(getChatMessages(currentChatRoom.room_key));
+    }
+  }, [currentChatRoom]);
+
+  useEffect(() => {
+    console.log(`chatAnchor: `, chatAnchor);
+    if (!chatAnchor) {
+      if (messageEndRef.current) {
+        messageEndRef.current.scrollIntoView({
+          behavior: `smooth`,
+          inline: `start`,
+          block: `end`,
+        });
+      }
+    } else {
+      dummyRef.current.scrollIntoView();
+    }
+  }, [chatMessages]);
+
+  useIntersectionObserver({
+    root: rootRef.current,
+    target: targetRef.current,
+    handleIntersect: ([{ isIntersecting }]) => {
+      // * 메세지 개수가 50의 배수이면 서버에 남은 데이터가 있을 지도 모르므로 다시 요청, 50의 배수가 아니면 모두 받았으므로 요청하지 않음
+      if (isIntersecting && lastReceivedChatMessages?.length === 50) {
+        console.log(`loading chat...`);
+        dispatch(
+          getChatMessages(currentChatRoom.room_key, chatMessages?.[0].line_key)
+        );
+      }
+    },
+  });
+
   const loginUser = remote.getGlobal("USER");
-
-  useEffect(() => {
-    if (emojiVisible) {
-      scrollToBottom();
-    }
-  }, [emojiVisible]);
-
-  useEffect(() => {
-    if (emoticonVisible) {
-      scrollToBottom();
-    }
-  }, [emoticonVisible]);
 
   const handleDrop = async (files) => {
     if (!currentChatRoom) return;
@@ -93,30 +128,6 @@ function ChatMessages() {
   };
 
   // const [chatMessagesWithUserInfos, setChatMessagesWithUserInfos] = useState([])
-  const messagesEndRef = useRef();
-
-  const scrollToBottom = () => {
-    messagesEndRef.current.scrollIntoView({
-      block: "end",
-      inline: "start",
-    });
-  };
-
-  useEffect(() => {
-    if (currentChatRoom) {
-      //새로 만든 채팅방(전 데이터가 데이테베이스에 없는)은 아직 데이터베이스에서 없기 때문에
-      //데이터 베이스에서 메시지를 가져오면 안됨.
-      //근데  채팅을 몇번 하고 난 후에 다시 들어올때도  last_line_key가  undefined이기에 ...
-      //채팅 리스트들을 없앤다 .. 어떻게 해야 하나 ...?
-      dispatch(getInitialChatMessages(currentChatRoom.room_key));
-    }
-  }, [currentChatRoom]);
-
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      scrollToBottom();
-    }
-  });
 
   const download = async (
     serverIp,
@@ -279,23 +290,21 @@ function ChatMessages() {
                   </>
                 )}
 
-                <div className="speech-inner-wrap">
-                  {chatType === EchatType.file.toString() ? (
-                    <>
-                      {fileInfo()}
-                      {speechInfo()}
-                    </>
-                  ) : contents ? (
-                    <>
-                      <div className="speech-content">
-                        <pre>{contents}</pre>
-                      </div>
-                      {speechInfo()}
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                </div>
+                {chatType === EchatType.file.toString() ? (
+                  <div className="speech-inner-wrap">
+                    {fileInfo()}
+                    {speechInfo()}
+                  </div>
+                ) : contents ? (
+                  <div className="speech-inner-wrap">
+                    <div className="speech-content">
+                      <pre>{contents}</pre>
+                    </div>
+                    {speechInfo()}
+                  </div>
+                ) : (
+                  <></>
+                )}
               </div>
             </div>
           </>
@@ -336,23 +345,21 @@ function ChatMessages() {
                     </div>
                   </>
                 )}
-                <div className="speech-inner-wrap">
-                  {chatType === EchatType.file.toString() ? (
-                    <>
-                      {fileInfo()}
-                      {speechInfo()}
-                    </>
-                  ) : contents ? (
-                    <>
-                      <div className="speech-content">
-                        <pre>{contents}</pre>
-                      </div>
-                      {speechInfo()}
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                </div>
+                {chatType === EchatType.file.toString() ? (
+                  <div className="speech-inner-wrap">
+                    {fileInfo()}
+                    {speechInfo()}
+                  </div>
+                ) : contents ? (
+                  <div className="speech-inner-wrap">
+                    <div className="speech-content">
+                      <pre>{contents}</pre>
+                    </div>
+                    {speechInfo()}
+                  </div>
+                ) : (
+                  <></>
+                )}
               </div>
             </div>
           </>
@@ -360,22 +367,21 @@ function ChatMessages() {
       }
     });
 
-  if (chatMessages) {
-    return (
-      <DragAndDropSupport handleDrop={handleDrop}>
-        <div
-          className="chat-area"
-          style={{ bottom: (emojiVisible || emoticonVisible) && `520px` }}
-        >
-
-          {renderChatMessages()}
-          <div ref={messagesEndRef} />
-        </div>
-      </DragAndDropSupport>
-    );
-  } else {
-    return <div className="chat-area"></div>;
-  }
+  return (
+    <DragAndDropSupport handleDrop={handleDrop}>
+      <div
+        className="chat-area"
+        style={{ bottom: (emojiVisible || emoticonVisible) && `520px` }}
+        ref={rootRef}
+      >
+        <div ref={targetRef} />
+        <div style={{ height: `300px` }} />
+        <div ref={dummyRef} style={{ height: `1px` }} />
+        {renderChatMessages()}
+        <div ref={messageEndRef} />
+      </div>
+    </DragAndDropSupport>
+  );
 }
 
 const FileInfo = styled.div`
