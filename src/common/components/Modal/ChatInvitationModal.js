@@ -92,14 +92,14 @@ function ChatInvitationModal(props) {
             let allUserIds = asIsUserIds.concat(selectedUserIds);
             allUserIds = [...new Set(allUserIds)] // 중복제거
 
-            let withoutMeUsers = allUserIds.filter((userId) => userId !== loginUser.userId)
+            //let withoutMeUsers = allUserIds.filter((userId) => userId !== loginUser.userId)
 
             // 전체 대화 사용자
             let roomName = ''
             if (currRoom.chat_entry_names?.startsWith('UCWARE_CHAT_ROOM_TITLE')) {
                 roomName = currRoom.chat_entry_names;
             } else {
-                roomName = await getDispUserNames(withoutMeUsers)
+                roomName = await getDispUserNames(allUserIds)
             }
             
             writeInfo('UserInvite:', selectedUserIds)
@@ -124,7 +124,7 @@ function ChatInvitationModal(props) {
             }
 
             selectedUserIds = [...new Set(selectedUserIds)] // 중복제거
-            let withoutMeUsers = selectedUserIds.filter((userId) => userId !== loginUser.userId)
+            //let withoutMeUsers = selectedUserIds.filter((userId) => userId !== loginUser.userId)
 
             let chatEntryIds = selectedUserIds.join('|')
 
@@ -137,7 +137,7 @@ function ChatInvitationModal(props) {
                 selected_users: selectedUserIds,
                 user_counts: selectedUserIds.length,
                 chat_entry_ids: chatEntryIds,
-                chat_entry_names: await getDispUserNames(withoutMeUsers),
+                chat_entry_names: await getDispUserNames(selectedUserIds),
                 unread_count: 0,
                 chat_content: "",
                 last_line_key: '9999999999999999',

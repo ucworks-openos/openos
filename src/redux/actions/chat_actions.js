@@ -232,18 +232,18 @@ export async function addChatRoomFromOrganization(orgMembers) {
   chatUsers.push(loginUser.userId);
   chatUsers=[...new Set(chatUsers)] 
 
-  let withoutMeUsers = chatUsers;
-  if (chatUsers.length > 1) {
-    withoutMeUsers = chatUsers.filter(
-      (id) => id !== loginUser.userId
-    );
-  }
+  // let withoutMeUsers = chatUsers;
+  // if (chatUsers.length > 1) {
+  //   withoutMeUsers = chatUsers.filter(
+  //     (id) => id !== loginUser.userId
+  //   );
+  // }
   
   const request = {
     selected_users: chatUsers,
     user_counts: chatUsers.length,
     chat_entry_ids: chatUsers.join("|"),
-    chat_entry_names: await getDispUserNames(withoutMeUsers),
+    chat_entry_names: await getDispUserNames(chatUsers),
     unread_count: 0,
     chat_content: "",
     last_line_key: "9999999999999999",

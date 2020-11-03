@@ -110,7 +110,7 @@ export default function (
       };
     case ADD_RECEIVED_CHAT:
       // 대화방이 없는데 추가할려고 하면 버린다.
-      if (!state.chatRooms) return state;
+      if (state.chatRooms?.length == 0) return state;
 
       // 1. chatRooms       - 없다면 추가  - 있다면 컨텐츠 변경  - 순서 맨 위로 올리기
       // 2. chatMessages    - 만약 currenChatRoom 이라면 추가 시키기, 아니라면 추가시키지 않아도 됨 ?

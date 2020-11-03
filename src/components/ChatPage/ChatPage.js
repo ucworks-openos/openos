@@ -10,7 +10,7 @@ import {
   setCurrentChatRoomFromNoti,
 } from "../../redux/actions/chat_actions";
 import moment from "moment";
-import { writeLog } from "../../common/ipcCommunication/ipcLogger";
+import { writeDebug, writeError, writeLog } from "../../common/ipcCommunication/ipcLogger";
 import { getChatRoomByRoomKey } from "../../common/ipcCommunication/ipcMessage";
 import { getChatUserIds } from "../../common/util";
 
@@ -28,7 +28,7 @@ function ChatPage(props) {
       if (roomKey) {
           getChatRoomByRoomKey(roomKey).then((resData) => {
               let roomInfo = resData.data;
-              writeLog('moveToClickedChatRoom', roomInfo)   
+              writeDebug('moveToClickedChatRoom. RoomKey:%s', roomKey,  roomInfo)   
               
               let selectedUsers = getChatUserIds(roomInfo.chat_entry_ids)
               const chatRoomBody = {
@@ -45,7 +45,7 @@ function ChatPage(props) {
               }
               dispatch(moveToClickedChatRoom(chatRoomBody));  
           }).catch((err) => {
-              writeLog('getChatRoomByRoomKey fail!', err)
+              writeError('getChatRoomByRoomKey fail!', err)
           });
       }
 
