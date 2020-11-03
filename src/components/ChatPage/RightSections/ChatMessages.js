@@ -55,6 +55,8 @@ function ChatMessages() {
   }, [emoticonVisible]);
 
   const handleDrop = async (files) => {
+    if (!currentChatRoom) return;
+
     for (let i = 0; i < files.length; i++) {
       const resData = await uploadFile(files[i].path, files[i].path);
       console.log(`file upload complete: `, resData.data);
@@ -365,6 +367,7 @@ function ChatMessages() {
           className="chat-area"
           style={{ bottom: (emojiVisible || emoticonVisible) && `520px` }}
         >
+
           {renderChatMessages()}
           <div ref={messagesEndRef} />
         </div>

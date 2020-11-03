@@ -8,21 +8,25 @@ function MemberTooltip({ userIds, style, type }) {
   const [userInfos, setUserInfos] = useState([]);
 
   useEffect(() => {
-    let chatUserIds = userIds;
-    getUserInfos(chatUserIds).then(function (results) {
-      if (results.data.items && results.data.items.node_item !== "") {
 
-        setUserInfos(
-          Array.isArray(results.data.items.node_item)
-            ? results.data.items.node_item
-            : [results.data.items.node_item]
-        );
-      }
-    });
+    if (userIds && userIds.length > 0) {
+      let chatUserIds = userIds;
+      getUserInfos(chatUserIds).then(function (results) {
+        if (results.data.items && results.data.items.node_item !== "") {
+  
+          setUserInfos(
+            Array.isArray(results.data.items.node_item)
+              ? results.data.items.node_item
+              : [results.data.items.node_item]
+          );
+        }
+      });
+    }
+  
   }, [userIds]);
 
   const renderUserItem =
-    userInfos &&
+    userInfos && userInfos.length>0 &&
     userInfos.map((user) => (
       <li class="user-single" key={user.user_id.value}>
         <div class="user-profile-state-wrap">
@@ -57,15 +61,15 @@ function MemberTooltip({ userIds, style, type }) {
         </div>
       </li>
     ));
-
-  return (
-    <ul class="list-dropdown to-ppl-list" style={style}>
-      <h6 class="list-dropdown-label">{`${
-        type === `chat` ? `참여자 목록` : `수신인 목록`
-      }(${userInfos?.length})`}</h6>
-      {renderUserItem}
-    </ul>
-  );
+    
+    return (
+      <ul class="list-dropdown to-ppl-list" style={style}>
+        <h6 class="list-dropdown-label">{`${
+          type === `chat` ? `참여자 목록` : `수신인 목록`
+        }(${userInfos?.length})`}</h6>
+        {renderUserItem}
+      </ul>
+    );
 }
 
 export default MemberTooltip;
