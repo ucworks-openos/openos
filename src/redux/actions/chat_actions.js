@@ -32,6 +32,7 @@ import {
   getChatRoomName,
   getDispUserNames,
 } from "../../common/util";
+import { writeDebug } from "../../common/ipcCommunication/ipcLogger";
 
 /**
  * 32자리 UUID를 반환합니다
@@ -231,9 +232,13 @@ export async function addChatRoomFromOrganization(orgMembers) {
   chatUsers.push(loginUser.userId);
   chatUsers=[...new Set(chatUsers)] 
 
-  let withoutMeUsers = chatUsers.filter(
-    (id) => id !== loginUser.userId
-  );
+  let withoutMeUsers = chatUsers;
+  if (chatUsers.length > 1) {
+    withoutMeUsers = chatUsers.filter(
+      (id) => id !== loginUser.userId
+    );
+  }
+  
   const request = {
     selected_users: chatUsers,
     user_counts: chatUsers.length,
@@ -248,7 +253,7 @@ export async function addChatRoomFromOrganization(orgMembers) {
     room_type: getChatRoomType(chatUsers),
   };
 
-  console.log('addChatRoomFromOrganization', request)
+  writeDebug('addChatRoomFromOrganization', request)
 
   if (request.user_counts <= 2) {
     let chatRoomKey = request.selected_users.sort().join("|");
