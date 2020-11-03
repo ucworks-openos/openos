@@ -7,6 +7,7 @@ const csAPI = require('./net-command/command-cs-api');
 const nsAPI = require('./net-command/command-ns-api');
 const cmdConst = require("./net-command/command-const");
 const { goto } = require('./ipc/ipc-cmd-sender');
+const { closeAlert } = require('./notification/noti-window');
 
 function initGlobal() {
     /**
@@ -139,6 +140,8 @@ function logoutProc() {
         winston.error('LOGOUT Ex', err)
     }
     
+    closeAlert();
+
     initGlobal();
     goto('logout')
     winston.info('logout completed!');
