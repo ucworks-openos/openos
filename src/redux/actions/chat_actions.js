@@ -18,6 +18,7 @@ import {
   SET_EMOJI_VISIBLE,
   SET_EMOTICON_VISIBLE,
   SET_CURRENT_EMOTICON,
+  SET_CHAT_ANCHOR,
   UPDATE_CURRENT_CHAT_ROOM,
 } from "./types";
 import {
@@ -233,15 +234,13 @@ export async function addChatRoomFromOrganization(orgMembers) {
 
   // 여기서 체크해야할것은 만약 1:1 채팅이면
   // 이미 만들어진 채팅 방이 있는지 체크해서
-  // 있다면 그 채팅방의 채팅 리스트를 보내주기 
+  // 있다면 그 채팅방의 채팅 리스트를 보내주기
   let chatUsers = orgMembers.split("|");
-  
-  chatUsers.push(loginUser.userId);
-  chatUsers=[...new Set(chatUsers)] 
 
-  let withoutMeUsers = chatUsers.filter(
-    (id) => id !== loginUser.userId
-  );
+  chatUsers.push(loginUser.userId);
+  chatUsers = [...new Set(chatUsers)];
+
+  let withoutMeUsers = chatUsers.filter((id) => id !== loginUser.userId);
   const request = {
     selected_users: chatUsers,
     user_counts: chatUsers.length,
@@ -256,7 +255,7 @@ export async function addChatRoomFromOrganization(orgMembers) {
     room_type: getChatRoomType(chatUsers),
   };
 
-  console.log('addChatRoomFromOrganization', request)
+  console.log("addChatRoomFromOrganization", request);
 
   if (request.user_counts <= 2) {
     let chatRoomKey = request.selected_users.sort().join("|");

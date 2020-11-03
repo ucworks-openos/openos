@@ -5,6 +5,7 @@ import {
   SET_CHAT_MESSAGES,
   SET_CURRENT_CHAT_ROOM,
   // GET_MORE_CHATS_MESSAGES,
+  SET_CHAT_ANCHOR,
   ADD_CHAT_MESSAGE,
   ADD_RECEIVED_CHAT,
   ADD_CHAT_ROOM,
@@ -23,6 +24,7 @@ import {
 export default function (
   state = {
     unreadChatRoomKeys: [],
+    chatAnchor: true,
   },
   action
 ) {
@@ -61,11 +63,14 @@ export default function (
       return {
         ...state,
         chatMessages: action.payload,
+        lastReceivedChatMessages: action.payload,
       };
     case GET_ADDITIONAL_CHAT_MESSAGES:
       return {
         ...state,
         chatMessages: [...action.payload, ...state.chatMessages],
+        lastReceivedChatMessages: action.payload,
+        chatAnchor: true,
       };
     // case GET_MORE_CHATS_MESSAGES:
     //     return { ...state, chats: [...action.payload, ...state.chats], chatLength: action.payload.length, type: "normal" }
@@ -188,6 +193,7 @@ export default function (
         chatMessages: [...state.chatMessages, action.payload],
         chatRooms: newChatRooms, //현재 채팅룸을 가장 위로 올리기
         currentChatRoom: state.currentChatRoom, // 채팅룸 컨텐츠 정보 바꾸기
+        chatAnchor: false,
       };
     case SET_CURRENT_CHAT_ROOM_FROM_NOTI:
       if (!state.chatRooms) return state;

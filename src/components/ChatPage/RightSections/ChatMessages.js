@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   addChatMessage,
   getChatMessages,
+  setChatAnchor,
   setChatMessages,
 } from "../../../redux/actions/chat_actions";
 import moment from "moment";
@@ -36,12 +37,15 @@ function ChatMessages() {
   const rootRef = useRef(null);
   const targetRef = useRef(null);
   const messageEndRef = useRef(null);
+  const dummyRef = useRef(null);
   const {
     currentChatRoom,
     chatMessages,
     emojiVisible,
     emoticonVisible,
     currentEmoticon,
+    chatAnchor,
+    lastReceivedChatMessages,
   } = useSelector((state) => state.chats);
 
   useEffect(() => {
@@ -55,21 +59,26 @@ function ChatMessages() {
   }, [currentChatRoom]);
 
   useEffect(() => {
-    if (messageEndRef.current) {
-      messageEndRef.current.scrollIntoView({
-        behavior: `smooth`,
-        inline: `start`,
-        block: `end`,
-      });
+    console.log(`chatAnchor: `, chatAnchor);
+    if (!chatAnchor) {
+      if (messageEndRef.current) {
+        messageEndRef.current.scrollIntoView({
+          behavior: `smooth`,
+          inline: `start`,
+          block: `end`,
+        });
+      }
+    } else {
+      dummyRef.current.scrollIntoView();
     }
-  });
+  }, [chatMessages]);
 
   useIntersectionObserver({
     root: rootRef.current,
     target: targetRef.current,
     handleIntersect: ([{ isIntersecting }]) => {
       // * 메세지 개수가 50의 배수이면 서버에 남은 데이터가 있을 지도 모르므로 다시 요청, 50의 배수가 아니면 모두 받았으므로 요청하지 않음
-      if (isIntersecting && chatMessages?.length % 50 === 0) {
+      if (isIntersecting && lastReceivedChatMessages?.length === 50) {
         console.log(`loading chat...`);
         dispatch(
           getChatMessages(currentChatRoom.room_key, chatMessages?.[0].line_key)
@@ -366,6 +375,8 @@ function ChatMessages() {
         ref={rootRef}
       >
         <div ref={targetRef} />
+        <div style={{ height: `300px` }} />
+        <div ref={dummyRef} style={{ height: `1px` }} />
         {renderChatMessages()}
         <div ref={messageEndRef} />
       </div>
