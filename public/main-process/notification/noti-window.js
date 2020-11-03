@@ -67,7 +67,7 @@ exports.closeAlert = async function (notiId = '') {
   winston.info('Close Alert', notiId);
   if (notiWin) {
     try {
-      if (notiWin === '' || notiWin.title === notiId) {
+      if (notiId === '' || notiWin.title === notiId) {
         notiWin.close();
       }
     } catch (err) {
