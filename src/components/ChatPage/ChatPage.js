@@ -35,10 +35,11 @@ function ChatPage(props) {
                   selected_users: selectedUsers,
                   user_counts: selectedUsers.length,
                   chat_entry_ids: roomInfo.chat_entry_ids,
+                  chat_entry_names: roomInfo.chat_entry_names,
                   unread_count: 0,
                   room_key: roomKey,
                   chat_contents: roomInfo.chat_contents,
-                  chat_send_name: loginUser.userName,
+                  chat_send_name: roomInfo.chat_send_name,
                   create_room_date: moment().format("YYYYMMDDHHmm"),
                   chat_send_id: loginUser.userId,
                   last_line_key: '9999999999999999'
