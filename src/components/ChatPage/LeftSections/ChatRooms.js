@@ -41,7 +41,7 @@ function ChatRooms(props) {
       let roomName = getChatRoomName(room.chat_entry_names, chatUserIds);
 
       const isCurrentChatRoom =
-        room && room.room_key === currentChatRoom.room_key
+        room && room.room_key === currentChatRoom?.room_key
           ? "current-chat"
           : "";
       // ${chatUserCount >= 4 ? "n" : chatUserCount}

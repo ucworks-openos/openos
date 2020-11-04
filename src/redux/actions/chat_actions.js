@@ -35,6 +35,7 @@ import {
   getDispUserNames,
   delay,
 } from "../../common/util";
+import { writeDebug } from "../../common/ipcCommunication/ipcLogger";
 
 /**
  * 32자리 UUID를 반환합니다
@@ -195,6 +196,8 @@ export function emptyChatMessages() {
 }
 
 export async function updateCurrentChatRoom(newRoom) {
+  writeDebug('updateCurrentChatRoom', newRoom);
+
   return {
     type: UPDATE_CURRENT_CHAT_ROOM,
     payload: newRoom,
@@ -242,12 +245,11 @@ export async function addChatRoomFromOrganization(orgMembers) {
   chatUsers.push(loginUser.userId);
   chatUsers = [...new Set(chatUsers)];
 
-  let withoutMeUsers = chatUsers.filter((id) => id !== loginUser.userId);
   const request = {
     selected_users: chatUsers,
     user_counts: chatUsers.length,
     chat_entry_ids: chatUsers.join("|"),
-    chat_entry_names: await getDispUserNames(withoutMeUsers),
+    chat_entry_names: await getDispUserNames(chatUsers),
     unread_count: 0,
     chat_content: "",
     last_line_key: "9999999999999999",
@@ -257,7 +259,7 @@ export async function addChatRoomFromOrganization(orgMembers) {
     room_type: getChatRoomType(chatUsers),
   };
 
-  console.log("addChatRoomFromOrganization", request);
+  writeDebug('addChatRoomFromOrganization', request)
 
   if (request.user_counts <= 2) {
     let chatRoomKey = request.selected_users.sort().join("|");
