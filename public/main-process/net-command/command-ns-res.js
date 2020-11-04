@@ -12,6 +12,7 @@ const CmdConst = require('./command-const');
 const { callCallback } = require('./command-utils');
 const { getMultiple4DiffSize, getMultiple4Size } = require('../utils/utils-buffer');
 const { parseXmlToJSON } = require('../utils/utils-xmlParser');
+const { CAHT_TYPE } = require('../common/common-const');
 
 /**
  * 수신한 Command를 처리합니다. 
@@ -365,12 +366,15 @@ function notifyCmdProc(recvCmd) {
       let chatKey = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, chatKeySize);
       sInx += chatKeySize;
 
-      let chatData = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, chatDataSize);
+      let chatData = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, chatDataSize, global.ENC, true);
       chatData = EncUtil.decryptMessage(encryptKey, chatData);
       sInx += chatDataSize;
 
       let destId = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx);
       sInx += destIdSize;
+
+      // file command이면 CAHT_TYPE.FILE, fontName이 Emoticon으로 시작되면 CAHT_TYPE.EMOTICON
+      let chatType = chatCmd == CmdCodes.CHAT_RECV_FILE?CAHT_TYPE.FILE:fontName.startsWith('EMOTICON')?CAHT_TYPE.EMOTICON:CAHT_TYPE.CHAT;
 
       winston.debug('roomKey:' + roomKey
             + ', roomType:' + roomType
@@ -393,7 +397,9 @@ function notifyCmdProc(recvCmd) {
             + ', destIdSize:' + destIdSize
             + ', chatKey:' + chatKey
             + ', chatData:' + chatData
-            + ', destId:' + destId)
+            + ', destId:' + destId
+            + ', chatType:' + chatType)
+            
 
       notifyManager.chatReceived({
         roomKey:roomKey,
@@ -411,7 +417,8 @@ function notifyCmdProc(recvCmd) {
         chatCmd:chatCmd,
         chatKey:chatKey,
         chatData:chatData,
-        destId:destId
+        destId:destId,
+        chatType:chatType
       })
 
       break;

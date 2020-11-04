@@ -251,7 +251,7 @@ export default function OrganizationPage() {
       .filter((v: any) => v.gubun.value === EnodeGubun.ORGANIZATION_USER)
       .map((v: any) => v.user_id.value);
 
-    window.location.hash = `#/chat_from_organization/${userIds.join(`|`)}`;
+    window.location.hash = `#/chat/fromOrg/${userIds.join(`|`)}`;
   };
 
   const handleAddGroupToFavorite = async () => {
@@ -264,7 +264,7 @@ export default function OrganizationPage() {
   };
 
   const handleChat = () => {
-    window.location.hash = `#/chat_from_organization/${finalFinalSelectedKeys.join(
+    window.location.hash = `#/chat/fromOrg/${finalFinalSelectedKeys.join(
       `|`
     )}`;
   };

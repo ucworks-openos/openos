@@ -10,7 +10,7 @@ import {
   setCurrentChatRoomFromNoti,
 } from "../../redux/actions/chat_actions";
 import moment from "moment";
-import { writeDebug, writeError, writeLog } from "../../common/ipcCommunication/ipcLogger";
+import { writeDebug, writeError } from "../../common/ipcCommunication/ipcLogger";
 import { getChatRoomByRoomKey } from "../../common/ipcCommunication/ipcMessage";
 import { getChatUserIds } from "../../common/util";
 
@@ -19,8 +19,6 @@ function ChatPage(props) {
   const { remote } = window.require("electron")
 
   const loginUser = remote.getGlobal('USER');
-  const chatRooms = useSelector((state) => state.chats.chatRooms);
-
   const roomKey = props.match.params["roomKey"];
   const orgMembers = props.match.params["orgMembers"];
 
@@ -57,7 +55,6 @@ function ChatPage(props) {
     writeDebug('ChatPage From Organization', );
 
     if (orgMembers) {
-      // dispatch(emptyChatMessages())
       setTimeout(() => {
         dispatch(addChatRoomFromOrganization(orgMembers));
       }, 300);

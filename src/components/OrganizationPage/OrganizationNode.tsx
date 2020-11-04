@@ -68,7 +68,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
       setFinalSelectedKeys([data?.key]);
       setMessageModalVisible((prev: boolean) => !prev);
     } else if (doubleClickBehavior === `chat`) {
-      window.location.hash = `#/chat_from_organization/${data?.userId}`;
+      window.location.hash = `#/chat/fromOrg/${data?.userId}`;
     }
   };
 
@@ -97,7 +97,7 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
   };
 
   const handleChat = () => {
-    window.location.hash = `#/chat_from_organization/${data?.userId}`;
+    window.location.hash = `#/chat/fromOrg/${data?.userId}`;
   };
 
   /**

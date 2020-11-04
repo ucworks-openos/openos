@@ -75,7 +75,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
       setFinalSelectedKeys([data?.key]);
       setMessageModalVisible((prev: boolean) => !prev);
     } else if (doubleClickBehavior === `chat`) {
-      window.location.hash = `#/chat_from_organization/${data?.userId}`;
+      window.location.hash = `#/chat/fromOrg/${data?.userId}`;
     }
   };
 
@@ -96,7 +96,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
   };
 
   const handleChat = () => {
-    window.location.hash = `#/chat_from_organization/${data?.userId}`;
+    window.location.hash = `#/chat/fromOrg/${data?.userId}`;
   };
 
   const handleDetailToggle = (e: any) => {

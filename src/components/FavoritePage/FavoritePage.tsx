@@ -111,7 +111,6 @@ export default function FavoritePage() {
   // 로그인 사용자 정보 변경
   useEffect(() => {
     var loginUser = remote.getGlobal('USER');
-    writeDebug('FavoritePage -- ', loginUser)
 
     // 로그인이 성공했다.
     if (loginUser?.userId) {
@@ -145,8 +144,6 @@ export default function FavoritePage() {
   }, [targetInfo]);
 
   const getBuddyTree = async (): Promise<TgetBuddyTreeReturnTypes> => {
-    writeDebug('FavoritePage --getBuddyTree')
-
     const {
       data: {
         contacts: { node: responseMaybeArr },
@@ -235,7 +232,6 @@ export default function FavoritePage() {
   };
 
   const initiate = async () => {
-    writeDebug('FavoritePage --initiate')
     const { buddyTree, userIds, groupIds } = await getBuddyTree();
     setTreeData(buddyTree);
     setStatusMonitor(userIds);
@@ -261,14 +257,14 @@ export default function FavoritePage() {
 
     if (childrenKeys.length) {
       setFinalSelectedKeys(childrenKeys);
-      window.location.hash = `#/chat_from_organization/${childrenKeys.join(
+      window.location.hash = `#/chat/fromOrg/${childrenKeys.join(
         `|`
       )}`;
     }
   };
 
   const handleChat = () => {
-    window.location.hash = `#/chat_from_organization/${finalFinalSelectedKeys.join(
+    window.location.hash = `#/chat/fromOrg/${finalFinalSelectedKeys.join(
       `|`
     )}`;
   };

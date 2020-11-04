@@ -13,6 +13,8 @@ const { send } = require('../ipc/ipc-cmd-sender');
 const { createSock } = require('../utils/utils-net');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
+const fileDebugLog = false;
+
 /**
  * 파일을 다운로드 합니다.
  * 무조건 OTS로 암호화 합니다.
@@ -35,7 +37,6 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
 
 
         // 파일 다운로드는 파일마다 다른세션을 가진다. 
-        let fileEncKey;
         let fileLength = 0;
         let downloadedSize = 0
 
@@ -84,7 +85,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
             fsSock.write(cmdBuf);
             sndCommand = cmdHeader
         
-            winston.debug("File Download Command Send: %s", sndCommand);
+            if (fileDebugLog) winston.debug("File Download Command Send: %s", sndCommand);
         };
 
         // 받은 데이터 처리
@@ -92,7 +93,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
             rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
             sndCommand = null;
 
-            winston.debug('receiveCommandProc -  RCV_CMD: %s', resCmd);
+            if (fileDebugLog) winston.debug('receiveCommandProc -  RCV_CMD: %s', resCmd);
             let gubun;
             let readChunckLength = 0;
 
@@ -104,7 +105,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                         switch(resCmd.cmdCode) {
                             case CmdCodes.FS_LOGINREADY:
                                 // 2. download check 파일다운로드 정보를 전달
-                                winston.debug('2. downloadCheck',serverFileName);
+                                winston.info('2. downloadCheck',serverFileName);
                                 gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
                                 gubunBuf.writeInt32LE(1);
 
@@ -136,7 +137,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                                 }
                                 
                                 // 3. encKey Reqeust
-                                winston.debug('3. encKey Reqeust. File length ', fileLength);
+                                winston.info('3. encKey Reqeust. File length ', fileLength);
                                 let gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
                                 gubunBuf.writeInt32LE(1);
 
@@ -166,7 +167,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                         gubun = resCmd.data.readInt32LE(0);
                         let encData = BufUtil.getStringWithoutEndOfString(resCmd.data, 4);
                         
-                        winston.debug('FS_DOWNLOADSEND %s', {encData:encData});
+                        if (fileDebugLog) winston.debug('FS_DOWNLOADSEND %s', {encData:encData});
                         // let spliterInx = encData.lastIndexOf(CmdConst.SEP_PIPE);
                         // let encKey = encData.substring(0, spliterInx-1);
                         // let cipherTxt = encData.substring(spliterInx+1);
@@ -209,7 +210,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                             downloadedSize += readChunckLength
 
                             handleProgress(serverFileName, downloadedSize, fileLength)
-                            winston.debug('FS_DOWNLOADSEND Downloading...%s %s %s', readChunckLength, downloadedSize, fileLength);
+                            if (fileDebugLog) winston.debug('FS_DOWNLOADSEND Downloading...%s %s %s', readChunckLength, downloadedSize, fileLength);
                         
                         } catch (err) {
                             winston.error('file write error %s', err)
@@ -229,7 +230,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
 
                             // UI에서 진행률을 처리하기 위해
                             handleProgress(serverFileName, downloadedSize, fileLength)
-                            winston.debug('FS_DOWNLOADEND End Download %s %s %s', readChunckLength, downloadedSize, fileLength);
+                            winston.info('FS_DOWNLOADEND End Download %s %s %s', readChunckLength, downloadedSize, fileLength);
                         
                         } catch (err) {
                             winston.error('file write error  %s', err)
@@ -249,7 +250,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
         }
 
         let receiveDatasProc = function(rcvData){
-             winston.debug('Received Data: %s',rcvData.length);
+            if (fileDebugLog) winston.debug('Received Data: %s',rcvData.length);
 
              if (!rcvCommand){
                 let dataLen = fileCmdSize;
@@ -276,12 +277,10 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                 if (!rcvData || rcvData.length == 0) return;
 
             } else {
-
-                
                 // 또 받을 데이터 보다 더 들어 왔다면 자르고 남는것을 넘긴다.
                 let leftLen = rcvCommand.getResponseLength() - rcvCommand.readCnt;
 
-                winston.debug('More Receive  %s, %s', leftLen, rcvCommand)
+                if (fileDebugLog) winston.debug('More Receive  %s, %s', leftLen, rcvCommand)
                 if (rcvData.length > leftLen) {
                     // 읽을 데이터 보다 더 들어 왔다.
                     rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData.slice(0, leftLen)]);
@@ -306,14 +305,14 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                 }
             }
 
-            winston.debug('More Read Datas........ %s', rcvData.length);
+            if (fileDebugLog) winston.debug('More Read Datas........ %s', rcvData.length);
             receiveDatasProc(rcvData)
         };
 
         /** 지정 길이만큼 파일에 쓰고 길이를 반환한다. */
         let writeToFile = function(fileBuf, dataLength) {
             chunk = fileBuf.subarray(0, dataLength)
-            winston.debug('writeToFile buf %s', {len:chunk.length, buf:chunk});
+            if (fileDebugLog) winston.debug('writeToFile buf %s', {len:chunk.length, buf:chunk});
             //chunk = CryptoUtil.decryptBufferRC4(CmdConst.SESSION_KEY, chunk);
             
             try {
@@ -387,7 +386,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
             // 4. download end
 
             // 1. Download Ready를 하면 응답에 따라 완료까지 모두 진행이 된다.
-            winston.debug('1. download ready (login) %s',global.USER.userId);
+            winston.info('1. download ready (login) %s',global.USER.userId);
             gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
             gubunBuf.writeInt32LE(1);
             fileDataBuf = Buffer.alloc(CmdConst.BUF_LEN_FILEDATA);

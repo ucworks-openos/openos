@@ -59,8 +59,12 @@ ipcMain.on('login', async (event, loginId, loginPwd, isAutoLogin) => {
     if (resData.resCode) {
 
       global.USER.userName = resData.data.root_node.node_item.user_name.value;
-      global.ORG.orgGroupCode = resData.data.root_node.node_item.org_code.value;
-      global.ORG.groupCode = resData.data.root_node.node_item.user_group_code.value;
+
+      if (resData.data.root_node.node_item.org_code)
+        global.ORG.orgGroupCode = resData.data.root_node.node_item.org_code.value;
+
+      if (resData.data.root_node.node_item.user_group_code)
+        global.ORG.groupCode = resData.data.root_node.node_item.user_group_code.value;
 
       resData = await nsAPI.reqconnectNS(loginId)
     }

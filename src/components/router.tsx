@@ -33,11 +33,6 @@ const chatTestPage = React.lazy(() => import("./TestPages/ChatTestPage"));
 const TeamSpacePage = React.lazy(() => import("./TeamSpacePage/TeamSpacePage"));
 
 function RouterPage() {
-  const dispatch = useDispatch()
-
-
-  writeInfo('RouterPage Path:%s  LoginUser:%s', window.location.hash, remote.getGlobal('USER'));
-
 
   const loginSucessProc = (loginedId:string) => {
     
@@ -52,7 +47,6 @@ function RouterPage() {
       sessionStorage.setItem(`loginId`, loginedId)
 
       remote.getGlobal('USER').profile = loginUserData;
-
 
       window.location.hash = "#/favorite";
       window.location.reload();
@@ -98,22 +92,13 @@ function RouterPage() {
           <Route exact path="/organization" component={OrganizationPage} />
           <Route exact path="/about" component={AboutPage} />
           <Route exact path="/message" component={MessagePage} />
+
+          {/* chat page */}
           <Route exact path="/chat" component={ChatPage} />
+          <Route exact path="/chat/:roomKey" component={ChatPage} />
+          <Route exact path="/chat/fromOrg/:orgMembers" component={ChatPage} />
+
           <Route exact path="/call" component={CallPage} />
-
-          <Route exact path="/chat/:roomKey/:members" component={ChatPage} />
-          <Route
-            exact
-            // path="/chat/:roomKey/:members/:message"
-            path="/chat/:roomKey"
-            component={ChatPage}
-          />
-          <Route
-            exact
-            path="/chat_from_organization/:orgMembers"
-            component={ChatPage}
-          />
-
           <Route exact path="/team-space" component={TeamSpacePage} />
           <Route exact path="/site-config" component={SiteConfigPage} />
           <Route exact path="/netTest" component={NetTestPage} />
