@@ -24,7 +24,7 @@ import {
 export default function (
   state = {
     unreadChatRoomKeys: [],
-    chatAnchor: true,
+    chatAnchor: false,
   },
   action
 ) {
@@ -56,7 +56,11 @@ export default function (
         currentChatRoom: action.payload && action.payload[0],
       };
     case SET_CURRENT_CHAT_ROOM:
-      return { ...state, currentChatRoom: action.payload[0] };
+      return {
+        ...state,
+        currentChatRoom: action.payload[0],
+        chatAnchor: false,
+      };
     case SET_CHAT_ROOMS:
       return { ...state, chatRooms: action.payload };
     case GET_INITIAL_CHAT_MESSAGES:

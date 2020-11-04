@@ -37,7 +37,8 @@ function ChatMessages() {
   const rootRef = useRef(null);
   const targetRef = useRef(null);
   const messageEndRef = useRef(null);
-  const dummyRef = useRef(null);
+  const anchorRef = useRef(null);
+  const [, setState] = useState();
   const {
     currentChatRoom,
     chatMessages,
@@ -58,18 +59,15 @@ function ChatMessages() {
     }
   }, [currentChatRoom]);
 
+  // * chatAnchor === true : scroll이 anchorRef에 걸림. (인피니티 스크롤 시 true로 설정)
+  // * chatAnchor === false : scroll이 messageEndRef에 걸림. (채팅페이지 진입, 채팅방 이동, 메세지 입력 시 false로 설정)
   useEffect(() => {
-    console.log(`chatAnchor: `, chatAnchor);
     if (!chatAnchor) {
       if (messageEndRef.current) {
-        messageEndRef.current.scrollIntoView({
-          behavior: `smooth`,
-          inline: `start`,
-          block: `end`,
-        });
+        messageEndRef.current.scrollIntoView();
       }
     } else {
-      dummyRef.current.scrollIntoView();
+      anchorRef.current.scrollIntoView();
     }
   }, [chatMessages]);
 
@@ -77,7 +75,7 @@ function ChatMessages() {
     root: rootRef.current,
     target: targetRef.current,
     handleIntersect: ([{ isIntersecting }]) => {
-      // * 메세지 개수가 50의 배수이면 서버에 남은 데이터가 있을 지도 모르므로 다시 요청, 50의 배수가 아니면 모두 받았으므로 요청하지 않음
+      // * 마지막으로 받은 채팅이 50의 배수 갯수이면 서버에 잔여 데이터가 남아있을수도 있으므로 요청.
       if (isIntersecting && lastReceivedChatMessages?.length === 50) {
         console.log(`loading chat...`);
         dispatch(
@@ -375,8 +373,9 @@ function ChatMessages() {
         ref={rootRef}
       >
         <div ref={targetRef} />
-        <div style={{ height: `300px` }} />
-        <div ref={dummyRef} style={{ height: `1px` }} />
+        <div style={{ height: `100px` }} />
+        <div ref={anchorRef} style={{ height: `1px` }} />
+
         {renderChatMessages()}
         <div ref={messageEndRef} />
       </div>
