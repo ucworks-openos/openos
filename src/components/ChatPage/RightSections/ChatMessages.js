@@ -76,7 +76,7 @@ function ChatMessages() {
     target: targetRef.current,
     handleIntersect: ([{ isIntersecting }]) => {
       // * 마지막으로 받은 채팅이 50의 배수 갯수이면 서버에 잔여 데이터가 남아있을수도 있으므로 요청.
-      if (isIntersecting && lastReceivedChatMessages?.length === 50) {
+      if (isIntersecting && currentChatRoom && lastReceivedChatMessages?.length === 50) {
         console.log(`loading chat...`);
         dispatch(
           getChatMessages(currentChatRoom.room_key, chatMessages?.[0].line_key)

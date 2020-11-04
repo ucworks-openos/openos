@@ -257,14 +257,14 @@ export default function FavoritePage() {
 
     if (childrenKeys.length) {
       setFinalSelectedKeys(childrenKeys);
-      window.location.hash = `#/chat_from_organization/${childrenKeys.join(
+      window.location.hash = `#/chat/fromOrg/${childrenKeys.join(
         `|`
       )}`;
     }
   };
 
   const handleChat = () => {
-    window.location.hash = `#/chat_from_organization/${finalFinalSelectedKeys.join(
+    window.location.hash = `#/chat/fromOrg/${finalFinalSelectedKeys.join(
       `|`
     )}`;
   };

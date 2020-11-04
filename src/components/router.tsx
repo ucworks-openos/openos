@@ -92,22 +92,13 @@ function RouterPage() {
           <Route exact path="/organization" component={OrganizationPage} />
           <Route exact path="/about" component={AboutPage} />
           <Route exact path="/message" component={MessagePage} />
+
+          {/* chat page */}
           <Route exact path="/chat" component={ChatPage} />
+          <Route exact path="/chat/:roomKey" component={ChatPage} />
+          <Route exact path="/chat/fromOrg/:orgMembers" component={ChatPage} />
+
           <Route exact path="/call" component={CallPage} />
-
-          <Route exact path="/chat/:roomKey/:members" component={ChatPage} />
-          <Route
-            exact
-            // path="/chat/:roomKey/:members/:message"
-            path="/chat/:roomKey"
-            component={ChatPage}
-          />
-          <Route
-            exact
-            path="/chat_from_organization/:orgMembers"
-            component={ChatPage}
-          />
-
           <Route exact path="/team-space" component={TeamSpacePage} />
           <Route exact path="/site-config" component={SiteConfigPage} />
           <Route exact path="/netTest" component={NetTestPage} />

@@ -51,7 +51,10 @@ function RightPanel() {
 
         setChatRoomName(currentChatRoom.chat_entry_names?getChatRoomName(currentChatRoom.chat_entry_names): await getDispUserNames(userIds))
         setChatUserIds(userIds)
+      } else {
+        writeInfo('Chat RightPanel  CurrentRoomEmpty!');
       }
+
     }
     
     fetchData();

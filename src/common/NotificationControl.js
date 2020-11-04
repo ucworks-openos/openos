@@ -34,6 +34,8 @@ function NotificationControl() {
         currentChatRoom ? currentChatRoom.room_key : ""
       );
     }
+
+    writeDebug('NotificationControl.  CurrentChatRoomKey:%s  location:%s', sessionStorage.getItem("chatRoomKey"), window.location.hash);
   }, [currentChatRoom, window.location.hash]);
 
   //알림 수신처리
@@ -139,17 +141,8 @@ function NotificationControl() {
         case "NOTI_CHAT":
           writeLog("chat noti click!--");
           window.location.hash = `#/chat/${noti.notiId}`;
-          //dispatch(setCurrentChatRoomFromNoti(noti[0].notiId, chatRooms))
           dispatch(setCurrentChatRoomFromNoti());
 
-          // // let notiType = sentInfo[0]
-          // let message = sentInfo[3]
-          // let roomKey = sentInfo[1]
-          // let allMembers = sentInfo[2]
-          // if (window.location.hash.split("/")[1] !== "chat") {
-          //     writeLog('notiTitleClick--');
-          //     window.location.hash = `#/chat/${roomKey}/${allMembers}/${message}`;
-          // }
           break;
         case "NOTI_PHONE_CALLED":
           answerCall(noti.notiId)
@@ -172,13 +165,3 @@ function NotificationControl() {
 }
 
 export default NotificationControl;
-
-// let roomKey;
-// // SelectedUsers = ["jeen8337","inkyung"]
-// if (SelectedUsers.length === 2) {
-//     roomKey = SelectedUsers.sort().join("|")
-// } else {
-//     roomKey = LoggedInUserId + "_" + getUUID()
-// }
-
-// window.location.hash = `#/chat/${roomKey}/${allMembers}`;
