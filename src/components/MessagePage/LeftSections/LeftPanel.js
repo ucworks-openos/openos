@@ -5,6 +5,7 @@ import { setCurrentMessageListsType } from "../../../redux/actions/message_actio
 import Modal from "react-modal";
 import MessageInputModal from "../../../common/components/SendMessageModal/MessageInputModal";
 import { messageInputModalStyle } from "../../../common/styles";
+import { writeDebug } from "../../../common/ipcCommunication/ipcLogger";
 
 function LeftPanel() {
   const [isOpenMessageInputModal, setIsOpenMessageInputModal] = useState(false);
@@ -14,6 +15,9 @@ function LeftPanel() {
     (state) => state.messages.currentMessageListType
   );
   const onChangeMessageListsTypeClick = (msgType) => {
+
+    writeDebug('MessagePage -- currentMessageListType Change.', currentMessageListType );
+
     dispatch(setCurrentMessageListsType(msgType));
   };
   const onOpenMessageInputModalClick = () => {

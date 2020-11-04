@@ -16,15 +16,20 @@ function MessagePage() {
   );
 
   useEffect(() => {
-    dispatch(setCurrentMessageListsType("RECV"));
+    if (!currentMessageListType)
+      dispatch(setCurrentMessageListsType("RECV"));
   }, []);
 
   useEffect(() => {
-    dispatch(
-      getInitialMessageLists(
-        currentMessageListType ? currentMessageListType : "RECV"
-      )
-    );
+    let asIsTab = sessionStorage.getItem("currentMessageListType")
+    if (asIsTab !== currentMessageListType) {
+      dispatch(
+        getInitialMessageLists(
+          currentMessageListType ? currentMessageListType : "RECV"
+        )
+      );
+    }
+      
     sessionStorage.setItem("currentMessageListType", currentMessageListType);
   }, [currentMessageListType]);
 

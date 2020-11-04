@@ -12,9 +12,12 @@ import {
   getMessageDetail,
 } from "../../common/ipcCommunication/ipcMessage";
 import moment from "moment";
-import { writeError } from "../../common/ipcCommunication/ipcLogger";
+import { writeDebug, writeError } from "../../common/ipcCommunication/ipcLogger";
 
 export function setCurrentMessage(messageKey) {
+
+  writeDebug('setCurrentMessage', messageKey);
+
   return {
     type: SET_CURRENT_MESSAGE,
     payload: messageKey,
@@ -29,6 +32,8 @@ export function setMessageList(list) {
 }
 
 export async function getInitialMessageLists(messageType) {
+
+  writeDebug('getInitialMessageLists', messageType);
   const request = await getMessage(messageType, 0, 10);
   try {
     return {
@@ -82,6 +87,8 @@ export async function addMessage(
 }
 
 export function setCurrentMessageListsType(messageListsType) {
+  writeDebug('setCurrentMessageListsType', messageListsType);
+
   return {
     type: SET_CURRENT_MESSAGE_LISTS_TYPE,
     payload: messageListsType,
