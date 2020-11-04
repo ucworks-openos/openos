@@ -263,7 +263,7 @@ export default function (
           ...state,
           chatRooms: newChatRoomsHa,
           chatMessages: [state.chatMessages],
-          currentChatRoom: state.currentChatRoom?chatRoom:state.currentChatRoom
+          currentChatRoom: state.currentChatRoom?state.currentChatRoom:chatRoom
         };
       }
 

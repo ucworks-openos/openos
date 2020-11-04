@@ -31,11 +31,8 @@ export default function HeaderNavi() {
   } = useConfig();
 
   useEffect(() => {
-    writeDebug('HeaderNavi GLOBAL profile-- ', remote.getGlobal('USER').profile)
-
     getConfig();
     setMyInfo(remote.getGlobal('USER').profile);
-
   }, []);
 
   const getConfig = () => {
