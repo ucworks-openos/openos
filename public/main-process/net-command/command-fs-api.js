@@ -54,7 +54,7 @@ async function reqUploadFile(uploadKey, filePath) {
 
         let fileLength = fs.statSync(filePath).size;
 
-        winston.info('reqUploadFile %s, %s, %s',uploadKey, filePath, fileLength);
+        winston.info('1. UploadFile Start %s, %s, %s',uploadKey, filePath, fileLength);
 
         let res = await fsAPI.connectFS();
 
@@ -62,7 +62,6 @@ async function reqUploadFile(uploadKey, filePath) {
             // could not Connect! check file Server
             return new ResData(false, 'Can not Connect to FS.');
         }
-        winston.debugRanderer('reqUploadFile Connect completed %s, %s, %s',uploadKey, fileLength);
 
         // 1. fs login
         res = await loginReady(global.USER.userId);
@@ -71,7 +70,7 @@ async function reqUploadFile(uploadKey, filePath) {
             return new ResData(false, res);
         }
 
-        winston.debugRanderer('reqUploadFile loginReady completed %s, %s, %s',uploadKey, fileLength);
+        winston.info('2. UploadFile loginReady completed.', res);
 
         // 2. upload check
         let fileBaseName = require("path").basename(filePath);
@@ -81,7 +80,7 @@ async function reqUploadFile(uploadKey, filePath) {
             return new ResData(false, res);
         }
 
-        winston.debugRanderer('reqUploadFile uploadCheck completed %s, %s, %s',uploadKey, fileLength);
+        winston.info('3. UploadFile uploadCheck completed.', res);
 
         // 3. 암호키를 전송한다.
         res = await setUploadFileEncKey();
@@ -90,7 +89,7 @@ async function reqUploadFile(uploadKey, filePath) {
             return new ResData(false, res);
         }
 
-        winston.debugRanderer('reqUploadFile setUploadFileEncKey completed %s, %s, %s',uploadKey, fileLength);
+        winston.info('4. UploadFile setUploadFileEncKey completed.', res);
 
         // 4. 파일을 전송한다.
         res = await uploadFileStream(uploadKey, filePath);
@@ -98,7 +97,7 @@ async function reqUploadFile(uploadKey, filePath) {
             close();
             return new ResData(false, res);
         }
-        winston.debugRanderer('reqUploadFile uploadFileStream completed %s, %s, %s',uploadKey, fileLength);
+        winston.info('5. UploadFile uploadFileStream completed.', res);
 
         // 5. 파일 전송 완료        
         res = await endUploadFile();
@@ -106,6 +105,8 @@ async function reqUploadFile(uploadKey, filePath) {
             close();
             return new ResData(false, res);
         }
+
+        winston.info('6. UploadFile completed.', res);
         
         // 서버 파일명이 온다.
         return res;
