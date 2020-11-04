@@ -54,7 +54,7 @@ module.exports = Object.freeze({
     '  FROM tbl_chat_list AS a,  '+
     '       tbl_chat_room AS b   '+
     ' WHERE (a.chat_user_id  = \':USER_ID:\') ' +
-    '   AND (a.chat_state = \'E\' ) ' +
+    //'   AND (a.chat_state = \'E\' ) ' +
     '   AND (a.room_key      = b.room_key)' +
     '   AND a.room_key = \':CAHT_ROOM_KEY:\'',
 

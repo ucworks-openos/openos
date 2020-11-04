@@ -61,7 +61,7 @@ function NotificationControl() {
       );
 
 
-
+      
       // 본인이 보낸 메세지는 무시한다.
       if (chat.sendId === sessionStorage.getItem("loginId")) {
         writeLog("It's my message");
@@ -72,7 +72,6 @@ function NotificationControl() {
         case ChatCommand.CHAT_DATA_LINE: // 대화 메세지
         case ChatCommand.CHAT_DATA_NEW_CHAT:
           dispatch(addReceivedChat(chat));
-          console.log(`new chat!!`, chat);
           // 내가 대화 room_key에 해당하지 않는 페이지에 있을 때만 알림 받기
           if (chat.roomKey !== selectedChatRoomKey) {
             //알림 받기

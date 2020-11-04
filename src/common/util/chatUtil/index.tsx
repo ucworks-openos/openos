@@ -49,5 +49,5 @@ export const getChatUserIds = (chatEntryIds: String) => {
  * @param chatUserIds
  */
 export const getChatRoomType = (chatUserIds: Array<String>) => {
-  return chatUserIds?.length <= 2 ? 1 : 2;
+  return chatUserIds?.length <= 2 ? '1' : '2';
 };

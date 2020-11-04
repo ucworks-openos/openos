@@ -10,7 +10,7 @@ import {
   setCurrentChatRoomFromNoti,
 } from "../../redux/actions/chat_actions";
 import moment from "moment";
-import { writeLog } from "../../common/ipcCommunication/ipcLogger";
+import { writeDebug, writeError, writeLog } from "../../common/ipcCommunication/ipcLogger";
 import { getChatRoomByRoomKey } from "../../common/ipcCommunication/ipcMessage";
 import { getChatUserIds } from "../../common/util";
 
@@ -28,37 +28,39 @@ function ChatPage(props) {
       if (roomKey) {
           getChatRoomByRoomKey(roomKey).then((resData) => {
               let roomInfo = resData.data;
-              writeLog('moveToClickedChatRoom', roomInfo)   
+              writeDebug('moveToClickedChatRoom. RoomKey:%s', roomKey,  roomInfo)   
               
               let selectedUsers = getChatUserIds(roomInfo.chat_entry_ids)
               const chatRoomBody = {
                   selected_users: selectedUsers,
                   user_counts: selectedUsers.length,
                   chat_entry_ids: roomInfo.chat_entry_ids,
+                  chat_entry_names: roomInfo.chat_entry_names,
                   unread_count: 0,
                   room_key: roomKey,
                   chat_contents: roomInfo.chat_contents,
-                  chat_send_name: loginUser.userName,
+                  chat_send_name: roomInfo.chat_send_name,
                   create_room_date: moment().format("YYYYMMDDHHmm"),
                   chat_send_id: loginUser.userId,
                   last_line_key: '9999999999999999'
               }
               dispatch(moveToClickedChatRoom(chatRoomBody));  
           }).catch((err) => {
-              writeLog('getChatRoomByRoomKey fail!', err)
+              writeError('getChatRoomByRoomKey fail!', err)
           });
       }
 
   }, [roomKey]);
 
   useEffect(() => {
-    if (chatRooms) {
-      if (orgMembers) {
-        // dispatch(emptyChatMessages())
-        setTimeout(() => {
-          dispatch(addChatRoomFromOrganization(orgMembers));
-        }, 300);
-      }
+
+    writeDebug('ChatPage From Organization', );
+
+    if (orgMembers) {
+      // dispatch(emptyChatMessages())
+      setTimeout(() => {
+        dispatch(addChatRoomFromOrganization(orgMembers));
+      }, 300);
     }
   }, [orgMembers]);
 

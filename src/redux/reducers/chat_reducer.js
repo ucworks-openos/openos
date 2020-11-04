@@ -1,4 +1,7 @@
 import { addSyntheticTrailingComment } from "typescript";
+import { writeDebug, writeError } from "../../common/ipcCommunication/ipcLogger";
+import { getChatRoomByRoomKey } from "../../common/ipcCommunication/ipcMessage";
+import { getChatUserIds } from "../../common/util";
 import {
   GET_INITIAL_CHAT_ROOMS,
   GET_INITIAL_CHAT_MESSAGES,
@@ -120,65 +123,92 @@ export default function (
         ],
       };
     case ADD_RECEIVED_CHAT:
-      // 대화방이 없는데 추가할려고 하면 버린다.
-      if (!state.chatRooms) return state;
+      if (!state.chatRooms) {
+        state.chatRooms = [];
+      }
 
-      // 1. chatRooms       - 없다면 추가  - 있다면 컨텐츠 변경  - 순서 맨 위로 올리기
-      // 2. chatMessages    - 만약 currenChatRoom 이라면 추가 시키기, 아니라면 추가시키지 않아도 됨 ?
+      if (!state.chatMessages) {
+        state.chatMessages = []
+      }
+
       let newMessage = action.payload;
       let roomKey = newMessage.roomKey;
-      let sendId = newMessage.sendId;
-      let sendName = newMessage.sendName;
-      let sendDate = newMessage.sendDate;
-      let lineKey = newMessage.lineKey;
-      let destId = newMessage.destId;
-      let userIdArray = destId.split("|");
-      let fontName = newMessage.fontName;
-      let chatData = newMessage.chatData;
-      let unreadCount = newMessage.unreadCount;
 
-      const chatRoom = {
-        selected_users: userIdArray,
-        user_counts: userIdArray.length,
-        chat_entry_ids: destId,
-        unread_count: 0,
-        chat_font_name: fontName,
-        chat_contents: chatData,
-        chat_send_name: sendName,
-        create_room_date: sendDate,
-        chat_send_id: sendId,
-        room_key: roomKey,
-        //last_line_key: lineKey,
-      };
+      let chatRoom = state.chatRooms.filter((room)=>room.room_key === roomKey);
 
-      let chatMessageBody = {
-        chat_contents: chatData,
-        chat_font_name: fontName,
-        chat_send_name: sendName,
-        chat_send_date: sendDate,
-        read_count: unreadCount,
-        chat_send_id: sendId,
-      };
+      if (chatRoom.length > 0) {
+        // 이미 방이 있다.
+        writeDebug('ADD_RECEIVED_CHAT. Already Has Room:%s', roomKey,  chatRoom);
+        let newChatRoomsWithoutReceivedChatRoom = state.chatRooms.filter(
+          (r) => r.room_key !== roomKey
+        );
+        let newChatRoomsHa = [chatRoom[0], ...newChatRoomsWithoutReceivedChatRoom];
+  
+        let isCurrentMessage = false;
+        if (state.currentChatRoom?.room_key === newMessage.roomKey) {
+          isCurrentMessage = true;
+          state.currentChatRoom.chat_contents = newMessage.chatData;
+        }
+  
+        return {
+          ...state,
+          chatRooms: newChatRoomsHa,
+          chatMessages: isCurrentMessage
+            ? [...state.chatMessages, {
+              chat_contents: newMessage.chatData,
+              chat_font_name: newMessage.fontName,
+              chat_send_name: newMessage.sendName,
+              chat_send_date: newMessage.sendDate,
+              read_count: newMessage.unreadCount,
+              chat_send_id: newMessage.sendId,
+            }]
+            : [...state.chatMessages],
+          currentChatRoom: state.currentChatRoom,
+        };
+      } else {
+        // 목록에 방이 없다면 정보를 받아와서 추가한다. // 비동기가 안된다...
 
-      let newChatRoomsWithoutReceivedChatRoom = state.chatRooms.filter(
-        (r) => r.room_key !== roomKey
-      );
-      let newChatRoomsHa = [chatRoom, ...newChatRoomsWithoutReceivedChatRoom];
+        let roomKey = newMessage.roomKey;
+        let sendId = newMessage.sendId;
+        let sendName = newMessage.sendName;
+        let sendDate = newMessage.sendDate;
+        let lineKey = newMessage.lineKey;
+        let destId = newMessage.destId;
+        let userIdArray = destId.split("|");
+        let fontName = newMessage.fontName;
+        let chatData = newMessage.chatData;
+        let unreadCount = newMessage.unreadCount;
 
-      let isCurrentMessage = false;
-      if (state.currentChatRoom.room_key === newMessage.roomKey) {
-        isCurrentMessage = true;
-        state.currentChatRoom.chat_contents = chatData;
+        chatRoom = {
+          selected_users: userIdArray,
+          user_counts: userIdArray.length,
+          chat_entry_ids: destId,
+          unread_count: 0,
+          chat_font_name: fontName,
+          chat_contents: chatData,
+          chat_send_name: sendName,
+          create_room_date: sendDate,
+          chat_send_id: sendId,
+          room_key: roomKey,
+          //last_line_key: lineKey,
+        };
+
+        let newChatRoomsHa = [chatRoom, ...state.chatRooms];
+
+        console.log('ADD_RECEIVED_CHAT. GetRoom RoomKey:%s', roomKey,  newChatRoomsHa)   
+
+        return {
+          ...state,
+          chatRooms: newChatRoomsHa,
+          currentChatRoom: state.currentChatRoom?chatRoom:state.currentChatRoom
+        };
       }
-      return {
-        ...state,
-        chatRooms: newChatRoomsHa,
-        chatMessages: isCurrentMessage
-          ? [...state.chatMessages, chatMessageBody]
-          : [...state.chatMessages],
-        currentChatRoom: state.currentChatRoom,
-      };
+
     case ADD_CHAT_MESSAGE:
+      writeDebug('ADD_CHAT_MESSAGE  currentRoomKey:%s' , state.currentChatRoom?.room_key, action.payload);
+
+      if (!(state.currentChatRoom?.room_key)) return state;
+
       state.currentChatRoom.chat_contents = action.payload.chat_contents;
       state.currentChatRoom.last_line_key = action.payload.line_key;
       let newChatRoomsWithoutCurrentChatRoom = state.chatRooms.filter(
