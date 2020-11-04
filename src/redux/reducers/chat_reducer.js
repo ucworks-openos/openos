@@ -64,9 +64,6 @@ export default function (
     case SET_CHAT_ROOMS:
       return { ...state, chatRooms: action.payload };
     case GET_INITIAL_CHAT_MESSAGES:
-
-      writeDebug('GET_INITIAL_CHAT_MESSAGES', action.payload);
-
       return {
         ...state,
         chatMessages: action.payload,
