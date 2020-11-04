@@ -33,6 +33,7 @@ import {
   getChatRoomType,
   getChatRoomName,
   getDispUserNames,
+  delay,
 } from "../../common/util";
 import { writeDebug } from "../../common/ipcCommunication/ipcLogger";
 
@@ -136,6 +137,7 @@ export async function getChatMessages(
       payload: request,
     };
   } else {
+    await delay(1000);
     return {
       type: GET_ADDITIONAL_CHAT_MESSAGES,
       payload: request,
