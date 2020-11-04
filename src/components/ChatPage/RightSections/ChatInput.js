@@ -305,17 +305,17 @@ function ChatInput() {
             <label for="btn-add-file">
               <div className="input-action btn-add-file" title="파일전송"></div>
             </label>
-          {currentChatRoom?
-            <input
-            type="file"
-            multiple="multiple"
-            id="btn-add-file"
-            class="btn-add-file"
-            onChange={handleSelectFile}
-            />
-            :
-            <div class="btn-add-file" ></div>
-          }
+            {currentChatRoom ? (
+              <input
+                type="file"
+                multiple="multiple"
+                id="btn-add-file"
+                class="btn-add-file"
+                onChange={handleSelectFile}
+              />
+            ) : (
+              <div class="btn-add-file"></div>
+            )}
           </div>
         </div>
       </div>
