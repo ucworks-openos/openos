@@ -28,6 +28,7 @@ exports.showAlert = async function (notiType, notiId, title, message, senderName
     x: dispSize.width - notiWidth, y: dispSize.height - notiHeight,
     width: notiWidth, height: notiHeight,
     //backgroundColor: '#2e2029',
+    alwaysOnTop: true,
     modal: true,
     resizable: false,
     focusable: false, // 포커스를 가져가 버리는데
@@ -57,6 +58,9 @@ exports.showAlert = async function (notiType, notiId, title, message, senderName
   notiWin.loadURL(notifyFile)
     .then(() => {})
     .catch((err) => {winston.err('showAlert fail!', err)});
+
+  // notiWin.focus();
+  // notiWin.blur();
 }
 
 /**

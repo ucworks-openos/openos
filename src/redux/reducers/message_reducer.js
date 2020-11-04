@@ -51,7 +51,9 @@ export default function (state = {}, action) {
         messageLists: [action.payload, ...state.messageLists],
       };
     case SET_CURRENT_MESSAGE_LISTS_TYPE:
-      return { ...state, currentMessageListType: action.payload };
+      if (state.currentMessageListType !== action.payload) {
+        return { ...state, currentMessageListType: action.payload };
+      } 
 
     // case DELETE_CHAT_MESSAGE:
     //     let deletedMessage = action.payload

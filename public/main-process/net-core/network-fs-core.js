@@ -155,7 +155,7 @@ function receiveDatasProc(rcvData){
  * @param {CommandHeader} cmdHeader 
  * @param {Buffer} dataBuf 
  */
-function writeCommand(cmdHeader, dataBuf = null) {
+function writeCommand(cmdHeader, dataBuf = null, logging=false) {
     rcvCommand = null;
     global.FS_SEND_COMMAND = null;
     // Header Buffer
@@ -183,7 +183,7 @@ function writeCommand(cmdHeader, dataBuf = null) {
     fsSock.write(cmdBuf);
     global.FS_SEND_COMMAND = cmdHeader
 
-    winston.debug("write FS Command : %s", global.FS_SEND_COMMAND);
+    if (logging) winston.debug("write FS Command : %s", global.FS_SEND_COMMAND);
  };
 
 module.exports = {

@@ -1,13 +1,12 @@
 import React from "react";
-import userThumbnail from "../../../assets/images/img_user-thumbnail.png";
 import {
-  getMessageHo,
   setCurrentMessage,
   getMoreMessages,
 } from "../../../redux/actions/message_actions";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
+import { writeDebug } from "../../../common/ipcCommunication/ipcLogger";
 
 function MessagesLists() {
   const dispatch = useDispatch();
@@ -100,6 +99,7 @@ function MessagesLists() {
 
   return (
     <div>
+      {writeDebug('MessageList. CurrentMessage', currentMessage)}
       {renderMessageLists()}
       {page * messageDefaultCounts <= messageCounts && (
         <div style={{ textAlign: "center" }}>
