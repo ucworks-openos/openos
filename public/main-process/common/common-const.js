@@ -21,10 +21,17 @@ module.exports = Object.freeze({
         CONFIRM: 'CONFIRM' // 수신확인용 쪽지
     },
 
-    /** 대화 유형 */
+    /** 대화방 유형 */
     CHAT_ROOM_TYPE : {
         SINGLE: 1, // 1:1
         MULTI: 2 // 1:N
+    },
+
+    /** 대화 유형 */
+    CAHT_TYPE : {
+        CHAT: "U",
+        EMOTICON: "E",
+        FILE: "R",
     },
 
     /** 날짜포멧 */

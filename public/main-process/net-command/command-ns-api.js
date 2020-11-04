@@ -438,9 +438,9 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTi
         roomKeyBuf = adjustBufferMultiple4(roomKeyBuf);
         winston.info('roomKey', roomKey , roomKeyBuf.length);
 
-        // roomType
+        // roomType  본인이 포함된다.
         let roomTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
-        roomTypeBuf.writeInt32LE(userIds.length>1?CHAT_ROOM_TYPE.MULTI:CHAT_ROOM_TYPE.SINGLE);
+        roomTypeBuf.writeInt32LE(userIds.length>2?CHAT_ROOM_TYPE.MULTI:CHAT_ROOM_TYPE.SINGLE);
 
         let lineKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         lineKeyBuf.write(lineKey, global.ENC);

@@ -191,7 +191,7 @@ function ChatMessages() {
       }
 
       const contents =
-        chat.chat_type === `U`
+        chat.chat_type === EchatType.chat.toString()
           ? chat.chat_contents
           : chat.chat_contents.split(`|`)[0];
 

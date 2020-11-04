@@ -1,7 +1,4 @@
-import { addSyntheticTrailingComment } from "typescript";
 import { writeDebug, writeError } from "../../common/ipcCommunication/ipcLogger";
-import { getChatRoomByRoomKey } from "../../common/ipcCommunication/ipcMessage";
-import { getChatUserIds } from "../../common/util";
 import {
   GET_INITIAL_CHAT_ROOMS,
   GET_INITIAL_CHAT_MESSAGES,
@@ -67,6 +64,9 @@ export default function (
     case SET_CHAT_ROOMS:
       return { ...state, chatRooms: action.payload };
     case GET_INITIAL_CHAT_MESSAGES:
+
+      writeDebug('GET_INITIAL_CHAT_MESSAGES', action.payload);
+
       return {
         ...state,
         chatMessages: action.payload,
@@ -137,12 +137,77 @@ export default function (
 
       let newMessage = action.payload;
       let roomKey = newMessage.roomKey;
+      
+      /** DB에서 가져와 표출되는 Data와 알림으로 들어오는 데이터 형식을 맞춘다. */
+      let chatMessageBody = {
+        room_key: newMessage.roomKey,
+        unread_count: newMessage.unreadCount,
+        line_key: newMessage.lineKey,
+        line_number: newMessage.lineNumber,
+        chat_entry_ids: newMessage.destId,
+        chat_send_id: newMessage.sendId,
+        chat_send_name: newMessage.sendName,
+        chat_send_date: newMessage.sendDate,
+        chat_type: newMessage.chatType,
+        chat_font_name: newMessage.fontName,
+        chat_font_size: newMessage.fontSize,
+        chat_font_color: newMessage.fontColor,
+        chat_font_style: newMessage.fontStyle,
+        chat_contents: newMessage.chatData
+      }
+
+      //#region Chat Noti Data From Noti
+      /* 
+        roomKey,
+        roomType,
+        lineKey,
+        lineNumber,
+        unreadCount,
+        sendDate,
+        fontSize,
+        fontStyle,
+        fontColor,
+        fontName,
+        sendId,
+        sendName,
+        chatCmd,
+        chatKey,
+        chatData,
+        destId,
+        chatType
+      */
+      //#endregion
+
+      //#region Chat View Data From DB
+      /*
+      index: '50',
+      room_key: 'kitt1|kitt2',
+      read_count: '1',
+      unread_count: '1',
+      line_key: '1604466678446612',
+      line_number: '1',
+      line_num_date: '20201104051118636',
+      chat_entry_ids: 'kitt2|kitt1',
+      chat_entry_names: '',
+      chat_send_id: 'kitt2',
+      chat_send_name: '?ъ옱??,
+      chat_send_date: '20201104051118636',
+      chat_type: 'E',
+      chat_font_name: 'EMOTICON tab_01 006.gif',
+      chat_font_size: '0',
+      chat_font_color: '$0',
+      chat_font_style: '0',
+      chat_encrypt_key: 'OTS|0a2ca620',
+      chat_contents: ''
+      */
+      //#endregion Chat View Data
+
 
       let chatRoom = state.chatRooms.filter((room)=>room.room_key === roomKey);
 
       if (chatRoom.length > 0) {
         // 이미 방이 있다.
-        writeDebug('ADD_RECEIVED_CHAT. Already Has Room:%s', roomKey,  chatRoom);
+        writeDebug('ADD_RECEIVED_CHAT. Already Has Room:%s', roomKey);
         let newChatRoomsWithoutReceivedChatRoom = state.chatRooms.filter(
           (r) => r.room_key !== roomKey
         );
@@ -153,19 +218,12 @@ export default function (
           isCurrentMessage = true;
           state.currentChatRoom.chat_contents = newMessage.chatData;
         }
-  
+
         return {
           ...state,
           chatRooms: newChatRoomsHa,
           chatMessages: isCurrentMessage
-            ? [...state.chatMessages, {
-              chat_contents: newMessage.chatData,
-              chat_font_name: newMessage.fontName,
-              chat_send_name: newMessage.sendName,
-              chat_send_date: newMessage.sendDate,
-              read_count: newMessage.unreadCount,
-              chat_send_id: newMessage.sendId,
-            }]
+            ? [...state.chatMessages, chatMessageBody]
             : [...state.chatMessages],
           currentChatRoom: state.currentChatRoom,
         };
@@ -199,11 +257,12 @@ export default function (
 
         let newChatRoomsHa = [chatRoom, ...state.chatRooms];
 
-        console.log('ADD_RECEIVED_CHAT. GetRoom RoomKey:%s', roomKey,  newChatRoomsHa)   
+        writeDebug('ADD_RECEIVED_CHAT. GetRoom RoomKey:%s', roomKey)   
 
         return {
           ...state,
           chatRooms: newChatRoomsHa,
+          chatMessages: [state.chatMessages],
           currentChatRoom: state.currentChatRoom?chatRoom:state.currentChatRoom
         };
       }
