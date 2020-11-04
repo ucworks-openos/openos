@@ -33,11 +33,6 @@ const chatTestPage = React.lazy(() => import("./TestPages/ChatTestPage"));
 const TeamSpacePage = React.lazy(() => import("./TeamSpacePage/TeamSpacePage"));
 
 function RouterPage() {
-  const dispatch = useDispatch()
-
-
-  writeInfo('RouterPage Path:%s  LoginUser:%s', window.location.hash, remote.getGlobal('USER'));
-
 
   const loginSucessProc = (loginedId:string) => {
     
@@ -52,7 +47,6 @@ function RouterPage() {
       sessionStorage.setItem(`loginId`, loginedId)
 
       remote.getGlobal('USER').profile = loginUserData;
-
 
       window.location.hash = "#/favorite";
       window.location.reload();
