@@ -185,6 +185,8 @@ export function emptyChatMessages() {
 }
 
 export async function updateCurrentChatRoom(newRoom) {
+  writeDebug('updateCurrentChatRoom', newRoom);
+
   return {
     type: UPDATE_CURRENT_CHAT_ROOM,
     payload: newRoom,

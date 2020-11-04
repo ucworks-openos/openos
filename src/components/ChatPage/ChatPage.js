@@ -53,13 +53,14 @@ function ChatPage(props) {
   }, [roomKey]);
 
   useEffect(() => {
-    if (chatRooms) {
-      if (orgMembers) {
-        // dispatch(emptyChatMessages())
-        setTimeout(() => {
-          dispatch(addChatRoomFromOrganization(orgMembers));
-        }, 300);
-      }
+
+    writeDebug('ChatPage From Organization', );
+
+    if (orgMembers) {
+      // dispatch(emptyChatMessages())
+      setTimeout(() => {
+        dispatch(addChatRoomFromOrganization(orgMembers));
+      }, 300);
     }
   }, [orgMembers]);
 

@@ -83,11 +83,19 @@ function ChatInvitationModal(props) {
         
         let selectedUserIds = [];
         selectedUsers.forEach(({ user_id }) => selectedUserIds.push(user_id.value));
+
+        let roomType = currRoom?.room_type;
+        // roomType이 저장된 값이 이상하다.
+        if (currRoom?.chat_entry_ids) {
+            let users = getChatUserIds(currRoom.chat_entry_ids);
+            roomType = getChatRoomType(users)
+        }
         
 
         // 기존 대화방에 추가하는지, 신규로 대화를 하는지 구분하여 처리
         // 1:1 -> 1:N으로 변하는 경우는 새로운 방을 생성한다. room_type:2 -> 1:N
-        if (currRoom?.room_type === '2') {
+        writeInfo('UserInvite. RoomType:', roomType, roomType === '2',currRoom.chat_entry_ids)
+        if (roomType === '2') {
             let asIsUserIds = getChatUserIds(currRoom.chat_entry_ids);
             let allUserIds = asIsUserIds.concat(selectedUserIds);
             allUserIds = [...new Set(allUserIds)] // 중복제거
