@@ -442,7 +442,7 @@
     left: 0;
     right: 0;
     bottom: 165px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 .chat-area::-webkit-scrollbar {
     width: 8px;
