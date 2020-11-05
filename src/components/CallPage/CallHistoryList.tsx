@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import Axios from "axios";
 import { writeDebug } from "../../common/ipcCommunication/ipcLogger";
 
 const { remote } = window.require("electron")
@@ -22,7 +22,7 @@ export default function CallHistoryList() {
             setCallDatas(dummy)
 
         } else {
-            const callHistoryInstance = axios.create({
+            const callHistoryInstance = Axios.create({
                 baseURL: 'http://192.168.0.172:8040/sucti',
                 timeout: 3000,
                 headers: {'X-Custom-Header': 'foobar'}

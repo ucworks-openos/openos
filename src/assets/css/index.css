@@ -842,6 +842,16 @@ a:hover,
   background-position: -375px center;
 }
 
+iframe {
+  display: block; /* iframes are inline by default */
+  /* background: #000; */
+  border: 0; /* Reset default border */
+  margin-top: 56px;
+  margin-left: 63px;
+  height: calc(100vh - 56px); /* Viewport-relative units */
+  width: calc(100vw - 63px);
+}
+
 /***************************************************************************
                             5. responsive
 ***************************************************************************/
