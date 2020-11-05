@@ -1,11 +1,64 @@
 import React, { useEffect, useState } from "react";
-import Axios from "axios";
+import axios from "axios";
+import { writeDebug } from "../../common/ipcCommunication/ipcLogger";
+
+const { remote } = window.require("electron")
 
 export default function CallHistoryList() {
+    const [callDatas, setCallDatas] = useState<any>([]);
 
     
-  useEffect(() => {
-  }, []);
+    useEffect(() => {
+
+        if (remote.getGlobal('IS_DEV')) {
+            // 개발모드에서는 CROS 오류가 발생함으로 DummyData 적용
+            let dummy = [
+                {callType: 2, duration: "00:00", memo: "", myPhoen: "3646", num: 2, otheNumber: "3647", otherUserInfo: "개발팀", otherUserName: "유민수 사원(개발팀)", otherUserType: 1, redirectCause: 0, ringStart: "2020-10-30 16:42:29", seq: "202010_598"},
+                {callType: 3, duration: "29:34", memo: "", myPhoen: "3646", num: 3, otheNumber: "3650", otherUserInfo: "개발팀", otherUserName: "Nhan Bao 주임(개발팀)", otherUserType: 1, redirectCause: 0, ringStart: "2020-10-30 16:41:42", seq: "202010_599"},
+                {callType: 3, duration: "00:02", memo: "", myPhoen: "3646", num: 4, otheNumber: "3650", otherUserInfo: "개발팀", otherUserName: "Nhan Bao 주임(개발팀)", otherUserType: 1, redirectCause: 0, ringStart: "2020-10-30 16:39:59", seq: "202010_596"},
+                {callType: 2, duration: "00:00", memo: "", myPhoen: "3646", num: 5, otheNumber: "3647", otherUserInfo: "개발팀", otherUserName: "유민수 사원(개발팀)", otherUserType: 1, redirectCause: 0, ringStart: "2020-10-30 16:39:48", seq: "202010_594"}, 
+                {callType: 3, duration: "00:05", memo: "", myPhoen: "3646", num: 11, otheNumber: "3650", otherUserInfo: "개발팀", otherUserName: "Nhan Bao 주임(개발팀)", otherUserType: 1, redirectCause: 0, ringStart: "2020-10-30 15:50:08", seq: "202010_574"}
+            ];
+            setCallDatas(dummy)
+
+        } else {
+            const callHistoryInstance = axios.create({
+                baseURL: 'http://192.168.0.172:8040/sucti',
+                timeout: 3000,
+                headers: {'X-Custom-Header': 'foobar'}
+            });
+    
+            callHistoryInstance.get('/getUserHistory/bslee?iDisplayStart=1&iDisplayLength=50')
+            .then(function (response) {
+                setCallDatas(response.data.data)
+            })
+            .catch(function (error) {
+                writeDebug('callHistoryInstance error. ', error)
+            });
+        }
+    }, []);
+
+    useEffect(() => {
+        writeDebug('callDatas State. ', callDatas);
+    }, [callDatas])
+
+    const getCallTypeClass = (callType:number) => {
+        switch(callType) {
+            case 1:
+                return {class:'icon-call-info make', title:'발신'}
+            case 2:
+                return {class:'icon-call-info get', title:'수신'}
+            case 3:
+                return {class:'icon-call-info missed', title:'부재중'}
+            default:
+                return {class:'icon-call-info', title:'알수없음'}
+        }
+
+        /*
+        className="icon-call-info pick-up"
+        title="착신전환"
+        */
+    };
 
   return (
     
@@ -25,212 +78,24 @@ export default function CallHistoryList() {
                 <th className="table-cell">일시</th>
                 <th className="table-cell">전화번호</th>
                 <th className="table-cell">이름</th>
-                <th className="table-cell">직급</th>
                 <th className="table-cell">소속</th>
-                <th className="table-cell">메모</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                <td>
-                    <i className="icon-call-info make" title="발신"></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>010-1234-5678</td>
-                <td>이하나</td>
-                <td>과장</td>
-                <td>개발팀</td>
-                <td>서류누락자 상기시킬것 지시</td>
-                </tr>
-                <tr>
-                <td>
-                    <i className="icon-call-info get" title="수신"></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>010-1234-5678</td>
-                <td>이하나</td>
-                <td>과장</td>
-                <td>개발팀</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <td>
-                    <i
-                    className="icon-call-info pick-up"
-                    title="착신전환"
-                    ></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>010-1234-5678</td>
-                <td>이하나</td>
-                <td>과장</td>
-                <td>개발팀</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <td>
-                    <i
-                    className="icon-call-info missed"
-                    title="부재중전화"
-                    ></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>031-1111-2222</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <td>
-                    <i className="icon-call-info make" title="발신"></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>010-1234-5678</td>
-                <td>이하나</td>
-                <td>과장</td>
-                <td>개발팀</td>
-                <td>서류누락자 상기시킬것 지시</td>
-                </tr>
-                <tr>
-                <td>
-                    <i className="icon-call-info get" title="수신"></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>010-1234-5678</td>
-                <td>이하나</td>
-                <td>과장</td>
-                <td>개발팀</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <td>
-                    <i
-                    className="icon-call-info pick-up"
-                    title="착신전환"
-                    ></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>010-1234-5678</td>
-                <td>이하나</td>
-                <td>과장</td>
-                <td>개발팀</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <td>
-                    <i
-                    className="icon-call-info missed"
-                    title="부재중전화"
-                    ></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>031-1111-2222</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <td>
-                    <i className="icon-call-info make" title="발신"></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>010-1234-5678</td>
-                <td>이하나</td>
-                <td>과장</td>
-                <td>개발팀</td>
-                <td>서류누락자 상기시킬것 지시</td>
-                </tr>
-                <tr>
-                <td>
-                    <i className="icon-call-info get" title="수신"></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>010-1234-5678</td>
-                <td>이하나</td>
-                <td>과장</td>
-                <td>개발팀</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <td>
-                    <i
-                    className="icon-call-info pick-up"
-                    title="착신전환"
-                    ></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>010-1234-5678</td>
-                <td>이하나</td>
-                <td>과장</td>
-                <td>개발팀</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <td>
-                    <i
-                    className="icon-call-info missed"
-                    title="부재중전화"
-                    ></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>031-1111-2222</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <td>
-                    <i className="icon-call-info make" title="발신"></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>010-1234-5678</td>
-                <td>이하나</td>
-                <td>과장</td>
-                <td>개발팀</td>
-                <td>서류누락자 상기시킬것 지시</td>
-                </tr>
-                <tr>
-                <td>
-                    <i className="icon-call-info get" title="수신"></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>010-1234-5678</td>
-                <td>이하나</td>
-                <td>과장</td>
-                <td>개발팀</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <td>
-                    <i
-                    className="icon-call-info pick-up"
-                    title="착신전환"
-                    ></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>010-1234-5678</td>
-                <td>이하나</td>
-                <td>과장</td>
-                <td>개발팀</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <td>
-                    <i
-                    className="icon-call-info missed"
-                    title="부재중전화"
-                    ></i>
-                </td>
-                <td>2020-09-22 14:42</td>
-                <td>031-1111-2222</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                </tr>
+                {callDatas &&
+                    callDatas.map((call:any, index:number) => {
+                        let callType = getCallTypeClass(call.callType);
+
+                        return (<tr>
+                            <td>
+                                <i className={callType.class} title={callType.title}></i>
+                            </td>
+                            <td>{call.ringStart}</td>
+                            <td>{call.otheNumber}</td>
+                            <td>{call.otherUserName}</td>
+                            <td>{call.otherUserInfo}</td>
+                            </tr>);
+                    })}
             </tbody>
             </table>
         </div>

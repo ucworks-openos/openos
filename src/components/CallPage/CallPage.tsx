@@ -8,7 +8,6 @@ import {
 } from "../../common/ipcCommunication/ipcIpPhone";
 import "./CallPage.css";
 import CallForwardingModal from "./CallForwardingModal";
-import Axios from "axios";
 import CallHistoryList from "./CallHistoryList";
 
 export default function CallPage() {
