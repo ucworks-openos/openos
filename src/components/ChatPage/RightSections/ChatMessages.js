@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addChatMessage,
@@ -20,7 +20,6 @@ function ChatMessages() {
   const targetRef = useRef(null);
   const messageEndRef = useRef(null);
   const anchorRef = useRef(null);
-  const [, setState] = useState();
   const {
     currentChatRoom,
     chatMessages,
@@ -47,6 +46,11 @@ function ChatMessages() {
     if (!chatAnchor) {
       if (messageEndRef.current) {
         messageEndRef.current.scrollIntoView();
+
+        // * 스크롤이 끝까지 안내려가는 현상이 있으므로 0.1초 뒤에 다시 스크롤을 내림
+        setTimeout(() => {
+          messageEndRef.current.scrollIntoView();
+        }, 100);
       }
     } else {
       anchorRef.current.scrollIntoView();
@@ -122,7 +126,7 @@ function ChatMessages() {
       >
         <div ref={targetRef} />
         <div style={{ height: `100px` }} />
-        <div ref={anchorRef} style={{ height: `1px` }} />
+        <div ref={anchorRef} />
         <>
           {chatMessages?.map((chat, index, list) => {
             if (
