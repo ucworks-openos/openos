@@ -41,7 +41,11 @@ export const writeError = (msg, ...args) => {
 
 function sendToIPC(channel, msg, ...args) {
   console.log(msg, ...args)
-  electron.ipcRenderer.send(channel, msg, ...args);
+  try {
+    electron.ipcRenderer.send(channel, msg, ...args);
+  } catch (err) {
+    electron.ipcRenderer.send(channel, JSON.stringify(msg), JSON.stringify(...args));
+  }
 }
 
 

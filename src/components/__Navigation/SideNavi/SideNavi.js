@@ -3,9 +3,7 @@ import React, { useState, useEffect } from "react";
 import NavItem from "./SideNaviItem";
 import SideItemList from "./SideNaviLists";
 import "./SideNavi.css";
-import NotificationControl from "../../../common/NotificationControl";
 import { logout } from "../../../common/ipcCommunication/ipcCommon";
-import { getUserInfos } from "../../../common/ipcCommunication/ipcOrganization";
 import { useHistory } from "react-router-dom";
 import { writeInfo } from "../../../common/ipcCommunication/ipcLogger";
 
@@ -59,8 +57,6 @@ function Sidebar() {
           />
         ))}
       </div>
-
-      <NotificationControl />
 
       <li
         style={{

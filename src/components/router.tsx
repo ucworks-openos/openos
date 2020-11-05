@@ -4,74 +4,49 @@ import { Route, Switch, HashRouter } from "react-router-dom";
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import { writeDebug, writeError, writeInfo } from "../common/ipcCommunication/ipcLogger";
 import { getUserInfos } from "../common/ipcCommunication/ipcOrganization";
+import MainContol from "../common/MainContol";
+import NotificationControl from "../common/NotificationControl";
 import { convertToUser } from "../common/util";
 import { setLoginUserInfo } from "../redux/actions/user_actions";
 
 const { remote } = window.require("electron")
 
 const Sidebar = React.lazy(() => import("./__Navigation/SideNavi/SideNavi"));
-const NavigationBar = React.lazy(
-  () => import("./__Navigation/HeaderNavi/HeaderNavi")
-);
+const NavigationBar = React.lazy(() => import("./__Navigation/HeaderNavi/HeaderNavi"));
 const LoginPage = React.lazy(() => import("./LoginPage/LoginPage"));
 const FavoritePage = React.lazy(() => import("./FavoritePage/FavoritePage"));
-const OrganizationPage = React.lazy(
-  () => import("./OrganizationPage/OrganizationPage")
-);
+const OrganizationPage = React.lazy(() => import("./OrganizationPage/OrganizationPage"));
 const MessagePage = React.lazy(() => import("./MessagePage/MessagePage"));
 const ChatPage = React.lazy(() => import("./ChatPage/ChatPage"));
 const CallPage = React.lazy(() => import("./CallPage/CallPage"));
-const SiteConfigPage = React.lazy(
-  () => import("./SiteConfigPage/SiteConfigPage")
-);
+const SiteConfigPage = React.lazy(() => import("./SiteConfigPage/SiteConfigPage"));
+const TeamSpacePage = React.lazy(() => import("./TeamSpacePage/TeamSpacePage"));
+const NoticePage = React.lazy(() => import("./NoticePage/NoticePage"));
 const AboutPage = React.lazy(() => import("./AboutPage/AboutPage"));
+
+// TEST PAGE
 const NoMatchPage = React.lazy(() => import("./NoMatchPage/NoMatchPage"));
 const NetTestPage = React.lazy(() => import("./TestPages/NetTestPage"));
 const FuncTestPage = React.lazy(() => import("./TestPages/FuncTestPage"));
 const FuncTestPage2 = React.lazy(() => import("./TestPages/FuncTestPage2"));
 const chatTestPage = React.lazy(() => import("./TestPages/ChatTestPage"));
-const TeamSpacePage = React.lazy(() => import("./TeamSpacePage/TeamSpacePage"));
+
+
 
 function RouterPage() {
-
-  const loginSucessProc = (loginedId:string) => {
-    
-    writeInfo('loginSuccessProc --', loginedId);
-    
-    getProfile(loginedId).then((loginUserData) => {
-
-      writeInfo('loginSuccessProc Completed!', remote.getGlobal('USER'))
-      writeDebug('loginSuccessProc Completed!', loginUserData)
-      
-      // 로그인된 사용자 정보를 넣는다.
-      sessionStorage.setItem(`loginId`, loginedId)
-
-      remote.getGlobal('USER').profile = loginUserData;
-
-      window.location.hash = "#/favorite";
-      window.location.reload();
-    }).catch((err) => {
-      writeError('loginSucessProc Error', loginedId, err);
-    })
-  };
-
-  const getProfile = async (id: string) => {
-    const {
-      data: {
-        items: { node_item: profileSchema },
-      },
-    } = await getUserInfos([id]);
-    return convertToUser(profileSchema);
-  };
+  const [loginSuccessId, setLoginSuccessId] = useState('')
 
   /** LoginPage Randerer */
   const loginRanderer = () => {
-    return <LoginPage loginSucessProc={loginSucessProc} />
+    return <LoginPage setLoginSuccessId={setLoginSuccessId} />
   }
 
   return (
     <HashRouter>
       {/* <MyErrorBoundary> */}
+      <NotificationControl />
+      <MainContol loginSuccessId={loginSuccessId} />
+
       <Suspense fallback={<div>Loading...</div>}>
         {remote.getGlobal('USER').userId && (
           <>
@@ -100,6 +75,8 @@ function RouterPage() {
 
           <Route exact path="/call" component={CallPage} />
           <Route exact path="/team-space" component={TeamSpacePage} />
+          <Route exact path="/notice" component={NoticePage} />
+          
           <Route exact path="/site-config" component={SiteConfigPage} />
           <Route exact path="/netTest" component={NetTestPage} />
           <Route exact path="/funcTest" component={FuncTestPage} />
