@@ -39,7 +39,7 @@ export default function CallHistoryList() {
     }, []);
 
     useEffect(() => {
-        writeDebug('callDatas State. ', callDatas);
+        writeDebug('callDatas State. ', callDatas?.length);
     }, [callDatas])
 
     const getCallTypeClass = (callType:number) => {
@@ -87,14 +87,14 @@ export default function CallHistoryList() {
                         let callType = getCallTypeClass(call.callType);
 
                         return (<tr>
-                            <td>
-                                <i className={callType.class} title={callType.title}></i>
-                            </td>
-                            <td>{call.ringStart}</td>
-                            <td>{call.otheNumber}</td>
-                            <td>{call.otherUserName}</td>
-                            <td>{call.otherUserInfo}</td>
-                            </tr>);
+                                    <td>
+                                        <i className={callType.class} title={callType.title}></i>
+                                    </td>
+                                    <td>{call.ringStart}</td>
+                                    <td>{call.otheNumber}</td>
+                                    <td>{call.otherUserName}</td>
+                                    <td>{call.otherUserInfo}</td>
+                                </tr>);
                     })}
             </tbody>
             </table>
