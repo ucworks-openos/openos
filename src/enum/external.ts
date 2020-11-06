@@ -1,7 +1,8 @@
 
 // External URL
 export enum ExternalURLs {
-  BAND_BASE= 'http://27.96.131.93:5000',
+  BAND_BACK_BASE= 'http://27.96.131.93:5000',
+  BAND_FRONT_BASE= 'http://27.96.131.93',
 
   /**
    * @param {ucTalkId:loginId, password:encPwd}

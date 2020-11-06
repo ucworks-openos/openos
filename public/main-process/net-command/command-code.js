@@ -9,6 +9,7 @@ const IPPHONE_BASE      = 12000;
 const CS_BASE           = 13000;
 const CHAT_DATA_BASE    = 15000;
 const FETCH_BASE        = 25000;
+const LINK_BASE         = 9000;
 
 
 
@@ -142,6 +143,8 @@ module.exports = Object.freeze({
     FETCH_NO_DATA                : FETCH_BASE + 16,
     //#endregion FETCH COMMAND
 
+    //
+    //#region SB_BASE
     SB_BASE                      : SB_BASE, // 5000
     SB_CHAT_DATA                 : SB_BASE + 3,
     SB_CHAT_INPUT_CHANGE         : SB_BASE + 5,
@@ -150,8 +153,10 @@ module.exports = Object.freeze({
     SB_CHAT_NOLIST               : SB_BASE + 8,
     SB_CHAT_USER_CHANGE          : SB_BASE + 10,
     SB_NO_CHATTING               : SB_BASE + 11,
+    //#endregion SB_BASE
 
-    // 채팅구분 
+    //  
+    //#region 채팅구분
     CHAT_DATA_LINE               : 0,
     CHAT_ADD_USER                : CHAT_DATA_BASE + 1,
     CHAT_DEL_USER                : CHAT_DATA_BASE + 2,
@@ -179,9 +184,10 @@ module.exports = Object.freeze({
     CHAT_RECV_FILE               : CHAT_DATA_BASE + 35,
     CHAT_SEND_FILE               : CHAT_DATA_BASE + 36,
     CHAT_CHANGE_TITLE            : CHAT_DATA_BASE + 37,    
+    //#endregion 채팅구분
 
-    //
-    // FS COMMAND
+    // 
+    //#region FS COMMAND
     FS_BASE                      : FS_BASE, 
     FS_SERVER_BUSY               : FS_BASE + 999,
     FS_LOGINREADY                : FS_BASE + 1,
@@ -201,9 +207,15 @@ module.exports = Object.freeze({
     FS_PUT_UPGRADE_DATA          : FS_BASE + 14,
     FS_NO_KEY_HEADER             : FS_BASE + 20,
     FS_ERROR                     : FS_BASE + 21,
-    // FS COMMAND
+    //#endregion FS COMMAND
 
 
-
+    //
+    //#region  LINK_BASE
+    LINK_BASE                    : LINK_BASE,
+    LINK_ALERT                   : LINK_BASE + 1,
+    LINK_ALERT_TALK              : LINK_BASE + 4,
+    LINK_ALERT_TALK_NEW          : LINK_BASE + 5,
+    //#endregion
 
 });
