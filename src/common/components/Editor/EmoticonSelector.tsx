@@ -24,22 +24,17 @@ export default function EmoticonSelector(props: TemoticonSelectorProps) {
   const [target, setTarget] = useState<string>(``);
 
   const handlePick = (e: React.MouseEvent<HTMLImageElement>) => {
-    setTarget(
-      e.currentTarget.src
-        .split(`/`)
-        .filter((_: string, i: number) => i > 3)
-        .join(`/`)
-    );
-    dispatch(
-      setCurrentEmoticon(
-        e.currentTarget.src
-          .split(`/`)
-          .filter((_: string, i: number) => i > 2)
-          .join(` `)
-          .replace(`Emoticons`, `EMOTICON`)
-      )
-    );
+    const path = e.currentTarget.src.split(`/`);
+    const pathForTarget = path.slice(-3).join(`/`);
+    const pathForCurrentEmoticon = path
+      .slice(-3)
+      .join(` `)
+      .replace(`Emoticons`, `EMOTICON`);
+    setTarget(pathForTarget);
+    dispatch(setCurrentEmoticon(pathForCurrentEmoticon));
   };
+
+  useEffect(() => {});
 
   useEffect(() => {
     if (!emoticonVisible) {

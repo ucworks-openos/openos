@@ -116,7 +116,11 @@ const trayContextMenu = Menu.buildFromTemplate([
 global.IS_DEV = isDev;
 global.MY_PLATFORM = process.platform;
 
-global.ROOT_PATH = require('fs').realpathSync('./');
+if (global.MY_PLATFORM === PLATFORM.MAC) {
+  global.ROOT_PATH = path.join(__dirname, "../../../../../");
+} else {
+  global.ROOT_PATH = require('fs').realpathSync('./');
+}
 
 // 개발모드 일때는 로그경로를 밖으로 뺀다.
 switch(global.MY_PLATFORM) {
@@ -228,9 +232,9 @@ global.SERVER_INFO = {
  * 기본 설정 정보
  */
 global.SITE_CONFIG = {
-  server_ip: '192.168.0.172',
-  server_port: '32551',
-  client_version: 652
+  server_ip: '220.230.127.93',
+  server_port: '12551',
+  client_version: 651
 }
 /**
  * 조직도 그룹 정보
