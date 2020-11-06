@@ -62,7 +62,7 @@ function getMultiple4DiffSize (size) {
 
 
 function getCommandHeader(dataBuf, readLength = 0) {
-    if (dataBuf.length < 8) return dataBuf;
+    if (dataBuf.length < 8) return {command:undefined, leftBuf:dataBuf};
 
     let cmd = new CommandHeader(dataBuf.readInt32LE(0), dataBuf.readInt32LE(4));
     
