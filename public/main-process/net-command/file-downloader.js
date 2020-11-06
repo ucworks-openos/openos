@@ -30,7 +30,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
     logger.info('>> downloadFile', serverIp, serverPort, serverFileName, saveFilePath);
 
     return new Promise(async function(resolve, reject) {   
-
+        
         // 파일전문은 헤더의 길이에 다른정보들을 담음으로 실제 데이터 길이를 알수 없다.
         // 또한 실제 데이터의 길이와 파일 전문의 실제 길이는 다르다. 그래서 읽을 길이를 고정할수 있도록 한다.......쩝.....  ㅜㅜ
         let fileCmdSize = 8+4+CmdConst.BUF_LEN_FILEDATA; // 
@@ -249,8 +249,9 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
             }
         }
 
-        let receiveDatasProc = function(rcvData){
-            if (fileDebugLog) logger.debug('Received Data: %s',rcvData.length);
+        // 데이터 받기
+        let receiveDatasProc = function (rcvData){
+            if (!(rcvData?.length > 0)) return;
 
              if (!rcvCommand){
                 let dataLen = fileCmdSize;
@@ -267,6 +268,11 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                     rcvCommand.sendCmd = sndCommand
                 }
 
+                if (!rcvCommand){
+                    logger.warn('RCV COMMAND IS NULL!', rcvData);
+                    return;
+                } 
+
                 if (rcvCommand.readCnt == rcvCommand.getResponseLength()) {
                     receiveCommandProc(rcvCommand);
                 } else if (rcvCommand.readCnt > dataLen) {
@@ -274,7 +280,9 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                 }
 
                 // 남는거 없이 다 읽었다면 끝낸다.
-                if (!rcvData || rcvData.length == 0) return;
+                if (!rcvData || rcvData.length == 0) {
+                    return;
+                }
 
             } else {
                 // 또 받을 데이터 보다 더 들어 왔다면 자르고 남는것을 넘긴다.
