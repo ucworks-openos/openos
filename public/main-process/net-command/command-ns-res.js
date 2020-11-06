@@ -1,5 +1,5 @@
 
-const winston = require('../../winston');
+const logger = require('../../logger');
 
 const notifyManager = require('../notification/noti-manager');
 const EncUtil = require('../utils/utils-crypto');
@@ -20,7 +20,7 @@ const { CAHT_TYPE } = require('../common/common-const');
  */
 function receiveCmdProc(recvCmd) {
 
-  winston.info('NS receiveCmdProc -- %s', recvCmd.cmdCode);
+  logger.info('NS receiveCmdProc -- %s', recvCmd.cmdCode);
 
   // 보낸 Command가 없다면 알림으로 받은 Command이다.
   if (!recvCmd.sendCmd) {
@@ -44,7 +44,7 @@ function receiveCmdProc(recvCmd) {
         {
           let rcvBuf = Buffer.from(recvCmd.data);
           let dataStr = rcvBuf.toString(global.ENC, 0);
-          winston.warn('Response Command Receive Fail! : %s Data: %s', recvCmd.cmdCode, dataStr);
+          logger.warn('Response Command Receive Fail! : %s Data: %s', recvCmd.cmdCode, dataStr);
           callCallback(recvCmd.sendCmd, new ResData(false, 'Response Command Receive Fail! : ' + recvCmd.cmdCode));
           return false;
         }
@@ -79,7 +79,7 @@ function receiveCmdProc(recvCmd) {
       } else {
         let rcvBuf = Buffer.from(recvCmd.data);
         let dataStr = rcvBuf.toString(global.ENC, 0);
-        winston.warn('My Alias Change Fail! ', dataStr);
+        logger.warn('My Alias Change Fail! ', dataStr);
         callCallback(recvCmd.sendCmd, new ResData(false, 'Response Command Receive Fail! : ' + recvCmd.cmdCode));
       }
       break;
@@ -220,7 +220,7 @@ function notifyCmdProc(recvCmd) {
       } else {
         let rcvBuf = Buffer.from(recvCmd.data);
         let dataStr = rcvBuf.toString(global.ENC, 0);
-        winston.warn('Message Recive Fail!! Data:%s', dataStr);
+        logger.warn('Message Recive Fail!! Data:%s', dataStr);
       }
      
       break;
@@ -272,7 +272,7 @@ function notifyCmdProc(recvCmd) {
       } else {
         let rcvBuf = Buffer.from(recvCmd.data);
         let dataStr = rcvBuf.toString(global.ENC, 0);
-        winston.warn('Message Recive Fail!! Data:%s', dataStr);
+        logger.warn('Message Recive Fail!! Data:%s', dataStr);
       }
       break;
      
@@ -295,7 +295,7 @@ function notifyCmdProc(recvCmd) {
       } else {
         let rcvBuf = Buffer.from(recvCmd.data);
         let dataStr = rcvBuf.toString(global.ENC, 0);
-        winston.warn('NS_STATE_LIST Fail!! Data:%s', dataStr);
+        logger.warn('NS_STATE_LIST Fail!! Data:%s', dataStr);
       }
       break;
     
@@ -376,7 +376,7 @@ function notifyCmdProc(recvCmd) {
       // file command이면 CAHT_TYPE.FILE, fontName이 Emoticon으로 시작되면 CAHT_TYPE.EMOTICON
       let chatType = chatCmd == CmdCodes.CHAT_RECV_FILE?CAHT_TYPE.FILE:fontName.startsWith('EMOTICON')?CAHT_TYPE.EMOTICON:CAHT_TYPE.CHAT;
 
-      winston.debug('roomKey:' + roomKey
+      logger.debug('roomKey:' + roomKey
             + ', roomType:' + roomType
             + ', lineKey:' + lineKey
             + ', lineNumber:' + lineNumber
@@ -436,7 +436,7 @@ function notifyCmdProc(recvCmd) {
         notifyManager.phoneStatusChange(userId, stateGubun, phoneState);
 
       } catch (err) {
-        winston.error('NS_PHONE_STATE_LIST Proc Error! ', tmp, err)
+        logger.error('NS_PHONE_STATE_LIST Proc Error! ', tmp, err)
       }
       break;
 
@@ -451,7 +451,7 @@ function notifyCmdProc(recvCmd) {
       parseXmlToJSON(stateXml, false).then((jsonObj) => {
         notifyManager.ipPhoneAlert(jsonObj);
       }).catch((err) => {
-        winston.err('IPPHONE_RECV_DATA  Parsing Error!', stateXml, err);
+        logger.err('IPPHONE_RECV_DATA  Parsing Error!', stateXml, err);
       });
       break;
 
@@ -558,7 +558,7 @@ function notifyCmdProc(recvCmd) {
     {
       let rcvBuf = Buffer.from(recvCmd.data);
       let dataStr = rcvBuf.toString(global.ENC, 0);
-      winston.info('Unknown Noti Command Receive!!! : %s   Data:%s', recvCmd.cmdCode, dataStr);
+      logger.info('Unknown Noti Command Receive!!! : %s   Data:%s', recvCmd.cmdCode, dataStr);
       return false;
     }
   }
@@ -567,5 +567,5 @@ function notifyCmdProc(recvCmd) {
 }
 
 module.exports = {
-  receiveCmdProc: receiveCmdProc
+  receiveCmdProc: receiveCmdProc,
 }

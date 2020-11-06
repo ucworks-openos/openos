@@ -1,4 +1,4 @@
-const winston = require('../../winston')
+const logger = require('../../logger')
 
 const { callCallback } = require('./command-utils');
 const { parseXmlToJSON } = require('../utils/utils-xmlParser')
@@ -16,11 +16,11 @@ var CmdConst = require('./command-const');
  */
 function responseCmdProc(resCmd) {
   if (!resCmd.sendCmd) {
-    winston.warn('PS Request Command Empty! -  CMD: ' + resCmd.cmdCode);
+    logger.warn('PS Request Command Empty! -  CMD: ' + resCmd.cmdCode);
     return;
   }
 
-  winston.info('PS Response -  RES_CMD: ' + resCmd.cmdCode);
+  logger.info('PS Response -  RES_CMD: ' + resCmd.cmdCode);
 
   // 요청커맨드로 처리되는 방식과 받은 Command로 처리되는 방식으로 나눈다.
   
@@ -29,12 +29,12 @@ function responseCmdProc(resCmd) {
       if (resCmd.cmdCode == CmdCodes.PS_GET_BASE_CLASS) {
 
         let xmlData = resCmd.data.toString('utf-8', 0);
-        winston.debug('PS_GET_BASE_CLASS  xml:', xmlData);
+        logger.debug('PS_GET_BASE_CLASS  xml:', xmlData);
 
         parseXmlToJSON(xmlData).then(function(jsonData) {
           callCallback(resCmd.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {
-          winston.err('PS_GET_BASE_CLASS  xml parse Error! str:', xmlData, err)
+          logger.err('PS_GET_BASE_CLASS  xml parse Error! str:', xmlData, err)
           callCallback(resCmd.sendCmd, new ResData(false, 'PS_GET_BASE_CLASS xml parse Error! ex:' + JSON.stringify(err)));
         });
 
@@ -47,12 +47,12 @@ function responseCmdProc(resCmd) {
       if (resCmd.cmdCode == CmdCodes.PS_GET_CHILD_CLASS) {
 
         let xmlData = resCmd.data.toString('utf-8', 0);
-        winston.debug('PS_GET_CHILD_CLASS  xml:', xmlData);
+        logger.debug('PS_GET_CHILD_CLASS  xml:', xmlData);
 
         parseXmlToJSON(xmlData).then(function(jsonData) {
           callCallback(resCmd.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {
-          winston.err('PS_GET_CHILD_CLASS  xml parse Error! str:', xmlData, err)
+          logger.err('PS_GET_CHILD_CLASS  xml parse Error! str:', xmlData, err)
           callCallback(resCmd.sendCmd, new ResData(false, 'PS_GET_CHILD_CLASS  xml parse Error! ex:' + JSON.stringify(err)));
         });
 
@@ -65,20 +65,20 @@ function responseCmdProc(resCmd) {
       if (resCmd.cmdCode == CmdCodes.PS_GET_CONDICTION) {
 
         let xmlData = resCmd.data.toString('utf-8', 0);
-        winston.debug('PS_GET_CONDICTION  xml:', xmlData);
+        logger.debug('PS_GET_CONDICTION  xml:', xmlData);
 
         parseXmlToJSON(xmlData).then(function(jsonData) {
           callCallback(resCmd.sendCmd, new ResData(true, jsonData));
           
         }).catch(function(err) {
-          winston.err('PS_GET_CONDICTION  xml parse Error! ', err)
+          logger.err('PS_GET_CONDICTION  xml parse Error! ', err)
           callCallback(resCmd.sendCmd, new ResData(false, 'PS_GET_CONDICTION  xml parse Error! ex:' + JSON.stringify(err)));
         });
       } else {
         let rcvBuf = Buffer.from(resCmd.data);
         let dataStr = rcvBuf.toString('utf-8', 0);
         
-        winston.warn('PS_GET_CONDICTION - Unknown Response Command Receive!!! : ' + resCmd.cmdCode + ' Data:' + dataStr);  
+        logger.warn('PS_GET_CONDICTION - Unknown Response Command Receive!!! : ' + resCmd.cmdCode + ' Data:' + dataStr);  
       }
       break;
     
@@ -86,19 +86,19 @@ function responseCmdProc(resCmd) {
       if (resCmd.cmdCode == CmdCodes.PS_GET_CONDICTION) { // ???  응답코드 무엇!!
 
         let xmlData = resCmd.data.toString('utf-8', 0);
-        winston.debug('PS_GET_USERS_INFO  xml:', xmlData);
+        logger.debug('PS_GET_USERS_INFO  xml:', xmlData);
         xmlData = "<items>" + xmlData + "</items>";
         parseXmlToJSON(xmlData).then(function(jsonData) {
           callCallback(resCmd.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {
-          winston.err('PS_GET_USERS_INFO  xml parse Error! ', err)
+          logger.err('PS_GET_USERS_INFO  xml parse Error! ', err)
           callCallback(resCmd.sendCmd, new ResData(false, 'PS_GET_USERS_INFO  xml parse Error! ex:' + JSON.stringify(err)));
         });
       } else {
         let rcvBuf = Buffer.from(resCmd.data);
         let dataStr = rcvBuf.toString('utf-8', 0);
         
-        winston.warn('PS_GET_CONDICTION - Unknown Response Command Receive!!! : ' + resCmd.cmdCode + ' Data:' + dataStr);  
+        logger.warn('PS_GET_CONDICTION - Unknown Response Command Receive!!! : ' + resCmd.cmdCode + ' Data:' + dataStr);  
       }
       break;
     
@@ -106,18 +106,18 @@ function responseCmdProc(resCmd) {
       if (resCmd.cmdCode == CmdCodes.PS_GET_CLASS_USER) { 
 
         let xmlData = resCmd.data.toString('utf-8', 0); 
-        winston.debug('PS_GET_CLASS_USER  xml:', xmlData);
+        logger.debug('PS_GET_CLASS_USER  xml:', xmlData);
         parseXmlToJSON(xmlData).then(function(jsonData) {
           callCallback(resCmd.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {
-          winston.err('PS_GET_CLASS_USER  xml parse Error! ', err)
+          logger.err('PS_GET_CLASS_USER  xml parse Error! ', err)
           callCallback(resCmd.sendCmd, new ResData(false, 'PS_GET_CLASS_USER  xml parse Error! ex:' + JSON.stringify(err)));
         });
       } else {
         let rcvBuf = Buffer.from(resCmd.data);
         let dataStr = rcvBuf.toString('utf-8', 0);
         
-        winston.warn('PS_GET_CLASS_USER - Unknown Response Command Receive!!! : ' + resCmd.cmdCode + ' Data:' + dataStr);  
+        logger.warn('PS_GET_CLASS_USER - Unknown Response Command Receive!!! : ' + resCmd.cmdCode + ' Data:' + dataStr);  
       }
       break;
       break;
@@ -127,7 +127,7 @@ function responseCmdProc(resCmd) {
       let rcvBuf = Buffer.from(resCmd.data);
       let dataStr = rcvBuf.toString('utf-8', 0);
       
-      winston.warn('Unknown Response Command Receive!!! : ' + resCmd.cmdCode + ' Data:' + dataStr);
+      logger.warn('Unknown Response Command Receive!!! : ' + resCmd.cmdCode + ' Data:' + dataStr);
     }
     return false;
   }

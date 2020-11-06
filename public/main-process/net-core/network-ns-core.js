@@ -1,12 +1,11 @@
-const winston = require('../../winston');
+const logger = require('../../logger');
 
 const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
 const CmdConst = require('../net-command/command-const');
 const CmdCodes = require('../net-command/command-code');
-const BufUtil = require('../utils/utils-buffer');
 const { receiveCmdProc } = require('../net-command/command-ns-res');
-const { logoutProc } = require("../main-handler");
+const { send } = require('../ipc/ipc-cmd-sender');
 
 var nsSock;
 var rcvCommand;
@@ -25,13 +24,13 @@ function connect () {
         nsSock.destroy();
     }
     
-    winston.info("Conncect MAIN_NS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
+    logger.info("Conncect MAIN_NS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
 
     return new Promise(function(resolve, reject){
         var tcpSock = require('net');  
         var client  = new tcpSock.Socket;  
         nsSock = client.connect(global.SERVER_INFO.NS.port, global.SERVER_INFO.NS.pubip, function() {
-            winston.info("Conncect MAIN_NS Completed to " + JSON.stringify(global.SERVER_INFO.NS, null, 0))
+            logger.info("Conncect MAIN_NS Completed to " + JSON.stringify(global.SERVER_INFO.NS, null, 0))
             global.SERVER_INFO.NS.isConnected = true;
 
             startConnectionCheck()
@@ -46,21 +45,22 @@ function connect () {
     
         // 접속이 종료됬을때 메시지 출력
         nsSock.on('end', function(){
-            winston.warn('NS Disconnected!');
+            logger.warn('NS Disconnected!');
             global.SERVER_INFO.NS.isConnected = false;
-
+            
             // 연결이 종료되면 Connectin Check를 멈춘다.
             clearInterval(global.NS_CONN_CHECK);
-            logoutProc();
+
+            send('logout-req', 'NS-NET-END');
         });
         // 
         nsSock.on('close', function(hadError){
-            winston.warn("NS Close. hadError: " + hadError);
+            logger.warn("NS Close. hadError: " + hadError);
             global.SERVER_INFO.NS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         nsSock.on('error', function(err){
-            winston.error("NS Error: " + JSON.stringify(err));
+            logger.error("NS Error: " + JSON.stringify(err));
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.NS.isConnected) {
@@ -72,7 +72,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         nsSock.on('timeout', function(){
-            winston.warn('NS Connection timeout.');
+            logger.warn('NS Connection timeout.');
             global.SERVER_INFO.NS.isConnected = false;
         });
     });
@@ -94,10 +94,10 @@ function close() {
 function readDataStream(rcvData){  
     let dataBuff = rcvData;
 
-    //winston.info('\r\n++++++++++++++++++++++++++++++++++');
-    //winston.info('NS rcvData:', rcvData.toString('hex', 0));
-    // winston.info('NS rcvData Str:', rcvData.toString('utf-8', 0))
-    // winston.info('NS rcvData Hex:', rcvData.toString('hex', 0))
+    //logger.info('\r\n++++++++++++++++++++++++++++++++++');
+    //logger.info('NS rcvData:', rcvData.toString('hex', 0));
+    // logger.info('NS rcvData Str:', rcvData.toString('utf-8', 0))
+    // logger.info('NS rcvData Hex:', rcvData.toString('hex', 0))
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
@@ -114,8 +114,8 @@ function readDataStream(rcvData){
     }
 
     // 받은 데이터가 전문의 길이 값보다 더크다면 다음 커맨드가 붙어왔을수 있다.
-    winston.info('recvData:%s dataSize:%s', rcvData.length , dataBuff.length)
-    winston.info('rcvCommand ----', rcvCommand)
+    logger.info('recvData:%s dataSize:%s', rcvData.length , dataBuff.length)
+    logger.info('rcvCommand ----', rcvCommand)
 
 
     // 기존데이터 + 받은 데이터 길이가 사이즈보다 넘는다면, 이후 커맨드까지 같이 받은것이다.
@@ -129,9 +129,9 @@ function readDataStream(rcvData){
         rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
         global.NS_SEND_COMMAND = null;
 
-        //winston.info(' >> Recived NS Command Data more :', procCmd);
+        //logger.info(' >> Recived NS Command Data more :', procCmd);
         if (!receiveCmdProc(procCmd)) {
-            winston.info('Revceive NS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            logger.info('Revceive NS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
 
         // 새로 전문을 받는다.
@@ -149,14 +149,14 @@ function readDataStream(rcvData){
         rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
         global.NS_SEND_COMMAND = null;
 
-        //winston.info(' >> Recived NS Command Data :', procCmd);
+        //logger.info(' >> Recived NS Command Data :', procCmd);
         if (!receiveCmdProc(procCmd)) {
-            winston.info('Revceive NS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            logger.info('Revceive NS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     } else {
-        // winston.info('\r\n >> Reading data ..........................');
-        // winston.info('NS rcvData:', rcvData);
-        // winston.info('NS rcvData toStr:', rcvData.toString('utf-8', 0));
+        // logger.info('\r\n >> Reading data ..........................');
+        // logger.info('NS rcvData:', rcvData);
+        // logger.info('NS rcvData toStr:', rcvData.toString('utf-8', 0));
     }
 };
 
@@ -196,9 +196,9 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
         cmdHeader = null;
         if (resetConnCheck) startConnectionCheck();
         
-        winston.info("write NS Command ------ CMD ", JSON.stringify(global.NS_SEND_COMMAND));
+        logger.info("write NS Command ------ CMD ", JSON.stringify(global.NS_SEND_COMMAND));
     // } catch (exception) {
-    //     winston.info("write NS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
+    //     logger.info("write NS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }
  };
 
@@ -217,7 +217,7 @@ function startConnectionCheck() {
         }
     }, CmdConst.SESSION_CHECK_INTERVAL);
 
-    winston.info('STATR_NS_CONNECTION_CHECK.')
+    logger.info('STATR_NS_CONNECTION_CHECK.')
 }
 
 

@@ -1,4 +1,4 @@
-const winston = require('../../winston');
+const logger = require('../../logger');
 const fs = require('fs');
 
 const CommandHeader = require('./command-header');
@@ -37,7 +37,7 @@ async function reqDownloadFile(serverIp, serverPort, serverFileName, saveFilePat
             send('download-file-progress', serverFileName, downloadLength, fileLength)
         }, 
         function(error) {
-            winston.err('downloadFile error', serverFileName, tmpFilePath, error);
+            logger.err('downloadFile error', serverFileName, tmpFilePath, error);
         });
 }
 
@@ -54,7 +54,7 @@ async function reqUploadFile(uploadKey, filePath) {
 
         let fileLength = fs.statSync(filePath).size;
 
-        winston.info('1. UploadFile Start %s, %s, %s',uploadKey, filePath, fileLength);
+        logger.info('1. UploadFile Start %s, %s, %s',uploadKey, filePath, fileLength);
 
         let res = await fsAPI.connectFS();
 
@@ -70,7 +70,7 @@ async function reqUploadFile(uploadKey, filePath) {
             return new ResData(false, res);
         }
 
-        winston.info('2. UploadFile loginReady completed.', res);
+        logger.info('2. UploadFile loginReady completed.', res);
 
         // 2. upload check
         let fileBaseName = require("path").basename(filePath);
@@ -80,7 +80,7 @@ async function reqUploadFile(uploadKey, filePath) {
             return new ResData(false, res);
         }
 
-        winston.info('3. UploadFile uploadCheck completed.', res);
+        logger.info('3. UploadFile uploadCheck completed.', res);
 
         // 3. 암호키를 전송한다.
         res = await setUploadFileEncKey();
@@ -89,7 +89,7 @@ async function reqUploadFile(uploadKey, filePath) {
             return new ResData(false, res);
         }
 
-        winston.info('4. UploadFile setUploadFileEncKey completed.', res);
+        logger.info('4. UploadFile setUploadFileEncKey completed.', res);
 
         // 4. 파일을 전송한다.
         res = await uploadFileStream(uploadKey, filePath);
@@ -97,7 +97,7 @@ async function reqUploadFile(uploadKey, filePath) {
             close();
             return new ResData(false, res);
         }
-        winston.info('5. UploadFile uploadFileStream completed.', res);
+        logger.info('5. UploadFile uploadFileStream completed.', res);
 
         // 5. 파일 전송 완료        
         res = await endUploadFile();
@@ -106,12 +106,12 @@ async function reqUploadFile(uploadKey, filePath) {
             return new ResData(false, res);
         }
 
-        winston.info('6. UploadFile completed.', res);
+        logger.info('6. UploadFile completed.', res);
         
         // 서버 파일명이 온다.
         return res;
     } catch (err) {
-        winston.error('Upload File Fail! %s %s %s', uploadKey, filePath, err);
+        logger.error('Upload File Fail! %s %s %s', uploadKey, filePath, err);
         return new ResData(false, err);
     }
 }
@@ -139,7 +139,7 @@ function logout() {
  * @param {String} userId 
  */
 function loginReady(userId) {
-    winston.info('loginReady %s',userId);
+    logger.info('loginReady %s',userId);
     return new Promise(async function(resolve, reject) {
 
         var gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
@@ -167,7 +167,7 @@ function loginReady(userId) {
  * @param {String} fileBaseName 
  */
 function uploadCheck(fileBaseName, fileLength) {
-    winston.info('uploadCheck %s',fileBaseName);
+    logger.info('uploadCheck %s',fileBaseName);
     return new Promise(async function(resolve, reject) {
 
         let fileCmd = CmdCodes.FS_UPLOADFILE;
@@ -208,7 +208,7 @@ function setUploadFileEncKey() {
         let encKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_FILEDATA)
 
         encKeyBuf.write(encKey, global.ENC);
-        winston.info('setUploadFileEncKey %s', encKey);
+        logger.info('setUploadFileEncKey %s', encKey);
 
         let dataBuf = Buffer.concat([gubunBuf, encKeyBuf]);
         fsAPI.writeCommandFS(new CommandHeader(CmdCodes.FS_UPLOADSEND, 140), dataBuf);
@@ -219,7 +219,7 @@ function setUploadFileEncKey() {
 /** 4. 파일 데이터 전송 */
 function uploadFileStream(uploadKey, filePath) {
 
-    winston.info('uploadFileStream %s %s',uploadKey, filePath);
+    logger.info('uploadFileStream %s %s',uploadKey, filePath);
     return new Promise(async function(resolve, reject) {
         let gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
         gubunBuf.writeInt32LE(1);
@@ -259,13 +259,13 @@ function uploadFileStream(uploadKey, filePath) {
         });
         
         readStream.on('end', () => {
-            winston.info('file read end! file length:%s, %s', uploadedLength, fileLength);
+            logger.info('file read end! file length:%s, %s', uploadedLength, fileLength);
             resolve(new ResData(true, 'file upload stream completed.'))
         })
 
         readStream.on('error', (err) => {
             // Exception을 만들지 않는다..
-            winston.error('uploadFileStream err %s', err)
+            logger.error('uploadFileStream err %s', err)
             resolve(new ResData(false, err));
         })
     });
@@ -273,7 +273,7 @@ function uploadFileStream(uploadKey, filePath) {
 
 /** 5. 파일전송 완료 */
 function endUploadFile() {
-    winston.info('endUploadFile ')
+    logger.info('endUploadFile ')
 
     return new Promise(async function(resolve, reject) {
         // gubun ENCODE_TYPE_NO_SERVER => 3
@@ -283,7 +283,7 @@ function endUploadFile() {
         let dataBuf = Buffer.concat([gubunBuf, Buffer.alloc(CmdConst.BUF_LEN_FILEDATA)]);
 
         let cmd = new CommandHeader(CmdCodes.FS_UPLOADEND, 0, function(resData){
-            winston.info('endUploadFile resData, %s', resData)
+            logger.info('endUploadFile resData, %s', resData)
             resolve(resData);
         });
         cmd.setResponseLength(8+4+CmdConst.BUF_LEN_FILEDATA);

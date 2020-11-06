@@ -1,28 +1,28 @@
 const { ipcMain } = require('electron');
-const winston = require('../../winston')
+const logger = require('../../logger')
 
 /** writeLog */
 ipcMain.on('writeLog', async (event, msg, ...args) => {
- winston.debugRanderer(msg, ...args)
+ logger.debugRanderer(msg, ...args)
 });
 
 /** writeDebug */
 ipcMain.on('writeDebug', async (event, msg, ...args) => {
-  winston.debugRanderer(msg, ...args)
+  logger.debugRanderer(msg, ...args)
  });
 
  /** writeInfo */
 ipcMain.on('writeInfo', async (event, msg, ...args) => {
-  winston.infoRanderer(msg, ...args)
+  logger.infoRanderer(msg, ...args)
  });
 
  
  /** writeWarn */
 ipcMain.on('writeWarn', async (event, msg, ...args) => {
-  winston.warnRanderer(msg, ...args)
+  logger.warnRanderer(msg, ...args)
  });
 
  /** writeError */
 ipcMain.on('writeError', async (event, msg, ...args) => {
-  winston.errorRanderer(msg, ...args)
+  logger.errorRanderer(msg, ...args)
  });
