@@ -9,12 +9,11 @@ import { delay, getDispUserNames, lineKeyParser } from "../../../common/util";
 import { uploadFile } from "../../../common/ipcCommunication/ipcFile";
 import DragAndDropSupport from "../../../common/components/DragAndDropSupport";
 import useIntersectionObserver from "../../../hooks/useIntersectionObserver";
-import MyChat from "./MyChat";
-import UserChat from "./UserChat";
+import ChatMessage from "./ChatMessage";
 
 const { remote } = window.require("electron");
 
-function ChatMessages() {
+export default function ChatMessages() {
   const dispatch = useDispatch();
   const rootRef = useRef(null);
   const targetRef = useRef(null);
@@ -149,11 +148,13 @@ function ChatMessages() {
                     <div class="divider" />
                   </div>
                 )}
-                {chat.chat_send_id === sessionStorage.getItem("loginId") ? (
-                  <MyChat chat={chat} />
-                ) : (
-                  <UserChat chat={chat} />
-                )}
+
+                <ChatMessage
+                  chat={chat}
+                  isMine={
+                    chat.chat_send_id === sessionStorage.getItem("loginId")
+                  }
+                />
               </>
             );
           })}
@@ -163,5 +164,3 @@ function ChatMessages() {
     </DragAndDropSupport>
   );
 }
-
-export default ChatMessages;

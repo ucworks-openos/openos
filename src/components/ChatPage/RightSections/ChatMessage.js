@@ -12,7 +12,7 @@ import {
   shellOpenItem,
 } from "../../../common/ipcCommunication/ipcUtil";
 
-export default function UserChat({ chat }) {
+export default function ChatMessage({ chat, isMine }) {
   const { remote } = window.require("electron");
   const fs = remote.require("fs");
   const downloadPath = remote.getGlobal("DOWNLOAD_PATH");
@@ -54,21 +54,29 @@ export default function UserChat({ chat }) {
       const emoName = chat.chat_font_name?.split(` `)?.[2];
 
       return (
-        <div className="speech-row speech-others">
-          <div className="user-pic-wrap">
-            <img
-              src={
-                chat.user_picture_pos &&
-                /^http/.test(chat.user_picture_pos.value)
-                  ? chat.user_picture_pos.value
-                  : "./images/img_imgHolder.png"
-              }
-              alt="user-profile-picture"
-            />
-          </div>
-          <div className="speech-content-wrap-his">
-            <div className="speaker-info-wrap">{chat.chat_send_name}</div>
-            <div className="speech-info-wrap">
+        <div className={`speech-row ${isMine ? `speech-my` : `speech-others`}`}>
+          {!isMine && (
+            <div className="user-pic-wrap">
+              <img
+                src={
+                  chat.user_picture_pos &&
+                  /^http/.test(chat.user_picture_pos.value)
+                    ? chat.user_picture_pos.value
+                    : "./images/img_imgHolder.png"
+                }
+                alt="user-profile-picture"
+              />
+            </div>
+          )}
+          <div
+            className={`${
+              isMine ? `speech-content-wrap-mine` : `speech-content-wrap-his`
+            }`}
+          >
+            {!isMine && (
+              <div className="speaker-info-wrap">{chat.chat_send_name}</div>
+            )}
+            <div className={`speech-info-wrap ${isMine && `speech-my`}`}>
               <Img
                 src={[
                   `./Emoticons/${emoTab}/${emoName}`,
@@ -120,20 +128,28 @@ export default function UserChat({ chat }) {
         serverFileName = composed[4];
       }
       return (
-        <div className="speech-row speech-others">
-          <div className="user-pic-wrap">
-            <img
-              src={
-                chat.user_picture_pos &&
-                /^http/.test(chat.user_picture_pos.value)
-                  ? chat.user_picture_pos.value
-                  : "./images/img_imgHolder.png"
-              }
-              alt="user-profile-picture"
-            />
-          </div>
-          <div className="speech-content-wrap-his">
-            <div className="speaker-info-wrap">{chat.chat_send_name}</div>
+        <div className={`speech-row ${isMine ? `speech-my` : `speech-others`}`}>
+          {!isMine && (
+            <div className="user-pic-wrap">
+              <img
+                src={
+                  chat.user_picture_pos &&
+                  /^http/.test(chat.user_picture_pos.value)
+                    ? chat.user_picture_pos.value
+                    : "./images/img_imgHolder.png"
+                }
+                alt="user-profile-picture"
+              />
+            </div>
+          )}
+          <div
+            className={`${
+              isMine ? `speech-content-wrap-mine` : `speech-content-wrap-his`
+            }`}
+          >
+            {!isMine && (
+              <div className="speaker-info-wrap">{chat.chat_send_name}</div>
+            )}
             <div className="speech-inner-wrap">
               <FileInfo>
                 <div>
@@ -192,22 +208,29 @@ export default function UserChat({ chat }) {
       );
     }
     case EchatType.chat.toString(): {
-      console.log(`this is common chat.`);
       return (
-        <div className="speech-row speech-others">
-          <div className="user-pic-wrap">
-            <img
-              src={
-                chat.user_picture_pos &&
-                /^http/.test(chat.user_picture_pos.value)
-                  ? chat.user_picture_pos.value
-                  : "./images/img_imgHolder.png"
-              }
-              alt="user-profile-picture"
-            />
-          </div>
-          <div className="speech-content-wrap-his">
-            <div className="speaker-info-wrap">{chat.chat_send_name}</div>
+        <div className={`speech-row ${isMine ? `speech-my` : `speech-others`}`}>
+          {!isMine && (
+            <div className="user-pic-wrap">
+              <img
+                src={
+                  chat.user_picture_pos &&
+                  /^http/.test(chat.user_picture_pos.value)
+                    ? chat.user_picture_pos.value
+                    : "./images/img_imgHolder.png"
+                }
+                alt="user-profile-picture"
+              />
+            </div>
+          )}
+          <div
+            className={`${
+              isMine ? `speech-content-wrap-mine` : `speech-content-wrap-his`
+            }`}
+          >
+            {!isMine && (
+              <div className="speaker-info-wrap">{chat.chat_send_name}</div>
+            )}
             <div className="speech-inner-wrap">
               <div className="speech-content">
                 <pre>{chat.chat_contents}</pre>
