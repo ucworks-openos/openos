@@ -116,7 +116,11 @@ const trayContextMenu = Menu.buildFromTemplate([
 global.IS_DEV = isDev;
 global.MY_PLATFORM = process.platform;
 
-global.ROOT_PATH = require('fs').realpathSync('./');
+if (global.MY_PLATFORM === PLATFORM.MAC) {
+  global.ROOT_PATH = path.join(__dirname, "../../../../../");
+} else {
+  global.ROOT_PATH = require('fs').realpathSync('./');
+}
 
 // 개발모드 일때는 로그경로를 밖으로 뺀다.
 switch(global.MY_PLATFORM) {

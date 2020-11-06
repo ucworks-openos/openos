@@ -20,9 +20,6 @@ export default function UserChat({ chat }) {
   const dispatch = useDispatch();
   const { chatMessages } = useSelector((state) => state.chats);
 
-  useEffect(() => {
-    console.log(`chat: `, chat);
-  });
   const download = async (
     serverIp,
     serverPort,
