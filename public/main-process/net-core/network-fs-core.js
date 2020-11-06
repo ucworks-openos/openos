@@ -1,4 +1,4 @@
-const winston = require('../../winston');
+const logger = require('../../logger');
 
 const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
@@ -25,14 +25,14 @@ function connect () {
         fsSock.destroy();
     }
     
-    winston.info("Conncect MAIN_FS to %s", global.SERVER_INFO.FS)
+    logger.info("Conncect MAIN_FS to %s", global.SERVER_INFO.FS)
 
     return new Promise(function(resolve, reject){
         var tcpSock = require('net');  
         var client  = new tcpSock.Socket; 
          
         fsSock = client.connect(global.SERVER_INFO.FS.port, global.SERVER_INFO.FS.pubip, function() {
-            winston.info("Conncect MAIN_FS Completed to %s", global.SERVER_INFO.FS)
+            logger.info("Conncect MAIN_FS Completed to %s", global.SERVER_INFO.FS)
             global.SERVER_INFO.FS.isConnected = true;
 
             resolve(new ResData(true));
@@ -44,17 +44,17 @@ function connect () {
         })
         // 접속이 종료됬을때 메시지 출력
         fsSock.on('end', function(){
-            winston.warn('FS Disconnected!');
+            logger.warn('FS Disconnected!');
             global.SERVER_INFO.FS.isConnected = false;
         });
         // close
         fsSock.on('close', function(hadError){
-            winston.warn("FS Close. hadError: %s", hadError);
+            logger.warn("FS Close. hadError: %s", hadError);
             global.SERVER_INFO.FS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         fsSock.on('error', function(err){
-            winston.error("FS Error: %s", err);
+            logger.error("FS Error: %s", err);
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.FS.isConnected) {
@@ -65,7 +65,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         fsSock.on('timeout', function(){
-            winston.warn('FS Connection timeout.');
+            logger.warn('FS Connection timeout.');
             global.SERVER_INFO.FS.isConnected = false;
         });
     });
@@ -85,7 +85,7 @@ function close() {
  * @param {Buffer}} rcvData 
  */
 function receiveDatasProc(rcvData){  
-    winston.debug('FS Received Data: %s',rcvData.length);
+    logger.debug('FS Received Data: %s',rcvData.length);
 
     if (!rcvCommand){
         let dataLen = 0; // default file Command Size
@@ -102,16 +102,16 @@ function receiveDatasProc(rcvData){
             rcvCommand.sendCmd = global.FS_SEND_COMMAND
         }
 
-        winston.info('>> Receive Header %s', rcvCommand)
+        logger.info('>> Receive Header %s', rcvCommand)
 
         if (rcvCommand.readCnt == rcvCommand.getResponseLength()) {
             receiveCmdProc(rcvCommand);
         } else if (rcvCommand.readCnt > dataLen) {
-            winston.info('>> FS OVER READ !!! %s  %s', dataLen, rcvCommand)
+            logger.info('>> FS OVER READ !!! %s  %s', dataLen, rcvCommand)
         }
 
         // 남는거 없이 다 읽었다면 끝낸다.
-        winston.debug('>>>>>> First  Left rcvData  %s', rcvData.toString('hex'))
+        logger.debug('>>>>>> First  Left rcvData  %s', rcvData.toString('hex'))
         if (!rcvData || rcvData.length == 0) return;
 
     } else {
@@ -119,7 +119,7 @@ function receiveDatasProc(rcvData){
         // 또 받을 데이터 보다 더 들어 왔다면 자르고 남는것을 넘긴다.
         let leftLen = rcvCommand.getResponseLength() - rcvCommand.readCnt;
 
-        winston.debug('FS More Receive  %s, %s', leftLen, rcvCommand)
+        logger.debug('FS More Receive  %s, %s', leftLen, rcvCommand)
         if (rcvData.length > leftLen) {
             // 읽을 데이터 보다 더 들어 왔다.
             rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData.slice(0, leftLen)]);
@@ -127,7 +127,7 @@ function receiveDatasProc(rcvData){
 
             receiveCmdProc(rcvCommand);
             rcvData = rcvData.slice(leftLen);
-            winston.debug('>>>>>>> AsIs Cmd Left rcvData %s', rcvData.toString('hex'))
+            logger.debug('>>>>>>> AsIs Cmd Left rcvData %s', rcvData.toString('hex'))
         } else {
             // 필요한 데이터가 딱맞거나 작다면 그냥 다읽고 끝낸다.
             rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData]);
@@ -135,7 +135,7 @@ function receiveDatasProc(rcvData){
 
             if (rcvCommand.readCnt >= rcvCommand.getResponseLength()) {
                 
-                if (rcvCommand.readCnt > rcvCommand.getResponseLength()) winston.info('>> FS OVER READ !!! %s, %s',rcvData.length, rcvCommand); 
+                if (rcvCommand.readCnt > rcvCommand.getResponseLength()) logger.info('>> FS OVER READ !!! %s, %s',rcvData.length, rcvCommand); 
                 // 제대로 다 읽었다면 Cmd 처리    
                 receiveCmdProc(rcvCommand);
             } 
@@ -145,7 +145,7 @@ function receiveDatasProc(rcvData){
         }
     }
 
-    winston.debug('FS More Read Datas........ %s', rcvData.length);
+    logger.debug('FS More Read Datas........ %s', rcvData.length);
     receiveDatasProc(rcvData)
 };
 
@@ -183,7 +183,7 @@ function writeCommand(cmdHeader, dataBuf = null, logging=false) {
     fsSock.write(cmdBuf);
     global.FS_SEND_COMMAND = cmdHeader
 
-    if (logging) winston.debug("write FS Command : %s", global.FS_SEND_COMMAND);
+    if (logging) logger.debug("write FS Command : %s", global.FS_SEND_COMMAND);
  };
 
 module.exports = {

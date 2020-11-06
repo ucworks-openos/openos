@@ -1,4 +1,4 @@
-const winston = require('../../winston')
+const logger = require('../../logger')
 
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
@@ -25,7 +25,7 @@ function close() {
 function reqconnectNS () {
     return new Promise(async function(resolve, reject) {
         nsCore.connectNS().then(function() {
-            winston.info('NS Connect Success!');
+            logger.info('NS Connect Success!');
 
             reqSignInNS().then(function(resData){
                 resolve(resData);
@@ -34,7 +34,7 @@ function reqconnectNS () {
             })
 
         }).catch(function(err){
-            winston.err('NS Connect fale!', err);
+            logger.err('NS Connect fale!', err);
             reject(err);
         })
     });
@@ -83,7 +83,7 @@ function reqSignInNS() {
                         + CmdConst.SEP + CmdConst.SEP 
                         + global.SITE_CONFIG.client_version + CmdConst.SEP + OsUtil.getOsInfo;
 
-        //winston.debug('NS CONNECTION SIGN-IN :', userOsInfo)    
+        //logger.debug('NS CONNECTION SIGN-IN :', userOsInfo)    
         var userOsInfoBuf = Buffer.from(userOsInfo, global.ENC);
 
 
@@ -188,7 +188,7 @@ function reqSendMessage(recvIds, recvNames, subject, message, attFileInfo) {
             , destIdsBuf]);
 
 
-        winston.info('[SEND MESSAGE] -------  encryptKey,  cipherContent', cipherData);
+        logger.info('[SEND MESSAGE] -------  encryptKey,  cipherContent', cipherData);
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_SEND_MSG, 0), dataBuf);
     });
 }
@@ -200,7 +200,7 @@ function reqSendMessage(recvIds, recvNames, subject, message, attFileInfo) {
  */
 function reqDeleteMessage(msgGubun, msgKeys) {
     return new Promise(async function(resolve, reject) {
-        winston.info('reqDeleteMessage msgKeys', msgKeys)
+        logger.info('reqDeleteMessage msgKeys', msgKeys)
 
         if (!global.SERVER_INFO.NS.isConnected) {
             reject(new Error('NS IS NOT CONNECTED!'));
@@ -317,7 +317,7 @@ function reqGetStatus(status, userId) {
             , senderIdBuf
         ]);
 
-        winston.info('[CHANGE_STATUS] ', status, global.USER.userId)
+        logger.info('[CHANGE_STATUS] ', status, global.USER.userId)
 
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_GET_STATE, 0), dataBuf);
     });
@@ -340,7 +340,7 @@ function reqSetStatusMonitor(userIds) {
             return;
         }
 
-        winston.info('[NOTIFY_USERS] userIds:', userIds)
+        logger.info('[NOTIFY_USERS] userIds:', userIds)
 
         var data = userIds.join(CmdConst.SEP_PIPE);
         var dataBuf = Buffer.from(data, global.ENC);
@@ -366,7 +366,7 @@ function reqSaveBuddyData(buddyData) {
             return;
         }
 
-        winston.info('[SAVE BUDDY] buddyData:', buddyData)
+        logger.info('[SAVE BUDDY] buddyData:', buddyData)
 
         let idBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
         idBuf.write(global.USER.userId);
@@ -428,7 +428,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTi
         let idDatas = userIds.join(CmdConst.SEP_PIPE);
         // encrypt Message
         let encData = CryptoUtil.encryptMessage(message);
-        winston.info('Chat Enc Data', encData);
+        logger.info('Chat Enc Data', encData);
 
         /*********************** */
 
@@ -436,7 +436,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTi
         let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         roomKeyBuf.write(roomKey, global.ENC);
         roomKeyBuf = adjustBufferMultiple4(roomKeyBuf);
-        winston.info('roomKey', roomKey , roomKeyBuf.length);
+        logger.info('roomKey', roomKey , roomKeyBuf.length);
 
         // roomType  본인이 포함된다.
         let roomTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
@@ -445,7 +445,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTi
         let lineKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         lineKeyBuf.write(lineKey, global.ENC);
         lineKeyBuf = adjustBufferMultiple4(lineKeyBuf);
-        winston.info('lineKey', lineKey, lineKeyBuf.length)
+        logger.info('lineKey', lineKey, lineKeyBuf.length)
 
         let lineNumberBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
         lineNumberBuf.writeInt32LE(1);
@@ -462,7 +462,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTi
         let multiple4Length = getMultiple4Size(CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP);
         let bufLen = CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP;
         ipBuf = Buffer.concat([ipBuf, Buffer.alloc(multiple4Length - bufLen)])
-        winston.info('sendDate + IP', sendDate, ipBuf.length-CmdConst.BUF_LEN_IP)
+        logger.info('sendDate + IP', sendDate, ipBuf.length-CmdConst.BUF_LEN_IP)
 
         let portBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
 
@@ -474,7 +474,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTi
         let fontNameBuf = Buffer.alloc(CmdConst.BUF_LEN_FONTNAME); //fontName
         fontNameBuf.write(fontName, global.ENC);
         fontNameBuf = adjustBufferMultiple4(fontNameBuf)
-        winston.info('fontName', fontName, fontNameBuf.length)
+        logger.info('fontName', fontName, fontNameBuf.length)
 
 
         let sendIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
@@ -537,7 +537,7 @@ function reqExitChatRoom(roomKey, userIds) {
         let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         roomKeyBuf.write(roomKey, global.ENC);
         roomKeyBuf = adjustBufferMultiple4(roomKeyBuf);
-        winston.info('roomKey', roomKey , roomKeyBuf.length);
+        logger.info('roomKey', roomKey , roomKeyBuf.length);
 
         // roomType
         let roomTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
@@ -562,7 +562,7 @@ function reqExitChatRoom(roomKey, userIds) {
         let multiple4Length = getMultiple4Size(CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP);
         let bufLen = CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP;
         ipBuf = Buffer.concat([ipBuf, Buffer.alloc(multiple4Length - bufLen)])
-        winston.info('sendDate + IP', sendDate, ipBuf.length-CmdConst.BUF_LEN_IP)
+        logger.info('sendDate + IP', sendDate, ipBuf.length-CmdConst.BUF_LEN_IP)
 
         let portBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
 
@@ -575,7 +575,7 @@ function reqExitChatRoom(roomKey, userIds) {
         let fontNameBuf = Buffer.alloc(CmdConst.BUF_LEN_FONTNAME); //fontName
         fontNameBuf.write(fontName, global.ENC);
         fontNameBuf = adjustBufferMultiple4(fontNameBuf)
-        winston.info('fontName', fontName, fontNameBuf.length)
+        logger.info('fontName', fontName, fontNameBuf.length)
 
 
         let sendIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
@@ -646,7 +646,7 @@ function reqChangeChatRoomName(roomKey, roomName, userIds) {
         let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         roomKeyBuf.write(roomKey, global.ENC);
         roomKeyBuf = adjustBufferMultiple4(roomKeyBuf);
-        winston.info('roomKey', roomKey , roomKeyBuf.length);
+        logger.info('roomKey', roomKey , roomKeyBuf.length);
 
         // roomType
         let roomTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
@@ -670,7 +670,7 @@ function reqChangeChatRoomName(roomKey, roomName, userIds) {
         let multiple4Length = getMultiple4Size(CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP);
         let bufLen = CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP;
         ipBuf = Buffer.concat([ipBuf, Buffer.alloc(multiple4Length - bufLen)])
-        winston.info('sendDate + IP', sendDate, ipBuf.length-CmdConst.BUF_LEN_IP)
+        logger.info('sendDate + IP', sendDate, ipBuf.length-CmdConst.BUF_LEN_IP)
 
         let portBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
 
@@ -683,7 +683,7 @@ function reqChangeChatRoomName(roomKey, roomName, userIds) {
         let fontNameBuf = Buffer.alloc(CmdConst.BUF_LEN_FONTNAME); //fontName
         fontNameBuf.write(fontName, global.ENC);
         fontNameBuf = adjustBufferMultiple4(fontNameBuf)
-        winston.info('fontName', fontName, fontNameBuf.length)
+        logger.info('fontName', fontName, fontNameBuf.length)
 
         let sendIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
         sendIdBuf.write(global.USER.userId, global.ENC);
@@ -752,7 +752,7 @@ function reqInviteChatUser(roomKey, newRoomName, asIsUserIds, newUserIds) {
         let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         roomKeyBuf.write(roomKey, global.ENC);
         roomKeyBuf = adjustBufferMultiple4(roomKeyBuf);
-        winston.info('roomKey', roomKey , roomKeyBuf.length);
+        logger.info('roomKey', roomKey , roomKeyBuf.length);
 
         // roomType
         let roomTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
@@ -777,7 +777,7 @@ function reqInviteChatUser(roomKey, newRoomName, asIsUserIds, newUserIds) {
         let multiple4Length = getMultiple4Size(CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP);
         let bufLen = CmdConst.BUF_LEN_DATE + CmdConst.BUF_LEN_IP;
         ipBuf = Buffer.concat([ipBuf, Buffer.alloc(multiple4Length - bufLen)])
-        winston.info('sendDate + IP', sendDate, ipBuf.length-CmdConst.BUF_LEN_IP)
+        logger.info('sendDate + IP', sendDate, ipBuf.length-CmdConst.BUF_LEN_IP)
 
         let portBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
 
@@ -790,7 +790,7 @@ function reqInviteChatUser(roomKey, newRoomName, asIsUserIds, newUserIds) {
         let fontNameBuf = Buffer.alloc(CmdConst.BUF_LEN_FONTNAME); //fontName
         fontNameBuf.write(fontName, global.ENC);
         fontNameBuf = adjustBufferMultiple4(fontNameBuf)
-        winston.info('fontName', fontName, fontNameBuf.length)
+        logger.info('fontName', fontName, fontNameBuf.length)
 
         let sendIdBuf = Buffer.alloc(CmdConst.BUF_LEN_USERID);
         sendIdBuf.write(global.USER.userId, global.ENC);
@@ -869,7 +869,7 @@ function reqIpPhone(reqXml) {
         let xmlSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
         xmlSizeBuf.writeInt32LE(xmlBuf.length);
 
-        winston.debug('req IpPhone ', reqXml);
+        logger.debug('req IpPhone ', reqXml);
 
         var dataBuf = Buffer.concat([userIdBuf, xmlSizeBuf,xmlBuf]);
         nsCore.writeCommandNS(new CommandHeader(CmdCodes.NS_IPPHONE_DATA, 0, function(resData){

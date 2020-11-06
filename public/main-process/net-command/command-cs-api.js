@@ -1,4 +1,4 @@
-const winston = require('../../winston')
+const logger = require('../../logger')
 
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
@@ -18,9 +18,9 @@ function close() {
  */
 function reqconnectCS () {
     csAPI.connectCS().then(function() {
-        winston.info('CS Connect Success!');
+        logger.info('CS Connect Success!');
     }).catch(function(err){
-        winston.error('CS Connect fale!' + JSON.stringify(err));
+        logger.error('CS Connect fale!' + JSON.stringify(err));
     })
 
 }
@@ -42,7 +42,7 @@ function reqCertifyCS(loginId, loginPass) {
                 cipherPwd = CryptoUtil.encryptRC4(global.ENCRYPT.pwdCryptKey, loginPass)
                 break;
             default:
-                winston.error('Unknown PWD Algorithm :' + global.ENCRYPT.pwdAlgorithm);
+                logger.error('Unknown PWD Algorithm :' + global.ENCRYPT.pwdAlgorithm);
                 break;
         }
 

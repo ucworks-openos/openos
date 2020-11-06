@@ -1,4 +1,4 @@
-const winston = require('../../winston');
+const logger = require('../../logger');
 
 const ResData = require('../ResData');
 
@@ -14,11 +14,11 @@ const { callCallback } = require('./command-utils');
  */
 function responseCmdProc(command) {
   if (!command.sendCmd) {
-    winston.warn('CS Request Command Empty! -  CMD: ' + command.cmdCode);
+    logger.warn('CS Request Command Empty! -  CMD: ' + command.cmdCode);
     return;
   }
 
-  winston.info('CS Response -  RES_CMD: ' + command.cmdCode);
+  logger.info('CS Response -  RES_CMD: ' + command.cmdCode);
 
   // 요청커맨드로 처리되는 방식과 받은 Command로 처리되는 방식으로 나눈다.
   
@@ -38,7 +38,7 @@ function responseCmdProc(command) {
           break;
 
         default:
-          winston.warn('CS_CERTIFY  Response Fail! -  ', command.cmdCode);
+          logger.warn('CS_CERTIFY  Response Fail! -  ', command.cmdCode);
           callCallback(command.sendCmd, new ResData(false, 'CS_CERTIFY  Response Fail!'));
           break;
       }
@@ -46,7 +46,7 @@ function responseCmdProc(command) {
       {
         let rcvBuf = Buffer.from(command.data);
         let dataStr = rcvBuf.toString('utf-8', 0);
-        winston.debug('CS_CERTIFY Response -- ', dataStr);
+        logger.debug('CS_CERTIFY Response -- ', dataStr);
       }
 
       break;
@@ -55,7 +55,7 @@ function responseCmdProc(command) {
         let rcvBuf = Buffer.from(command.data);
         let dataStr = rcvBuf.toString('utf-8', 0);
         
-        winston.warn('Unknown Response Command Receive: ' + command.cmdCode); // + ' Data:' + dataStr);
+        logger.warn('Unknown Response Command Receive: ' + command.cmdCode); // + ' Data:' + dataStr);
       }
       return false;
     }

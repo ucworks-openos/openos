@@ -42,15 +42,6 @@ function NotificationControl() {
   useEffect(() => {
 
     //
-    // 페이지 변경요청
-    electron.ipcRenderer.removeAllListeners("goto");
-    electron.ipcRenderer.on("goto", (event, page) => {
-      writeInfo("goto", page);
-      window.location.hash = `#/${page}`;
-      window.location.reload();
-    });
-
-    //
     // 대화 메세지 수신
     electron.ipcRenderer.removeAllListeners("chatReceived");
     electron.ipcRenderer.on("chatReceived", (event, chat) => {
@@ -158,8 +149,8 @@ function NotificationControl() {
     //
     // 별칭(대화명) 변경 알림
     electron.ipcRenderer.removeAllListeners("userAliasChanged");
-    electron.ipcRenderer.on("userAliasChanged", (event, msgData) => {
-      writeInfo("userAliasChanged", msgData);
+    electron.ipcRenderer.on("userAliasChanged", (event, alias) => {
+      writeInfo("userAliasChanged", alias);
     });
   }, []);
 

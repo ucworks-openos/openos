@@ -1,4 +1,4 @@
-const winston = require('../../winston');
+const logger = require('../../logger');
 const CommandHeader = require('./command-header');
 const ResData = require('../ResData');
 
@@ -18,9 +18,9 @@ const { realpathSync } = require('fs');
  */
 function reqconnectFETCH () {
     fetchCore.connectFETCH().then(function() {
-        winston.info('FETCH Connect Success!');
+        logger.info('FETCH Connect Success!');
     }).catch(function(err){
-        winston.error('FETCH Connect fale!' + JSON.stringify(err));
+        logger.error('FETCH Connect fale!' + JSON.stringify(err));
     })
 }
 
@@ -49,7 +49,7 @@ function reqMessageList(msgType, rowOffset = 0, rowLimit = 100) {
 
         case MSG_TYPE.ALL:  // 쿼리가 없다.
         default:
-            winston.warn('Unknown Message Direction! direction:' + msgDirection)
+            logger.warn('Unknown Message Direction! direction:' + msgDirection)
             return new Error('Unknown Message Direction! direction:' + msgDirection);
     }
 
@@ -100,7 +100,7 @@ function reqGetMessageDetail(msgKey) {
             }
             resolve(resData);
         } catch (err) {
-            winston.err(query, err)
+            logger.err(query, err)
             reject(err);
         }
 
@@ -129,7 +129,7 @@ function reqDeleteMessage(msgType, msgKeys) {
             break;
 
         default:
-            winston.warn('Unknown Message Direction! direction:' + msgDirection)
+            logger.warn('Unknown Message Direction! direction:' + msgDirection)
             return new Error('Unknown Message Direction! direction:' + msgDirection);
     }
 
@@ -164,7 +164,7 @@ async function reqChatRoomList( rowOffset = 0, rowLimit = 100) {
         }
         
     } catch (err) {
-        winston.err('chatList decrypt content fail!', res, err)
+        logger.err('chatList decrypt content fail!', res, err)
     }
     return res
 }
@@ -189,7 +189,7 @@ async function reqChatRoomByRoomKey(roomKey) {
             res.data = res.data.table.row;
         }
     } catch (err) {
-        winston.err('chatList decrypt content fail!', res, err)
+        logger.err('chatList decrypt content fail!', res, err)
     }
     return res
 }
@@ -219,7 +219,7 @@ async function reqGetChatList(roomId, lastLineKey = '9999999999999999', rowLimit
         }
         
     } catch (err) {
-        winston.err('chatList decrypt content fail!', res, err)
+        logger.err('chatList decrypt content fail!', res, err)
     }
 
     return res;
@@ -279,9 +279,9 @@ function queryToServer(query, queryKey, dmlKind = DML_KIND.SELECT) {
         let queryBuf = Buffer.from(query, global.ENC);
         querySizeBuf.writeInt32LE(queryBuf.length);
         
-        winston.info('QUERY global.DB_KIND ', global.FUNC_COMP_39.DB_KIND);
-        winston.info('QUERY KEY', queryKey);
-        winston.debug('QUERY ', queryBuf.length, query);
+        logger.info('QUERY global.DB_KIND ', global.FUNC_COMP_39.DB_KIND);
+        logger.info('QUERY KEY', queryKey);
+        logger.debug('QUERY ', queryBuf.length, query);
 
         var stringBuf = Buffer.concat([userIdBuf, keyBuf, nameBuf, whereBuf, whereKindBuf]);
         stringBuf = adjustBufferMultiple4(stringBuf);

@@ -1,4 +1,4 @@
-const winston = require('../../winston');
+const logger = require('../../logger');
 const CommandHeader = require('../net-command/command-header');
 
 
@@ -21,7 +21,7 @@ function getStringWithoutEndOfString(strBuf, sInx = 0, readLength = -1, encoding
     if (endOfStrInx > -1) tempBuf = tempBuf.slice(0, endOfStrInx);
     
     if (logging) {
-        winston.debug('getStringWithoutEndOfString. sinx:%s readLength:%s einx:%s endOfStrInx:%s tmpStr:%s tempBuf:%s', sInx, readLength, eInx, endOfStrInx, tempBuf.toString(encoding), tempBuf);
+        logger.debug('getStringWithoutEndOfString. sinx:%s readLength:%s einx:%s endOfStrInx:%s tmpStr:%s tempBuf:%s', sInx, readLength, eInx, endOfStrInx, tempBuf.toString(encoding), tempBuf);
     }
     
     return tempBuf.toString(encoding);
@@ -36,7 +36,7 @@ function adjustBufferMultiple4(originBuf) {
     // Create Dummy Buffer. Set the length to a multiple of 4.
     var multiple4Len = getMultiple4Size(originBuf.length);
     if (multiple4Len != originBuf.length) {
-        //winston.info("cmdBuf Diff size:" + (multiple4Len-cmdBuf.length) + ", DummySize:" + multiple4Len + ", BufferSize:" + cmdBuf.length);
+        //logger.info("cmdBuf Diff size:" + (multiple4Len-cmdBuf.length) + ", DummySize:" + multiple4Len + ", BufferSize:" + cmdBuf.length);
         var dummyBuf = Buffer.alloc(multiple4Len-originBuf.length);
         originBuf = Buffer.concat([originBuf, dummyBuf]);
     }

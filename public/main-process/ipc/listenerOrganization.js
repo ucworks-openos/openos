@@ -1,5 +1,5 @@
 const { ipcMain } = require('electron');
-const winston = require('../../winston')
+const logger = require('../../logger')
 
 const dsAPI = require('../net-command/command-ds-api');
 const psAPI = require('../net-command/command-ps-api');
@@ -14,7 +14,7 @@ ipcMain.on('getBuddyList', async (event, ...args) => {
   
   dsAPI.reqGetBuddyList(function(resData)
   {
-    winston.debug('getBuddyList res:', resData)
+    logger.debug('getBuddyList res:', resData)
     event.reply('res-getBuddyList', resData);
   }).catch(function(err) {
     event.reply('res-getBuddyList', new ResData(false, err));
@@ -27,7 +27,7 @@ ipcMain.on('getBaseOrg', async (event, ...args) => {
   
   psAPI.reqGetOrganization(global.ORG.orgGroupCode).then(function(resData)
   {
-    winston.debug('getBaseOrg res:', resData)
+    logger.debug('getBaseOrg res:', resData)
     event.reply('res-getBaseOrg', resData);
   }).catch(function(err) {
     event.reply('res-getBaseOrg', new ResData(false, err));
@@ -39,7 +39,7 @@ ipcMain.on('getBaseOrg', async (event, ...args) => {
 ipcMain.on('getChildOrg', async (event, orgGroupCode, groupCode, groupSeq) => {
   psAPI.reqGetOrgChild(orgGroupCode, groupCode, groupSeq).then(function(resData)
   {
-    winston.debug('getChildOrg res:', resData)
+    logger.debug('getChildOrg res:', resData)
     event.reply('res-getChildOrg', resData);
   }).catch(function(err) {
     event.reply('res-getChildOrg', new ResData(false, err));
@@ -50,7 +50,7 @@ ipcMain.on('getChildOrg', async (event, orgGroupCode, groupCode, groupSeq) => {
 ipcMain.on('getUserInfos', async (event, userIds) => {
   psAPI.reqGetUserInfos(userIds).then(function(resData)
   {
-    //winston.debug('getUserInfos res:', resData)
+    //logger.debug('getUserInfos res:', resData)
     event.reply('res-getUserInfos', resData);
   }).catch(function(err) {
     event.reply('res-getUserInfos', new ResData(false, err));
@@ -61,7 +61,7 @@ ipcMain.on('getUserInfos', async (event, userIds) => {
 ipcMain.on('searchUsers', async (event, searchMode, searchText) => {
   psAPI.reqSearchUsers(searchMode, searchText).then(function(resData)
   {
-    winston.debug('searchUsers res:', resData)
+    logger.debug('searchUsers res:', resData)
     event.reply('res-searchUsers', resData);
   }).catch(function(err) {
     event.reply('res-searchUsers', new ResData(false, err));
@@ -72,7 +72,7 @@ ipcMain.on('searchUsers', async (event, searchMode, searchText) => {
 ipcMain.on('searchOrgUsers', async (event, orgGrgoupCode, searchText) => {
   psAPI.reqSearchOrgUsers(orgGrgoupCode, searchText).then(function(resData)
   {
-    winston.debug('searchOrgUsers res:', resData)
+    logger.debug('searchOrgUsers res:', resData)
     event.reply('res-searchOrgUsers', resData);
   }).catch(function(err) {
     event.reply('res-searchOrgUsers', new ResData(false, err));
@@ -83,7 +83,7 @@ ipcMain.on('searchOrgUsers', async (event, orgGrgoupCode, searchText) => {
 ipcMain.on('saveBuddyData', async (event, favoritData) => {
   nsAPI.reqSaveBuddyData(favoritData).then(function(resData)
   {
-    winston.debug('saveBuddyData res:', resData)
+    logger.debug('saveBuddyData res:', resData)
     event.reply('res-saveBuddyData', resData);
   }).catch(function(err) {
     event.reply('res-saveBuddyData', new ResData(false, err));

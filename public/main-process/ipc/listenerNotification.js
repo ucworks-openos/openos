@@ -1,5 +1,5 @@
 const { ipcMain } = require('electron');
-const winston = require('../../winston');
+const logger = require('../../logger');
 const { showAlert } = require('../notification/noti-window');
 
 const { send } = require('./ipc-cmd-sender');

@@ -1,5 +1,5 @@
 const { tmpdir } = require("os");
-const winston = require("../../winston");
+const logger = require("../../logger");
 const { BUF_LEN_FONTNAME } = require("../net-command/command-const");
 
 
@@ -46,7 +46,7 @@ async function parseRule(xmlData) {
         let ruleCode = xmlData.substring(xmlData.indexOf('rule_code=\''), xmlData.indexOf('\' language'));
         let leftRuleXml = xmlData;
         
-        winston.info('RULE PARSE - ', ruleCode);
+        logger.info('RULE PARSE - ', ruleCode);
 
         while(leftRuleXml.length > 0) {
             let sTag = '<function ';
@@ -60,10 +60,10 @@ async function parseRule(xmlData) {
             let eInx = leftRuleXml.indexOf(endTag) + endTag.length;
             if (eInx > 0) {
                 let funcElement = leftRuleXml.substring(0, eInx);
-                // winston.debug('element:', funcElement);
+                // logger.debug('element:', funcElement);
 
                 let rule = getRule(funcElement);
-                // winston.debug('ruleElement:', rule);
+                // logger.debug('ruleElement:', rule);
 
                 // 중복허용은 값을 겹친다.
                 if (rule.allow_dup) {
@@ -71,7 +71,7 @@ async function parseRule(xmlData) {
                         ruleList[rule.func_code].func_value1 += ',' + rule.func_value1;
                         ruleList[rule.func_code].func_value2 += ',' + rule.func_value2;
 
-                        // winston.debug('appendRule:', ruleList[rule.func_code]);
+                        // logger.debug('appendRule:', ruleList[rule.func_code]);
 
                     } else {
                         ruleList[rule.func_code] = rule;    
@@ -82,7 +82,7 @@ async function parseRule(xmlData) {
                 }
 
             } else {
-                winston.warn('Can not find end tag! ', leftRuleXml);
+                logger.warn('Can not find end tag! ', leftRuleXml);
             }
                 
             leftRuleXml = leftRuleXml.substring(eInx);

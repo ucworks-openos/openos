@@ -1,13 +1,13 @@
-const winston = require('../../winston');
+const logger = require('../../logger');
 
 function callCallback (sendCmd, resData) {
     // Callback
     if (sendCmd && sendCmd.callback) {
-        //winston.info('CallBack -- CMD:', command);  //JSON.stringify(command));
+        //logger.info('CallBack -- CMD:', command);  //JSON.stringify(command));
         sendCmd.callback(resData);
-        winston.info('callback success! cmd:', sendCmd);
+        logger.info('callback success! cmd:', sendCmd);
     } else {
-        winston.warn('callback fail! cmd:', sendCmd);
+        logger.warn('callback fail! cmd:', sendCmd);
     }
 }
 

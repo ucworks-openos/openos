@@ -1,4 +1,4 @@
-const winston = require('../../winston')
+const logger = require('../../logger')
 const fs = require('fs');
 const { SITE_CONFIG_FILE } = require('../common/common-const');
 
@@ -13,10 +13,10 @@ function readConfig() {
 
 		let rawdata = fs.readFileSync(configPath);
 		global.SITE_CONFIG = JSON.parse(rawdata);
-		winston.debug('site config read completed! %s\r\n %s', configPath,  global.SITE_CONFIG)
+		logger.debug('site config read completed! %s\r\n %s', configPath,  global.SITE_CONFIG)
 
 	} catch (exception) {
-		winston.error("SiteConfig Load Fail! path:%s  %s", configPath, exception);
+		logger.error("SiteConfig Load Fail! path:%s  %s", configPath, exception);
 	}
 }
 
@@ -29,16 +29,16 @@ function readAsyncConfig (readCompleted) {
 
 		fs.readFile(SITE_CONFIG_FILE, (err, data) => {
 			if (err) {
-				winston.error("siteConfig Async Read Fail! %s", err);
+				logger.error("siteConfig Async Read Fail! %s", err);
 				throw err;
 			} 
 			global.SITE_CONFIG = JSON.parse(data);
 			
-			winston.info("siteConfig wirte completed! %s", global.SITE_CONFIG)
+			logger.info("siteConfig wirte completed! %s", global.SITE_CONFIG)
 			readCompleted();
 		});
 	} catch (ex) {
-		winston.error("SiteConfig Load Fail! path: %s   %s", SITE_CONFIG_FILE, ex);
+		logger.error("SiteConfig Load Fail! path: %s   %s", SITE_CONFIG_FILE, ex);
 	}
 }
 	
@@ -60,11 +60,11 @@ function writeAsyncConfig () {
 
 	fs.writeFile(SITE_CONFIG_FILE, data, (err) => {
 		if (err) {
-			winston.error("siteConfig Async Write Fail! %s", err);
+			logger.error("siteConfig Async Write Fail! %s", err);
 			throw err;
 		} 
 
-		winston.info("siteConfig wirte completed! %s", global.SITE_CONFIG)
+		logger.info("siteConfig wirte completed! %s", global.SITE_CONFIG)
 	});
 }
 

@@ -1,17 +1,17 @@
 
 const { ipcMain } = require('electron');
 const fsAPI = require('../net-command/command-fs-api');
-const winston = require('../../winston');
+const logger = require('../../logger');
 const ResData = require('../ResData');
 
 
 // download file
 ipcMain.on('downloadFile', (event, serverIp, serverPort, serverFileName, saveFilePath) => {
 
-  winston.debug('downloadFile req:', serverIp, serverPort, serverFileName, saveFilePath)
+  logger.debug('downloadFile req:', serverIp, serverPort, serverFileName, saveFilePath)
   fsAPI.reqDownloadFile(serverIp, serverPort, serverFileName, saveFilePath).then(function(resData)
   {
-    winston.info('downloadFile res:', resData)
+    logger.info('downloadFile res:', resData)
     event.reply('res-downloadFile', resData);
   }).catch(function(err) {
     event.reply('res-downloadFile', new ResData(false, err));
@@ -25,7 +25,7 @@ ipcMain.on('uploadFile', (event, fileKey, filePath) => {
 
   fsAPI.reqUploadFile(fileKey, filePath).then(function(resData)
   {
-    winston.info('uploadFile res:', resData)
+    logger.info('uploadFile res:', resData)
     event.reply('res-uploadFile', resData);
   }).catch(function(err) {
     event.reply('res-uploadFile', new ResData(false, err));
