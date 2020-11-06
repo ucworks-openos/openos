@@ -232,10 +232,16 @@ global.SERVER_INFO = {
  * 기본 설정 정보
  */
 global.SITE_CONFIG = {
-  server_ip: '220.230.127.93',
+  server_ip: '220.230.127.93', // 운영
   server_port: '12551',
   client_version: 651
 }
+// 개발서버
+// global.SITE_CONFIG = {
+//   server_ip: '192.168.0.172',
+//   server_port: '32551',
+//   client_version: 652
+// }
 /**
  * 조직도 그룹 정보
  */

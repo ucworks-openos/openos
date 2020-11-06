@@ -493,6 +493,67 @@ function notifyCmdProc(recvCmd) {
         callCallback(recvCmd.sendCmd, new ResData(false, 'NS_CHANGE_ALIAS Receive Fail! : ' + recvCmd.cmdCode));
       }
       break;
+    
+    case CmdCodes.LINK_ALERT:
+    {
+      let rcvBuf = Buffer.from(recvCmd.data);
+      let sInx = 0;
+
+      let action = BufUtil.getStringWithoutEndOfString(recvCmd.data, sInx, CmdConst.BUF_LEN_LINK_ACTION);
+      sInx += CmdConst.BUF_LEN_LINK_ACTION;
+      let key = BufUtil.getStringWithoutEndOfString(rcvBuf, sInx, CmdConst.BUF_LEN_LINK_KEY);
+      sInx += CmdConst.BUF_LEN_LINK_KEY;
+      let recv_time = BufUtil.getStringWithoutEndOfString(rcvBuf, sInx, CmdConst.BUF_LEN_LINK_RECV_TIME);
+      sInx += CmdConst.BUF_LEN_LINK_RECV_TIME;
+      let system_name = BufUtil.getStringWithoutEndOfString(rcvBuf, sInx, CmdConst.BUF_LEN_LINK_SYSTEM_NAME);
+      sInx += CmdConst.BUF_LEN_LINK_SYSTEM_NAME;
+      let send_id = BufUtil.getStringWithoutEndOfString(rcvBuf, sInx, CmdConst.BUF_LEN_USERID);
+      sInx += CmdConst.BUF_LEN_USERID;
+      let send_name = BufUtil.getStringWithoutEndOfString(rcvBuf, sInx, CmdConst.BUF_LEN_USERNAME);
+      sInx += CmdConst.BUF_LEN_USERNAME;
+      let subject = BufUtil.getStringWithoutEndOfString(rcvBuf, sInx, CmdConst.BUF_LEN_SUBJECT);
+      sInx += CmdConst.BUF_LEN_SUBJECT;
+      let option = BufUtil.getStringWithoutEndOfString(rcvBuf, sInx, CmdConst.BUF_LEN_LINK_OPTION);
+      sInx += CmdConst.BUF_LEN_LINK_OPTION;
+      let dest_domain = BufUtil.getStringWithoutEndOfString(rcvBuf, sInx, CmdConst.BUF_LEN_DOMAIN);
+      sInx += CmdConst.BUF_LEN_DOMAIN;
+      let dest_gubun = BufUtil.getStringWithoutEndOfString(rcvBuf, sInx, CmdConst.BUF_LEN_GUBUN);
+      sInx += CmdConst.BUF_LEN_GUBUN;
+
+      let cntInx = BufUtil.getMultiple4Size(sInx);
+
+
+      let url_size = rcvBuf.readInt32LE(cntInx);
+      sInx += CmdConst.BUF_LEN_CHAT_ROOM_KEY;
+      let msg_size = rcvBuf.readInt32LE(cntInx);
+      sInx += CmdConst.BUF_LEN_CHAT_ROOM_KEY;
+      let destIds_size = rcvBuf.readInt32LE(cntInx);
+      sInx += CmdConst.BUF_LEN_CHAT_ROOM_KEY;
+
+      let url = BufUtil.getStringWithoutEndOfString(rcvBuf, sInx, url_size);
+      sInx += CmdConst.BUF_LEN_CHAT_ROOM_KEY;
+      let msg = BufUtil.getStringWithoutEndOfString(rcvBuf, sInx, msg_size);
+      sInx += CmdConst.BUF_LEN_CHAT_ROOM_KEY;
+      let destIds = BufUtil.getStringWithoutEndOfString(rcvBuf, sInx, destIds_size);
+      sInx += CmdConst.BUF_LEN_CHAT_ROOM_KEY;
+
+      let alertData = {
+        action:action,
+        key:key,
+        recv_time:recv_time,
+        system_name:system_name,
+        send_id:send_id,
+        send_name:send_name,
+        subject:subject,
+        option:option,
+        dest_domain:dest_domain,
+        dest_gubun:dest_gubun,
+      }
+
+      notifyManager.notifyAlarm(alertData);
+    }
+      break;
+
     default :
     {
       let rcvBuf = Buffer.from(recvCmd.data);

@@ -17,11 +17,11 @@ import {
 const { remote } = window.require("electron");
 
 type TsettingModalProps = {
-  loginSucessProc: (loginedId:string) => void;
+  setLoginSuccessId: (loginedId:string) => void;
 };
 
 export default function LoginPage(props:TsettingModalProps) {
-  const { loginSucessProc } = props;
+  const { setLoginSuccessId } = props;
 
   const [autoLogin, setAutoLogin] = useState(
     remote.getGlobal("USER_CONFIG").get("autoLogin")
@@ -90,7 +90,7 @@ export default function LoginPage(props:TsettingModalProps) {
       const resData = await login(loginId, loginPwd, isAutoLogin);
 
       if (resData.resCode) {
-        loginSucessProc(loginId);
+        setLoginSuccessId(loginId);
       } else {
         setIsLoginFail(true);
         setFailMessage("Login Fail! (" + resData.data + ")");
