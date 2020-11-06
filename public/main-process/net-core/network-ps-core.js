@@ -1,4 +1,4 @@
-const winston = require('../../winston')
+const logger = require('../../logger')
 
 const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
@@ -26,7 +26,7 @@ function connect () {
         psSock.destroy();
     }
     
-    winston.info("Conncect MAIN_PS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
+    logger.info("Conncect MAIN_PS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
 
     return new Promise(function(resolve, reject){
         var tcpSock = require('net');  
@@ -34,7 +34,7 @@ function connect () {
 
         try {
             psSock = client.connect(global.SERVER_INFO.PS.port, global.SERVER_INFO.PS.pubip, function() {
-                winston.info("Conncect MAIN_PS Completed to " + JSON.stringify(global.SERVER_INFO.PS, null, 0))
+                logger.info("Conncect MAIN_PS Completed to " + JSON.stringify(global.SERVER_INFO.PS, null, 0))
                 global.SERVER_INFO.PS.isConnected = true;
         
                 resolve(new ResData(true));
@@ -50,17 +50,17 @@ function connect () {
     
         // 접속이 종료됬을때 메시지 출력
         psSock.on('end', function(){
-            winston.warn('PS Disconnected!');
+            logger.warn('PS Disconnected!');
             global.SERVER_INFO.PS.isConnected = false;
         });
         // 
         psSock.on('close', function(hadError){
-            winston.warn("PS Close. hadError: " + hadError);
+            logger.warn("PS Close. hadError: " + hadError);
             global.SERVER_INFO.PS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         psSock.on('error', function(err){
-            winston.error("PS Error: " + JSON.stringify(err));
+            logger.error("PS Error: " + JSON.stringify(err));
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.PS.isConnected) {
@@ -72,7 +72,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         psSock.on('timeout', function(){
-            winston.warn('PS Connection timeout.');
+            logger.warn('PS Connection timeout.');
             global.SERVER_INFO.PS.isConnected = false;
         });
     });
@@ -92,8 +92,8 @@ function close() {
  * @param {Buffer}} rcvData 
  */
 function readDataStream(rcvData){  
-    // winston.info('\r\n++++++++++++++++++++++++++++++++++');
-    // winston.info('PS rcvData:', rcvData);
+    // logger.info('\r\n++++++++++++++++++++++++++++++++++');
+    // logger.info('PS rcvData:', rcvData);
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
@@ -113,7 +113,7 @@ function readDataStream(rcvData){
     }
 
     rcvCommand.readCnt += rcvData.length;
-    // winston.info('Recive PS Command Data :', rcvCommand);
+    // logger.info('Recive PS Command Data :', rcvCommand);
 
     if (rcvCommand.size <= rcvCommand.readCnt) {
         // 데이터를 모두 다 받았다.
@@ -123,7 +123,7 @@ function readDataStream(rcvData){
         global.PS_SEND_COMMAND = null;
 
         if (!responseCmdProc(procCmd)) {
-            winston.info('Revceive PS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            logger.info('Revceive PS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     }
 };
@@ -161,9 +161,9 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
         psSock.write(cmdBuf);
         global.PS_SEND_COMMAND = cmdHeader;
 
-        winston.info("write PS Command : ", global.PS_SEND_COMMAND);
+        logger.info("write PS Command : ", global.PS_SEND_COMMAND);
     // } catch (exception) {
-    //     winston.info("write PS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
+    //     logger.info("write PS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }
  };
 

@@ -1,4 +1,4 @@
-const winston = require('../../winston');
+const logger = require('../../logger');
 const crypto = require('crypto');
 const CmdConst = require('../net-command/command-const');
 
@@ -31,8 +31,8 @@ function encryptRC4(key, text) {
         var cipher = crypto.createCipheriv('rc4', keyHash,'');
         return cipher.update(text, 'utf8', 'hex');
     } catch (err) {
-        winston.info('encryptRC4 Err! ', key, text, err);
-        winston.info('encryptRC4 Ex', err);
+        logger.info('encryptRC4 Err! ', key, text, err);
+        logger.info('encryptRC4 Ex', err);
     }
     
     return '';
@@ -44,8 +44,8 @@ function encryptBufferRC4(key, buf) {
         var cipher = crypto.createCipheriv('rc4', keyHash,'');
         return Buffer.concat([cipher.update(buf),cipher.final()]);
     } catch (err) {
-        winston.info('encryptRC4 Err! ', key, buf, err);
-        winston.info('encryptRC4 Ex', err);
+        logger.info('encryptRC4 Err! ', key, buf, err);
+        logger.info('encryptRC4 Ex', err);
     }
 }
 
@@ -57,14 +57,14 @@ function encryptBufferRC4(key, buf) {
 function decryptRC4(key, ciphertext) {
 
     try {
-        //winston.info('[decryptRC4] -----------------  key:' + key + ', ciphertext :' + ciphertext + '')
+        //logger.info('[decryptRC4] -----------------  key:' + key + ', ciphertext :' + ciphertext + '')
         //var keyHash = crypto.createHash('sha256').update(key).digest();
         var keyHash = Buffer.from(key, global.ENC);
         var decipher = crypto.createDecipheriv('rc4', keyHash,'' );
         var text = decipher.update( ciphertext, 'hex','utf8');
         return text;
     } catch (err) {
-        winston.error('decryptRC4 Error', {key:key, ciphertext:ciphertext}, err)
+        logger.error('decryptRC4 Error', {key:key, ciphertext:ciphertext}, err)
         return 'decrypt-fail';
     }
 }
@@ -157,7 +157,7 @@ function encryptText(encAlgorithm, message, isLogging = false) {
     let cipherContent = '';
     let encKey = '';
 
-    if (isLogging) winston.info('encryptMessage', encAlgorithm, message)
+    if (isLogging) logger.info('encryptMessage', encAlgorithm, message)
 
     switch(encAlgorithm) {
         case CmdConst.ENCODE_TYPE_OTS:
@@ -189,7 +189,7 @@ function encryptText(encAlgorithm, message, isLogging = false) {
             break;
     }
 
-    if (isLogging) winston.info('encryptMessage', encKey, cipherContent)
+    if (isLogging) logger.info('encryptMessage', encKey, cipherContent)
 
     return {cipherContent:cipherContent, encKey:encKey};
 }
@@ -201,7 +201,7 @@ function encryptText(encAlgorithm, message, isLogging = false) {
  * @returns {String} decrypt message
  */
 function decryptMessage(encryptKey, cipherContent, isLogging = false) {
-    if (isLogging) winston.info('decryptMessage', encryptKey, cipherContent)
+    if (isLogging) logger.info('decryptMessage', encryptKey, cipherContent)
 
     let encArr = encryptKey.split(CmdConst.SEP_PIPE);
     let encMode = encArr[0];
@@ -211,16 +211,16 @@ function decryptMessage(encryptKey, cipherContent, isLogging = false) {
     switch(encMode) {
       case CmdConst.ENCODE_TYPE_OTS:
         encKey = decryptRC4(CmdConst.SESSION_KEY, encKey);
-        if (isLogging) winston.info('decryptMessage decKey', encMode, encKey, cipherContent)
+        if (isLogging) logger.info('decryptMessage decKey', encMode, encKey, cipherContent)
 
         message = decryptRC4(encKey, cipherContent);
-        if (isLogging) winston.info('decryptMessage decMsg', encMode, cipherContent, message)
+        if (isLogging) logger.info('decryptMessage decMsg', encMode, cipherContent, message)
         break;
       case CmdConst.ENCODE_TYPE_OTS_AES256:
         encKey = decryptAES256(CmdConst.SESSION_KEY_AES256, encKey);
-        if (isLogging) winston.info('decryptMessage decKey', encMode, encKey, cipherContent)
+        if (isLogging) logger.info('decryptMessage decKey', encMode, encKey, cipherContent)
         message = decryptAES256(encKey, cipherContent);
-        if (isLogging) winston.info('decryptMessage decMsg', encMode, cipherContent, message)
+        if (isLogging) logger.info('decryptMessage decMsg', encMode, cipherContent, message)
         break;
 
       default:

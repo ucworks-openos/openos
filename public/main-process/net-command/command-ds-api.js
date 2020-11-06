@@ -1,4 +1,4 @@
-const winston = require('../../winston');
+const logger = require('../../logger');
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
@@ -18,9 +18,9 @@ function close() {
  */
 function reqConnectDS () {
     return dsCore.connectDS().then(function() {
-        winston.info('DS Connect Success!');
+        logger.info('DS Connect Success!');
     }).catch(function(err){
-        winston.error('DS Connect fale!' + JSON.stringify(err));
+        logger.error('DS Connect fale!' + JSON.stringify(err));
     })
 }
 
@@ -55,7 +55,7 @@ function reqLogin (loginId, loginPwd) {
             reject(new Error(resData.data));
             return;
         }
-        winston.debug('LOG IN STEP 1 --- GetServerInfo COMPLETED!' + JSON.stringify(resData));
+        logger.debug('LOG IN STEP 1 --- GetServerInfo COMPLETED!' + JSON.stringify(resData));
 
         // GetUserRules
         resData = await reqGetUserRules(loginId, loginPwd);
@@ -63,7 +63,7 @@ function reqLogin (loginId, loginPwd) {
             reject(new Error(resData.data));
             return;
         }
-        winston.debug('LOG IN STEP 2 --- GetUserRules COMPLETED!' + JSON.stringify(resData));
+        logger.debug('LOG IN STEP 2 --- GetUserRules COMPLETED!' + JSON.stringify(resData));
 
         // HandshackDS
         resData = await reqHandshackDS(loginId);
@@ -71,7 +71,7 @@ function reqLogin (loginId, loginPwd) {
             reject(new Error(resData.data));
             return;
         }
-        winston.debug('LOG IN STEP 3 --- HandshackDS COMPLETED!' + JSON.stringify(resData));
+        logger.debug('LOG IN STEP 3 --- HandshackDS COMPLETED!' + JSON.stringify(resData));
 
         // SetSessionDS
         resData = await reqSetSessionDS(loginId);
@@ -79,7 +79,7 @@ function reqLogin (loginId, loginPwd) {
             reject(new Error(resData.data));
             return;
         }
-        winston.debug('LOG IN STEP 4 --- SetSessionDS COMPLETED!' + JSON.stringify(resData));
+        logger.debug('LOG IN STEP 4 --- SetSessionDS COMPLETED!' + JSON.stringify(resData));
 
         // 마지막 인증까지 완료되었다면 저장한다. 
         global.USER.userId = loginId;

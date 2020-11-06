@@ -2,6 +2,7 @@ import Axios from "axios";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ExternalURLs } from "../enum/external";
+import { logout } from "./ipcCommunication/ipcCommon";
 import { writeDebug, writeError, writeInfo } from "./ipcCommunication/ipcLogger";
 import { getUserInfos } from "./ipcCommunication/ipcOrganization";
 import { convertToUser } from "./util";
@@ -17,6 +18,28 @@ type TloginContolProps = {
 
 function MainContol(props:TloginContolProps) {
     const { loginSuccessId } = props;
+
+    // MainProcess IPC Req Receive
+    useEffect(() => {
+        //
+        // 페이지 변경요청
+        electron.ipcRenderer.removeAllListeners("goto");
+        electron.ipcRenderer.on("goto", (event:any, page:string) => {
+            writeInfo("goto", page);
+            window.location.hash = `#/${page}`;
+            window.location.reload();
+        });
+
+        //
+        // 로그아웃 요청
+        electron.ipcRenderer.removeAllListeners("logout-req");
+        electron.ipcRenderer.on("logout-req", (event:any, reason:string) => {
+            writeInfo('Logout Req From MainProc', reason)
+            logout(); 
+        });
+
+
+    }, [])
 
     //알림 수신처리
     useEffect(() => {

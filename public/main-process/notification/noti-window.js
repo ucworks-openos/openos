@@ -1,4 +1,4 @@
-const winston = require('../../winston')
+const logger = require('../../logger')
 const { BrowserWindow} = require('electron');
 const { getDispSize } = require('../utils/utils-os');
 
@@ -16,7 +16,7 @@ const notiWidth = 375;
  */
 exports.showAlert = async function (notiType, notiId, title, message, senderName, tag = null) {
 
-  winston.info('showAlert',notiType, notiId, title, message, senderName, tag);
+  logger.info('showAlert',notiType, notiId, title, message, senderName, tag);
   if (notiWin) {
     notiWin.destroy();
   }
@@ -57,7 +57,7 @@ exports.showAlert = async function (notiType, notiId, title, message, senderName
   notiWin.setTitle(notiId);
   notiWin.loadURL(notifyFile)
     .then(() => {})
-    .catch((err) => {winston.err('showAlert fail!', err)});
+    .catch((err) => {logger.err('showAlert fail!', err)});
 
   // notiWin.focus();
   // notiWin.blur();
@@ -67,15 +67,15 @@ exports.showAlert = async function (notiType, notiId, title, message, senderName
  * 알림 아이디가 동일하다면 닫습니다.
  * @param {String} notiId 
  */
-exports.closeAlert = async function (notiId = '') {
-  winston.info('Close Alert', notiId);
+exports.closeAlert = function (notiId = '') {
+  logger.info('Close Alert', notiId);
   if (notiWin) {
     try {
       if (notiId === '' || notiWin.title === notiId) {
         notiWin.close();
       }
     } catch (err) {
-      winston.error('Noti Alert Close Fail!', notiId, err);
+      logger.error('Noti Alert Close Fail!', notiId, err);
     }
   }
 }

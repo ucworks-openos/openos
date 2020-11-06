@@ -1,5 +1,5 @@
 
-const winston = require('../winston')
+const logger = require('../logger')
 
 const dsAPI = require('./net-command/command-ds-api');
 const psAPI = require('./net-command/command-ps-api');
@@ -9,13 +9,13 @@ const cmdConst = require("./net-command/command-const");
 const { goto } = require('./ipc/ipc-cmd-sender');
 const { closeAlert } = require('./notification/noti-window');
 
-function initGlobal() {
-    /**
+function initGlobal () {
+  /**
      * GLOBAL 정보는 선언을 하고 사용한다. (중앙관리)
      */
     //#region GLOBAL 설정 정보
   
-    winston.info('== GLOBAL INITIALIZE ==')
+    logger.info('== GLOBAL INITIALIZE ==')
   
     /**
      * 사용자 정보
@@ -130,24 +130,25 @@ function initGlobal() {
     //#endregion GLOBAL 설정 정보
 }
 
-function logoutProc() {
-    try {
-        nsAPI.close();
-        dsAPI.close();
-        csAPI.close();
-        psAPI.close();
-    } catch (err) {
-        winston.error('LOGOUT Ex', err)
-    }
-    
-    closeAlert();
+function logoutProc () {
+  try {
+    nsAPI.close();
+    dsAPI.close();
+    csAPI.close();
+    psAPI.close();
+  } catch (err) {
+      logger.error('LOGOUT Ex', err)
+  }
 
-    initGlobal();
-    goto('logout')
-    winston.info('logout completed!');
+  closeAlert();
+
+  initGlobal();
+  goto('logout')
+  logger.info('logout completed!');
 }
-  
+
+    
 module.exports = {
-  logoutProc:logoutProc,
-  initGlobal:initGlobal,
-};
+    logoutProc: logoutProc,
+    initGlobal: initGlobal,
+}

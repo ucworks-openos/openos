@@ -1,4 +1,4 @@
-const winston = require('../../winston')
+const logger = require('../../logger')
 
 const CommandHeader = require('../net-command/command-header');
 const ResData = require('../ResData');
@@ -21,19 +21,18 @@ var rcvCommand;
   * 서버 접속
   */
 function connect () {
-    
     if (dsSock) {
         dsSock.destroy();
     }
     
-    winston.info("Conncect MAIN_DS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
+    logger.info("Conncect MAIN_DS to " + JSON.stringify(global.SITE_CONFIG, null, 0))
 
     return new Promise(function(resolve, reject){
         var tcpSock = require('net');  
         var client  = new tcpSock.Socket; 
          
         dsSock = client.connect(global.SITE_CONFIG.server_port, global.SITE_CONFIG.server_ip, function() {
-            winston.info("Conncect MAIN_DS Completed to " + JSON.stringify(global.SITE_CONFIG, null, 0))
+            logger.info("Conncect MAIN_DS Completed to " + JSON.stringify(global.SITE_CONFIG, null, 0))
             global.SERVER_INFO.DS.isConnected = true;
 
             resolve(new ResData(true));
@@ -45,17 +44,17 @@ function connect () {
         })
         // 접속이 종료됬을때 메시지 출력
         dsSock.on('end', function(){
-            winston.warn('DS Disconnected!');
+            logger.warn('DS Disconnected!');
             global.SERVER_INFO.DS.isConnected = false;
         });
         // close
         dsSock.on('close', function(hadError){
-            winston.warn("DS Close. hadError: " + hadError);
+            logger.warn("DS Close. hadError: " + hadError);
             global.SERVER_INFO.DS.isConnected = false;
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         dsSock.on('error', function(err){
-            winston.error("DS Error: ", err);
+            logger.error("DS Error: ", err);
             
             // 연결이 안되었는데 에러난것은 연결시도중 발생한 에러라 판당한다.
             if (!global.SERVER_INFO.DS.isConnected) {
@@ -66,7 +65,7 @@ function connect () {
         });
         // connection에서 timeout이 발생하면 메시지 출력
         dsSock.on('timeout', function(){
-            winston.warn('DS Connection timeout.');
+            logger.warn('DS Connection timeout.');
             global.SERVER_INFO.DS.isConnected = false;
         });
     });
@@ -86,8 +85,8 @@ function close() {
  * @param {Buffer}} rcvData 
  */
 function readDataStream(rcvData){  
-    winston.info('\r\n++++++++++++++++++++++++++++++++++');
-    winston.info('DS rcvData:', rcvData);
+    logger.info('\r\n++++++++++++++++++++++++++++++++++');
+    logger.info('DS rcvData:', rcvData);
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
@@ -107,7 +106,7 @@ function readDataStream(rcvData){
     }
 
     rcvCommand.readCnt += rcvData.length;
-    winston.info('Recive DS Command Data :', rcvCommand);
+    logger.info('Recive DS Command Data :', rcvCommand);
 
     if (rcvCommand.size <= rcvCommand.readCnt) {
         // 데이터를 모두 다 받았다.
@@ -117,7 +116,7 @@ function readDataStream(rcvData){
         global.DS_SEND_COMMAND = null;
 
         if (!responseCmdProc(procCmd)) {
-            winston.info('Revceive DS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            logger.info('Revceive DS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     }
 };
@@ -155,9 +154,9 @@ function writeCommand(cmdHeader, dataBuf = null) {
         dsSock.write(cmdBuf);
         global.DS_SEND_COMMAND = cmdHeader
 
-        winston.info("write DS Command : ", global.DS_SEND_COMMAND);
+        logger.info("write DS Command : ", global.DS_SEND_COMMAND);
     // } catch (exception) {
-    //     winston.info("write DS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
+    //     logger.info("write DS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }
  };
 

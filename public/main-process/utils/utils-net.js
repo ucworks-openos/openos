@@ -1,4 +1,4 @@
-const winston = require('../../winston');
+const logger = require('../../logger');
 
 async function createSock(ip, port) {
     return new Promise(function(resolve, reject) {
@@ -6,7 +6,7 @@ async function createSock(ip, port) {
         let client  = new tcpSock.Socket; 
 
         let connectedSock = client.connect(Number(port), ip, function() {
-            winston.info("Conncect Completed to " + ip + ' : ' + port )
+            logger.info("Conncect Completed to " + ip + ' : ' + port )
             resolve(connectedSock)
         });  
 

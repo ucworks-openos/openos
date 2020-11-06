@@ -1,7 +1,7 @@
 const electron = require("electron");
 const { app, Tray, Menu, session } = require('electron')
 
-const winston = require('./winston')
+const logger = require('./logger')
 
 const path = require("path");
 const isDev = require("electron-is-dev");
@@ -314,11 +314,11 @@ global.USER_CONFIG = new Store({
  *******************************************************************************************************/
 
 // //loadMainProcesses
-// winston.debug('loadfile : %s', path.join(__dirname, 'main-process/**/*.js'));
+// logger.debug('loadfile : %s', path.join(__dirname, 'main-process/**/*.js'));
 // //const files = glob.sync(path.join(__dirname, '/../public/main-process/**/*.js'))''
 // const files = glob.sync(path.join(__dirname, 'main-process/**/*.js'))
 // files.forEach((file) => {
-//   winston.debug('loadfile... %s', file);
+//   logger.debug('loadfile... %s', file);
 //   require(file) 
 // })
 
@@ -331,28 +331,28 @@ var tray = null;
  */
 app.on("ready", async () => { //app.whenReady().then(() => { });
   
-  winston.info(' ')
-  winston.info(' ')
-  winston.info('==================================================================')
-  winston.info('== UCM MESSENGER START')
-  winston.info('==')
-  winston.info('== IsDevMode:%s', global.IS_DEV);
-  winston.info('== LOCAL_IP:%s  MAC_ADDRESS:%s', OsUtil.getIpAddress(), await OsUtil.getMacAddress());
-  winston.info('== PLATFORM:%s OS:%s VERSION:%s  USERNAME:%s', global.MY_PLATFORM, getOsInfo(), process.getSystemVersion(), process.env.USERNAME);
-  winston.info('== COMPUTERNAME:%s USERDOMAIN:%s LANG:%s', process.env.COMPUTERNAME, process.env.USERDOMAIN, process.env.LANG);
-  winston.info('== ROOT_PATH:%s ', global.ROOT_PATH);
-  winston.info('== LOG_PATH:%s', global.LOG_PATH);
+  logger.info(' ')
+  logger.info(' ')
+  logger.info('==================================================================')
+  logger.info('== UCM MESSENGER START')
+  logger.info('==')
+  logger.info('== IsDevMode:%s', global.IS_DEV);
+  logger.info('== LOCAL_IP:%s  MAC_ADDRESS:%s', OsUtil.getIpAddress(), await OsUtil.getMacAddress());
+  logger.info('== PLATFORM:%s OS:%s VERSION:%s  USERNAME:%s', global.MY_PLATFORM, getOsInfo(), process.getSystemVersion(), process.env.USERNAME);
+  logger.info('== COMPUTERNAME:%s USERDOMAIN:%s LANG:%s', process.env.COMPUTERNAME, process.env.USERDOMAIN, process.env.LANG);
+  logger.info('== ROOT_PATH:%s ', global.ROOT_PATH);
+  logger.info('== LOG_PATH:%s', global.LOG_PATH);
   
 
   if (IS_DEV) {
-    winston.info('== USERPROFILE:%s PWD:%s HOME:%s', process.env.USERPROFILE, process.env.PWD, process.env.HOME);
-    winston.info('== HOMEPATH:%s', process.env.HOMEPATH);
-    winston.info('== INIT_CWD:%s ', process.env.INIT_CWD);
-    winston.info('== AppPath:%s', app.getAppPath());
-    winston.info('== __dirname:%s', __dirname);
+    logger.info('== USERPROFILE:%s PWD:%s HOME:%s', process.env.USERPROFILE, process.env.PWD, process.env.HOME);
+    logger.info('== HOMEPATH:%s', process.env.HOMEPATH);
+    logger.info('== INIT_CWD:%s ', process.env.INIT_CWD);
+    logger.info('== AppPath:%s', app.getAppPath());
+    logger.info('== __dirname:%s', __dirname);
   }
   
-  winston.info('==================================================================')
+  logger.info('==================================================================')
 
 
   // Single Instance
@@ -365,10 +365,10 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
   }
 
   //loadMainProcesses
-  //winston.debug('loadfile : %s', path.join(__dirname, 'main-process/**/*.js'));
+  //logger.debug('loadfile : %s', path.join(__dirname, 'main-process/**/*.js'));
   const files = glob.sync(path.join(__dirname, 'main-process/**/*.js'))
   files.forEach((file) => {
-    //winston.debug('loadfile... %s', file);
+    //logger.debug('loadfile... %s', file);
     require(file) 
   })
 
@@ -401,7 +401,7 @@ app.on("ready", async () => { //app.whenReady().then(() => { });
       mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
     })
   } catch(err) {
-    winston.error('Tray Icon CreateFail! ', iconPath);
+    logger.error('Tray Icon CreateFail! ', iconPath);
   }
 
   // config file load
@@ -502,13 +502,13 @@ app.on('quit', function (evt) {
   if (tray) tray.destroy();
   app.exit();
 
-  winston.info('==================================================================')
-  winston.info('===================  Application Exit! ===========================')
-  winston.info('==================================================================')
+  logger.info('==================================================================')
+  logger.info('===================  Application Exit! ===========================')
+  logger.info('==================================================================')
 });
 
 process.on("uncaughtException", (err) => {
-   winston.error('main-process uncaughtException. %s', err)
+   logger.error('main-process uncaughtException. %s', err)
 
    // 바로 종료해 버린다.
    if (MAIN_WINDOW) mainWindow.destroy(-1);

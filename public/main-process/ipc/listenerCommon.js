@@ -1,5 +1,5 @@
 const { ipcMain } = require('electron');
-const winston = require('../../winston')
+const logger = require('../../logger')
 
 const CryptoUtil = require('../utils/utils-crypto');
 
@@ -16,15 +16,15 @@ const { writeConfig } = require('../configuration/site-config')
 
 /** login */ 
 ipcMain.on('login', async (event, loginId, loginPwd, isAutoLogin) => {
-  winston.debug('login Req : ',  loginId, loginPwd, isAutoLogin)
+  logger.debug('login Req : ',  loginId, loginPwd, isAutoLogin)
 
   if (!loginId) {
-    winston.error('Login Id Empty!');
+    logger.error('Login Id Empty!');
     event.reply('res-login', new ResData(false, new Error('Login Id Empty!')));
     return;
   }
   
-  winston.info('Auto Login. isAutoLogin:%s  configAugoLogin:%s', isAutoLogin && global.USER_CONFIG.get('autoLogin'));
+  logger.info('Auto Login. isAutoLogin:%s  configAugoLogin:%s', isAutoLogin && global.USER_CONFIG.get('autoLogin'));
 
   // 자동로그인 요청이라면 저장된 비번을 확인한다.
   if (isAutoLogin) {
@@ -32,28 +32,35 @@ ipcMain.on('login', async (event, loginId, loginPwd, isAutoLogin) => {
     if (encPwd) {
       loginPwd = CryptoUtil.decryptAES256(CmdConst.SESSION_KEY_AES256, encPwd);
     } else {
-      winston.error('Can not auto login! password empty!');
+      logger.error('Can not auto login! password empty!');
       event.reply('res-login', new ResData(false, new Error('Can not auto login! password empty!')));
       return;
     }
   }
 
+  let resData;
   try {
     // DS로 로그인 요청을 하고
     resData = await dsAPI.reqLogin(loginId, loginPwd);
-    winston.debug('login Req : %s', resData)
+    logger.debug('login Req : %s', resData)
 
     // CS로 인증 요청을 하고
     if (resData.resCode) {
       resData = await csAPI.reqCertifyCS(loginId, loginPwd, true);
     } 
-    else throw new Error('reqLogin fail!');
+    else {
+      dsAPI.close();
+      throw new Error('reqLogin fail!');
+    }
 
     // PS로 사용자 정보를 받고
     if (resData.resCode) {
       resData = await psAPI.reqGetCondition(loginId)
     }
-    else throw new Error('reqCertifyCS fail!');
+    else {
+      csAPI.close();
+      throw new Error('reqCertifyCS fail!');
+    } 
 
     // NS로 알림수신 대기를 한다.
     if (resData.resCode) {
@@ -68,7 +75,10 @@ ipcMain.on('login', async (event, loginId, loginPwd, isAutoLogin) => {
 
       resData = await nsAPI.reqconnectNS(loginId)
     }
-    else throw new Error('reqGetCondition fail!');
+    else {
+      psAPI.close()
+      throw new Error('reqGetCondition fail!');
+    }
 
     // 내상태를 Online으로 처리합니다.
     nsAPI.reqChangeStatus(CmdConst.STATE_ONLINE);
@@ -83,10 +93,15 @@ ipcMain.on('login', async (event, loginId, loginPwd, isAutoLogin) => {
       global.USER_CONFIG.set('autoLoginPwd', CryptoUtil.encryptAES256(CmdConst.SESSION_KEY_AES256, loginPwd));
     }
 
+    if (!resData.resCode) {
+      nsAPI.close();
+    }
+
     event.reply('res-login', new ResData(true, resData));
 
   } catch(err){
-    winston.error('login fail! res:', resData, err)
+    nsAPI.close();
+    logger.error('login fail! res:', resData, err)
     event.reply('res-login', new ResData(false, err));
   };
 });
@@ -112,7 +127,7 @@ ipcMain.on('updateMyAlias', async (event, myAlias) => {
 ipcMain.on('changeStatus', async (event, status, force = false) => {
   nsAPI.reqChangeStatus(status, force).then(function(resData)
   {
-    winston.debug('changeStatus res:', resData)
+    logger.debug('changeStatus res:', resData)
     event.reply('res-changeStatus', resData);
   }).catch(function(err) {
     event.reply('res-changeStatus', new ResData(false, err));
@@ -123,7 +138,7 @@ ipcMain.on('changeStatus', async (event, status, force = false) => {
 ipcMain.on('setStatusMonitor', async (event, userIds) => {
   nsAPI.reqSetStatusMonitor(userIds).then(function(resData)
   {
-    winston.debug('setStatusMonitor res:', resData)
+    logger.debug('setStatusMonitor res:', resData)
     event.reply('res-setStatusMonitor', resData);
   }).catch(function(err) {
     event.reply('res-setStatusMonitor', new ResData(false, err));
@@ -135,7 +150,7 @@ ipcMain.on('getConfig', (event, ...args) => {
   //return event.returnValue = global.SITE_CONFIG;
   event.reply('res-getConfig', global.SITE_CONFIG);
 
-  winston.debug('mainProc getConfig\r\n%s', global.SITE_CONFIG)
+  logger.debug('mainProc getConfig\r\n%s', global.SITE_CONFIG)
 });
 
 /** saveConfig */
@@ -156,7 +171,7 @@ ipcMain.on('decryptMessage', async (event, encryptKey, cipherMessage) => {
 
   let decMessage = decryptMessage(encryptKey, cipherMessage);
 
-  winston.info('[IPC] decryptMessage res:', decMessage)
+  logger.info('[IPC] decryptMessage res:', decMessage)
   event.reply('res-decryptMessage', decMessage);
 
 });

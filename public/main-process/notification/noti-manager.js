@@ -1,4 +1,4 @@
-const winston = require('../../winston')
+const logger = require('../../logger')
 const { BrowserWindow} = require('electron');
 
 const { send } = require('../ipc/ipc-cmd-sender');
@@ -18,7 +18,7 @@ const notiWidth = 375;
  */
 function messageReceived(msgData) {
 
-  winston.debug('messageReceived', msgData)
+  logger.debug('messageReceived', msgData)
 
   let destIds = msgData.allDestId.split(cmdConst.SEP_PIPE);
   send('messageReceived', msgData)
@@ -34,7 +34,7 @@ function messageReceived(msgData) {
  * @param {CountData} cntData 
  */
 function unreadCountReceived(cntData) {
-    winston.info('unreadCount Received! ', JSON.stringify(cntData));
+    logger.info('unreadCount Received! ', JSON.stringify(cntData));
     send('unreadCountReceived', cntData)
 }
 
@@ -45,7 +45,7 @@ function unreadCountReceived(cntData) {
  * @param {Number} connType 접속 유형
  */
 function userStatusChanged(userId, status, connType) {
-  winston.info('userStatusChanged! ', userId, status, connType);
+  logger.info('userStatusChanged! ', userId, status, connType);
   send('userStatusChanged', userId, status, connType)
 }
 
@@ -54,13 +54,13 @@ function userStatusChanged(userId, status, connType) {
  */
 function chatReceived(chatData) {
   // 대화는 포커스 여부를 판단하기 위해 Rander에서 알림을 요청합니다.
-  winston.debug('chatReceived! ', JSON.stringify(chatData));
+  logger.debug('chatReceived! ', JSON.stringify(chatData));
   send('chatReceived', chatData)
 }
 
 /** 대화명 변경 수신 */
 function userAliasChanged(aliasData) {
-  winston.info('userAliasChanged! ', JSON.stringify(aliasData));
+  logger.info('userAliasChanged! ', JSON.stringify(aliasData));
   send('userAliasChanged', aliasData)
 }
 
@@ -70,7 +70,7 @@ function userAliasChanged(aliasData) {
  * @param {*} cnt 
  */
 function chatRoomUnreadCount(roomKey, cnt) {
-  winston.info('chatRoomUnreadCount! ', roomKey, cnt);
+  logger.info('chatRoomUnreadCount! ', roomKey, cnt);
   send('chatRoomUnreadCount', roomKey, cnt)
 }
 
@@ -80,7 +80,7 @@ function chatRoomUnreadCount(roomKey, cnt) {
  * @param {any} cntInfo 
  */
 function chatLineUnreadCount(roomKey, cntInfo) {
-  winston.info('chatLineUnreadCount! ', roomKey, cntInfo);
+  logger.info('chatLineUnreadCount! ', roomKey, cntInfo);
   send('chatLineUnreadCount', roomKey, cntInfo)
 }
 
@@ -99,7 +99,7 @@ function phoneStatusChange(userId, stateGubun, phoneStatus) {
  * @param {any} alertInfo 
  */
 function ipPhoneAlert(alertInfo) {
-  winston.info('ipPhoneAlert info:', alertInfo)
+  logger.info('ipPhoneAlert info:', alertInfo)
 
   if (alertInfo) {
     /*{
@@ -147,7 +147,7 @@ function ipPhoneAlert(alertInfo) {
  * @param {any} alertData 
  */
 function notifyAlarm(alertData) {
-  winston.info('notifyAlarm - ', alertData);
+  logger.info('notifyAlarm - ', alertData);
   // alertData = {
   //   action:action,
   //   key:key,

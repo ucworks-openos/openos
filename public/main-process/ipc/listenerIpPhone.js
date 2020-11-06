@@ -3,7 +3,7 @@ const { ipcMain } = require('electron');
 const { reqIpPhone } = require('../net-command/command-ns-api');
 const ResData = require('../ResData');
 const util = require('util');
-const winston = require('../../winston');
+const logger = require('../../logger');
 
 
 /** makeCall */
@@ -18,10 +18,10 @@ ipcMain.on('makeCall', (event, dest) => {
   
   let makeCallXml = util.format(makeCallXmlFormat, global.USER.userId, dest);
 
-  winston.debug('makeCall-', makeCallXml)
+  logger.debug('makeCall-', makeCallXml)
   reqIpPhone(makeCallXml).then(function(resData)
   {
-    winston.info('makeCall res:', resData)
+    logger.info('makeCall res:', resData)
     event.reply('res-makeCall', resData);
   }).catch(function(err) {
     event.reply('res-makeCall', new ResData(false, err));
@@ -41,10 +41,10 @@ ipcMain.on('answerCall', (event, callid) => {
   
   let answerCallXml = util.format(answerCallXmlFormat, global.USER.userId, callid);
 
-  winston.debug('answerCall-', answerCallXml)
+  logger.debug('answerCall-', answerCallXml)
   reqIpPhone(answerCallXml).then(function(resData)
   {
-    winston.info('answerCall res:', resData)
+    logger.info('answerCall res:', resData)
     event.reply('res-answerCall', resData);
   }).catch(function(err) {
     event.reply('res-answerCall', new ResData(false, err));
@@ -64,10 +64,10 @@ ipcMain.on('clearCall', (event, callid) => {
   
   let clearCallXml = util.format(clearCallXmlFormat, global.USER.userId, callid);
 
-  winston.debug('clearCall-', clearCallXml)
+  logger.debug('clearCall-', clearCallXml)
   reqIpPhone(clearCallXml).then(function(resData)
   {
-    winston.info('clearCall res:', resData)
+    logger.info('clearCall res:', resData)
     event.reply('res-clearCall', resData);
   }).catch(function(err) {
     event.reply('res-clearCall', new ResData(false, err));
@@ -87,10 +87,10 @@ ipcMain.on('transferCall', (event, heldcallid, actcallid) => {
   
   let transferCallXml = util.format(transferCallXmlFormat, global.USER.userId, heldcallid, actcallid);
 
-  winston.debug('transferCall-', transferCallXml)
+  logger.debug('transferCall-', transferCallXml)
   reqIpPhone(transferCallXml).then(function(resData)
   {
-    winston.info('transferCall res:', resData)
+    logger.info('transferCall res:', resData)
     event.reply('res-transferCall', resData);
   }).catch(function(err) {
     event.reply('res-transferCall', new ResData(false, err));
@@ -110,10 +110,10 @@ ipcMain.on('pickupCall', (event, pucallid) => {
   
   let pickupCallXml = util.format(pickupCallXmlFormat, global.USER.userId, pucallid);
 
-  winston.debug('pickupCall-', pickupCallXml)
+  logger.debug('pickupCall-', pickupCallXml)
   reqIpPhone(pickupCallXml).then(function(resData)
   {
-    winston.info('pickupCall res:', resData)
+    logger.info('pickupCall res:', resData)
     event.reply('res-pickupCall', resData);
   }).catch(function(err) {
     event.reply('res-pickupCall', new ResData(false, err));
@@ -135,10 +135,10 @@ ipcMain.on('forwardCall', (event, act, fwdnum) => {
   
   let forwardCallXml = util.format(forwardCallXmlFormat, global.USER.userId, act?'true':'false', fwdnum);
 
-  winston.debug('forwardCall-', forwardCallXml)
+  logger.debug('forwardCall-', forwardCallXml)
   reqIpPhone(forwardCallXml).then(function(resData)
   {
-    winston.info('forwardCall res:', resData)``
+    logger.info('forwardCall res:', resData)``
     event.reply('res-forwardCall', resData);
   }).catch(function(err) {
     event.reply('res-forwardCall', new ResData(false, err));
