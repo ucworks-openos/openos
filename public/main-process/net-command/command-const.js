@@ -55,41 +55,50 @@ module.exports = Object.freeze({
      delphi에서는 배열 선언시 0부터 지정자리수만금 배열이 생김으로 +1을 한다.
      예) len = 512 -> 배열 0~512 만큼생김
     */
-    BUF_LEN_INT             : 4,          // int형 byte는 차이가 없다.
-    BUF_LEN_PUKCERTKEY      : 512 + 1,
-    BUF_LEN_CHALLENGE       : 32 + 1,
-    BUF_LEN_SESSION         : 32 + 1,
-    BUF_LEN_IP              : 50 + 1, // 1바이트 더 들어온다.
-    BUF_LEN_USERID          : 50 + 1,
-    BUF_LEN_USERNAME        : 100 + 1,
-    BUF_LEN_USERPWD         : 100 + 1,
-    BUF_LEN_USERDN          : 4000 + 1,
+    BUF_LEN_INT                 : 4,          // int형 byte는 차이가 없다.
+    BUF_LEN_PUKCERTKEY          : 512 + 1,
+    BUF_LEN_CHALLENGE           : 32 + 1,
+    BUF_LEN_SESSION             : 32 + 1,
+    BUF_LEN_IP                  : 50 + 1, // 1바이트 더 들어온다.
+    BUF_LEN_USERID              : 50 + 1,
+    BUF_LEN_USERNAME            : 100 + 1,
+    BUF_LEN_USERPWD             : 100 + 1,
+    BUF_LEN_USERDN              : 4000 + 1,
 
-    BUF_LEN_ORG_GROUP_CODE  : 10 + 1,
-    BUF_LEN_GROUP_CODE      : 20 + 1,
+    BUF_LEN_ORG_GROUP_CODE      : 10 + 1,
+    BUF_LEN_GROUP_CODE          : 20 + 1,
 
-    BUF_LEN_ENCRYPT         : 128 + 1,
-    BUF_LEN_KEY             : 70 + 1,
-    BUF_LEN_GUBUN           : 10 + 1,
+    BUF_LEN_ENCRYPT             : 128 + 1,
+    BUF_LEN_KEY                 : 70 + 1,
+    BUF_LEN_GUBUN               : 10 + 1,
 
-    BUF_LEN_SUBJECT         : 200 + 1,
-    BUF_LEN_SEND_DATE       : 15 + 1,
-    BUF_LEN_RES_DATE        : 15 + 1,
-    BUF_LEN_RECV_NAME       : 150 + 1,
+    BUF_LEN_SUBJECT             : 200 + 1,
+    BUF_LEN_SEND_DATE           : 15 + 1,
+    BUF_LEN_RES_DATE            : 15 + 1,
+    BUF_LEN_RECV_NAME           : 150 + 1,
 
-    BUF_LEN_TIME            : 14 + 1,
-    BUF_LEN_DATE            : 20 + 1,
+    BUF_LEN_TIME                : 14 + 1,
+    BUF_LEN_DATE                : 20 + 1,
 
-    BUF_LEN_CHAT_ROOM_KEY   : 128 + 1,
+    BUF_LEN_CHAT_ROOM_KEY       : 128 + 1,
     
-    BUF_LEN_SQL_KEY         : 128 + 1,
-    BUF_LEN_SQL_NAME        : 100 + 1,
-    BUF_LEN_SQL_DATA        : 512 + 1,
-    BUF_LEN_SQL_FIELD       : 50 + 1,
+    BUF_LEN_SQL_KEY             : 128 + 1,
+    BUF_LEN_SQL_NAME            : 100 + 1,
+    BUF_LEN_SQL_DATA            : 512 + 1,
+    BUF_LEN_SQL_FIELD           : 50 + 1,
 
-    BUF_LEN_FONTNAME        : 100 + 1,
+    BUF_LEN_FONTNAME            : 100 + 1,
 
-    BUF_LEN_FILEDATA      : 4096,
+    BUF_LEN_FILEDATA            : 4096,
+
+    BUF_LEN_LINK_ACTION         : 50 + 1,
+    BUF_LEN_LINK_KEY            : 60 + 1,
+    BUF_LEN_LINK_RECV_TIME      : 20 + 1,
+    BUF_LEN_LINK_SYSTEM_NAME    : 40 + 1,
+    BUF_LEN_LINK_OPTION         : 100 + 1,
+    BUF_LEN_DEST_GUBUN          : 2 + 1,
+    BUF_LEN_DOMAIN              : 50 + 1,
+
 
     //#endregion COMMAND LENGTH
     

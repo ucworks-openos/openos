@@ -146,6 +146,9 @@ function NotificationControl() {
         case "NOTI_PHONE_CALLED":
           answerCall(noti.notiId)
           break;
+        case 'NOTI_ALARM':
+          window.location.hash = `#/notice`;
+          break;
         default:
           writeLog("Unknown Noti Title Click", noti);
           return;

@@ -18,7 +18,7 @@ function getStringWithoutEndOfString(strBuf, sInx = 0, readLength = -1, encoding
     let tempBuf = strBuf.slice(sInx, eInx);
     let endOfStrInx = tempBuf.indexOf(0x00);
     
-    if (endOfStrInx > 0) tempBuf = tempBuf.slice(0, endOfStrInx);
+    if (endOfStrInx > -1) tempBuf = tempBuf.slice(0, endOfStrInx);
     
     if (logging) {
         winston.debug('getStringWithoutEndOfString. sinx:%s readLength:%s einx:%s endOfStrInx:%s tmpStr:%s tempBuf:%s', sInx, readLength, eInx, endOfStrInx, tempBuf.toString(encoding), tempBuf);

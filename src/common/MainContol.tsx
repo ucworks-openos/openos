@@ -67,7 +67,7 @@ function MainContol(props:TloginContolProps) {
             }
 
             const callHistoryInstance = Axios.create({
-                baseURL: ExternalURLs.BAND_BASE, //'http://27.96.131.93'
+                baseURL: ExternalURLs.BAND_BACK_BASE, //'http://27.96.131.93'
                 timeout: 3000,
                 headers: {'X-Custom-Header': 'foobar'}
             });

@@ -76,8 +76,8 @@ function chatRoomUnreadCount(roomKey, cnt) {
 
 /**
  * chatLineUnreadCount
- * @param {*} roomKey 
- * @param {*} cnt 
+ * @param {String} roomKey 
+ * @param {any} cntInfo 
  */
 function chatLineUnreadCount(roomKey, cntInfo) {
   winston.info('chatLineUnreadCount! ', roomKey, cntInfo);
@@ -85,7 +85,7 @@ function chatLineUnreadCount(roomKey, cntInfo) {
 }
 
 /**
- * 
+ * phoneStatusChange
  * @param {String} userId 
  * @param {String} stateGubun 
  * @param {String} phoneStatus 
@@ -94,6 +94,10 @@ function phoneStatusChange(userId, stateGubun, phoneStatus) {
   send('phoneStatusChange', userId, stateGubun, phoneStatus)
 }
 
+/**
+ * ipPhoneAlert
+ * @param {any} alertInfo 
+ */
 function ipPhoneAlert(alertInfo) {
   winston.info('ipPhoneAlert info:', alertInfo)
 
@@ -138,6 +142,28 @@ function ipPhoneAlert(alertInfo) {
   }
 }
 
+/**
+ * Notification Alarm
+ * @param {any} alertData 
+ */
+function notifyAlarm(alertData) {
+  winston.info('notifyAlarm - ', alertData);
+  // alertData = {
+  //   action:action,
+  //   key:key,
+  //   recv_time:recv_time,
+  //   system_name:system_name,
+  //   send_id:send_id,
+  //   send_name:send_name,
+  //   subject:subject,
+  //   option:option,
+  //   dest_domain:dest_domain,
+  //   dest_gubun:dest_gubun,
+  // }
+
+  showAlert(notiType.NOTI_ALARM, alertData.key, alertData.system_name, alertData.subject, alertData.send_name?alertData.send_name:"ADMIN");
+}
+
 module.exports = {
     messageReceived: messageReceived,
     unreadCountReceived: unreadCountReceived,
@@ -147,5 +173,6 @@ module.exports = {
     chatRoomUnreadCount: chatRoomUnreadCount,
     chatLineUnreadCount: chatLineUnreadCount,
     phoneStatusChange: phoneStatusChange,
-    ipPhoneAlert: ipPhoneAlert
+    ipPhoneAlert: ipPhoneAlert,
+    notifyAlarm: notifyAlarm
   }
