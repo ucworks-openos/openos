@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addChatMessage,
+  addFileSkeleton,
   getChatMessages,
 } from "../../../redux/actions/chat_actions";
 import { EchatType } from "../../../enum";
@@ -9,12 +10,11 @@ import { delay, getDispUserNames, lineKeyParser } from "../../../common/util";
 import { uploadFile } from "../../../common/ipcCommunication/ipcFile";
 import DragAndDropSupport from "../../../common/components/DragAndDropSupport";
 import useIntersectionObserver from "../../../hooks/useIntersectionObserver";
-import MyChat from "./MyChat";
-import UserChat from "./UserChat";
+import ChatMessage from "./ChatMessage";
 
 const { remote } = window.require("electron");
 
-function ChatMessages() {
+export default function ChatMessages() {
   const dispatch = useDispatch();
   const rootRef = useRef(null);
   const targetRef = useRef(null);
@@ -67,7 +67,6 @@ function ChatMessages() {
         currentChatRoom &&
         lastReceivedChatMessages?.length === 50
       ) {
-        console.log(`loading chat...`);
         dispatch(
           getChatMessages(currentChatRoom.room_key, chatMessages?.[0].line_key)
         );
@@ -81,6 +80,10 @@ function ChatMessages() {
     if (!currentChatRoom) return;
 
     for (let i = 0; i < files.length; i++) {
+      console.log(`file drop: `, files[i]);
+      dispatch(
+        addFileSkeleton(files[i].name, loginUser.userName, loginUser.userId)
+      );
       const resData = await uploadFile(files[i].path, files[i].path);
       console.log(`file upload complete: `, resData.data);
 
@@ -149,11 +152,13 @@ function ChatMessages() {
                     <div class="divider" />
                   </div>
                 )}
-                {chat.chat_send_id === sessionStorage.getItem("loginId") ? (
-                  <MyChat chat={chat} />
-                ) : (
-                  <UserChat chat={chat} />
-                )}
+
+                <ChatMessage
+                  chat={chat}
+                  isMine={
+                    chat.chat_send_id === sessionStorage.getItem("loginId")
+                  }
+                />
               </>
             );
           })}
@@ -163,5 +168,3 @@ function ChatMessages() {
     </DragAndDropSupport>
   );
 }
-
-export default ChatMessages;

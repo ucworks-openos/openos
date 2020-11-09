@@ -1,4 +1,8 @@
-import { writeDebug, writeError } from "../../common/ipcCommunication/ipcLogger";
+import {
+  writeDebug,
+  writeError,
+} from "../../common/ipcCommunication/ipcLogger";
+import { EchatType } from "../../enum";
 import {
   GET_INITIAL_CHAT_ROOMS,
   GET_INITIAL_CHAT_MESSAGES,
@@ -19,6 +23,9 @@ import {
   SET_CURRENT_EMOTICON,
   UPDATE_CURRENT_CHAT_ROOM,
   GET_ADDITIONAL_CHAT_MESSAGES,
+  ADD_FILE_SKELETON,
+  SET_FILE_SKELETON,
+  DELETE_FILE_SKELETON,
 } from "../actions/types";
 
 export default function (
@@ -29,11 +36,6 @@ export default function (
   action
 ) {
   switch (action.type) {
-    case SET_CHAT_MESSAGES:
-      return {
-        ...state,
-        chatMessages: action.payload,
-      };
     case SET_CURRENT_EMOTICON:
       return {
         ...state,
@@ -129,12 +131,12 @@ export default function (
       }
 
       if (!state.chatMessages) {
-        state.chatMessages = []
+        state.chatMessages = [];
       }
 
       let newMessage = action.payload;
       let roomKey = newMessage.roomKey;
-      
+
       /** DB에서 가져와 표출되는 Data와 알림으로 들어오는 데이터 형식을 맞춘다. */
       let chatMessageBody = {
         room_key: newMessage.roomKey,
@@ -150,8 +152,8 @@ export default function (
         chat_font_size: newMessage.fontSize,
         chat_font_color: newMessage.fontColor,
         chat_font_style: newMessage.fontStyle,
-        chat_contents: newMessage.chatData
-      }
+        chat_contents: newMessage.chatData,
+      };
 
       //#region Chat Noti Data From Noti
       /* 
@@ -199,17 +201,21 @@ export default function (
       */
       //#endregion Chat View Data
 
-
-      let chatRoom = state.chatRooms.filter((room)=>room.room_key === roomKey);
+      let chatRoom = state.chatRooms.filter(
+        (room) => room.room_key === roomKey
+      );
 
       if (chatRoom.length > 0) {
         // 이미 방이 있다.
-        writeDebug('ADD_RECEIVED_CHAT. Already Has Room:%s', roomKey);
+        writeDebug("ADD_RECEIVED_CHAT. Already Has Room:%s", roomKey);
         let newChatRoomsWithoutReceivedChatRoom = state.chatRooms.filter(
           (r) => r.room_key !== roomKey
         );
-        let newChatRoomsHa = [chatRoom[0], ...newChatRoomsWithoutReceivedChatRoom];
-  
+        let newChatRoomsHa = [
+          chatRoom[0],
+          ...newChatRoomsWithoutReceivedChatRoom,
+        ];
+
         let isCurrentMessage = false;
         if (state.currentChatRoom?.room_key === newMessage.roomKey) {
           isCurrentMessage = true;
@@ -254,20 +260,55 @@ export default function (
 
         let newChatRoomsHa = [chatRoom, ...state.chatRooms];
 
-        writeDebug('ADD_RECEIVED_CHAT. GetRoom RoomKey:%s', roomKey)   
+        writeDebug("ADD_RECEIVED_CHAT. GetRoom RoomKey:%s", roomKey);
 
         return {
           ...state,
           chatRooms: newChatRoomsHa,
           chatMessages: [state.chatMessages],
-          currentChatRoom: state.currentChatRoom?state.currentChatRoom:chatRoom
+          currentChatRoom: state.currentChatRoom
+            ? state.currentChatRoom
+            : chatRoom,
         };
       }
 
-    case ADD_CHAT_MESSAGE:
-      writeDebug('ADD_CHAT_MESSAGE  currentRoomKey:%s' , state.currentChatRoom?.room_key, action.payload);
+    case ADD_FILE_SKELETON:
+      return {
+        ...state,
+        chatMessages: [...state.chatMessages, action.payload],
+        chatAnchor: false,
+      };
+    case SET_FILE_SKELETON:
+      console.log(`set skeleton progress: `, action.payload.file_status);
+      const i = state.chatMessages.findIndex(
+        (v) => v.chat_type === EchatType.fileSkeleton.toString()
+      );
+      const v = state.chatMessages[i];
+      const replica = [...state.chatMessages];
+      replica.splice(i, 1, {
+        ...v,
+        file_status: action.payload.file_status,
+      });
 
-      if (!(state.currentChatRoom?.room_key)) return state;
+      return {
+        ...state,
+        chatMessages: replica,
+      };
+
+    case SET_CHAT_MESSAGES:
+      return {
+        ...state,
+        chatMessages: action.payload,
+      };
+
+    case ADD_CHAT_MESSAGE:
+      writeDebug(
+        "ADD_CHAT_MESSAGE  currentRoomKey:%s",
+        state.currentChatRoom?.room_key,
+        action.payload
+      );
+
+      if (!state.currentChatRoom?.room_key) return state;
 
       state.currentChatRoom.chat_contents = action.payload.chat_contents;
       state.currentChatRoom.last_line_key = action.payload.line_key;
@@ -278,9 +319,22 @@ export default function (
         state.currentChatRoom,
         ...newChatRoomsWithoutCurrentChatRoom,
       ];
+
+      let newChatMessages;
+      if (action.payload.chat_type === EchatType.file.toString()) {
+        const i = state.chatMessages.findIndex(
+          (v) => v.chat_type === EchatType.fileSkeleton.toString()
+        );
+        const replica = [...state.chatMessages];
+        replica.splice(i, 1, action.payload);
+        newChatMessages = replica;
+      } else {
+        newChatMessages = [...state.chatMessages, action.payload];
+      }
+
       return {
         ...state,
-        chatMessages: [...state.chatMessages, action.payload],
+        chatMessages: newChatMessages,
         chatRooms: newChatRooms, //현재 채팅룸을 가장 위로 올리기
         currentChatRoom: state.currentChatRoom, // 채팅룸 컨텐츠 정보 바꾸기
         chatAnchor: false,

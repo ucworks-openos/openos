@@ -88,7 +88,7 @@ function MessagesLists() {
               </div>
               <div className="receive-time sub1">
                 {moment(message.msg_send_date, "YYYYMMDDHHmm").format(
-                  "YYYY. MM. DD. h:mm a"
+                  "YYYY. MM. DD. HH:mm"
                 )}
               </div>
             </div>
@@ -99,7 +99,7 @@ function MessagesLists() {
 
   return (
     <div>
-      {writeDebug('MessageList. CurrentMessage', currentMessage)}
+      {writeDebug("MessageList. CurrentMessage", currentMessage)}
       {renderMessageLists()}
       {page * messageDefaultCounts <= messageCounts && (
         <div style={{ textAlign: "center" }}>

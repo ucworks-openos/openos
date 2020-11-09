@@ -41,4 +41,5 @@ export enum EchatType {
   chat = "U",
   emoticon = "E",
   file = "R",
+  fileSkeleton = "FS",
 }

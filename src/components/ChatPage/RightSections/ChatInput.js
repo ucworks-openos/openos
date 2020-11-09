@@ -2,9 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addChatMessage,
+  addFileSkeleton,
+  deleteFileSkeleton,
   setCurrentEmoticon,
   setEmojiVisible,
   setEmoticonVisible,
+  setFileSkeleton,
 } from "../../../redux/actions/chat_actions";
 import Alert from "react-bootstrap/Alert";
 import { arrayLike, delay } from "../../../common/util";
@@ -29,6 +32,7 @@ function ChatInput() {
     emojiVisible,
     emoticonVisible,
     currentEmoticon,
+    chatMessages,
   } = useSelector((state) => state.chats);
   const [inputValue, setInputValue] = useState("");
   const [isAlreadyTyped, setIsAlreadyTyped] = useState(false);
@@ -41,10 +45,14 @@ function ChatInput() {
     electron.ipcRenderer.on(
       "upload-file-progress",
       (event, uploadKey, uploadedLength, fileLength) => {
-        console.log(
-          uploadKey,
-          ((uploadedLength / fileLength) * 100).toFixed(0) + "%"
-        );
+        const percentage = Number((uploadedLength / fileLength) * 100);
+        if (percentage % 20 > 0.89 && percentage % 20 < 0.9) {
+          // console.log(percentage.toFixed(0));
+          dispatch(setFileSkeleton(uploadKey, `${percentage.toFixed(0)}%`));
+        }
+        // if (((uploadedLength / fileLength) * 100).toFixed(0) % 20 === 0) {
+        //   const status = ((uploadedLength / fileLength) * 100).toFixed(0) + "%";
+        // }
       }
     );
     return () => {
@@ -57,15 +65,18 @@ function ChatInput() {
 
   const handleSelectFile = async (e) => {
     const files = e.target.files;
-    console.log(`file selected: `, files);
-
     for (let i = 0; i < files.length; i++) {
+      dispatch(
+        addFileSkeleton(files[i].name, loginUser.userName, loginUser.userId)
+      );
       const resData = await uploadFile(files[i].path, files[i].path);
       console.log(`file upload complete: `, resData.data);
 
       const fileInfo = `${files[i].name}|${files[i].size}|SAVE_SERVER|${
         remote.getGlobal("SERVER_INFO").FS.pubip
-      };${remote.getGlobal("SERVER_INFO").FS.port}|${resData.data}|`;
+      };${remote.getGlobal("SERVER_INFO").FS.port}|${resData.data}|${
+        files[i].path
+      }`;
 
       let userNames;
       if (!currentChatRoom.chat_entry_names) {
@@ -75,7 +86,6 @@ function ChatInput() {
       } else {
         userNames = currentChatRoom.chat_entry_names;
       }
-
       dispatch(
         addChatMessage(
           currentChatRoom.chat_entry_ids,
@@ -103,6 +113,9 @@ function ChatInput() {
     if (!currentChatRoom) return;
 
     for (let i = 0; i < files.length; i++) {
+      dispatch(
+        addFileSkeleton(files[i].name, loginUser.userName, loginUser.userId)
+      );
       const resData = await uploadFile(files[i].path, files[i].path);
       console.log(`file upload complete: `, resData.data);
 
