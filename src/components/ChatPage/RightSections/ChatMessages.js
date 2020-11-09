@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addChatMessage,
+  addFileSkeleton,
   getChatMessages,
 } from "../../../redux/actions/chat_actions";
 import { EchatType } from "../../../enum";
@@ -66,7 +67,6 @@ export default function ChatMessages() {
         currentChatRoom &&
         lastReceivedChatMessages?.length === 50
       ) {
-        console.log(`loading chat...`);
         dispatch(
           getChatMessages(currentChatRoom.room_key, chatMessages?.[0].line_key)
         );
@@ -80,6 +80,10 @@ export default function ChatMessages() {
     if (!currentChatRoom) return;
 
     for (let i = 0; i < files.length; i++) {
+      console.log(`file drop: `, files[i]);
+      dispatch(
+        addFileSkeleton(files[i].name, loginUser.userName, loginUser.userId)
+      );
       const resData = await uploadFile(files[i].path, files[i].path);
       console.log(`file upload complete: `, resData.data);
 

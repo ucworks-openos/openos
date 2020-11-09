@@ -247,6 +247,52 @@ export default function ChatMessage({ chat, isMine }) {
         </div>
       );
     }
+    case EchatType.fileSkeleton.toString(): {
+      return (
+        <div className={`speech-row ${isMine ? `speech-my` : `speech-others`}`}>
+          {!isMine && (
+            <div className="user-pic-wrap">
+              <img
+                src={
+                  chat.user_picture_pos &&
+                  /^http/.test(chat.user_picture_pos.value)
+                    ? chat.user_picture_pos.value
+                    : "./images/img_imgHolder.png"
+                }
+                alt="user-profile-picture"
+              />
+            </div>
+          )}
+          <div
+            className={`${
+              isMine ? `speech-content-wrap-mine` : `speech-content-wrap-his`
+            }`}
+          >
+            {!isMine && (
+              <div className="speaker-info-wrap">{chat.chat_send_name}</div>
+            )}
+            <div className="speech-inner-wrap">
+              <FileInfo>
+                <div>
+                  <div>{chat.chat_contents}</div>
+                  <div>{chat.file_status}</div>
+                </div>
+                <div>
+                  <img src="./images/icon_attatched_file.png" />
+                </div>
+              </FileInfo>
+              <div className="speech-info">
+                {/* <span className="unread-ppl">{chat.read_count}</span> */}
+                <span className="time">
+                  {" "}
+                  {lineKeyParser(chat.line_key, `HH:mm`)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
     default:
       return <></>;
   }
