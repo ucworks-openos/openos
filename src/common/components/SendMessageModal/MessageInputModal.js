@@ -177,6 +177,7 @@ function MessageInputModal(props) {
             });
 
             let attFileInfo = '';
+            // foreach는 비동기로 돌아버려 순차적으로 처리되지 않는다.
             for (let i = 0; i < attachmentFiles.length; i++) {
                 let resData = await uploadFile(attachmentFiles[i].path, attachmentFiles[i].path);
                 fileUploadProgress(attachmentFiles[i].path, '100%', resData.data);
@@ -188,22 +189,6 @@ function MessageInputModal(props) {
             }
 
             sendMessage(recvIds, recvNames, tmpTitle, tmpContent, attFileInfo);
-
-            // 비동기로 돌아버려 순차적으로 처리되지 않는다.
-            // attachmentFiles.forEach(async(file) => {
-            //     writeInfo('Attachment Upload Req', file.name)
-
-            //     uploadFile(file.path, file.path).then(function(resData){
-            //         // IP;port|클라이언프 파일명|파일사이즈|서버파일명| ...
-            //         // 192.168.10.2;12554|1파일.txt|12,234|20110706112024237_1파일.txt.uxef| ...
-            //         writeInfo('fileUpload completed!',file.name, resData)
-            //         fileUploadProgress(file.path, '100%');
-    
-            //     }).catch(function(err){
-            //         writeError('File Upload Fail!', file, err);
-            //     });
-            //     await delay(500);
-            // })
         } else {
             writeLog('sendMessage', recvIds, recvNames, tmpTitle, content);
             sendMessage(recvIds, recvNames, tmpTitle, content);
