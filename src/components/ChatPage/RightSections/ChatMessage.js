@@ -11,6 +11,7 @@ import {
   shellOpenFolder,
   shellOpenItem,
 } from "../../../common/ipcCommunication/ipcUtil";
+import { CHAT_FONT_SEP } from "../../../enum/chatCommand";
 
 export default function ChatMessage({ chat, isMine }) {
   const { remote } = window.require("electron");
@@ -50,8 +51,10 @@ export default function ChatMessage({ chat, isMine }) {
 
   switch (chat.chat_type) {
     case EchatType.emoticon.toString(): {
-      const emoTab = chat.chat_font_name?.split(` `)?.[1];
-      const emoName = chat.chat_font_name?.split(` `)?.[2];
+      // const emoTab = chat.chat_font_name?.split(` `)?.[1];
+      // const emoName = chat.chat_font_name?.split(` `)?.[2];
+      const emoTab = chat.chat_font_name?.split(CHAT_FONT_SEP)?.[1];
+      const emoName = chat.chat_font_name?.split(CHAT_FONT_SEP)?.[2];
 
       return (
         <div className={`speech-row ${isMine ? `speech-my` : `speech-others`}`}>

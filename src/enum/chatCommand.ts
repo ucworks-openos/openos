@@ -40,3 +40,4 @@ export enum ChatCommand {
   CHAT_CHANGE_TITLE            = CHAT_DATA_BASE + 37,    
 }
 
+export const CHAT_FONT_SEP = String.fromCharCode(13);

@@ -6,6 +6,7 @@ import {
   setEmoticonVisible,
 } from "../../../redux/actions/chat_actions";
 import path from "path";
+import { CHAT_FONT_SEP } from "../../../enum/chatCommand";
 
 type TemoticonSelectorProps = {
   visible: boolean;
@@ -28,7 +29,8 @@ export default function EmoticonSelector(props: TemoticonSelectorProps) {
     const pathForTarget = path.slice(-3).join(`/`);
     const pathForCurrentEmoticon = path
       .slice(-3)
-      .join(` `)
+      .join(CHAT_FONT_SEP)
+      //.join(` `)
       .replace(`Emoticons`, `EMOTICON`);
     setTarget(pathForTarget);
     dispatch(setCurrentEmoticon(pathForCurrentEmoticon));
