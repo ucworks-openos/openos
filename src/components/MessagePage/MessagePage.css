@@ -407,7 +407,7 @@
 }
 .btn-attatched-file-name-save,.btn-attatched-file-save-other-name,.btn-attatched-file-open {
     color:#11378D;
-    text-decoration: underline;
+    /* text-decoration: underline; */
     cursor: pointer;
 }
 .btn-attatched-file-name-save:hover{

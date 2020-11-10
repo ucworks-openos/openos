@@ -49,11 +49,15 @@ export default function ChatMessages() {
 
         // * 스크롤이 끝까지 안내려가는 현상이 있으므로 0.1초 뒤에 다시 스크롤을 내림
         setTimeout(() => {
-          messageEndRef.current.scrollIntoView();
+          if (messageEndRef.current) {
+            messageEndRef.current.scrollIntoView();
+          }
         }, 100);
       }
     } else {
-      anchorRef.current.scrollIntoView();
+      if (anchorRef.current) {
+        anchorRef.current.scrollIntoView();
+      }
     }
   }, [chatMessages]);
 

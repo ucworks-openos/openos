@@ -222,7 +222,7 @@
 .btn-attatched-file-open,
 .btn-attatched-file-name-remove {
     color: #11378d;
-    text-decoration: underline;
+    /* text-decoration: underline; */
     cursor: pointer;
 }
 .btn-attatched-file-name-save:hover,

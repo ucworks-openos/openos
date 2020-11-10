@@ -17,74 +17,76 @@ import HamburgerButton from "../../../common/components/HamburgerButton";
 import { writeDebug } from "../../../common/ipcCommunication/ipcLogger";
 
 function RightPanel() {
-
   //#region String trim ...
-  String.prototype.trimRight = function(trimStr) {
+  String.prototype.trimRight = function (trimStr) {
     if (trimStr) {
-        const last = [...this].reverse().findIndex(char => char !== trimStr);
-        return this.substring(0, this.length - last);
+      const last = [...this].reverse().findIndex((char) => char !== trimStr);
+      return this.substring(0, this.length - last);
     }
     return this;
   };
 
-  String.prototype.trimLeft = function(trimStr) {
-      if (trimStr) {
-        // while(this.charAt(0)==charToRemove) {
-        //   this = this.substring(1);
-        // }
+  String.prototype.trimLeft = function (trimStr) {
+    if (trimStr) {
+      // while(this.charAt(0)==charToRemove) {
+      //   this = this.substring(1);
+      // }
 
-        const first = [...this].findIndex(char => char !== trimStr);
-        return this.substring(first);
-      }
-      return this;
+      const first = [...this].findIndex((char) => char !== trimStr);
+      return this.substring(first);
+    }
+    return this;
   };
   //#endregion String trim
 
   const dispatch = useDispatch();
 
-  const { message, currentMessage, messageLists, currentMessageListType } = useSelector(
-    (state) => state.messages
-  );
+  const {
+    message,
+    currentMessage,
+    messageLists,
+    currentMessageListType,
+  } = useSelector((state) => state.messages);
 
   const [messageModalVisible, setMessageModalVisible] = useState(false);
   const [replyTarget, setReplyTarget] = useState([]);
   const [initialTitle, setInitialTitle] = useState(``);
-  const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(false);
+  const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
+    false
+  );
 
   const [attachmentFiles, setAttachmentFiles] = useState([]);
 
   useEffect(() => {
-    writeDebug('CurrentMessage --  req getMessageHo ', currentMessage);
+    writeDebug("CurrentMessage --  req getMessageHo ", currentMessage);
     dispatch(getMessageHo(currentMessage));
   }, [currentMessage]);
-  
+
   // 메세지가 변경되면 첨부파일 정보를 설정한다.
   useEffect(() => {
-    
     if (message?.msg_file_list) {
       let fileList = [];
 
-      let fileInfoPieces = message?.msg_file_list.trimRight('|').split('|');
-      for(let i=0; i < fileInfoPieces.length;) {
-          let serverInfos = fileInfoPieces[i++].split(';');
-          fileList.push({
-              serverIp:serverInfos[0],
-              serverPort: parseInt(serverInfos[1]),
-              name: fileInfoPieces[i++],
-              size: fileInfoPieces[i++],
-              svrName: fileInfoPieces[i++],
-            })
+      let fileInfoPieces = message?.msg_file_list.trimRight("|").split("|");
+      for (let i = 0; i < fileInfoPieces.length; ) {
+        let serverInfos = fileInfoPieces[i++].split(";");
+        fileList.push({
+          serverIp: serverInfos[0],
+          serverPort: parseInt(serverInfos[1]),
+          name: fileInfoPieces[i++],
+          size: fileInfoPieces[i++],
+          svrName: fileInfoPieces[i++],
+        });
       }
- 
+
       setAttachmentFiles(fileList);
     } else {
       setAttachmentFiles([]);
     }
-    
   }, [message]);
 
   const onDeleteMessageClick = () => {
-    if (!message) return
+    if (!message) return;
 
     deleteMessage(currentMessageListType, [message.msg_key]).then(() => {
       dispatch(
@@ -97,21 +99,21 @@ function RightPanel() {
   };
 
   const handleReply = () => {
-    if (!message) return
+    if (!message) return;
     setReplyTarget([message?.msg_send_id]);
     setInitialTitle(`Re: ${message?.msg_subject}`);
     setMessageModalVisible(true);
   };
 
   const handleReplyAll = () => {
-    if (!message) return
+    if (!message) return;
     setReplyTarget(message?.msg_recv_ids.split(`|`));
     setInitialTitle(`Re: ${message?.msg_subject}`);
     setMessageModalVisible(true);
   };
 
   const handleDelivery = () => {
-    if (!message) return
+    if (!message) return;
     setReplyTarget([]);
     setInitialTitle(`Fwd: ${message?.msg_subject}`);
     setMessageModalVisible(true);
@@ -218,13 +220,12 @@ function RightPanel() {
         />
       </Modal>
 
-      <MessageContent message={message}/>
+      <MessageContent message={message} />
 
-      { attachmentFiles.length>0 &&
-          <MessageFiles attachmentFiles={attachmentFiles} setAttachmentFiles={setAttachmentFiles} />
-      }
-
-      
+      <MessageFiles
+        attachmentFiles={attachmentFiles}
+        setAttachmentFiles={setAttachmentFiles}
+      />
     </main>
   );
 }
