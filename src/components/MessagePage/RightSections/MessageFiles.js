@@ -157,67 +157,86 @@ function MessageFiles(prop) {
         <div className="attatched-file-title">
           첨부파일({prop.attachmentFiles.length})
         </div>
-        <div className="attatched-file-action open-folder">
-          <input
-            type="checkbox"
-            id="open-folder-inner"
-            checked={isDownloadFolderOpen}
-            onClick={() => {
-              setIsDownloadFolderOpen((prev) => !prev);
-            }}
-          />
-          <label htmlFor="open-folder-inner">다운로드 후 저장 폴더 열기</label>
-        </div>
-        <div
-          className="attatched-file-action download-all"
-          onClick={() => {
-            saveAll();
-          }}
-        >
-          전체 다운로드
-        </div>
+        {prop.attachmentFiles.length ? (
+          <>
+            <div className="attatched-file-action open-folder">
+              <input
+                type="checkbox"
+                id="open-folder-inner"
+                checked={isDownloadFolderOpen}
+                onClick={() => {
+                  setIsDownloadFolderOpen((prev) => !prev);
+                }}
+              />
+              <label htmlFor="open-folder-inner">
+                다운로드 후 저장 폴더 열기
+              </label>
+            </div>
+            <div
+              className="attatched-file-action download-all"
+              onClick={() => {
+                saveAll();
+              }}
+            >
+              전체 다운로드
+            </div>
+          </>
+        ) : (
+          <></>
+        )}
       </div>
       <div className="attatched-file-wrap">
         {prop.attachmentFiles?.map((file, index) => {
           return (
             <div className="attatched-file-row already-downloaded">
               <i className="icon-attatched-file"></i>
-              <div className="label-attatched-file-name">
-                {file.name} ({formatBytes(file.size)}) {file.progress}
+              <div
+                className="label-attatched-file-name"
+                style={{
+                  textOverflow: `ellipsis`,
+                  maxWidth: `70%`,
+                  overflow: `hidden`,
+                  whiteSpace: `nowrap`,
+                }}
+              >
+                {`${file.name} (${formatBytes(file.size)})`}
               </div>
-
-              {file.isCompleted ? (
-                <div style={{ display: `flex` }}>
-                  <div
-                    className="btn-attatched-file-save-other-name"
-                    onClick={() => {
-                      executeFile(file.svrName);
-                    }}
-                  >
-                    &nbsp;&nbsp;열기
+              <div style={{ marginLeft: `10px` }}>
+                {file.isCompleted ? (
+                  <div style={{ display: `flex` }}>
+                    <div
+                      className="btn-attatched-file-save-other-name"
+                      onClick={() => {
+                        executeFile(file.svrName);
+                      }}
+                    >
+                      열기
+                    </div>
+                    <div
+                      className="btn-attatched-file-open"
+                      onClick={() => {
+                        openFolder(file.svrName);
+                      }}
+                    >
+                      폴더열기
+                    </div>
                   </div>
-                  <div
-                    className="btn-attatched-file-open"
-                    onClick={() => {
-                      openFolder(file.svrName);
-                    }}
-                  >
-                    &nbsp;&nbsp;폴더열기
+                ) : file.progress ? (
+                  <div style={{ display: `flex` }}>{`${file.progress}`}</div>
+                ) : (
+                  <div style={{ display: `flex` }}>
+                    {/* <div className="btn-attatched-file-save-other-name" onClick={() => {saveAs(file.svrName)}}>&nbsp;&nbsp;다른 이름으로 저장</div> */}
+                    <div
+                      className="btn-attatched-file-open"
+                      onClick={() => {
+                        downloadAttFile(file.svrName);
+                      }}
+                    >
+                      저장
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div style={{ display: `flex` }}>
-                  {/* <div className="btn-attatched-file-save-other-name" onClick={() => {saveAs(file.svrName)}}>&nbsp;&nbsp;다른 이름으로 저장</div> */}
-                  <div
-                    className="btn-attatched-file-open"
-                    onClick={() => {
-                      downloadAttFile(file.svrName);
-                    }}
-                  >
-                    &nbsp;&nbsp;저장
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           );
         })}
