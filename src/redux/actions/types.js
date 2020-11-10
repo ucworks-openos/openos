@@ -26,3 +26,7 @@ export const ADD_MESSAGE = "add_message";
 export const GET_MORE_MESSAGES = "get_more_messages";
 export const SET_CURRENT_MESSAGE_LISTS_TYPE = "set_current_message_lists_type";
 export const SET_LOGIN_USER_INFO = "set_login_user_info";
+
+export const ADD_FILE_SKELETON = "add_file_skeleton";
+export const SET_FILE_SKELETON = "set_file_skeleton";
+export const DELETE_FILE_SKELETON = "add_file_skeleton";

@@ -28,10 +28,10 @@ export default function useIntersectionObserver({
     if (!target) return;
 
     observer.observe(target);
-    console.log(`observe start...`);
+    // console.log(`observe start...`);
 
     return () => {
-      console.log(`observe end...`);
+      // console.log(`observe end...`);
       observer.unobserve(target);
     };
   }, [target, root, rootMargin, handleIntersect, threshold]);

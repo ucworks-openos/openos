@@ -20,6 +20,9 @@ import {
   SET_CURRENT_EMOTICON,
   SET_CHAT_ANCHOR,
   UPDATE_CURRENT_CHAT_ROOM,
+  ADD_FILE_SKELETON,
+  SET_FILE_SKELETON,
+  DELETE_FILE_SKELETON,
 } from "./types";
 import {
   getChatRoomList,
@@ -36,6 +39,7 @@ import {
   delay,
 } from "../../common/util";
 import { writeDebug } from "../../common/ipcCommunication/ipcLogger";
+import { EchatType } from "../../enum";
 
 /**
  * 32자리 UUID를 반환합니다
@@ -145,6 +149,33 @@ export async function getChatMessages(
   }
 }
 
+export function addFileSkeleton(path, senderName, senderId) {
+  const request = {
+    chat_contents: path,
+    chat_send_name: senderName,
+    chat_send_date: moment().format("YYYYMMDDHHmm"),
+    line_key: moment().valueOf().toString(),
+    read_count: 0,
+    chat_send_id: senderId,
+    chat_type: EchatType.fileSkeleton.toString(),
+    file_status: "0%",
+  };
+  return {
+    type: ADD_FILE_SKELETON,
+    payload: request,
+  };
+}
+
+export function setFileSkeleton(path, status) {
+  const request = {
+    file_status: status,
+  };
+  return {
+    type: SET_FILE_SKELETON,
+    payload: request,
+  };
+}
+
 export function addChatMessage(
   chatUsersId,
   chatUserNames,
@@ -196,7 +227,7 @@ export function emptyChatMessages() {
 }
 
 export async function updateCurrentChatRoom(newRoom) {
-  writeDebug('updateCurrentChatRoom', newRoom);
+  writeDebug("updateCurrentChatRoom", newRoom);
 
   return {
     type: UPDATE_CURRENT_CHAT_ROOM,
@@ -259,7 +290,7 @@ export async function addChatRoomFromOrganization(orgMembers) {
     room_type: getChatRoomType(chatUsers),
   };
 
-  writeDebug('addChatRoomFromOrganization', request)
+  writeDebug("addChatRoomFromOrganization", request);
 
   if (request.user_counts <= 2) {
     let chatRoomKey = request.selected_users.sort().join("|");

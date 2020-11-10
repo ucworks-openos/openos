@@ -529,6 +529,9 @@
     display: flex;
     align-items: center;
 }
+.speech-info-wrap.speech-my {
+    flex-direction: row-reverse;
+}
 .speaker-info-wrap {
     font-weight: 500;
 }
