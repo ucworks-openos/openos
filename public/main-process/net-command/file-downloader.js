@@ -4,8 +4,7 @@ const fs = require('fs');
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
-const CryptoUtil = require('../utils/utils-crypto')
-const BufUtil = require('../utils/utils-buffer')
+const BufUtil = require('../utils/utils-buffer');
 
 const ResData = require('../ResData');
 
@@ -13,7 +12,7 @@ const { send } = require('../ipc/ipc-cmd-sender');
 const { createSock } = require('../utils/utils-net');
 const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 
-const fileDebugLog = false;
+const fileDebugLog = true;
 
 /**
  * 파일을 다운로드 합니다.
@@ -37,7 +36,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
 
 
         // 파일 다운로드는 파일마다 다른세션을 가진다. 
-        let fileLength = 0;
+        let fileLength ;
         let downloadedSize = 0
 
         let gubunBuf;
@@ -137,7 +136,7 @@ function downloadFile(serverIp, serverPort, serverFileName, saveFilePath, handle
                                 }
                                 
                                 // 3. encKey Reqeust
-                                logger.info('3. encKey Reqeust. File length ', fileLength);
+                                logger.info('3. encKey Reqeust. 2G-Option:', global.USE_FILE2GIGA, fileLength, resCmd, BufUtil.getStringWithoutEndOfString(resCmd.data, 4));
                                 let gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
                                 gubunBuf.writeInt32LE(1);
 

@@ -4,7 +4,8 @@ const fs = require('fs');
 const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
-const CryptoUtil = require('../utils/utils-crypto')
+const CryptoUtil = require('../utils/utils-crypto');
+const BufUtil = require('../utils/utils-buffer');
 const fsAPI = require('../net-core/network-fs-core');
 const ResData = require('../ResData');
 const { ENCODE_TYPE_OTS, SESSION_KEY } = require('./command-const');
@@ -100,7 +101,7 @@ async function reqUploadFile(uploadKey, filePath) {
         logger.info('5. UploadFile uploadFileStream completed.', res);
 
         // 5. 파일 전송 완료        
-        res = await endUploadFile();
+        res = await endUploadFile(fileBaseName, fileLength);
         if (!res.resCode) {
             close();
             return new ResData(false, res);
@@ -221,45 +222,49 @@ function uploadFileStream(uploadKey, filePath) {
 
     logger.info('uploadFileStream %s %s',uploadKey, filePath);
     return new Promise(async function(resolve, reject) {
-        let gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
-        gubunBuf.writeInt32LE(1);
+        
 
         /* 문자열을 라인별로 읽거나 전체를 읽는것을 제외하고
          Binary형태 Buffer로 받을려면 readFile()로는 한번에 파일 전체를 읽어 메모리 낭비가 생긴다.
          이를 방지하기 위해 Stream으로 읽어 처리
         */
-
         let fileLength = fs.statSync(filePath).size;
         let uploadedLength = 0;
-        let readFileLength = 0;
 
         const readStream = fs.createReadStream(filePath, {highWaterMark: CmdConst.BUF_LEN_FILEDATA});
+
+        let readBuf = Buffer.alloc(0);
         readStream.on('data', (chunk) => {
-            readFileLength = chunk.length;
-            uploadedLength += readFileLength
+            //readFileLength = chunk.length;
 
             // 단순히 세션키로 암호화 한다.
             //chunk = CryptoUtil.encryptBufferRC4(CmdConst.SESSION_KEY, chunk);
 
-            // 읽은 길이가 DataLength보다 작다면 채워준다. // 무조건 맞춰야함
-            if (readFileLength < CmdConst.BUF_LEN_FILEDATA) {
-                let diffLen = CmdConst.BUF_LEN_FILEDATA - readFileLength;
-                chunk = Buffer.concat([chunk, Buffer.alloc(diffLen)]);
+            // 파일데이터가 남았음에도 highWaterMark 만큼 읽지 않는 파일이 있다. ex)pptx
+            // 따라서 보낼 버퍼만큼 다 채워서 보내야 한다. 
+
+            // 이전에 보내고 남은 버퍼를 같이 처리한다.
+            readBuf = Buffer.concat([readBuf, chunk]);
+
+            // 읽은 데이터가 BUF_LEN_FILEDATA를 넘는다면 해당 길이만큼 보내고 남긴다.
+            while(readBuf.length >= CmdConst.BUF_LEN_FILEDATA) {
+                chunk = readBuf.slice(0, CmdConst.BUF_LEN_FILEDATA);
+                readBuf = readBuf.slice(CmdConst.BUF_LEN_FILEDATA);
+
+                uploadedLength += chunk.length;
+                uploadData(uploadKey, fileLength, uploadedLength, chunk)
             }
-            
-            let dataBuf = Buffer.concat([gubunBuf, chunk])
 
-            // 송신/수신 데이터길이가 다르나, 전문에 길이데이터가 없음으로 따로 설정한다.
-            let cmd = new CommandHeader(CmdCodes.FS_UPLOADSEND, readFileLength);
-            cmd.setResponseLength(defaultFileCmdLength); 
-            fsAPI.writeCommandFS(new CommandHeader(CmdCodes.FS_UPLOADSEND, chunk.length), dataBuf);
-
-            // UI에서 진행률을 처리할수 있도록 전송되는 정보를 보내준다.
-            send('upload-file-progress', uploadKey, uploadedLength, fileLength)
+            // 남은 데이터를 보니 파일을 다 읽은 거라면 빈 버퍼를 채워 보내고 끝낸다.
+            if (uploadedLength + readBuf.length >= fileLength) {
+                uploadedLength += readBuf.length;
+                uploadData(uploadKey, fileLength, uploadedLength, readBuf);
+                readBuf = Buffer.alloc(0);
+            }
         });
         
         readStream.on('end', () => {
-            logger.info('file read end! file length:%s, %s', uploadedLength, fileLength);
+            logger.info('file transger end! file length:%s, uploaded:%s', fileLength, uploadedLength);
             resolve(new ResData(true, 'file upload stream completed.'))
         })
 
@@ -271,21 +276,73 @@ function uploadFileStream(uploadKey, filePath) {
     });
 }
 
+/**
+ * 서버로 파일 바이너리 데이터를 전송한다.
+ * @param {String} uploadKey 
+ * @param {Number} fileLength 
+ * @param {Number} uploadedLength 
+ * @param {Array} fileBuf 
+ */
+function uploadData (uploadKey, fileLength, uploadedLength, fileBuf) {
+    let gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+    gubunBuf.writeInt32LE(1);
+
+    let bufSize = fileBuf.length;
+
+    // file Buffer가 BUF_LEN_FILEDATA보다 작으면 채워서 보내야 한다. 
+    if (fileBuf.length < CmdConst.BUF_LEN_FILEDATA) {
+        let diffLen = CmdConst.BUF_LEN_FILEDATA - fileBuf.length; // 남은 Buffer를 메운다.
+        fileBuf = Buffer.concat([fileBuf, Buffer.alloc(diffLen)]);
+    }
+        
+    let dataBuf = Buffer.concat([gubunBuf, fileBuf])
+
+    // 송신/수신 데이터길이가 다르나, 전문에 길이데이터가 없음으로 따로 설정한다.
+    // let cmd = new CommandHeader(CmdCodes.FS_UPLOADSEND, readFileLength);
+    // cmd.setResponseLength(defaultFileCmdLength); 
+    fsAPI.writeCommandFS(new CommandHeader(CmdCodes.FS_UPLOADSEND, bufSize), dataBuf);
+
+    logger.debug('uploadData file binary. key:%s leng:%s upload:%s Buf:',uploadKey,  fileLength, uploadedLength, dataBuf);
+
+    // UI에서 진행률을 처리할수 있도록 전송되는 정보를 보내준다.
+    send('upload-file-progress', uploadKey, uploadedLength, fileLength)
+}
+
 /** 5. 파일전송 완료 */
-function endUploadFile() {
+function endUploadFile(fileName, fileSize) {
     logger.info('endUploadFile ')
 
     return new Promise(async function(resolve, reject) {
+
+        let cmd;
+         
         // gubun ENCODE_TYPE_NO_SERVER => 3
-        let gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
-        gubunBuf.writeInt32LE(1);
+         let gubunBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
+         gubunBuf.writeInt32LE(1);
 
-        let dataBuf = Buffer.concat([gubunBuf, Buffer.alloc(CmdConst.BUF_LEN_FILEDATA)]);
+         let fileData = Buffer.alloc(CmdConst.BUF_LEN_FILEDATA);
+         
+        if (global.USE_FILE2GIGA) {
+            // 2G 옵션이 있는경우 fileData에 Size 정보를 넣는다.
+            cmd = new CommandHeader(CmdCodes.FS_UPLOADEND, 8+4+CmdConst.BUF_LEN_FILEDATA, function(resData){
+                logger.info('endUploadFile resData, %s', resData)
+                resolve(resData);
+            });
 
-        let cmd = new CommandHeader(CmdCodes.FS_UPLOADEND, 0, function(resData){
-            logger.info('endUploadFile resData, %s', resData)
-            resolve(resData);
-        });
+            fileData.write(fileSize+'', global.ENC);
+        } else {
+            // 2G 옵션이 없는경우 fileData에 FileName 정보를 넣는다.
+            cmd = new CommandHeader(CmdCodes.FS_UPLOADEND, fileSize, function(resData){
+                logger.info('endUploadFile resData, %s', resData)
+                resolve(resData);
+            });
+
+            fileData.write(fileName, global.ENC);
+        }
+
+        logger.debug('File Upload End.  2G-Option:', global.USE_FILE2GIGA, cmd, BufUtil.getStringWithoutEndOfString(fileData));
+        
+        let dataBuf = Buffer.concat([gubunBuf, fileData]);
         cmd.setResponseLength(8+4+CmdConst.BUF_LEN_FILEDATA);
 
         fsAPI.writeCommandFS(cmd, dataBuf);
