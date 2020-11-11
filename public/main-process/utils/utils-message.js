@@ -1,4 +1,5 @@
 const OsUtil = require('./utils-os');
+const crypto = require('crypto');
 
 /**
  * 대화방 키를 생성합니다.
@@ -12,7 +13,10 @@ function createChatRoomKey(chatUserIds) {
         return global.USER.userId + "_" + OsUtil.getUUID();
     }  else {
         // 1:1
-        return chatUserIds.sort().join("|");
+
+        let userIds = chatUserIds.sort().join("|");
+        return crypto.createHash('sha256').update(userIds).digest('base64');
+        //return chatUserIds.sort().join("|");
     }
 }
 

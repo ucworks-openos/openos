@@ -42,6 +42,15 @@ export const deleteMessage = async (msgBubun, msgKeys) => {
     });
 }
 
+/** 
+ * createChatRoomKey 
+ * @param {Array} roomIds
+ * */
+export const createChatRoomKeySync = (roomIds) => {
+  writeDebug('createChatRoomKeySync', roomIds);
+  return electron.ipcRenderer.sendSync('createChatRoomKeySync', roomIds);
+}
+
 /** getChatRoomList */
 export const getChatRoomList = async (rowOffset = 0, rowLimit = 100) => {
   return new Promise(function(resolve, reject) {
