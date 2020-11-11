@@ -28,7 +28,7 @@ export default function CallHistoryList() {
                 headers: {'X-Custom-Header': 'foobar'}
             });
     
-            callHistoryInstance.get('/getUserHistory/bslee?iDisplayStart=1&iDisplayLength=50')
+            callHistoryInstance.get(`/getUserHistory/${remote.getGlobal('USER').userId}?iDisplayStart=1&iDisplayLength=50`)
             .then(function (response) {
                 setCallDatas(response.data.data)
             })
