@@ -241,8 +241,8 @@ export async function addChatRoom(request) {
   // 이미 만들어진 채팅 방이 있는지 체크해서
   // 있다면 그 채팅방의 채팅 리스트를 보내주기
   if (request.user_counts <= 2) {
-    //let chatRoomKey = request.selected_users.sort().join("|");
-    let chatRoomKey = createChatRoomKeySync(request.selected_users);
+    let chatRoomKey = request.selected_users.sort().join("|");
+    //let chatRoomKey = createChatRoomKeySync(request.selected_users);
     request.room_key = chatRoomKey;
     let getChatListsResult = await getChatList(
       chatRoomKey,
@@ -295,8 +295,8 @@ export async function addChatRoomFromOrganization(orgMembers) {
   writeDebug("addChatRoomFromOrganization", request);
 
   if (request.user_counts <= 2) {
-    //let chatRoomKey = request.selected_users.sort().join("|");
-    let chatRoomKey = createChatRoomKeySync(request.selected_users);
+    let chatRoomKey = request.selected_users.sort().join("|");
+    //let chatRoomKey = createChatRoomKeySync(request.selected_users);
 
     writeDebug('addChatRoomFromOrganization roomKey', chatRoomKey)
 
