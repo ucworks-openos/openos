@@ -28,9 +28,7 @@ const OrganizationPage = React.lazy(
 const MessagePage = React.lazy(() => import("./MessagePage/MessagePage"));
 const ChatPage = React.lazy(() => import("./ChatPage/ChatPage"));
 const CallPage = React.lazy(() => import("./CallPage/CallPage"));
-const SiteConfigPage = React.lazy(
-  () => import("./SiteConfigPage/SiteConfigPage")
-);
+
 const TeamSpacePage = React.lazy(() => import("./TeamSpacePage/TeamSpacePage"));
 const NoticePage = React.lazy(() => import("./NoticePage/NoticePage"));
 const AboutPage = React.lazy(() => import("./AboutPage/AboutPage"));
@@ -83,8 +81,6 @@ function RouterPage() {
           <Route exact path="/call" component={CallPage} />
           <Route exact path="/team-space" component={TeamSpacePage} />
           <Route exact path="/notice" component={NoticePage} />
-
-          <Route exact path="/site-config" component={SiteConfigPage} />
           <Route exact path="/netTest" component={NetTestPage} />
           <Route exact path="/funcTest" component={FuncTestPage} />
           <Route exact path="/funcTest2" component={FuncTestPage2} />

@@ -63,13 +63,6 @@ var sideItemsBase = [
     path: `/setting`,
     name: `환경설정`,
     css: "",
-    key: 14,
-    className: "menu-item favorite",
-  },
-  {
-    path: "/site-config",
-    name: "SiteConfig",
-    css: "fas fa-cogs",
     key: 9,
     className: "menu-item favorite",
   },

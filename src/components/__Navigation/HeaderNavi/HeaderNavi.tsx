@@ -152,11 +152,11 @@ export default function HeaderNavi() {
           </ul>
         </li>
 
-        <li
+        {/* <li
           className="sub-action-item btn-go-to-setting"
           title="설정"
           onClick={handleSetting}
-        ></li>
+        ></li> */}
         <li className="sub-action-item noti-toggle">
           <input type="checkbox" id="noti-check" />
           <label
