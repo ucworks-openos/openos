@@ -13,16 +13,6 @@
 .btn-ghost-s:hover{background-color:#ebf1ff;}
 .btn-solid-s:hover{border-color:#2F59B7;background-color:#0A2768;}
 
-.setting-modal {
-    user-select: none;
-    padding: 10px 24px;
-    background-color: #fff;
-}
-.setting-modal-title{
-    margin-bottom: 16px;
-    display: flex;
-    justify-content: space-between;
-}
 .setting-tab-wrap input[type="radio"],.setting-tab-wrap input[type="checkbox"],.setting-tab-wrap .tab-panel {
   display: none;
 }
@@ -69,6 +59,7 @@
     width: calc( 100% - 120px);
     height: auto;
     border: 1px solid #DFE2E8;
+    background-color: #fff;
 }
 .tab-panel {
     width: 100%;
@@ -100,7 +91,7 @@
     height: 16px;
     margin-right: 4px;
     vertical-align: -2px;
-    background-image: url(../../../assets/images/btn_check.png);
+    background-image: url(../../assets//images/btn_check.png);
     background-repeat: no-repeat;
     background-position: 0 0;
 }
@@ -180,7 +171,7 @@
     height: 32px;
     border: 2px solid #DFE2E8;
     border-radius: 16px;
-    background-image: url(../../../assets/images/icon_camera.png);
+    background-image: url(../../assets/images/icon_camera.png);
     background-repeat: no-repeat;
     background-position: center;
     background-color: #fff;
