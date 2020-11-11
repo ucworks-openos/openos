@@ -26,7 +26,9 @@
 .write-row.to-ppl-added {
     border: 0;
     max-width: 430px;
-    overflow-x: auto;
+    overflow: auto;
+    display: flex;
+    height: 40px;
 }
 .add-ppl {
     width: 40px;
@@ -48,6 +50,8 @@
     font-weight: 600;
     color: #11378d;
     margin: 0 2px 2px 0;
+    white-space: nowrap;
+    height: 25px;
 }
 .remove-ppl-added {
     margin-left: 4px;

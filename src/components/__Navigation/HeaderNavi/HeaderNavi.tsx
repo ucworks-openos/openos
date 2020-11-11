@@ -6,17 +6,20 @@ import {
 } from "../../../common/ipcCommunication/ipcCommon";
 import { EuserState } from "../../../enum";
 import Modal from "react-modal";
-import SettingModal from "../../../common/components/Modal/SettingModal";
 import useConfig from "../../../hooks/useConfig";
-import { writeDebug, writeInfo } from "../../../common/ipcCommunication/ipcLogger";
+import {
+  writeDebug,
+  writeInfo,
+} from "../../../common/ipcCommunication/ipcLogger";
 
-const { remote } = window.require("electron")
-
+const { remote } = window.require("electron");
 
 export default function HeaderNavi() {
   const [avatarDropDownIsOpen, setAvatarDropDownIsOpen] = useState(false);
   const [myInfo, setMyInfo] = useState<TUser>({});
-  const [settingModalVisible, setSettingModalVisible] = useState<boolean>(false);
+  const [settingModalVisible, setSettingModalVisible] = useState<boolean>(
+    false
+  );
   const {
     setTheme,
     setScope,
@@ -32,7 +35,7 @@ export default function HeaderNavi() {
 
   useEffect(() => {
     getConfig();
-    setMyInfo(remote.getGlobal('USER').profile);
+    setMyInfo(remote.getGlobal("USER").profile);
   }, []);
 
   const getConfig = () => {
@@ -68,7 +71,7 @@ export default function HeaderNavi() {
 
   const handleLogout = (e: SyntheticEvent) => {
     logout().then(function (resData) {
-      writeInfo('Logoiut By HeaderNavi');
+      writeInfo("Logoiut By HeaderNavi");
     });
   };
 
@@ -97,18 +100,21 @@ export default function HeaderNavi() {
         <div className="btn-prev" title="이전으로"></div>
         <div className="btn-next disabled" title="앞으로"></div>
       </div> */}
-      <div
-        onClick={handleRefresh}
-        style={{
-          marginLeft: `20px`,
-          width: `24px`,
-          height: `24px`,
-          cursor: `pointer`,
-        }}
-      >
-        <img src="./images/icon_redo.png" />
-        {/* 아이콘 제작자 <a href="https://www.flaticon.com/kr/authors/becris" title="Becris">Becris</a> from <a href="https://www.flaticon.com/kr/" title="Flaticon"> www.flaticon.com</a> */}
-      </div>
+      {remote.getGlobal("IS_DEV") && (
+        <div
+          onClick={handleRefresh}
+          style={{
+            marginLeft: `20px`,
+            width: `24px`,
+            height: `24px`,
+            cursor: `pointer`,
+          }}
+        >
+          <img src="./images/icon_redo.png" />
+          {/* 아이콘 제작자 <a href="https://www.flaticon.com/kr/authors/becris" title="Becris">Becris</a> from <a href="https://www.flaticon.com/kr/" title="Flaticon"> www.flaticon.com</a> */}
+        </div>
+      )}
+
       {/* <form className="golbal-search-wrap">
         <select className="global-search-cat">
           <option>이름</option>
@@ -146,11 +152,11 @@ export default function HeaderNavi() {
           </ul>
         </li>
 
-        <li
+        {/* <li
           className="sub-action-item btn-go-to-setting"
           title="설정"
           onClick={handleSetting}
-        ></li>
+        ></li> */}
         <li className="sub-action-item noti-toggle">
           <input type="checkbox" id="noti-check" />
           <label
@@ -301,34 +307,8 @@ export default function HeaderNavi() {
           </div>
         )}
       </div>
-
-      <Modal
-        isOpen={settingModalVisible}
-        onRequestClose={() => {
-          setSettingModalVisible(false);
-        }}
-        style={settingModalStyles}
-      >
-        <SettingModal
-          closeModalFunction={() => {
-            setSettingModalVisible(false);
-          }}
-          profile={myInfo}
-        />
-      </Modal>
     </div>
   );
 }
 
 Modal.setAppElement("#root");
-
-const settingModalStyles = {
-  content: {
-    top: "18vh",
-    left: "25vw",
-    // marginTop: "calc(-25% + 56px)",
-    width: "700px",
-    height: "fit-content",
-  },
-  overlay: { zIndex: 1000 },
-};

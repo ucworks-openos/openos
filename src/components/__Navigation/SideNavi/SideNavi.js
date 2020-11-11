@@ -29,12 +29,6 @@ function Sidebar() {
     ); /* Sets activePath which causes rerender which causes CSS to change */
   };
 
-  const onLogOutClick = () => {
-    logout().then(function (resData) {
-      writeInfo('Logoiut By SideNavi');
-    });
-  };
-
   return (
     <nav className="gnb">
       <div className="menu-wrap">
@@ -57,20 +51,6 @@ function Sidebar() {
           />
         ))}
       </div>
-
-      <li
-        style={{
-          padding: "1rem",
-          fontSize: "1rem",
-          fontWeight: "bold",
-          textAlign: "center",
-        }}
-        onClick={onLogOutClick}
-      >
-        로그
-        <br />
-        아웃
-      </li>
     </nav>
   );
 }

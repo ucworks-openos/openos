@@ -72,7 +72,7 @@ export default function ChatMessages() {
         lastReceivedChatMessages?.length === 50
       ) {
         dispatch(
-          getChatMessages(currentChatRoom.room_key, chatMessages?.[0].line_key)
+          getChatMessages(currentChatRoom.room_key, chatMessages?.[0]?.line_key)
         );
       }
     },

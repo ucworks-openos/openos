@@ -60,11 +60,11 @@ var sideItemsBase = [
   //   className: "menu-item feed",
   // },
   {
-    path: "/site-config",
-    name: "SiteConfig",
-    css: "fas fa-cogs",
+    path: `/setting`,
+    name: `환경설정`,
+    css: "",
     key: 9,
-    className: "menu-item favorite current-menu",
+    className: "menu-item favorite",
   },
 ];
 
@@ -72,7 +72,6 @@ var sideItemsBase = [
  * 좌측 메뉴를 만들어 준다.
  */
 function SideItemList() {
-
   let sideItems = sideItemsBase;
   // Dev Mode SideMenu
   if (remote.getGlobal("IS_DEV")) {
@@ -82,28 +81,28 @@ function SideItemList() {
         name: "NetTestPage",
         css: "fas fa-hashtag",
         key: 10,
-        className: "menu-item favorite current-menu",
+        className: "menu-item favorite",
       },
       {
         path: "/funcTest",
         name: "FuncTestPage",
         css: "fas fa-hashtag",
         key: 11,
-        className: "menu-item favorite current-menu",
+        className: "menu-item favorite",
       },
       {
         path: "/funcTest2",
         name: "FuncTestPage2",
         css: "fas fa-hashtag",
         key: 12,
-        className: "menu-item favorite current-menu",
+        className: "menu-item favorite",
       },
       {
         path: "/chatTestPage",
         name: "ChatTestPage",
         css: "fas fa-hashtag",
         key: 13,
-        className: "menu-item favorite current-menu",
+        className: "menu-item favorite",
       },
     ]);
   }

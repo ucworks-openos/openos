@@ -1,11 +1,16 @@
-import React, { useEffect, useState } from "react";
-import useConfig from "../../../hooks/useConfig";
-import { login } from "../../ipcCommunication/ipcCommon";
-import { mapEnum } from "../../util";
-import "./SettingModal.css";
+import React, { SyntheticEvent, useEffect, useState } from "react";
+
+import {
+  getConfig,
+  login,
+  saveConfig,
+} from "../../common/ipcCommunication/ipcCommon";
+import "./SettingPage.css";
 import userThumbnailImg from "../../../assets/images/img_user-thumbnail.png";
 import themeDefaultImg from "../../../assets/images/theme-default.png";
 import themeDarkImg from "../../../assets/images/theme-dark.png";
+import useConfig from "../../hooks/useConfig";
+import { mapEnum } from "../../common/util";
 
 type TsettingModalProps = {
   closeModalFunction: () => void;
@@ -38,15 +43,38 @@ export default function SettingModal(props: TsettingModalProps) {
   } = useConfig();
   const { closeModalFunction, profile } = props;
   const [currentTab, setCurrentTab] = useState<number>(1);
+  const [serverIp, setServerIp] = useState("");
+  const [serverPort, setServerPort] = useState(0);
+  const [clientVersion, setClientVersion] = useState(0);
+
+  //initialize
+  useEffect(() => {
+    const loadConfig = async () => {
+      const config = await getConfig();
+      console.log("site-config", config);
+
+      setServerIp(config.server_ip);
+      setServerPort(config.server_port);
+      setClientVersion(config.client_version);
+    };
+    loadConfig();
+  }, []);
+
+  // 저장 버튼 클릭
+  const handleSave = (e: any) => {
+    const data = {
+      serverIp: serverIp,
+      serverPort: serverPort,
+      clientVersion: clientVersion,
+    };
+    console.log("saveConfig-req", data);
+    saveConfig(data);
+  };
 
   const handleTabChange = (e: any) => {
     const { code } = e.target.dataset;
     setCurrentTab(Number(code));
   };
-
-  useEffect(() => {
-    console.log(states);
-  }, []);
 
   const handleThemeChange = (e: any) => {
     const { code } = e.target.dataset;
@@ -175,11 +203,10 @@ export default function SettingModal(props: TsettingModalProps) {
   };
 
   return (
-    <div className="setting-modal">
-      <h5 className="setting-modal-title setting">
-        설정
-        <div className="btn-close" onClick={closeModalFunction} />
-      </h5>
+    <div className="contents-wrap">
+      <div className="page-title-wrap">
+        <h4 className="page-title">환경설정</h4>
+      </div>
 
       <div className="setting-tab-wrap">
         <input
@@ -598,7 +625,10 @@ export default function SettingModal(props: TsettingModalProps) {
                     <input
                       type="text"
                       className="op-txt-input"
-                      value="220.230.127.93"
+                      value={serverIp}
+                      onChange={(e: any) => {
+                        setServerIp(e.currentTarget.value);
+                      }}
                     />
                   </div>
                 </div>
@@ -607,13 +637,36 @@ export default function SettingModal(props: TsettingModalProps) {
                 <div className="row-inner-title">포트</div>
                 <div className="row-inner-con">
                   <div className="op-input-txt">
-                    <input type="text" className="op-txt-input" value="12551" />
+                    <input
+                      type="text"
+                      className="op-txt-input"
+                      value={serverPort}
+                      onChange={(e: any) => {
+                        setServerPort(e.currentTarget.value);
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="setting-con-row-inner port-wrap">
+                <div className="row-inner-title">클라이언트 버전</div>
+                <div className="row-inner-con">
+                  <div className="op-input-txt">
+                    <input
+                      type="text"
+                      className="op-txt-input"
+                      value={clientVersion}
+                      onChange={(e: any) => {
+                        setClientVersion(e.currentTarget.value);
+                      }}
+                    />
                   </div>
                   <div className="op-input-btn">
                     <input
                       type="submit"
                       className="op-btn"
-                      value="연결 테스트"
+                      value="저장"
+                      onClick={handleSave}
                     />
                   </div>
                 </div>
