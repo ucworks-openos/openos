@@ -76,6 +76,17 @@ ipcMain.on('deleteMessage', async (event, msgType, msgKeys) => {
 });
 
 /**
+ * createChatRoomKeySync
+ * @param {Array} userIds
+ */
+ipcMain.on('createChatRoomKeySync', (event, userIds) => {
+  let roomKey = createChatRoomKey(userIds);
+  logger.debug('createChatRoomKeySync req:%s  createdRoomKey:%s', userIds, roomKey);
+  event.returnValue = roomKey
+});
+
+
+/**
  * getChatRoomList
  */
 ipcMain.on('getChatRoomList', async (event, msgKey) => {

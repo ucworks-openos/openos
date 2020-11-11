@@ -51,3 +51,9 @@ export const getChatUserIds = (chatEntryIds: String) => {
 export const getChatRoomType = (chatUserIds: Array<String>) => {
   return chatUserIds?.length <= 2 ? '1' : '2';
 };
+
+
+export const getChatRoomKey = (chatUserIds: string) => {
+  //crypto
+  //crypto.createHash('sha512').update('비밀번호').digest('base64');
+}
