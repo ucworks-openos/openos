@@ -19,11 +19,13 @@ function ChatPage(props) {
   const { remote } = window.require("electron")
 
   const loginUser = remote.getGlobal('USER');
-  const roomKey = props.match.params["roomKey"];
   const orgMembers = props.match.params["orgMembers"];
-
+  let roomKey = props.match.params["roomKey"];
+  
   useEffect(() => {
       if (roomKey) {
+          // roomKey는 URI Encoding을 통한다.
+          roomKey = decodeURIComponent(roomKey);
           getChatRoomByRoomKey(roomKey).then((resData) => {
               let roomInfo = resData.data;
               writeDebug('moveToClickedChatRoom. RoomKey:%s', roomKey,  roomInfo)   

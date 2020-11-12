@@ -20,24 +20,6 @@ const electron = window.require("electron");
 function NotificationControl() {
   const dispatch = useDispatch();
 
-  // 선택한 대화방 정보를 가지고 있는다.
-  const currentChatRoom = useSelector((state) => state.chats.currentChatRoom);
-
-  // 선택한 대화방 처리
-  useEffect(() => {
-    // 현재 대화탭이 아니면 선택된 대화방 값을 없애 버린다.
-    if (window.location.hash.split("/")[1] !== "chat") {
-      sessionStorage.setItem("chatRoomKey", "");
-    } else {
-      sessionStorage.setItem(
-        "chatRoomKey",
-        currentChatRoom ? currentChatRoom.room_key : ""
-      );
-    }
-
-    writeDebug('NotificationControl.  CurrentChatRoomKey:%s  location:%s', sessionStorage.getItem("chatRoomKey"), window.location.hash);
-  }, [currentChatRoom, window.location.hash]);
-
   //알림 수신처리
   useEffect(() => {
 
@@ -64,10 +46,10 @@ function NotificationControl() {
         case ChatCommand.CHAT_DATA_NEW_CHAT:
         case ChatCommand.CHAT_RECV_FILE:
           dispatch(addReceivedChat(chat));
-          // 내가 대화 room_key에 해당하지 않는 페이지에 있을 때만 알림 받기
-          if (chat.roomKey !== selectedChatRoomKey) {
-            //알림 받기
 
+          // 현재 선택된 방이 아니거나 대화 탭이 아니면 알림을 보낸다.
+          if (chat.roomKey !== selectedChatRoomKey 
+            || window.location.hash.split("/")[1] !== "chat") {
             showChatNoti(chat);
           }
           break;
@@ -123,14 +105,18 @@ function NotificationControl() {
 
       switch (noti.notiType) {
         case "NOTI_MESSAGE":
-          window.location.hash = `#/message`;
           dispatch(setCurrentMessageListsType("RECV"));
           dispatch(setCurrentMessage(noti.notiId));
+          window.location.hash = `#/message`;
 
           break;
         case "NOTI_CHAT":
           writeLog("chat noti click!--");
-          window.location.hash = `#/chat/${noti.notiId}`;
+          // 채팅방 관리 로직을 수정을 해야할거 같다.
+          // 현재 목록에 방이 없다면 받아와서 추가하고 
+          //  해당방으로 이동시키는 식으로...
+
+          window.location.hash = `#/chat/${encodeURIComponent(noti.notiId)}`;
           dispatch(setCurrentChatRoomFromNoti());
 
           break;
