@@ -19,6 +19,9 @@ type TloginContolProps = {
 function MainContol(props:TloginContolProps) {
     const { loginSuccessId } = props;
 
+    // 선택한 대화방 정보를 가지고 있는다.
+    const currentChatRoom = useSelector((state:any) => state.chats.currentChatRoom);
+
     // MainProcess IPC Req Receive
     useEffect(() => {
         //
@@ -41,7 +44,25 @@ function MainContol(props:TloginContolProps) {
 
     }, [])
 
-    //알림 수신처리
+    //
+    // 선택한 대화방 처리
+    useEffect(() => {
+        // 현재 대화탭이 아니면 선택된 대화방 값을 없애 버린다.
+        if (window.location.hash.split("/")[1] !== "chat") {
+            sessionStorage.setItem("chatRoomKey", "");
+        } else {
+            sessionStorage.setItem(
+            "chatRoomKey",
+            currentChatRoom ? currentChatRoom.room_key : ""
+            );
+        }
+
+        writeDebug('NotificationControl.  CurrentChatRoomKey:%s  location:%s', sessionStorage.getItem("chatRoomKey"), window.location.hash);
+    }, [currentChatRoom, window.location.hash]);
+
+
+    //
+    // 로그인 성공 처리
     useEffect(() => {
         loginProcess(loginSuccessId);
     }, [loginSuccessId]);
@@ -78,7 +99,8 @@ function MainContol(props:TloginContolProps) {
         }
     }
 
-
+    //
+    // 로그인 완료 처리
     const loginCompleted = async (userData:TUser) => {
         writeInfo('loginSuccessProc Completed! ', userData.userId, userData.userName, userData.userTelOffice, userData.userTelIpphone);
 

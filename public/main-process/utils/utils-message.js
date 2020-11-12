@@ -14,9 +14,9 @@ function createChatRoomKey(chatUserIds) {
     }  else {
         // 1:1
 
-        // let userIds = chatUserIds.sort().join("|");
-        // return crypto.createHash('sha256').update(userIds).digest('base64');
-        return chatUserIds.sort().join("|");
+        let userIds = chatUserIds.sort().join("|");
+        return crypto.createHash('sha256').update(userIds).digest('base64');
+        //return chatUserIds.sort().join("|");
     }
 }
 
