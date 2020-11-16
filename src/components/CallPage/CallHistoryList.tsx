@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Axios from "axios";
 import { writeDebug } from "../../common/ipcCommunication/ipcLogger";
+import { ExternalURLs } from "../../enum/external";
 
 const { remote } = window.require("electron")
 
@@ -23,12 +24,12 @@ export default function CallHistoryList() {
 
         } else {
             const callHistoryInstance = Axios.create({
-                baseURL: 'http://192.168.0.172:8040/sucti',
+                baseURL: ExternalURLs.RCC_CALL_BASE,
                 timeout: 3000,
                 headers: {'X-Custom-Header': 'foobar'}
             });
     
-            callHistoryInstance.get(`/getUserHistory/${remote.getGlobal('USER').userId}?iDisplayStart=1&iDisplayLength=50`)
+            callHistoryInstance.get(`${ExternalURLs.RCC_CALL_HISTORY}/${remote.getGlobal('USER').userId}?iDisplayStart=1&iDisplayLength=50`)
             .then(function (response) {
                 setCallDatas(response.data.data)
             })

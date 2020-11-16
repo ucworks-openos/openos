@@ -16,6 +16,7 @@ function LeftPanel() {
   const handleClickSearchbar = () => {
     searchbarRef.current.focus();
   };
+  
   return (
     <div className="chat-list-area">
       <div className="chat-page-title-wrap">

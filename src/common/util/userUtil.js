@@ -19,6 +19,7 @@ export const getDispUserNames = async (userIds, viewUserCnt = 0) => {
     moreInfo = ` 외 ${userIds.length-viewUserCnt}명`;
   }
 
+  reqUserIds = [...new Set(reqUserIds)]; // 중복 아이디 요청은 제거한다.
   let {
     data: {
       items: { node_item: userSchemaMaybeArr },

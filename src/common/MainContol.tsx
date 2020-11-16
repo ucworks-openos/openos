@@ -102,7 +102,7 @@ function MainContol(props:TloginContolProps) {
     //
     // 로그인 완료 처리
     const loginCompleted = async (userData:TUser) => {
-        writeInfo('loginSuccessProc Completed! ', userData.userId, userData.userName, userData.userTelOffice, userData.userTelIpphone);
+        writeInfo('loginCompleted ', userData.userId, userData.userName, userData.userTelOffice, userData.userTelIpphone);
 
         // getBandToken
         try {
@@ -111,19 +111,19 @@ function MainContol(props:TloginContolProps) {
                 password:'03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'
             }
 
-            const callHistoryInstance = Axios.create({
+            const bandLoginTocken = Axios.create({
                 baseURL: ExternalURLs.BAND_BACK_BASE, //'http://27.96.131.93'
                 timeout: 3000,
                 headers: {'X-Custom-Header': 'foobar'}
             });
     
             // 'http://27.96.131.93'/api/user/login'
-            let url = ExternalURLs.BAND_LOGIN + `?ucTalkId=${userData.userId}&password=03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4`
-            callHistoryInstance.post(ExternalURLs.BAND_LOGIN, param).then(function (response:any) {
+            //let url = ExternalURLs.BAND_LOGIN + `?ucTalkId=${userData.userId}&password=03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4`
+            bandLoginTocken.post(ExternalURLs.BAND_LOGIN, param).then(function (response:any) {
 
                 //eyJhbGciOiJIUzI1NiJ9.MjM0NDU.lszrQ4ktnhbb0Qv0RO-bwGE7TvZ9VzVPVl1gpJVCYTQ
                 setGlobalUserConfig('bandLoginToken', response?.data?.accessToken)
-                writeDebug('BandToken: ', getGlobalUserConfig('bandLoginToken'))
+                writeDebug('BandToken: ',getGlobalUserConfig('bandLoginToken'),  response)
             }).catch(function (error) {
                 writeError('BandToken response fail! ', ExternalURLs.BAND_LOGIN, param, error)
             });

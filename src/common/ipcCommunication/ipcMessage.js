@@ -100,9 +100,9 @@ export const showChatNoti = (chatMsg) => {
 }
 
 /** exitChatRoom */
-export const exitChatRoom = (roomId, chatUserIds) => {
-  writeDebug('exitChatRoom', roomId, chatUserIds)
-  electron.ipcRenderer.send('exitChatRoom', roomId, chatUserIds)
+export const exitChatRoom = (roomId, chatUserIds, roomName = '') => {
+  writeDebug('exitChatRoom', roomId, chatUserIds, roomName)
+  electron.ipcRenderer.send('exitChatRoom', roomId, chatUserIds, roomName)
 }
 
 /** changeChatRoomName */

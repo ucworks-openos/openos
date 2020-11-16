@@ -162,7 +162,6 @@ global.USER = {
   profile:undefined
 }
 
-
 /**
  * 암호화 (보안) 처리 정보
  */
@@ -306,21 +305,13 @@ global.USER_CONFIG = new Store({
     autoLoginPwd:''
   }
 });
+
 //#endregion GLOBAL 설정 정보
 
 
 /********************************************************************************************************
  * Electron Applicatin Initialize
  *******************************************************************************************************/
-
-// //loadMainProcesses
-// logger.debug('loadfile : %s', path.join(__dirname, 'main-process/**/*.js'));
-// //const files = glob.sync(path.join(__dirname, '/../public/main-process/**/*.js'))''
-// const files = glob.sync(path.join(__dirname, 'main-process/**/*.js'))
-// files.forEach((file) => {
-//   logger.debug('loadfile... %s', file);
-//   require(file) 
-// })
 
 
 var mainWindow = null;

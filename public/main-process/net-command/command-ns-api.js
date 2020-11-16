@@ -425,6 +425,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTi
         // destIds.forEach(function(userId){
         //     idDatas += idDatas?CmdConst.SEP_CR+userId:userId;
         //   });
+
         let idDatas = userIds.join(CmdConst.SEP_PIPE);
         // encrypt Message
         let encData = CryptoUtil.encryptMessage(message);
@@ -521,7 +522,7 @@ function reqSendChatMessage(roomKey, lineKey, userIds, message, fontName, roomTi
  * @param {String} roomKey 
  * @param {CHAT_ROOM_TYPE} roomType 
  */
-function reqExitChatRoom(roomKey, userIds) {
+function reqExitChatRoom(roomKey, leftUserIds, roomName) {
     return new Promise(async function(resolve, reject) {
 
         if (!global.SERVER_INFO.NS.isConnected) {
@@ -531,7 +532,7 @@ function reqExitChatRoom(roomKey, userIds) {
 
         /*********************** */
 
-        let idDatas = userIds.join(CmdConst.SEP_PIPE);
+        let idDatas = leftUserIds.join(CmdConst.SEP_PIPE);
 
         // roomKey
         let roomKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
@@ -541,7 +542,7 @@ function reqExitChatRoom(roomKey, userIds) {
 
         // roomType
         let roomTypeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);
-        roomTypeBuf.writeInt32LE(userIds.length>1?CHAT_ROOM_TYPE.MULTI:CHAT_ROOM_TYPE.SINGLE);
+        roomTypeBuf.writeInt32LE(leftUserIds.length>1?CHAT_ROOM_TYPE.MULTI:CHAT_ROOM_TYPE.SINGLE);
 
         let lineKeyBuf = Buffer.alloc(CmdConst.BUF_LEN_CHAT_ROOM_KEY);
         //lineKeyBuf.write(lineKey, global.ENC);
@@ -598,12 +599,14 @@ function reqExitChatRoom(roomKey, userIds) {
         chatKeySizeBuf.writeInt32LE(chatKeyBuf.length);
 
         let chatDataSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);   // chatdata_size
-        let chatDataBuf = Buffer.from('');
+        let chatDataBuf = Buffer.from(idDatas);
         chatDataSizeBuf.writeInt32LE(chatDataBuf.length);
 
         let destIdSizeBuf = Buffer.alloc(CmdConst.BUF_LEN_INT);     // destid_size
-        let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_CR);
+        let destIdBuf = Buffer.from(idDatas + CmdConst.SEP_CR + roomName);
         destIdSizeBuf.writeInt32LE(destIdBuf.length);
+
+        logger.debug('ExitRooms -- chatData:%s  destId:%s', idDatas, idDatas + CmdConst.SEP_CR + roomName)
 
         var dataBuf = Buffer.concat([roomKeyBuf,roomTypeBuf,lineKeyBuf,lineNumberBuf,lineNumberBuf,sendDateBuf,ipBuf,portBuf,
                     fontSizeBuf,fontStyleBuf,fontColorBuf,fontNameBuf,

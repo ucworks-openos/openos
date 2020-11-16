@@ -131,6 +131,9 @@ function initGlobal () {
 }
 
 function logoutProc () {
+  closeAlert();
+  initGlobal();
+
   try {
     nsAPI.close();
     dsAPI.close();
@@ -139,10 +142,6 @@ function logoutProc () {
   } catch (err) {
       logger.error('LOGOUT Ex', err)
   }
-
-  closeAlert();
-
-  initGlobal();
   goto('logout')
   logger.info('logout completed!');
 }
