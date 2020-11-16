@@ -111,7 +111,7 @@ function NotificationControl() {
 
           break;
         case "NOTI_CHAT":
-          writeLog("chat noti click!--");
+          writeLog("chat noti click!--", `#/chat/${encodeURIComponent(noti.notiId)}`);
           // 채팅방 관리 로직을 수정을 해야할거 같다.
           // 현재 목록에 방이 없다면 받아와서 추가하고 
           //  해당방으로 이동시키는 식으로...

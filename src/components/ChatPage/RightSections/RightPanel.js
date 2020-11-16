@@ -46,15 +46,13 @@ function RightPanel() {
           room_key:currentChatRoom.room_key,
           room_type:currentChatRoom.room_type,
           chat_entry_ids:currentChatRoom.chat_entry_ids,
-          chat_entry_names:currentChatRoom.chat_entry_names,
-          room_type:currentChatRoom.room_type});
+          chat_entry_names:currentChatRoom.chat_entry_names});
 
         setChatRoomName(currentChatRoom.chat_entry_names?getChatRoomName(currentChatRoom.chat_entry_names): await getDispUserNames(userIds))
         setChatUserIds(userIds)
       } else {
         writeInfo('Chat RightPanel  CurrentRoomEmpty!');
       }
-
     }
     
     fetchData();
@@ -75,7 +73,7 @@ function RightPanel() {
   /**
    * handleExitChatRoom
    */
-  const handleExitChatRoom = () => {
+  const handleExitChatRoom = async () => {
 
     if (!currentChatRoom) return;
 
@@ -85,9 +83,15 @@ function RightPanel() {
     
     // 퇴장하는 아이디가 필요없다면 뺀다.
     let userIdList = getChatUserIds(currentChatRoom.chat_entry_ids);
-    userIdList = userIdList.filter((id) => id !== loginUser.userId);
 
-    exitChatRoom(currentChatRoom.room_key, userIdList);
+    // 1:1은 그냥 참여자 ID를 놔둔다. N 대화방에서만 제거해 버린다.
+    // room_type:2 -> 1:N
+    if ((currentChatRoom.room_type + '') == "2")
+      userIdList = userIdList.filter((id) => id !== loginUser.userId);
+
+    let entryUserName = await getDispUserNames(userIdList)
+
+    exitChatRoom(currentChatRoom.room_key, userIdList, entryUserName);
     if (newRooms?.length > 0) {
       dispatch(setChatRooms(newRooms));
       dispatch(setCurrentChatRoom(newRooms[0].room_key, newRooms));

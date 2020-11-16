@@ -55,8 +55,17 @@ function connect () {
         });
         // 
         nsSock.on('close', function(hadError){
+            // 어떤 경우에선 'end'가 발생하지 않고 close가 발생한다.
+            
             logger.warn("NS Close. hadError: " + hadError);
             global.SERVER_INFO.NS.isConnected = false;
+
+            // 로그인 사용자 정보가 있다면 아직 로그아웃을 하지 못했다.
+            if (global.USER?.userId) {
+                send('logout-req', 'NS-NET-CLOSE');
+            }
+            // 연결이 종료되면 Connectin Check를 멈춘다.
+            clearInterval(global.NS_CONN_CHECK);
         });
         // 에러가 발생할때 에러메시지 화면에 출력
         nsSock.on('error', function(err){

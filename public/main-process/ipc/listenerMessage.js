@@ -169,15 +169,17 @@ ipcMain.on('getChatList', async (event, roomId, lastLineKey, rowLimit) => {
 /**
  * exit chatRoom
  */
-ipcMain.on('exitChatRoom', async (event, roomId, chatUserIds) => {
+ipcMain.on('exitChatRoom', async (event, roomId, chatUserIds, roomName) => {
   logger.debug('exitChatRoom', roomId)
-  nsAPI.reqExitChatRoom(roomId, chatUserIds).then(function (resData) {
+
+  nsAPI.reqExitChatRoom(roomId, chatUserIds, roomName).then(function (resData) {
     logger.info('[IPC] exitChatRoom res:', resData)
     event.reply('res-exitChatRoom', resData);
   }).catch(function (err) {
     logger.info('[IPC] exitChatRoom res  Err:', err)
     event.reply('res-exitChatRoom', new ResData(false, err));
   });
+
 });
 
 /**
