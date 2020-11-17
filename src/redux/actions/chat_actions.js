@@ -19,6 +19,7 @@ import {
   SET_EMOTICON_VISIBLE,
   SET_CURRENT_EMOTICON,
   SET_CHAT_ANCHOR,
+  UPDATE_CHAT_ROOM,
   UPDATE_CURRENT_CHAT_ROOM,
   ADD_FILE_SKELETON,
   SET_FILE_SKELETON,
@@ -227,8 +228,18 @@ export function emptyChatMessages() {
   };
 }
 
+export function updateChatRoom(newRoom) {
+  writeDebug("updateChatRoom", newRoom);
+
+  return {
+    type: UPDATE_CHAT_ROOM,
+    payload: newRoom,
+  };
+}
+
 export async function updateCurrentChatRoom(newRoom) {
   writeDebug("updateCurrentChatRoom", newRoom);
+  updateChatRoom(newRoom);
 
   return {
     type: UPDATE_CURRENT_CHAT_ROOM,

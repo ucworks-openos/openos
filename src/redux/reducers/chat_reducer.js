@@ -21,6 +21,7 @@ import {
   SET_EMOJI_VISIBLE,
   SET_EMOTICON_VISIBLE,
   SET_CURRENT_EMOTICON,
+  UPDATE_CHAT_ROOM,
   UPDATE_CURRENT_CHAT_ROOM,
   GET_ADDITIONAL_CHAT_MESSAGES,
   ADD_FILE_SKELETON,
@@ -93,7 +94,7 @@ export default function (
         chatMessages: action.payload.chatLists,
       };
 
-    case UPDATE_CURRENT_CHAT_ROOM:
+    case UPDATE_CHAT_ROOM:
       return {
         ...state,
         chatRooms: state.chatRooms.map((chatRoom) => {
@@ -103,6 +104,11 @@ export default function (
             return action.payload;
           }
         }),
+      };
+
+    case UPDATE_CURRENT_CHAT_ROOM:
+      return {
+        ...state,
         currentChatRoom: action.payload,
       };
 
