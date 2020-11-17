@@ -6,6 +6,9 @@ import useConfig from "../../hooks/useConfig";
 
 import { makeCall } from "../../common/ipcCommunication/ipcIpPhone";
 import { writeWarn } from "../../common/ipcCommunication/ipcLogger";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
+import { addChatRoomFromOrganization } from "../../redux/actions/chat_actions";
 
 type TOrganizationNodeProps = {
   data: TTreeNode;
@@ -36,6 +39,10 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
     setSelectedKeys,
     setMessageModalVisible,
   } = props;
+  const { remote } = window.require("electron");
+  const loginUser = remote.getGlobal("USER");
+  const dispatch = useDispatch();
+  const history = useHistory();
   const [visible, setVisible] = useState<boolean>(false);
   const { doubleClickBehavior } = useConfig();
 
@@ -68,7 +75,10 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
       setFinalSelectedKeys([data?.key]);
       setMessageModalVisible((prev: boolean) => !prev);
     } else if (doubleClickBehavior === `chat`) {
-      window.location.hash = `#/chat/fromOrg/${data?.userId}`;
+      dispatch(
+        addChatRoomFromOrganization(`${data?.userId}|${loginUser.userId}`)
+      );
+      history.push(`/chat`);
     }
   };
 
@@ -97,7 +107,10 @@ export default function OrganizationNode(props: TOrganizationNodeProps) {
   };
 
   const handleChat = () => {
-    window.location.hash = `#/chat/fromOrg/${data?.userId}`;
+    dispatch(
+      addChatRoomFromOrganization(`${data?.userId}|${loginUser.userId}`)
+    );
+    history.push(`/chat`);
   };
 
   /**

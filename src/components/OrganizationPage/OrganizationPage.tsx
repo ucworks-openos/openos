@@ -28,11 +28,14 @@ import AddToFavoriteModal from "../../common/components/Modal/AddToFavoriteModal
 import AddGroupToFavoriteModal from "../../common/components/Modal/AddGroupToFavoriteModal";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
+import { addChatRoomFromOrganization } from "../../redux/actions/chat_actions";
 
 let _orgCode: string = ``;
 
 export default function OrganizationPage() {
   // ANCHOR state
+  const { remote } = window.require("electron");
+  const loginUser = remote.getGlobal("USER");
   const history = useHistory();
   const dispatch = useDispatch();
   const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
@@ -250,8 +253,10 @@ export default function OrganizationPage() {
     const userIds = arrayLike(response)
       .filter((v: any) => v.gubun.value === EnodeGubun.ORGANIZATION_USER)
       .map((v: any) => v.user_id.value);
-
-    window.location.hash = `#/chat/fromOrg/${userIds.join(`|`)}`;
+    dispatch(
+      addChatRoomFromOrganization(`${userIds.join(`|`)}|${loginUser.userId}`)
+    );
+    history.push(`/chat`);
   };
 
   const handleAddGroupToFavorite = async () => {
@@ -264,9 +269,12 @@ export default function OrganizationPage() {
   };
 
   const handleChat = () => {
-    window.location.hash = `#/chat/fromOrg/${finalFinalSelectedKeys.join(
-      `|`
-    )}`;
+    dispatch(
+      addChatRoomFromOrganization(
+        `${finalFinalSelectedKeys.join(`|`)}|${loginUser.userId}`
+      )
+    );
+    history.push(`/chat`);
   };
 
   const handleExpand = (expandedKeys: (string | number)[]): void => {
