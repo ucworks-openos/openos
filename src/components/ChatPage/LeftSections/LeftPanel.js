@@ -1,23 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import ChatRooms from "./ChatRoom";
+import ChatRooms from "./ChatRooms";
 import Modal from "react-modal";
 import ChatInvitationModal from "../../../common/components/Modal/ChatInvitationModal";
-import { useDispatch, useSelector } from "react-redux";
-import { getInitialChatRooms, setCurrentChatRoom, setEmojiVisible, setEmoticonVisible } from "../../../redux/actions/chat_actions";
-import ChatRoom from "./ChatRoom";
 
 function LeftPanel() {
-  const dispatch = useDispatch();
-  const { chatRooms, currentChatRoom, unreadChatRoomKeys } = useSelector(
-    (state) => state.chats
-  );
-
   const [isOpenChatInputModal, setIsOpenChatInputModal] = useState(false);
   const searchbarRef = useRef(null);
-
-  useEffect(() => {
-    dispatch(getInitialChatRooms());
-  }, []);
 
   const onOpenChatInputModalClick = () => {
     setIsOpenChatInputModal(true);
@@ -28,13 +16,6 @@ function LeftPanel() {
   const handleClickSearchbar = () => {
     searchbarRef.current.focus();
   };
-
-  const onChatRoomClick = (roomKey) => {
-    dispatch(setCurrentChatRoom(roomKey, chatRooms));
-    dispatch(setEmojiVisible(false));
-    dispatch(setEmoticonVisible(false));
-  };
-
   
   return (
     <div className="chat-list-area">
@@ -68,16 +49,7 @@ function LeftPanel() {
 
       <div className="chat-list-wrap">
         <ul>
-          <div>
-
-          {chatRooms?.map((chatRoom, index) => {
-            return <ChatRoom chatRoom={chatRoom} 
-                      onChatRoomClick={onChatRoomClick} 
-                      isSelected={chatRoom.room_key === currentChatRoom?.room_key} 
-                      key={index}/>
-          })}
-
-          </div>
+          <ChatRooms />
         </ul>
       </div>
 

@@ -16,7 +16,6 @@ export const SET_UNREAD_CHAT_ROOM_KEYS = "set_unread_chat_room_keys";
 export const SET_EMOJI_VISIBLE = "set_emoji_visible";
 export const SET_EMOTICON_VISIBLE = "set_emoticon_visible";
 export const SET_CURRENT_EMOTICON = "set_current_emoticon";
-export const UPDATE_CHAT_ROOM = "update_chat_room";
 export const UPDATE_CURRENT_CHAT_ROOM = "update_current_chat_room";
 
 export const GET_INITIAL_MESSAGE_LISTS = "get_initial_message_lists";
