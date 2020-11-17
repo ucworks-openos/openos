@@ -28,9 +28,9 @@ import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/SendMessageModal/MessageInputModal";
 import ModifyGroupModal from "../../common/components/Modal/ModifyGroupModal";
 import { writeDebug } from "../../common/ipcCommunication/ipcLogger";
-import { useHistory } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { addChatRoomFromOrganization } from "../../redux/actions/chat_actions";
+
+const electron = window.require("electron")
+const { remote } = window.require("electron")
 
 type TgetBuddyTreeReturnTypes = {
   buddyTree: TTreeNode[];
@@ -40,10 +40,6 @@ type TgetBuddyTreeReturnTypes = {
 
 export default function FavoritePage() {
   // ANCHOR state
-  const { remote } = window.require("electron");
-  const loginUser = remote.getGlobal("USER");
-  const history = useHistory();
-  const dispatch = useDispatch();
   const [isHamburgerButtonClicked, setIsHamburgerButtonClicked] = useState(
     false
   );
@@ -114,7 +110,7 @@ export default function FavoritePage() {
 
   // 로그인 사용자 정보 변경
   useEffect(() => {
-    var loginUser = remote.getGlobal("USER");
+    var loginUser = remote.getGlobal('USER');
 
     // 로그인이 성공했다.
     if (loginUser?.userId) {
@@ -261,22 +257,16 @@ export default function FavoritePage() {
 
     if (childrenKeys.length) {
       setFinalSelectedKeys(childrenKeys);
-      dispatch(
-        addChatRoomFromOrganization(
-          `${childrenKeys.join(`|`)}|${loginUser.userId}`
-        )
-      );
-      history.push(`/chat`);
+      window.location.hash = `#/chat/fromOrg/${childrenKeys.join(
+        `|`
+      )}`;
     }
   };
 
   const handleChat = () => {
-    dispatch(
-      addChatRoomFromOrganization(
-        `${finalFinalSelectedKeys.join(`|`)}|${loginUser.userId}`
-      )
-    );
-    history.push(`/chat`);
+    window.location.hash = `#/chat/fromOrg/${finalFinalSelectedKeys.join(
+      `|`
+    )}`;
   };
 
   const handleModifyGroupVisible = async () => {
