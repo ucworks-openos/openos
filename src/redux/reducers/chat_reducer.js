@@ -33,7 +33,6 @@ export default function (
   state = {
     unreadChatRoomKeys: [],
     chatAnchor: false,
-    chatRooms: [],
   },
   action
 ) {

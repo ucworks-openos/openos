@@ -5,8 +5,6 @@ import React, {
   Dispatch,
   SetStateAction,
 } from "react";
-import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { makeCall } from "../../common/ipcCommunication/ipcIpPhone";
 import { writeWarn } from "../../common/ipcCommunication/ipcLogger";
@@ -14,7 +12,6 @@ import { writeWarn } from "../../common/ipcCommunication/ipcLogger";
 import { arrayLike } from "../../common/util";
 import { EconnectType, EnodeGubun, EuserState } from "../../enum";
 import useConfig from "../../hooks/useConfig";
-import { addChatRoomFromOrganization } from "../../redux/actions/chat_actions";
 
 type TFavoriteNodeProps = {
   data: TTreeNode;
@@ -47,10 +44,6 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
   } = props;
   const [visible, setVisible] = useState<boolean>(false);
   const { doubleClickBehavior } = useConfig();
-  const dispatch = useDispatch();
-  const history = useHistory();
-  const { remote } = window.require("electron");
-  const loginUser = remote.getGlobal("USER");
 
   // ANCHOR memo
   const connectTypeConverter = () => {
@@ -82,10 +75,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
       setFinalSelectedKeys([data?.key]);
       setMessageModalVisible((prev: boolean) => !prev);
     } else if (doubleClickBehavior === `chat`) {
-      dispatch(
-        addChatRoomFromOrganization(`${data?.userId}|${loginUser.userId}`)
-      );
-      history.push(`/chat`);
+      window.location.hash = `#/chat/fromOrg/${data?.userId}`;
     }
   };
 
@@ -106,10 +96,7 @@ export default function FavoriteNode(props: TFavoriteNodeProps) {
   };
 
   const handleChat = () => {
-    dispatch(
-      addChatRoomFromOrganization(`${data?.userId}|${loginUser.userId}`)
-    );
-    history.push(`/chat`);
+    window.location.hash = `#/chat/fromOrg/${data?.userId}`;
   };
 
   const handleDetailToggle = (e: any) => {
