@@ -13,6 +13,7 @@ import {
   ADD_CHAT_MESSAGE,
   ADD_RECEIVED_CHAT,
   ADD_CHAT_ROOM,
+  ADD_CHAT_ROOM_DIRECT,
   MOVE_TO_CLICKED_CHAT_ROOM,
   SET_CURRENT_CHAT_ROOM_FROM_NOTI,
   EMPTY_CHAT_MESSAGE,
@@ -94,6 +95,18 @@ export default function (
         chatMessages: action.payload.chatLists,
       };
 
+    case ADD_CHAT_ROOM_DIRECT:
+    {
+      let chatRooms = [...state.chatRooms];
+      let chatRoomsWithoutCurrentChatRoom = chatRooms.filter(
+        (c) => c.room_key !== action.payload.room_key
+      );
+      console.log("action.payload.chatLists", action.payload.chatLists);
+      return {
+        ...state,
+        chatRooms: [action.payload, ...chatRoomsWithoutCurrentChatRoom],
+      };
+    }
     case UPDATE_CHAT_ROOM:
       return {
         ...state,

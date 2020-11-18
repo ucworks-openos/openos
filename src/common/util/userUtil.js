@@ -1,5 +1,5 @@
 import { arrayLike, getPreviousStackInfo } from ".";
-import { writeDebug, writeError } from "../ipcCommunication/ipcLogger";
+import { writeDebug, writeError, writeWarn } from "../ipcCommunication/ipcLogger";
 import { getUserInfos } from "../ipcCommunication/ipcOrganization";
 
 /**
@@ -16,6 +16,12 @@ export const getDispUserNames = async (userIds, viewUserCnt = 0) => {
   let moreInfo = '';
   let reqUserIds = userIds;
   if (viewUserCnt > 0 && userIds.length > viewUserCnt) {
+      
+    if (!Array.isArray(userIds)) {
+      writeWarn('getDispUserNames  userIds is not Array');
+      userIds = [userIds];
+    }
+    
     reqUserIds = userIds.subarray(0, viewUserCnt)
     moreInfo = ` 외 ${userIds.length-viewUserCnt}명`;
   }

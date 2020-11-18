@@ -7,6 +7,7 @@ export const SET_CHAT_ROOMS = "set_chat_rooms";
 // export const GET_MORE_CHATS_MESSAGES = 'get_more_chats_messages';
 export const ADD_CHAT_MESSAGE = "add_chat_message";
 export const ADD_CHAT_ROOM = "add_chat_room";
+export const ADD_CHAT_ROOM_DIRECT = "add_chat_room_direct";
 export const ADD_RECEIVED_CHAT = "add_received_chat";
 export const MOVE_TO_CLICKED_CHAT_ROOM = "move_to_clicked_chat_room";
 export const SET_CURRENT_CHAT_ROOM_FROM_NOTI =
