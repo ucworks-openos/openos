@@ -16,6 +16,7 @@ const { getOsInfo } = require("./main-process/utils/utils-os");
 const { PLATFORM } = require("./main-process/common/common-const");
 const { logoutProc } = require("./main-process/main-handler");
 const Store = require("./main-process/common/file-store");
+const { goto } = require("./main-process/ipc/ipc-cmd-sender");
 
 const BrowserWindow = electron.BrowserWindow;
 const globalShortcut = electron.globalShortcut
@@ -60,10 +61,11 @@ const mainContextMenu = Menu.buildFromTemplate([
         }
       },
       {
-        label: 'dev tab',
+        label: 'SiteConfig',
         click: () => { 
-          global.IS_DEV = !global.IS_DEV;
-          mainWindow.reload();
+          // global.IS_DEV = !global.IS_DEV;
+          // mainWindow.reload();
+          goto('setting')
         }
       }
     ]
