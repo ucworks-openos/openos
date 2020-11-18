@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { showChatNoti } from "./ipcCommunication/ipcMessage";
+import { getChatRoomByRoomKey, showChatNoti } from "./ipcCommunication/ipcMessage";
 import { answerCall } from "./ipcCommunication/ipcIpPhone";
 import {
+  addChatRoom,
+  addChatRoomDirect,
   addReceivedChat,
   setCurrentChatRoomFromNoti,
   setUnreadChatRoomKeys,
@@ -14,11 +16,14 @@ import {
   setCurrentMessageListsType,
 } from "../redux/actions/message_actions";
 import { ChatCommand } from "../enum/chatCommand";
+import { getChatUserIds, getDispUserNames } from "./util";
 
 const electron = window.require("electron");
 
 function NotificationControl() {
   const dispatch = useDispatch();
+
+  const { chatRooms } = useSelector((state) => state.chats);
 
   //알림 수신처리
   useEffect(() => {
@@ -45,7 +50,8 @@ function NotificationControl() {
         case ChatCommand.CHAT_DATA_LINE: // 대화 메세지
         case ChatCommand.CHAT_DATA_NEW_CHAT:
         case ChatCommand.CHAT_RECV_FILE:
-          dispatch(addReceivedChat(chat));
+
+          addChatMessageWithChatRoom(chat)
 
           // 현재 선택된 방이 아니거나 대화 탭이 아니면 알림을 보낸다.
           if (chat.roomKey !== selectedChatRoomKey 
@@ -139,6 +145,28 @@ function NotificationControl() {
       writeInfo("userAliasChanged", alias);
     });
   }, []);
+
+
+  const addChatMessageWithChatRoom = async(chat) => {
+    // 메시지 방이 있는지 확인한다.
+
+    let chatRoom = chatRooms?.find(room => room.room_key === chat.roomKey);
+        
+    // 방이 없다면 가져온다.
+    if (!chatRoom) {
+      let resData = await getChatRoomByRoomKey(chat.roomKey);
+      let roomInfo = resData.data;
+      writeDebug('moveToClickedChatRoom. RoomKey:%s', chat.roomKey,  roomInfo)   
+        
+      let userIds = getChatUserIds(roomInfo.chat_entry_ids)
+      let chat_entry_names = roomInfo.chat_entry_names?roomInfo.chat_entry_names: await getDispUserNames(userIds);
+      
+      roomInfo.chat_entry_names = chat_entry_names
+      addChatRoomDirect(roomInfo)
+    }
+
+    dispatch(addReceivedChat(chat));
+  }
 
   return <div></div>;
 }

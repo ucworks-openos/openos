@@ -11,6 +11,7 @@ const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 var psSock;
 var rcvCommand;
 
+const psNetLog = false;
 
 /**
  * PS는 연결 비유지형으로 요청후 원하는 응답을 받으면 끊어 버린다.
@@ -113,7 +114,10 @@ function readDataStream(rcvData){
     }
 
     rcvCommand.readCnt += rcvData.length;
-    // logger.info('Recive PS Command Data :', rcvCommand);
+    
+    if (psNetLog) {
+        logger.info('Recive PS Command Data :', rcvCommand);
+    }
 
     if (rcvCommand.size <= rcvCommand.readCnt) {
         // 데이터를 모두 다 받았다.

@@ -18,7 +18,7 @@ import { writeDebug } from "../../../common/ipcCommunication/ipcLogger";
 
 const electron = window.require("electron");
 
-function ChatRooms(props) {
+function ChatRoom(props) {
   const dispatch = useDispatch();
   const { chatRooms, currentChatRoom, unreadChatRoomKeys } = useSelector(
     (state) => state.chats
@@ -33,12 +33,12 @@ function ChatRooms(props) {
     dispatch(setEmoticonVisible(false));
   };
 
-  const renderChatRoom = () =>
+  const renderChatRoom = async () =>
     chatRooms &&
     chatRooms.map((room) => {
       let chatUserIds = room && getChatUserIds(room.chat_entry_ids);
       let chatUserCount = chatUserIds && chatUserIds.length;
-      let roomName = getChatRoomName(room.chat_entry_names, chatUserIds);
+      let roomName = await getChatRoomNameAsync(room.chat_entry_names, chatUserIds);
 
       const isCurrentChatRoom =
         room && room.room_key === currentChatRoom?.room_key

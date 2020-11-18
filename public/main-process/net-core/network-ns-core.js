@@ -10,6 +10,8 @@ const { send } = require('../ipc/ipc-cmd-sender');
 var nsSock;
 var rcvCommand;
 
+const nsNetLog = false;
+
 /**
  * NS는 연결 유지형으로 Connection Check가 적용
  * 
@@ -123,9 +125,10 @@ function readDataStream(rcvData){
     }
 
     // 받은 데이터가 전문의 길이 값보다 더크다면 다음 커맨드가 붙어왔을수 있다.
-    logger.info('recvData:%s dataSize:%s', rcvData.length , dataBuff.length)
-    logger.info('rcvCommand ----', rcvCommand)
-
+    if (nsNetLog) {
+        logger.info('recvData:%s dataSize:%s', rcvData.length , dataBuff.length)
+        logger.info('rcvCommand ----', rcvCommand)
+    }
 
     // 기존데이터 + 받은 데이터 길이가 사이즈보다 넘는다면, 이후 커맨드까지 같이 받은것이다.
     if (rcvCommand.readCnt + dataBuff.length > rcvCommand.size) {
@@ -163,9 +166,11 @@ function readDataStream(rcvData){
             logger.info('Revceive NS Data Proc Fail! :', rcvData.toString('utf-8', 0));
         }
     } else {
-        // logger.info('\r\n >> Reading data ..........................');
-        // logger.info('NS rcvData:', rcvData);
-        // logger.info('NS rcvData toStr:', rcvData.toString('utf-8', 0));
+        if (nsNetLog) {
+            logger.info('\r\n >> Reading data ..........................');
+            logger.info('NS rcvData:', rcvData);
+            logger.info('NS rcvData toStr:', rcvData.toString('utf-8', 0));
+        }
     }
 };
 
@@ -205,7 +210,9 @@ function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
         cmdHeader = null;
         if (resetConnCheck) startConnectionCheck();
         
-        logger.info("write NS Command ------ CMD ", JSON.stringify(global.NS_SEND_COMMAND));
+        if (nsNetLog) {
+            logger.debug("write NS Command ------ CMD ", JSON.stringify(global.NS_SEND_COMMAND));
+        }
     // } catch (exception) {
     //     logger.info("write NS Command FAIL! CMD: " + cmdHeader.cmdCode + " ex: " + exception);
     // }
