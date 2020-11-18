@@ -16,7 +16,6 @@ const { getOsInfo } = require("./main-process/utils/utils-os");
 const { PLATFORM } = require("./main-process/common/common-const");
 const { logoutProc } = require("./main-process/main-handler");
 const Store = require("./main-process/common/file-store");
-const { goto } = require("./main-process/ipc/ipc-cmd-sender");
 
 const BrowserWindow = electron.BrowserWindow;
 const globalShortcut = electron.globalShortcut
@@ -61,11 +60,10 @@ const mainContextMenu = Menu.buildFromTemplate([
         }
       },
       {
-        label: 'SiteConfig',
+        label: 'dev tab',
         click: () => { 
-          // global.IS_DEV = !global.IS_DEV;
-          // mainWindow.reload();
-          goto('setting')
+          global.IS_DEV = !global.IS_DEV;
+          mainWindow.reload();
         }
       }
     ]
@@ -232,11 +230,18 @@ global.SERVER_INFO = {
 /**
  * 기본 설정 정보
  */
+// 국토연구원
 global.SITE_CONFIG = {
-  server_ip: '220.230.127.93', // 운영
+  server_ip: '10.1.1.6', // 운영
   server_port: '12551',
   client_version: 651
 }
+// 내부 운영
+// global.SITE_CONFIG = {
+//   server_ip: '220.230.127.93', // 운영
+//   server_port: '12551',
+//   client_version: 651
+// }
 // 개발서버
 // global.SITE_CONFIG = {
 //   server_ip: '192.168.0.172',
