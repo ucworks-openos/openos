@@ -6,10 +6,11 @@ import {
   SET_CHAT_MESSAGES,
   SET_CURRENT_CHAT_ROOM,
   GET_MORE_CHATS_MESSAGES,
-  ADD_CHAT_ROOM_FROM_ORGANIZATION,
   MOVE_TO_CLICKED_CHAT_ROOM,
   ADD_CHAT_MESSAGE,
   ADD_CHAT_ROOM,
+  ADD_CHAT_ROOM_DIRECT,
+  ADD_CHAT_ROOM_FROM_ORGANIZATION,
   ADD_RECEIVED_CHAT,
   SET_CURRENT_CHAT_ROOM_FROM_NOTI,
   EMPTY_CHAT_MESSAGE,
@@ -19,6 +20,7 @@ import {
   SET_EMOTICON_VISIBLE,
   SET_CURRENT_EMOTICON,
   SET_CHAT_ANCHOR,
+  UPDATE_CHAT_ROOM,
   UPDATE_CURRENT_CHAT_ROOM,
   ADD_FILE_SKELETON,
   SET_FILE_SKELETON,
@@ -227,12 +229,35 @@ export function emptyChatMessages() {
   };
 }
 
+export function updateChatRoom(newRoom) {
+  writeDebug("updateChatRoom", newRoom);
+
+  return {
+    type: UPDATE_CHAT_ROOM,
+    payload: newRoom,
+  };
+}
+
 export async function updateCurrentChatRoom(newRoom) {
   writeDebug("updateCurrentChatRoom", newRoom);
+  updateChatRoom(newRoom);
 
   return {
     type: UPDATE_CURRENT_CHAT_ROOM,
     payload: newRoom,
+  };
+}
+
+/**
+ * 대화방을 바로 추가한다,
+ * @param {ChatRoom} chatRoom 
+ */
+export async function addChatRoomDirect(chatRoom) {
+  
+  writeDebug('addChatRoomDirect', chatRoom);
+  return {
+    type: ADD_CHAT_ROOM_DIRECT,
+    payload: chatRoom,
   };
 }
 
@@ -261,11 +286,15 @@ export async function addChatRoom(request) {
     request.room_key = request.chat_send_id + "_" + getUUID();
     request.chatLists = [];
   }
+
+
   return {
     type: ADD_CHAT_ROOM,
     payload: request,
   };
 }
+
+
 
 export async function addChatRoomFromOrganization(orgMembers) {
   const loginUser = window.require("electron").remote.getGlobal("USER");

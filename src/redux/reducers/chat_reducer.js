@@ -13,6 +13,7 @@ import {
   ADD_CHAT_MESSAGE,
   ADD_RECEIVED_CHAT,
   ADD_CHAT_ROOM,
+  ADD_CHAT_ROOM_DIRECT,
   MOVE_TO_CLICKED_CHAT_ROOM,
   SET_CURRENT_CHAT_ROOM_FROM_NOTI,
   EMPTY_CHAT_MESSAGE,
@@ -21,6 +22,7 @@ import {
   SET_EMOJI_VISIBLE,
   SET_EMOTICON_VISIBLE,
   SET_CURRENT_EMOTICON,
+  UPDATE_CHAT_ROOM,
   UPDATE_CURRENT_CHAT_ROOM,
   GET_ADDITIONAL_CHAT_MESSAGES,
   ADD_FILE_SKELETON,
@@ -93,7 +95,19 @@ export default function (
         chatMessages: action.payload.chatLists,
       };
 
-    case UPDATE_CURRENT_CHAT_ROOM:
+    case ADD_CHAT_ROOM_DIRECT:
+    {
+      let chatRooms = [...state.chatRooms];
+      let chatRoomsWithoutCurrentChatRoom = chatRooms.filter(
+        (c) => c.room_key !== action.payload.room_key
+      );
+      console.log("action.payload.chatLists", action.payload.chatLists);
+      return {
+        ...state,
+        chatRooms: [action.payload, ...chatRoomsWithoutCurrentChatRoom],
+      };
+    }
+    case UPDATE_CHAT_ROOM:
       return {
         ...state,
         chatRooms: state.chatRooms.map((chatRoom) => {
@@ -103,6 +117,11 @@ export default function (
             return action.payload;
           }
         }),
+      };
+
+    case UPDATE_CURRENT_CHAT_ROOM:
+      return {
+        ...state,
         currentChatRoom: action.payload,
       };
 
