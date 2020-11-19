@@ -17,89 +17,26 @@ const electron = window.require("electron");
 
 function ChatRoom(props) {
   const dispatch = useDispatch();
-<<<<<<< HEAD
   //const chatRoom = props.chatRoom;
   const [chatRoom, setChatRoom] = useState({});
-  const [chatRoomName, setChatRoomName] = useState('');
-  const [chatUserIds, setChatUserIds] = useState([]);
-  
-  useEffect(() => {
-    writeDebug('useEffect-- props.chatRoom     ASIS:%s    NEW:%s', chatRoom?.room_key, props.chatRoom.room_key);
-
-    // 방 정보가 바뀌었다면 이름을 새로 가져온다.
-    if (!chatRoom || chatRoom.room_key !== props.chatRoom.room_key) {
-      initChatRoom(props.chatRoom);
-=======
-  const chatRoom = props.chatRoom;
   const [chatRoomName, setChatRoomName] = useState("");
   const [chatUserIds, setChatUserIds] = useState([]);
 
   useEffect(() => {
-    writeDebug("ChatRoom-- init", chatRoom);
+    writeDebug(
+      "useEffect-- props.chatRoom     ASIS:%s    NEW:%s",
+      chatRoom?.room_key,
+      props.chatRoom.room_key
+    );
 
-    let userIds = getChatUserIds(chatRoom.chat_entry_ids);
-    setChatUserIds(userIds);
-
-    console.log(`chat_entry_names: `, chatRoom.chat_entry_names);
-
-    // 방이름 정보가 없다면 요청해서 받아온다.
-    if (chatRoom.chat_entry_names) {
-      writeDebug(
-        "ChatRoom-- chat_entry_names",
-        chatRoom.chat_entry_names,
-        chatRoom
-      );
-      setChatRoomName(getChatRoomName(chatRoom.chat_entry_names));
-    } else {
-      //setChatRoomName(currentChatRoom.chat_entry_names?getChatRoomName(currentChatRoom.chat_entry_names): await getDispUserNames(userIds))
-      getChatRoomNameA(userIds);
->>>>>>> develop
+    // 방 정보가 바뀌었다면 이름을 새로 가져온다.
+    if (!chatRoom || chatRoom.room_key !== props.chatRoom.room_key) {
+      initChatRoom(props.chatRoom);
     }
-  }, [props.chatRoom])
+  }, [props.chatRoom]);
 
-<<<<<<< HEAD
   useEffect(() => {
-    initChatRoom(props.chatRoom)
-  }, [])
-
-  const getChatRoomNameA = async (userIds) => {
-    writeDebug('ChatRoom-- getChatRoomNameA req', chatRoom.chat_entry_names, userIds)
-    
-    let roomName = await getDispUserNames(userIds, 3) 
-    
-    await getChatRoomNameAsync(chatRoom.chat_entry_names, userIds);
-    const upChatRoom = {
-      ... chatRoom,
-      chat_entry_names: roomName
-    }
-  
-    writeDebug('ChatRoom-- getChatRoomNameA', roomName, upChatRoom.chat_entry_names, upChatRoom)
-    // 기존방 변경
-    dispatch(updateChatRoom(upChatRoom));
-    
-    // 현재방 변경
-    setChatRoomName(roomName);
-  }
-
-  const initChatRoom = () => {
-    setChatRoom(props.chatRoom);
-    
-    let userIds = getChatUserIds(props.chatRoom.chat_entry_ids);
-    setChatUserIds(userIds);
-
-    // 방이름 정보가 없다면 요청해서 받아온다.
-    if (props.chatRoom.chat_entry_names) { 
-      writeDebug('ChatRoom-- chat_entry_names', props.chatRoom.chat_entry_names, props.chatRoom)
-      setChatRoomName(getChatRoomName(props.chatRoom.chat_entry_names))
-    } else {
-      //setChatRoomName(currentChatRoom.chat_entry_names?getChatRoomName(currentChatRoom.chat_entry_names): await getDispUserNames(userIds))
-      getChatRoomNameA(userIds);
-    }
-  };
-
-
-=======
-    writeDebug("ChatRoom-- init end", chatRoom);
+    initChatRoom(props.chatRoom);
   }, []);
 
   const getChatRoomNameA = async (userIds) => {
@@ -111,20 +48,44 @@ function ChatRoom(props) {
 
     let roomName = await getDispUserNames(userIds, 3);
 
-    //await getChatRoomNameAsync(chatRoom.chat_entry_names, userIds);
-    // const upChatRoom = {
-    //   ... chatRoom,
-    //   chat_entry_names: roomName
-    // }
+    await getChatRoomNameAsync(chatRoom.chat_entry_names, userIds);
+    const upChatRoom = {
+      ...chatRoom,
+      chat_entry_names: roomName,
+    };
 
-    // writeDebug('ChatRoom-- getChatRoomNameA', roomName, upChatRoom.chat_entry_names, upChatRoom)
-    // // 기존방 변경
-    // dispatch(updateChatRoom(upChatRoom));
+    writeDebug(
+      "ChatRoom-- getChatRoomNameA",
+      roomName,
+      upChatRoom.chat_entry_names,
+      upChatRoom
+    );
+    // 기존방 변경
+    dispatch(updateChatRoom(upChatRoom));
 
-    // // 현재방 변경
+    // 현재방 변경
     setChatRoomName(roomName);
   };
->>>>>>> develop
+
+  const initChatRoom = () => {
+    setChatRoom(props.chatRoom);
+
+    let userIds = getChatUserIds(props.chatRoom.chat_entry_ids);
+    setChatUserIds(userIds);
+
+    // 방이름 정보가 없다면 요청해서 받아온다.
+    if (props.chatRoom.chat_entry_names) {
+      writeDebug(
+        "ChatRoom-- chat_entry_names",
+        props.chatRoom.chat_entry_names,
+        props.chatRoom
+      );
+      setChatRoomName(getChatRoomName(props.chatRoom.chat_entry_names));
+    } else {
+      //setChatRoomName(currentChatRoom.chat_entry_names?getChatRoomName(currentChatRoom.chat_entry_names): await getDispUserNames(userIds))
+      getChatRoomNameA(userIds);
+    }
+  };
 
   return (
     <li
