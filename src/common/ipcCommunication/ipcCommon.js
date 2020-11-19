@@ -19,7 +19,7 @@ export const login = async (loginId, loginPwd, autoLogin) => {
 /** 로그아웃 요청을 합니다. */
 export const logout = () => {
   writeInfo("====  LOG OUT  ===");
-
+  
   return new Promise(function (resolve, reject) {
     electron.ipcRenderer.once("res-logout", (event, arg) => {
       writeInfo("logout Response", arg);
