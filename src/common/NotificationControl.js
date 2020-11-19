@@ -152,18 +152,18 @@ function NotificationControl() {
 
     let chatRoom = chatRooms?.find(room => room.room_key === chat.roomKey);
         
-    // 방이 없다면 가져온다.
-    if (!chatRoom) {
-      let resData = await getChatRoomByRoomKey(chat.roomKey);
-      let roomInfo = resData.data;
-      writeDebug('moveToClickedChatRoom. RoomKey:%s', chat.roomKey,  roomInfo)   
+    // // 방이 없다면 가져온다.
+    // if (!chatRoom) {
+    //   let resData = await getChatRoomByRoomKey(chat.roomKey);
+    //   let roomInfo = resData.data;
+    //   writeDebug('moveToClickedChatRoom. RoomKey:%s', chat.roomKey,  roomInfo)   
         
-      let userIds = getChatUserIds(roomInfo.chat_entry_ids)
-      let chat_entry_names = roomInfo.chat_entry_names?roomInfo.chat_entry_names: await getDispUserNames(userIds);
+    //   let userIds = getChatUserIds(roomInfo.chat_entry_ids)
+    //   let chat_entry_names = roomInfo.chat_entry_names?roomInfo.chat_entry_names: await getDispUserNames(userIds);
       
-      roomInfo.chat_entry_names = chat_entry_names
-      addChatRoomDirect(roomInfo)
-    }
+    //   roomInfo.chat_entry_names = chat_entry_names
+    //   addChatRoomDirect(roomInfo)
+    // }
 
     dispatch(addReceivedChat(chat));
   }

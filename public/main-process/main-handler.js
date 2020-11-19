@@ -127,6 +127,8 @@ function initGlobal () {
     global.TEMP = {
       buddyXml: ''
     }
+
+    global.USER_CONFIG.set('bandLoginToken', undefined)
     //#endregion GLOBAL 설정 정보
 }
 

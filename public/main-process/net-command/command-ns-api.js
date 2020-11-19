@@ -149,7 +149,8 @@ function reqSendMessage(recvIds, recvNames, subject, message, attFileInfo) {
         sendNameBuf.write(global.USER.userName, global.ENC);
         sendDateBuf.write(OsUtil.getDateString(DATE_FORMAT.YYYYMMDDHHmmssSSS), global.ENC)  //yyyymmddhhnnsszzz
         resGubunBuf.writeInt32LE(CmdConst.MSG_ALERT);
-        destNameSizeBuf.writeInt32LE(destNamesBuf.length)
+        destNameSizeBuf.writeInt32LE(destNamesBuf.length);
+        allDestIdSizeBuf.writeInt32LE(destIdsBuf.length);
         destIdSizeBuf.writeInt32LE(destIdsBuf.length);
 
         // Message Data
@@ -185,6 +186,7 @@ function reqSendMessage(recvIds, recvNames, subject, message, attFileInfo) {
             , cipherContentBuf
             , attFileInfoBuf
             , destNamesBuf
+            , destIdsBuf
             , destIdsBuf]);
 
 
