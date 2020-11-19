@@ -76,8 +76,6 @@ function RouterPage() {
           {/* chat page */}
           <Route exact path="/chat" component={ChatPage} />
           <Route exact path="/chat/:roomKey" component={ChatPage} />
-          <Route exact path="/chat/fromOrg/:orgMembers" component={ChatPage} />
-
           <Route exact path="/call" component={CallPage} />
           <Route exact path="/team-space" component={TeamSpacePage} />
           <Route exact path="/notice" component={NoticePage} />
