@@ -101,35 +101,43 @@ export const syncronize = (tree: TTreeNode[]) => {
     return tree.map((v: any) => {
       if (v.children) {
         return {
+          $: {
+            gubun: v.gubun,
+            id: v.id,
+            level: v.level,
+            name: v.name,
+            pid: v.pid,
+          },
+          node: convertTreeToResponse(v.children),
+        };
+      }
+      return {
+        $: {
           gubun: v.gubun,
           id: v.id,
           level: v.level,
           name: v.name,
           pid: v.pid,
-          node: convertTreeToResponse(v.children),
-        };
-      }
-      return {
-        gubun: v.gubun,
-        id: v.id,
-        level: v.level,
-        name: v.name,
-        pid: v.pid,
+        },
       };
     });
   };
 
   const requestBody = {
     contacts: {
-      name: "",
-      type: "P",
+      $: {
+        name: "",
+        type: "P",
+      },
       node: convertTreeToResponse(tree),
     },
   };
 
   const { saveBuddyData } = require("../ipcCommunication/ipcOrganization");
   const xml2js = require("xml2js");
-  const xml = new xml2js.Builder().buildObject(requestBody);
+  const xml = new xml2js.Builder({ headless: true }).buildObject(requestBody);
+  console.log(`before build: `, requestBody);
+  console.log(`build to xml: `, xml);
 
   saveBuddyData(xml);
 };
