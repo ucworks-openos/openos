@@ -29,7 +29,7 @@ export enum ExternalURLs {
   //#endregion NOTICE RUL ...
 
 
-  RCC_CALL_BASE= 'http://10.1.1.6:8010/sucti',
+  RCC_CALL_BASE= 'http://10.1.1.6:8040/sucti',
   /**
    * 통화이력을 요청한다.
    * @param [userId]?DisplayStart=[START]&iDisplayLength=[LENGTH]
