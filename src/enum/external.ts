@@ -6,10 +6,12 @@ export enum ExternalURLs {
   BAND_BACK_BASE= 'http://10.1.1.6:5000', //'http://27.96.131.93:5000',
   BAND_FRONT_BASE= 'http://10.1.1.6',
   /**
+   * 사용자 토큰을 요청
    * @param {ucTalkId:loginId, password:encPwd}
    */
   BAND_LOGIN= '/api/user/login',
   /**
+   * 밴드 웹페이지를 요청
    * @param accessToken loginToken
    */
   BAND_PAGE='/',

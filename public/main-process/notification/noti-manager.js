@@ -18,11 +18,11 @@ const notiWidth = 375;
  */
 function messageReceived(msgData) {
 
-  logger.debug('messageReceived', msgData)
+  logger.debug('messageReceived', {key:msgData.key , subject:msgData.subject, date:msgData.sendDate , senderId:msgData.sendId, senderName:msgData.sendName, receiverIds:msgData.allDestId})
 
-  let destIds = msgData.allDestId.split(cmdConst.SEP_PIPE);
   send('messageReceived', msgData)
-
+  
+  let destIds = msgData.allDestId.split(cmdConst.SEP_PIPE);
   if (destIds.includes(global.USER.userId)) {
     // main에서 바로 알림창을 처리합니다.
     showAlert(notiType.NOTI_MESSAGE, msgData.key, '쪽지', msgData.subject, msgData.sendName);

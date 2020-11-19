@@ -119,6 +119,7 @@ function MainContol(props:TloginContolProps) {
     
             // 'http://27.96.131.93'/api/user/login'
             //let url = ExternalURLs.BAND_LOGIN + `?ucTalkId=${userData.userId}&password=03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4`
+            writeInfo('Request Band Tocken. ', {base:ExternalURLs.BAND_BACK_BASE, path:ExternalURLs.BAND_LOGIN, param:param})
             bandLoginTocken.post(ExternalURLs.BAND_LOGIN, param).then(function (response:any) {
 
                 //eyJhbGciOiJIUzI1NiJ9.MjM0NDU.lszrQ4ktnhbb0Qv0RO-bwGE7TvZ9VzVPVl1gpJVCYTQ
