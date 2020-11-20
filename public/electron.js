@@ -231,17 +231,17 @@ global.SERVER_INFO = {
  * 기본 설정 정보
  */
 // 국토연구원
-global.SITE_CONFIG = {
-  server_ip: '10.1.1.6', // 운영
-  server_port: '12551',
-  client_version: 651
-}
-// 내부 운영
 // global.SITE_CONFIG = {
-//   server_ip: '220.230.127.93', // 운영
+//   server_ip: '10.1.1.6', // 운영
 //   server_port: '12551',
 //   client_version: 651
 // }
+// 내부 운영
+global.SITE_CONFIG = {
+  server_ip: '220.230.127.93', // 운영
+  server_port: '12551',
+  client_version: 651
+}
 // 개발서버
 // global.SITE_CONFIG = {
 //   server_ip: '192.168.0.172',
