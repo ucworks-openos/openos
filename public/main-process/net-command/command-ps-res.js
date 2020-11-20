@@ -92,6 +92,7 @@ function responseCmdProc(resCmd) {
           callCallback(resCmd.sendCmd, new ResData(true, jsonData));
         }).catch(function(err) {
           logger.err('PS_GET_USERS_INFO  xml parse Error! ', err)
+          logger.err('PS_GET_USERS_INFO Err  recvLen:%s  Command:%s ', resCmd.data?.length, resCmd)
           callCallback(resCmd.sendCmd, new ResData(false, 'PS_GET_USERS_INFO  xml parse Error! ex:' + JSON.stringify(err)));
         });
       } else {

@@ -16,13 +16,13 @@ export const getDispUserNames = async (userIds, viewUserCnt = 0) => {
   let moreInfo = '';
   let reqUserIds = userIds;
   if (viewUserCnt > 0 && userIds.length > viewUserCnt) {
-      
-    if (!Array.isArray(userIds)) {
-      writeWarn('getDispUserNames  userIds is not Array');
-      userIds = [userIds];
+    try {
+      reqUserIds = userIds.slice(0, viewUserCnt)
+    } catch (err) {
+      writeError('getDispUserNames Error', userIds, err)
     }
-    
-    reqUserIds = userIds.subarray(0, viewUserCnt)
+
+
     moreInfo = ` 외 ${userIds.length-viewUserCnt}명`;
   }
 
