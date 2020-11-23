@@ -1,3 +1,5 @@
+import { writeDebug } from "./ipcLogger";
+
 const electron = window.require("electron");
 
 
@@ -38,7 +40,24 @@ export const getChildOrg = async (orgGroupCode, groupCode, groupSeq) => {
 export const getUserInfos = async (userIds) => {
   return new Promise(function (resolve, reject) {
 
-    electron.ipcRenderer.once("res-getUserInfos", (event, arg) => {
+    // ipc 요청이 많은경우 응답으로 잘못된 데이터가 넘어온다..
+    // 요청에 대한 응답을 같이 요청하여 받도록 해야한다.  
+
+    let resKey = userIds.join("|");
+    electron.ipcRenderer.once("res-getUserInfos_" + resKey, (event, arg) => {
+
+      try {
+        let userInfos = arg.data.items.node_item;
+        if (!Array.isArray(userInfos)) {
+            userInfos = [userInfos]
+        }
+        let resUserIds = userInfos.map((v) => v.user_id.value);
+        writeDebug('reqGetUserInfosSync IPC RANDER res  -------------------req:%s  res:%s' ,userIds, resUserIds);
+
+      } catch (err) {
+        writeDebug('reqGetUserInfosSync IPC RANDER res Error  -------------------req:%s ' ,userIds, err);
+      }
+
       resolve(arg);
     });
     

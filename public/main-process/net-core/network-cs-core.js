@@ -8,6 +8,8 @@ const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 var csSock;
 var rcvCommand;
 
+const csNetLog = false;
+
 
 /**
  * DS는 연결 비유지형으로 요청후 원하는 응답을 받으면 끊어 버린다.
@@ -83,8 +85,10 @@ function close() {
  * @param {Buffer} rcvData 
  */
 function readDataStream(rcvData){  
-    logger.info('\r\n++++++++++++++++++++++++++++++++++');
-    logger.info('CS rcvData:', rcvData);
+    if (csNetLog) {
+        logger.info('\r\n++++++++++++++++++++++++++++++++++');
+        logger.info('CS rcvData:', rcvData);
+    }
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
@@ -104,7 +108,7 @@ function readDataStream(rcvData){
     }
 
     rcvCommand.readCnt += rcvData.length;
-    logger.info('Recive CS Command Data :', rcvCommand);
+    if (csNetLog) logger.info('Recive CS Command Data :', rcvCommand);
 
     if (rcvCommand.size <= rcvCommand.readCnt) {
         // 데이터를 모두 다 받았다.

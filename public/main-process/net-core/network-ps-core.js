@@ -11,7 +11,7 @@ const { adjustBufferMultiple4 } = require('../utils/utils-buffer');
 var psSock;
 var rcvCommand;
 
-const psNetLog = false;
+const psNetLog = true;
 
 /**
  * PS는 연결 비유지형으로 요청후 원하는 응답을 받으면 끊어 버린다.
@@ -93,41 +93,106 @@ function close() {
  * @param {Buffer}} rcvData 
  */
 function readDataStream(rcvData){  
-    // logger.info('\r\n++++++++++++++++++++++++++++++++++');
-    // logger.info('PS rcvData:', rcvData);
+    if (psNetLog) {
+        logger.info('++++++++++++++++++++++++++++++++++');
+        logger.info('PS rcvData:', rcvData.length, rcvData);
+    }
+    
 
     if (!rcvCommand){
         // 수신된 CommandHeader가 없다면 헤더를 만든다.
-        rcvCommand = new CommandHeader(rcvData.readInt32LE(0), rcvData.readInt32LE(4));
 
-        rcvCommand.data = rcvData.subarray(8);
+        rcvCommand = new CommandHeader(rcvData.readInt32LE(0), rcvData.readInt32LE(4));
+        rcvCommand.readCnt = 8; // headerSize
+
         if (global.PS_SEND_COMMAND) {
             rcvCommand.sendCmd = global.PS_SEND_COMMAND
         }
+        
+
+        logger.info('PS Command Header Create:', rcvCommand);
+
+        // 데이터 까지 같이 받았다면
+        if (rcvData.length > 8) {
+            let dataBuf = rcvData.subarray(8);
+            let leftSize = rcvCommand.size - rcvCommand.readCnt;
+            if (psNetLog) logger.info('PS Command recvDataLen:%s,  leftDataLen:%s', dataBuf.length, leftSize);
+            
+            if (dataBuf.length < leftSize) {
+                // 덜 받았다면 더받을수 있도록 넘긴다.
+                rcvCommand.data = dataBuf;
+                rcvCommand.readCnt += dataBuf.length;
+
+                if (psNetLog) logger.info('PS Command need to more data... leftCnt:', rcvCommand.size-rcvCommand.readCnt, rcvCommand);
+                return;
+            } else {
+
+                let leftBuf;
+                if (dataBuf.length > leftSize) {
+                    // 받을 데이터 보다 더 받았다.
+                    rcvCommand.data = dataBuf.subarray(0, leftSize);
+                    leftBuf = dataBuf.subarray(leftSize)
+                } else {
+                    rcvCommand.data = dataBuf;
+                }
+
+                rcvCommand.readCnt += leftSize;
+                 let procCmd = rcvCommand;
+                 rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
+                 global.PS_SEND_COMMAND = null;
+         
+                 if (!responseCmdProc(procCmd, psNetLog)) {
+                     logger.info('Revceive PS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+                 }
+
+                 // 남은 데이터가 있다면 넘긴다.
+                 if (leftBuf) {
+                     // 남은 데이터를 더 받도록 넘긴다.
+                    readDataStream(leftBuf);
+                 }
+            }
+        }
+       
     } else {
-        // 헤더가 있다면 데이터 길이만큼 다 받았는지 확인한 후 처리로 넘긴다.
-        rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData]);        
-    }
+        // 데이터가 부족하여 더 받았다.
 
-    if (!rcvCommand.readCnt) {
-        rcvCommand.readCnt = 0;
-    }
+        if (!rcvCommand.data) rcvCommand.data = Buffer.alloc(0);
 
-    rcvCommand.readCnt += rcvData.length;
+        let leftSize = rcvCommand.size - rcvCommand.readCnt;
+        if (psNetLog) logger.info('PS Command MoreRead...  recvLen:%s,  leftLen:%s', rcvData.length, leftSize, rcvCommand);
+
+        if (rcvData.length < leftSize) {
+            // 데이터를 추가적으로 더 받았는데 아직 부족하다면 더 받도록 한다.
+            rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData]);
+            rcvCommand.readCnt += rcvData.length;
+
+            if (psNetLog) logger.info('PS Command need to more data... leftCnt:', rcvCommand.size-rcvCommand.readCnt, rcvCommand);
+            return;
+        } else {
+
+            let leftBuf;
+            if (rcvData.length > rcvCommand.size) {
+                // 받을 데이터 보다 더 받았다.
+                rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData.subarray(0, leftSize)]);
+                leftBuf = rcvData.subarray(leftSize);
+            } else {
+                rcvCommand.data = Buffer.concat([rcvCommand.data, rcvData]);
+            }
+            rcvCommand.readCnt += leftSize;
+
+            let procCmd = rcvCommand;
+            rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
+            global.PS_SEND_COMMAND = null;
     
-    if (psNetLog) {
-        logger.info('Recive PS Command Data :', rcvCommand);
-    }
+            if (!responseCmdProc(procCmd, psNetLog)) {
+                logger.info('Revceive PS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            }
 
-    if (rcvCommand.size <= rcvCommand.readCnt) {
-        // 데이터를 모두 다 받았다.
-
-        var procCmd = rcvCommand;
-        rcvCommand = null; // 처리시간동안 수신데이터가 오면 엉킴
-        global.PS_SEND_COMMAND = null;
-
-        if (!responseCmdProc(procCmd)) {
-            logger.info('Revceive PS Data Proc Fail! :', rcvData.toString('utf-8', 0));
+            // 남은 데이터가 있다면 넘긴다.
+            if (leftBuf) {
+                // 남은 데이터를 더 받도록 넘긴다.
+                readDataStream(leftBuf);
+            }
         }
     }
 };
@@ -138,7 +203,7 @@ function readDataStream(rcvData){
  * @param {CommandHeader} cmdHeader 
  * @param {Buffer} dataBuf 
  */
-function writeCommand(cmdHeader, dataBuf = null, resetConnCheck = true) {
+function writeCommand(cmdHeader, dataBuf = null) {
     //try {
         rcvCommand = null;
         global.PS_SEND_COMMAND = null;

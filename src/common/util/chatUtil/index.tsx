@@ -1,4 +1,4 @@
-import { writeError } from "../../ipcCommunication/ipcLogger";
+import { writeDebug, writeError } from "../../ipcCommunication/ipcLogger";
 import { getDispUserNames } from "../userUtil";
 
 /**
@@ -20,7 +20,7 @@ export const getChatRoomName = (
         return chatEntryNames;
       }
     } else {
-      return chatUserIds?.join(",");
+      return '';
 
       //  방이름이 없으니 만들어 준다. 3명이상은 '외'로 표기
       //return getDispUserNames(chatUserIds, 3)  // 다시 요청 하지 않도록 수정한다.
@@ -46,10 +46,12 @@ export const getChatRoomNameAsync = async (
       if (chatEntryNames.startsWith("UCWARE_CHAT_ROOM_TITLE")) {
         return chatEntryNames.split(String.fromCharCode(20))[1];
       } else {
-        return chatEntryNames;
+        writeDebug('getChatRoomNameAsync -----------------------------')
+        return await getDispUserNames(chatUserIds, 3);
       }
     } else {
       //  방이름이 없으니 만들어 준다. 3명이상은 '외'로 표기
+      writeDebug('getChatRoomNameAsync -----------------------------')
       return await getDispUserNames(chatUserIds, 3)  // 다시 요청 하지 않도록 수정한다.
     }
   } catch (error) {

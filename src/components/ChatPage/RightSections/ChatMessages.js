@@ -11,6 +11,7 @@ import { uploadFile } from "../../../common/ipcCommunication/ipcFile";
 import DragAndDropSupport from "../../../common/components/DragAndDropSupport";
 import useIntersectionObserver from "../../../hooks/useIntersectionObserver";
 import ChatMessage from "./ChatMessage";
+import { writeDebug } from "../../../common/ipcCommunication/ipcLogger";
 
 const { remote } = window.require("electron");
 
@@ -37,6 +38,9 @@ export default function ChatMessages() {
       //근데  채팅을 몇번 하고 난 후에 다시 들어올때도  last_line_key가  undefined이기에 ...
       //채팅 리스트들을 없앤다 .. 어떻게 해야 하나 ...?
       dispatch(getChatMessages(currentChatRoom.room_key));
+
+      writeDebug('ChatMessages-------------  CurrentChatRoom Change. ', currentChatRoom.room_key)
+
     }
   }, [currentChatRoom]);
 
@@ -59,6 +63,8 @@ export default function ChatMessages() {
         anchorRef.current.scrollIntoView();
       }
     }
+
+    writeDebug('ChatMessages-------------  chatMessages Change. ', currentChatRoom?.room_key)
   }, [chatMessages]);
 
   useIntersectionObserver({
