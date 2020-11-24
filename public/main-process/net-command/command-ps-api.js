@@ -170,10 +170,8 @@ function reqGetUserInfosSync(userIds) {
                         userInfos = [userInfos]
                     }
                     let resUserIds = userInfos.map((v) => v.user_id.value);
-                    logger.debug('reqGetUserInfosSync res  -------------------req:%s  res:%s' ,userIds, resUserIds);
-    
                 } catch (err) {
-                    logger.debug('reqGetUserInfosSync res Error  -------------------req:%s ' ,userIds, err);
+                    logger.debug('reqGetUserInfosSync res Error -req:%s ' ,userIds, err);
                 }
               
                 resolve(resData);
