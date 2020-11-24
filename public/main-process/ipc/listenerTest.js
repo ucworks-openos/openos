@@ -23,25 +23,27 @@ const logger = require('../../logger')
 // testAction
 ipcMain.on('testAction', async (event, ...args) => {
   var resData = new ResData(true, '');
-  logger.info('testAction', args);
+  funcTest();
 
-  let t1 = new funcTest('1', '1-1');
-  let t2 = new funcTest('2', '2-2');
+  // logger.info('testAction', args);
 
-  funcTest('3', '3-3');
-  funcTest('4', '4-4');
+  // let t1 = new funcTest('1', '1-1');
+  // let t2 = new funcTest('2', '2-2');
 
-  let tmp = 'aaaaaz';
+  // funcTest('3', '3-3');
+  // funcTest('4', '4-4');
+
+  // let tmp = 'aaaaaz';
 
   
-  let fuc = function (Hello) {
-    logger.info(Hello, tmp);
-  };
+  // let fuc = function (Hello) {
+  //   logger.info(Hello, tmp);
+  // };
   
-  fuc('Hello')
-  fuc('Hello')
+  // fuc('Hello')
+  // fuc('Hello')
 
-  logger.info('fff--- %s', fuc)
+  // logger.info('fff--- %s', fuc)
   return;
 
   let cmd = new CommandHeader(7000, 40, null);
