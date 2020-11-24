@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 import { writeDebug } from "../../../common/ipcCommunication/ipcLogger";
 import {
+  delay,
   getChatUserIds,
   getDispUserNames,
   lineKeyParser,
@@ -22,35 +23,40 @@ function ChatRoom(props) {
   const [chatRoomName, setChatRoomName] = useState("");
   const [chatUserIds, setChatUserIds] = useState([]);
 
+  let initCompleted = false;
+
   useEffect(() => {
     writeDebug(
-      "useEffect-- props.chatRoom     ASIS:%s    NEW:%s",
-      chatRoom?.room_key,
-      props.chatRoom.room_key
+      "useEffect-- props.chatRoom     ASIS:%s : NEW:%s , last_line_key - ASIS:%s : NEW:%s , chat_contents -ASIS :%s : NEW:%s ",
+      chatRoom?.room_key, props.chatRoom.room_key, 
+      chatRoom?.last_line_key, props.chatRoom.last_line_key,
+      chatRoom?.chat_contents, props.chatRoom.chat_contents
     );
 
     // 방 정보가 바뀌었다면 이름을 새로 가져온다.
-    if (!chatRoom || chatRoom.room_key !== props.chatRoom.room_key) {
+    if (!chatRoom 
+          || chatRoom.room_key !== props.chatRoom.room_key
+          || chatRoom.last_line_key !== props.chatRoom.last_line_key) {
       initChatRoom(props.chatRoom);
     }
   }, [props.chatRoom]);
 
   useEffect(() => {
-    initChatRoom(props.chatRoom);
+    if (!initCompleted) {
+      initChatRoom(props.chatRoom);
+    }
   }, []);
 
   const getChatRoomNameA = async (userIds) => {
-    writeDebug(
-      "ChatRoom-- getChatRoomNameA req",
-      chatRoom.chat_entry_names,
-      userIds
-    );
 
-    let roomName = await getDispUserNames(userIds, 3);
+    // init에서 호출되는 경우 props.chatRoom과 state chatRoom이 다름으로 주의해야 한다.
+    // state에 set 하면 rander가 될때까지 사용할수 없다.
 
-    await getChatRoomNameAsync(chatRoom.chat_entry_names, userIds);
+    initCompleted = true;
+
+    let roomName = await getChatRoomNameAsync(props.chatRoom.chat_entry_names, userIds);
     const upChatRoom = {
-      ...chatRoom,
+      ...props.chatRoom,
       chat_entry_names: roomName,
     };
 
@@ -60,21 +66,21 @@ function ChatRoom(props) {
       upChatRoom.chat_entry_names,
       upChatRoom
     );
-    // 기존방 변경
-    dispatch(updateChatRoom(upChatRoom));
 
-    // 현재방 변경
-    setChatRoomName(roomName);
+    dispatch(updateChatRoom(upChatRoom)); // 기존방 변경
+    setChatRoomName(roomName); // 현재방 변경
   };
 
   const initChatRoom = () => {
+
     setChatRoom(props.chatRoom);
 
     let userIds = getChatUserIds(props.chatRoom.chat_entry_ids);
     setChatUserIds(userIds);
+    getChatRoomNameA(userIds);
 
     // 방이름 정보가 없다면 요청해서 받아온다.
-    if (props.chatRoom.chat_entry_names) {
+    if (props.chatRoom.chat_entry_names?.startsWith("UCWARE_CHAT_ROOM_TITLE") ) {
       writeDebug(
         "ChatRoom-- chat_entry_names",
         props.chatRoom.chat_entry_names,
@@ -95,7 +101,6 @@ function ChatRoom(props) {
       key={chatRoom.room_key}
       onClick={() => props.onChatRoomClick(chatRoom.room_key)}
     >
-      {writeDebug("ChatRoom--", chatRoomName, chatRoom)}
       <div className="list-info-area">
         <div className="list-row 1">
           <div className="chat-ppl-num">{chatUserIds?.length}</div>

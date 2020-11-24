@@ -146,6 +146,7 @@ export default function (
         ],
       };
     case ADD_RECEIVED_CHAT:
+
       if (!state.chatRooms) {
         state.chatRooms = [];
       }
@@ -221,76 +222,50 @@ export default function (
       */
       //#endregion Chat View Data
 
-      let chatRoom = state.chatRooms.filter(
+      let quiredRooms = state.chatRooms.filter(
         (room) => room.room_key === roomKey
       );
 
-      if (chatRoom.length > 0) {
-        // 이미 방이 있다.
-        writeDebug("ADD_RECEIVED_CHAT. Already Has Room:%s", roomKey);
-        let newChatRoomsWithoutReceivedChatRoom = state.chatRooms.filter(
-          (r) => r.room_key !== roomKey
-        );
-        let newChatRoomsHa = [
-          chatRoom[0],
-          ...newChatRoomsWithoutReceivedChatRoom,
-        ];
+      let chatRoom = quiredRooms?.length>0?quiredRooms[0]:{};
 
-        let isCurrentMessage = false;
-        if (state.currentChatRoom?.room_key === newMessage.roomKey) {
-          isCurrentMessage = true;
-          state.currentChatRoom.chat_contents = newMessage.chatData;
-        }
+      writeDebug('add message -------------  chatRoom', chatRoom);
 
-        return {
-          ...state,
-          chatRooms: newChatRoomsHa,
-          chatMessages: isCurrentMessage
-            ? [...state.chatMessages, chatMessageBody]
-            : [...state.chatMessages],
-          currentChatRoom: state.currentChatRoom,
-        };
-      } else {
-        // 목록에 방이 없다면 정보를 받아와서 추가한다. // 비동기가 안된다...
-
-        let roomKey = newMessage.roomKey;
-        let sendId = newMessage.sendId;
-        let sendName = newMessage.sendName;
-        let sendDate = newMessage.sendDate;
-        let lineKey = newMessage.lineKey;
-        let destId = newMessage.destId;
-        let userIdArray = destId.split("|");
-        let fontName = newMessage.fontName;
-        let chatData = newMessage.chatData;
-        let unreadCount = newMessage.unreadCount;
-
-        chatRoom = {
-          selected_users: userIdArray,
-          user_counts: userIdArray.length,
-          chat_entry_ids: destId,
-          unread_count: 0,
-          chat_font_name: fontName,
-          chat_contents: chatData,
-          chat_send_name: sendName,
-          create_room_date: sendDate,
-          chat_send_id: sendId,
-          room_key: roomKey,
-          //last_line_key: lineKey,
-        };
-
-        let newChatRoomsHa = [chatRoom, ...state.chatRooms];
-
-        writeDebug("ADD_RECEIVED_CHAT. GetRoom RoomKey:%s", roomKey);
-
-        return {
-          ...state,
-          chatRooms: newChatRoomsHa,
-          chatMessages: [state.chatMessages],
-          currentChatRoom: state.currentChatRoom
-            ? state.currentChatRoom
-            : chatRoom,
-        };
+      let isCurrRoomMessage = false;
+      if (state.currentChatRoom?.room_key === newMessage.roomKey) {
+        isCurrRoomMessage = true;
+        state.currentChatRoom.chat_contents = newMessage.chatData;
       }
+
+      // 방정보를 업데이트 ...
+      let userIdArray = newMessage.destId.split("|");
+      chatRoom = {
+        ...chatRoom,
+        selected_users: userIdArray,
+        user_counts: userIdArray.length,
+        chat_entry_ids: newMessage.destId,
+        unread_count: 0,
+        chat_font_name: newMessage.fontName,
+        chat_contents: newMessage.chatData,
+        chat_send_name: newMessage.sendName,
+        create_room_date: newMessage.sendDate,
+        line_num_date : newMessage.sendDate,
+        chat_send_id: newMessage.sendId,
+        room_key: newMessage.roomKey,
+        last_line_key: newMessage.lineKey,
+      };
+
+      writeDebug('add message -------------  chatRoom', chatRoom);
+      // 메세지를 받은방을 최상위로 변경한다.
+      let orderedChatRooms = [chatRoom, ...state.chatRooms.filter((r) => r.room_key !== roomKey)];
+      return {
+        ...state,
+        chatRooms: orderedChatRooms,
+        chatMessages: isCurrRoomMessage
+          ? [...state.chatMessages, chatMessageBody]
+          : [...state.chatMessages],
+        currentChatRoom: state.currentChatRoom
+          ? state.currentChatRoom : chatRoom
+      };
 
     case ADD_FILE_SKELETON:
       return {

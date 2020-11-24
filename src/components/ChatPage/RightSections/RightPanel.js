@@ -15,9 +15,10 @@ import styled from "styled-components";
 import Modal from "react-modal";
 import ChangeChatRoomModal from "../ChangeChatRoomNameModal";
 import { commonModalStyles, messageInputModalStyle } from "../../../common/styles";
-import { getChatRoomName, getChatUserIds, getDispUserNames } from "../../../common/util";
+import { getChatUserIds, getDispUserNames } from "../../../common/util";
 import ChatInvitationModal from "../../../common/components/Modal/ChatInvitationModal";
 import { writeError, writeInfo } from "../../../common/ipcCommunication/ipcLogger";
+import { getChatRoomName, getChatRoomNameAsync } from "../../../common/util/chatUtil";
 
 function RightPanel() {
   const dispatch = useDispatch();
@@ -48,7 +49,8 @@ function RightPanel() {
           chat_entry_ids:currentChatRoom.chat_entry_ids,
           chat_entry_names:currentChatRoom.chat_entry_names});
 
-        setChatRoomName(currentChatRoom.chat_entry_names?getChatRoomName(currentChatRoom.chat_entry_names): await getDispUserNames(userIds))
+        
+        setChatRoomName(await getChatRoomNameAsync(currentChatRoom.chat_entry_names, userIds, 3));
         setChatUserIds(userIds)
       } else {
         writeInfo('Chat RightPanel  CurrentRoomEmpty!');

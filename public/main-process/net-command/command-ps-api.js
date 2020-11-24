@@ -4,6 +4,7 @@ const CommandHeader = require('./command-header');
 const CmdCodes = require('./command-code');
 const CmdConst = require('./command-const');
 const psCore = require('../net-core/network-ps-core');
+const { writePsCommandSync } = require('../net-core/network-ps-sync');
 
 /**
  * 서버로 접속요청 합니다.
@@ -148,6 +149,40 @@ function reqGetUserInfos(userIds) {
     });
 }
 
+var workingGetUserInfos = false;
+/**
+ * 사용자 정보를 요청합니다. (Sync)
+ * @param {Array} userIds 
+ */
+function reqGetUserInfosSync(userIds) {
+    return new Promise(async function(resolve, reject) {
+           
+        if (userIds) {
+            let idDatas = '';
+            idDatas = userIds.join(CmdConst.SEP_CR);
+            logger.info('reqGetUserInfosSync ----' , userIds);
+
+            var dataBuf = Buffer.from(idDatas, global.ENC);
+            writePsCommandSync(new CommandHeader(CmdCodes.PS_GET_USERS_INFO, 0, function(resData){
+                try {
+                    let userInfos = resData.data.items.node_item;
+                    if (!Array.isArray(userInfos)) {
+                        userInfos = [userInfos]
+                    }
+                    let resUserIds = userInfos.map((v) => v.user_id.value);
+                } catch (err) {
+                    logger.debug('reqGetUserInfosSync res Error -req:%s ' ,userIds, err);
+                }
+              
+                resolve(resData);
+            }), dataBuf);
+        } else {
+            reject(new Error('UserId Empty!', userIds));
+            return;
+        }
+    });
+}
+
 
 /**
  * 통합 사용자 검색
@@ -209,6 +244,7 @@ module.exports = {
     reqGetOrganization: reqGetOrganization,
     reqGetOrgChild: reqGetOrgChild,
     reqGetUserInfos: reqGetUserInfos,
+    reqGetUserInfosSync: reqGetUserInfosSync,
     reqSearchUsers: reqSearchUsers,
     reqSearchOrgUsers: reqSearchOrgUsers,
     close: close

@@ -8,7 +8,7 @@ import ChatRoom from "./ChatRoom";
 
 function LeftPanel() {
   const dispatch = useDispatch();
-  const { chatRooms, currentChatRoom, unreadChatRoomKeys } = useSelector(
+  const { chatRooms, currentChatRoom } = useSelector(
     (state) => state.chats
   );
 

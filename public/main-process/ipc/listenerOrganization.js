@@ -48,10 +48,11 @@ ipcMain.on('getChildOrg', async (event, orgGroupCode, groupCode, groupSeq) => {
 
 // getUserInfos
 ipcMain.on('getUserInfos', async (event, userIds) => {
-  psAPI.reqGetUserInfos(userIds).then(function(resData)
+  //psAPI.reqGetUserInfos(userIds).then(function(resData)
+  psAPI.reqGetUserInfosSync(userIds).then(function(resData)
   {
-    //logger.debug('getUserInfos res:', resData)
-    event.reply('res-getUserInfos', resData);
+    let resKey = userIds.join("|");
+    event.reply('res-getUserInfos_' + resKey, resData);
   }).catch(function(err) {
     event.reply('res-getUserInfos', new ResData(false, err));
   });

@@ -14,7 +14,7 @@ const { parseRuleInfo } = require('../configuration/rule-parser');
  * 수신한 Command를 처리합니다. 
  * @param {CommandHeader} resCmd 
  */
-async function responseCmdProc(resCmd) {
+async function responseCmdProc(resCmd, debugLog = false) {
   if (!resCmd.sendCmd) {
     logger.warn('Reqeust Command Empty! -  CMD: ' + resCmd.cmdCode);
     return;
@@ -129,7 +129,7 @@ async function responseCmdProc(resCmd) {
       break;
 
     case CmdCodes.DS_HANDSHAKE:
-      logger.debug('DS_HANDSHAKE data :', resCmd.data)
+      if (debugLog) logger.debug('DS_HANDSHAKE data :', resCmd.data)
       if (resCmd.data) {
 
         global.USER.userId = resCmd.data.toString(global.ENC, 0, CmdConst.BUF_LEN_USERID).trim(),
