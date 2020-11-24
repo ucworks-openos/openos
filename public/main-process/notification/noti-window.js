@@ -14,9 +14,9 @@ const notiWidth = 375;
  * @param {String} title 
  * @param {String} message 
  */
-exports.showAlert = async function (notiType, notiId, title, message, senderName, tag = null) {
+exports.showAlert = async function (notiType, notiId, title, message, tag = null) {
 
-  logger.info('showAlert',notiType, notiId, title, message, senderName, tag);
+  logger.info('showAlert',notiType, notiId, title, message, tag);
   if (notiWin) {
     notiWin.destroy();
   }
@@ -48,8 +48,7 @@ exports.showAlert = async function (notiType, notiId, title, message, senderName
       document.getElementById("notiType").value = '${notiType}';
       document.getElementById("notiId").value = '${notiId}';
       document.getElementById("title").innerHTML += '${title}';
-      document.getElementById("senderName").innerHTML += '${senderName}';
-      document.getElementById("message").value += '${message}';
+      document.getElementById("message").innerHTML += '${message}';
       document.getElementById("tag").value += '${tag}';
     `);
   })

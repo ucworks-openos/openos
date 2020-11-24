@@ -14,9 +14,8 @@ ipcMain.on('showChatNoti', async (event, chatMsg) => {
 
   showAlert(notiType.NOTI_CHAT, 
     chatMsg.roomKey,
-    '대화 메세지',
+    `${chatMsg.sendName}님의 대화 메세지`,
     chatMsg.chatData,
-    chatMsg.sendName,
     chatMsg)
 });
 

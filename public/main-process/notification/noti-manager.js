@@ -25,7 +25,7 @@ function messageReceived(msgData) {
   let destIds = msgData.allDestId.split(cmdConst.SEP_PIPE);
   if (destIds.includes(global.USER.userId)) {
     // main에서 바로 알림창을 처리합니다.
-    showAlert(notiType.NOTI_MESSAGE, msgData.key, '쪽지', msgData.subject, msgData.sendName);
+    showAlert(notiType.NOTI_MESSAGE, msgData.key, `${msgData.sendName}님이 쪽지를 보냈습니다.`, msgData.subject, msgData);
   }
 }
 
@@ -126,7 +126,7 @@ function ipPhoneAlert(alertInfo) {
         
           switch(callInfo.callparty) {
             case 'CALLED':
-              showAlert(notiType.NOTI_PHONE_CALLED, 'CALLED', '전화수신', `[${callInfo.num}] 전화수신`, callInfo.num);
+              showAlert(notiType.NOTI_PHONE_CALLED, 'CALLED', '전화가 왔습니다.', `[수신전화] ${callInfo.num}`, callInfo);
               break;
             case 'CALLING':
               // 발신은 전화가 안옴
@@ -161,7 +161,7 @@ function notifyAlarm(alertData) {
   //   dest_gubun:dest_gubun,
   // }
 
-  showAlert(notiType.NOTI_ALARM, alertData.key, alertData.system_name, alertData.subject, alertData.send_name?alertData.send_name:"ADMIN");
+  showAlert(notiType.NOTI_ALARM, alertData.key, `[알림] ${alertData.system_name}` , alertData.subject, alertData);
 }
 
 module.exports = {

@@ -1,20 +1,20 @@
 
+const { showAlert } = require('../notification/noti-window');
 const OsUtil = require('../utils/utils-os');
 
 let value1;
 let value2;
 let value3;
 
-function funcTest(val1, val2) {
-    logger.info('==========  funcTest before', value1, value2, value3)
+function funcTest(val1='', val2='') {
+    //logger.info('==========  funcTest before', value1, value2, value3)
 
-    value1 = val1;
-    value2 = val2;
-    value3 = OsUtil.getUUID();
-    logger.info('==========  funcTest before', value1, value2, value3)
+    // value1 = val1;
+    // value2 = val2;
+    // value3 = OsUtil.getUUID();
+    //logger.info('==========  funcTest before', value1, value2, value3)
 
-
-    
+    showAlert('NOTI_PHONE_CALLED', 'CALLED', '전화가 왔습니다.', '[수신전화]010-3698-8179');
 }
 
 
