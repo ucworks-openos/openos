@@ -4,6 +4,7 @@ const { reqIpPhone } = require('../net-command/command-ns-api');
 const ResData = require('../ResData');
 const util = require('util');
 const logger = require('../../logger');
+const { showAlert } = require('../notification/noti-window');
 
 
 /** makeCall */
@@ -17,7 +18,7 @@ ipcMain.on('makeCall', (event, dest) => {
   "</CallControlReq>" 
   
   let makeCallXml = util.format(makeCallXmlFormat, global.USER.userId, dest);
-
+  showAlert('NOTI_PHONE_CALLED', 'CALLING', '전화 거는중 ...', `[수신자] ${dest}`);
   logger.debug('makeCall-', makeCallXml)
   reqIpPhone(makeCallXml).then(function(resData)
   {
