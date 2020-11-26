@@ -32,6 +32,8 @@ import { addChatRoomFromOrganization } from "../../redux/actions/chat_actions";
 
 let _orgCode: string = ``;
 
+const electron = window.require("electron");
+
 export default function OrganizationPage() {
   // ANCHOR state
   const { remote } = window.require("electron");
@@ -57,7 +59,28 @@ export default function OrganizationPage() {
     setSearchResult,
   } = useSearch({ type: `organization` });
 
-  const targetInfo = useStateListener();
+  const [targetInfo, setTargetInfo] = useState<{
+    userId: string;
+    state: string;
+    connType: string;
+  }>();
+
+  useEffect(() => {
+    electron.ipcRenderer.on(
+      "userStatusChanged",
+      (event: any, userId: string, state: string, connType: string) => {
+        setTargetInfo({
+          userId,
+          state,
+          connType,
+        });
+      }
+    );
+
+    return () => {
+      electron.ipcRenderer.removeAllListeners("userStatusChanged");
+    };
+  }, []);
 
   const [
     addGroupToFavoriteModalVisible,
@@ -119,18 +142,16 @@ export default function OrganizationPage() {
   }, [rightClickedKey]);
 
   useEffect(() => {
-    const initiate = async () => {
-      const [targetId, state, connectType] = targetInfo;
+    const initiate = () => {
+      if (!targetInfo) return false;
       const replica = [...treeData];
-      const { v: target, i: targetI, list: targetList } = await find(
+      changeState(
         replica,
-        targetId
+        targetInfo.userId,
+        Number(targetInfo.state),
+        targetInfo.connType
       );
-      targetList?.splice(targetI, 1, {
-        ...target,
-        userState: Number(state),
-        connectType,
-      });
+
       setTreeData(replica);
     };
     initiate();
@@ -220,6 +241,27 @@ export default function OrganizationPage() {
     };
     !treeData.length && getRoot();
   }, []);
+
+  const changeState = (
+    list: any,
+    userId: string,
+    state: number,
+    connType: string
+  ) => {
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].userId === userId) {
+        list[i] = {
+          ...list[i],
+          userState: state,
+          connectType: connType,
+        };
+      }
+
+      if (list[i].children) {
+        changeState(list[i].children!, userId, state, connType);
+      }
+    }
+  };
 
   // ANCHOR handler
   const handleSendGroupMessage = async () => {

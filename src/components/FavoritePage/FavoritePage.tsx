@@ -23,7 +23,7 @@ import {
   syncronize,
 } from "../../common/util";
 import { commonModalStyles, messageInputModalStyle } from "../../common/styles";
-import { Efavorite, EnodeGubun } from "../../enum";
+import { EconnectType, Efavorite, EnodeGubun } from "../../enum";
 import useStateListener from "../../hooks/useStateListener";
 import MessageInputModal from "../../common/components/SendMessageModal/MessageInputModal";
 import ModifyGroupModal from "../../common/components/Modal/ModifyGroupModal";
@@ -37,6 +37,8 @@ type TgetBuddyTreeReturnTypes = {
   userIds: string[];
   groupIds: string[];
 };
+
+const electron = window.require("electron");
 
 export default function FavoritePage() {
   // ANCHOR state
@@ -69,7 +71,6 @@ export default function FavoritePage() {
   const { treeData, expandedKeys, setTreeData, setExpandedKeys } = useTree({
     type: `favorite`,
   });
-  const targetInfo = useStateListener();
 
   const [selectedKeys, setSelectedKeys] = useState<(string | number)[]>([]);
   const [rightClickedKey, setRightClickedKey] = useState<string | number>(``);
@@ -91,6 +92,29 @@ export default function FavoritePage() {
   const [finalSelectedKeys, setFinalSelectedKeys] = useState<
     (string | number)[]
   >([]);
+
+  const [targetInfo, setTargetInfo] = useState<{
+    userId: string;
+    state: string;
+    connType: string;
+  }>();
+
+  useEffect(() => {
+    electron.ipcRenderer.on(
+      "userStatusChanged",
+      (event: any, userId: string, state: string, connType: string) => {
+        setTargetInfo({
+          userId,
+          state,
+          connType,
+        });
+      }
+    );
+
+    return () => {
+      electron.ipcRenderer.removeAllListeners("userStatusChanged");
+    };
+  }, []);
 
   // ANCHOR memo
   const leftPositionCalculator = () => {
@@ -138,9 +162,14 @@ export default function FavoritePage() {
 
   useEffect(() => {
     const initiate = () => {
-      const [targetId, state, connectType] = targetInfo;
+      if (!targetInfo) return false;
       const replica = [...treeData];
-      changeState(replica, targetId, Number(state), connectType);
+      changeState(
+        replica,
+        targetInfo.userId,
+        Number(targetInfo.state),
+        targetInfo.connType
+      );
 
       setTreeData(replica);
     };
@@ -570,19 +599,19 @@ export default function FavoritePage() {
     list: any,
     userId: string,
     state: number,
-    connectType: string
+    connType: string
   ) => {
     for (let i = 0; i < list.length; i++) {
       if (list[i].userId === userId) {
         list[i] = {
           ...list[i],
           userState: state,
-          connectType,
+          connectType: connType,
         };
       }
 
       if (list[i].children) {
-        changeState(list[i].children!, userId, state, connectType);
+        changeState(list[i].children!, userId, state, connType);
       }
     }
   };
