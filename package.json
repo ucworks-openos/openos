@@ -20,7 +20,7 @@
     "macaddress": "^0.5.1",
     "moment": "^2.29.1",
     "node-notifier": "^8.0.0",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "rc-tooltip": "^4.2.3",
     "rc-tree": "^3.9.0",
     "react": "^16.10.2",
